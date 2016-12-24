@@ -1,4 +1,4 @@
-package net.darmo_creations.gui;
+package net.darmo_creations.gui.components;
 
 import java.awt.Dimension;
 import java.awt.Graphics;

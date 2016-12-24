@@ -35,8 +35,8 @@ import javax.swing.border.LineBorder;
 
 import net.darmo_creations.controller.CardController;
 import net.darmo_creations.controller.ExtensionFileFilter;
-import net.darmo_creations.gui.ImageLabel;
 import net.darmo_creations.gui.MainFrame;
+import net.darmo_creations.gui.components.ImageLabel;
 import net.darmo_creations.model.Date;
 import net.darmo_creations.model.FamilyMember;
 import net.darmo_creations.model.Gender;
