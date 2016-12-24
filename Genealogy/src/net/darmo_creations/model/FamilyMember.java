@@ -36,7 +36,7 @@ public class FamilyMember {
     return Optional.ofNullable(this.image);
   }
 
-  public void setImage(BufferedImage image) {
+  void setImage(BufferedImage image) {
     this.image = image;
   }
 
@@ -44,7 +44,7 @@ public class FamilyMember {
     return Optional.ofNullable(this.name);
   }
 
-  public void setName(String name) {
+  void setName(String name) {
     this.name = name;
   }
 
@@ -52,7 +52,7 @@ public class FamilyMember {
     return Optional.ofNullable(this.firstName);
   }
 
-  public void setFirstName(String firstName) {
+  void setFirstName(String firstName) {
     this.firstName = firstName;
   }
 
@@ -68,7 +68,7 @@ public class FamilyMember {
     return this.gender;
   }
 
-  public void setGender(Gender gender) {
+  void setGender(Gender gender) {
     this.gender = gender;
   }
 
@@ -76,7 +76,7 @@ public class FamilyMember {
     return Optional.ofNullable(this.birthDate);
   }
 
-  public void setBirthDate(Date birthDate) {
+  void setBirthDate(Date birthDate) {
     this.birthDate = birthDate;
   }
 
@@ -107,7 +107,7 @@ public class FamilyMember {
     return Optional.ofNullable(this.deathDate);
   }
 
-  public void setDeathDate(Date deathDate) {
+  void setDeathDate(Date deathDate) {
     this.deathDate = deathDate;
   }
 
@@ -115,7 +115,7 @@ public class FamilyMember {
     return Optional.ofNullable(this.father);
   }
 
-  public void setFather(FamilyMember father) {
+  void setFather(FamilyMember father) {
     this.father = father;
   }
 
@@ -123,7 +123,7 @@ public class FamilyMember {
     return Optional.ofNullable(this.mother);
   }
 
-  public void setMother(FamilyMember mother) {
+  void setMother(FamilyMember mother) {
     this.mother = mother;
   }
 

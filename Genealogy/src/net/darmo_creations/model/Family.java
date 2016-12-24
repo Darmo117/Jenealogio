@@ -27,7 +27,18 @@ public class Family {
   }
 
   public void updateMember(FamilyMember member) {
-    // TODO
+    Optional<FamilyMember> optional = this.members.stream().filter(m1 -> m1.equals(member)).findFirst();
+    if (optional.isPresent()) {
+      FamilyMember m = optional.get();
+      m.setImage(member.getImage().orElse(null));
+      m.setName(member.getName().orElse(null));
+      m.setFirstName(member.getFirstName().orElse(null));
+      m.setGender(member.getGender());
+      m.setBirthDate(member.getBirthDate().orElse(null));
+      m.setDeathDate(member.getDeathDate().orElse(null));
+      m.setFather(member.getFather().orElse(null));
+      m.setMother(member.getMother().orElse(null));
+    }
   }
 
   public void removeMember(FamilyMember member) {
