@@ -154,6 +154,7 @@ public class MainFrame extends JFrame {
   public void updateMenus(boolean fileOpen, boolean cardSelected, boolean linkSelected) {
     this.saveItem.setEnabled(fileOpen);
     this.saveAsItem.setEnabled(fileOpen);
+    // TEMP
     this.editMenu.setEnabled(true || fileOpen);
     this.addCardItem.setEnabled(true || fileOpen);
     this.addLinkItem.setEnabled(true || fileOpen);
