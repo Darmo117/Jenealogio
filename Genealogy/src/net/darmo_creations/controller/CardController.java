@@ -1,6 +1,8 @@
 package net.darmo_creations.controller;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
@@ -9,10 +11,12 @@ import java.io.IOException;
 import java.util.Optional;
 
 import javax.imageio.ImageIO;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import net.darmo_creations.gui.dialog.CardDialog;
 
-public class CardController extends AbstractDialogController<CardDialog> implements KeyListener {
+public class CardController extends AbstractDialogController<CardDialog> implements KeyListener, DocumentListener, ItemListener {
   public CardController(CardDialog dialog) {
     super(dialog);
   }
@@ -30,9 +34,27 @@ public class CardController extends AbstractDialogController<CardDialog> impleme
   public void keyTyped(KeyEvent e) {
     char c = e.getKeyChar();
 
-    if (!(c >= '0' && c <= '9' || c == KeyEvent.VK_BACK_SPACE || c == KeyEvent.VK_DELETE || c == KeyEvent.VK_SLASH)) {
+    if (!(c >= '0' && c <= '9' || c == KeyEvent.VK_BACK_SPACE || c == KeyEvent.VK_DELETE || c == KeyEvent.VK_SLASH))
       e.consume();
-    }
+  }
+
+  @Override
+  public void itemStateChanged(ItemEvent e) {
+    update();
+  }
+
+  @Override
+  public void insertUpdate(DocumentEvent e) {
+    update();
+  }
+
+  @Override
+  public void removeUpdate(DocumentEvent e) {
+    update();
+  }
+
+  private void update() {
+    this.dialog.setValidateButtonEnabled(this.dialog.atLeastOneFieldCompleted());
   }
 
   private void setImage() {
@@ -55,4 +77,7 @@ public class CardController extends AbstractDialogController<CardDialog> impleme
 
   @Override
   public void keyReleased(KeyEvent e) {}
+
+  @Override
+  public void changedUpdate(DocumentEvent e) {}
 }

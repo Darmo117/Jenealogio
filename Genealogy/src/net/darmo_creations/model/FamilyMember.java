@@ -140,4 +140,12 @@ public class FamilyMember {
 
     return false;
   }
+
+  @Override
+  public String toString() {
+    if (!getName().isPresent() && !getFirstName().isPresent())
+      return "?";
+    else
+      return getName().orElse("?") + " " + getFirstName().orElse("?");
+  }
 }

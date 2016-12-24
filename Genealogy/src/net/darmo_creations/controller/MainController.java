@@ -6,8 +6,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 import javax.swing.JOptionPane;
@@ -101,7 +99,7 @@ public class MainController extends WindowAdapter implements ActionListener {
         this.fileOpen = true;
         this.alreadySaved = true;
         this.saved = true;
-        this.frame.setFamily(this.family);
+        this.frame.displayFamily(this.family);
       }
       catch (IOException e) {
         this.frame.showErrorDialog("Une erreur est survenue pendant l'ouverture du fichier.");
@@ -132,7 +130,11 @@ public class MainController extends WindowAdapter implements ActionListener {
   }
 
   private void addMember() {
-    Optional<FamilyMember> member = this.frame.showAddCardDialog();
+    // @f0
+    Optional<FamilyMember> member = this.frame.showAddCardDialog(
+        this.family.getPotentialFathers(null),
+        this.family.getPotentialMothers(null));
+    // @f1
 
     if (member.isPresent()) {
       this.family.addMember(member.get());
@@ -141,7 +143,12 @@ public class MainController extends WindowAdapter implements ActionListener {
   }
 
   private void addLink() {
-    Optional<Wedding> wedding = this.frame.showAddLinkDialog();
+    // @f0
+    Optional<Wedding> wedding = this.frame.showAddLinkDialog(
+        this.family.getPotentialHusbands(),
+        this.family.getPotentialWives(),
+        this.family.getPotentialChildren(null, null));
+    // @f1
 
     if (wedding.isPresent()) {
       this.family.addWedding(wedding.get());
@@ -151,9 +158,12 @@ public class MainController extends WindowAdapter implements ActionListener {
 
   private void update() {
     if (this.selectedCard != null) {
-      List<FamilyMember> men = new ArrayList<>(); // TODO
-      List<FamilyMember> women = new ArrayList<>();
-      Optional<FamilyMember> member = this.frame.showUpdateCard(this.selectedCard, men, women);
+      // @f0
+      Optional<FamilyMember> member = this.frame.showUpdateCard(
+          this.selectedCard,
+          this.family.getPotentialFathers(this.selectedCard),
+          this.family.getPotentialMothers(this.selectedCard));
+      // @f1
 
       if (member.isPresent()) {
         this.family.updateMember(member.get());
@@ -161,7 +171,13 @@ public class MainController extends WindowAdapter implements ActionListener {
       }
     }
     else if (this.selectedLink != null) {
-      Optional<Wedding> wedding = this.frame.showUpdateLink(this.selectedLink);
+      // @f0
+      Optional<Wedding> wedding = this.frame.showUpdateLink(
+          this.selectedLink,
+          this.family.getPotentialHusbands(),
+          this.family.getPotentialWives(),
+          this.family.getPotentialChildren(this.selectedLink.getHusband(), this.selectedLink.getWife()));
+      // @f1
 
       if (wedding.isPresent()) {
         this.family.updateWedding(wedding.get());

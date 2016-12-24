@@ -38,6 +38,7 @@ import net.darmo_creations.controller.ExtensionFileFilter;
 import net.darmo_creations.gui.MainFrame;
 import net.darmo_creations.gui.components.ImageLabel;
 import net.darmo_creations.model.Date;
+import net.darmo_creations.model.DummyFamilyMember;
 import net.darmo_creations.model.FamilyMember;
 import net.darmo_creations.model.Gender;
 
@@ -87,15 +88,22 @@ public class CardDialog extends AbstractDialog {
     imageBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
     imageBtn.setFocusPainted(false);
     this.nameFld = new JTextField();
+    this.nameFld.getDocument().addDocumentListener(controller);
     this.firstNameFld = new JTextField();
+    this.firstNameFld.getDocument().addDocumentListener(controller);
     this.genderCombo = new JComboBox<>(Gender.values());
+    this.genderCombo.addItemListener(controller);
     DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
     this.birthFld = new JFormattedTextField(dateFormat);
     this.birthFld.addKeyListener(controller);
+    this.birthFld.getDocument().addDocumentListener(controller);
     this.deathFld = new JFormattedTextField(dateFormat);
     this.deathFld.addKeyListener(controller);
-    this.fatherCombo = new JComboBox<>();
-    this.motherCombo = new JComboBox<>();
+    this.deathFld.getDocument().addDocumentListener(controller);
+    this.fatherCombo = new JComboBox<>(new DefaultComboBoxModel<>());
+    this.fatherCombo.addItemListener(controller);
+    this.motherCombo = new JComboBox<>(new DefaultComboBoxModel<>());
+    this.motherCombo.addItemListener(controller);
 
     JPanel imagePnl = new JPanel();
     imagePnl.setBorder(new EmptyBorder(5, 5, 0, 5));
@@ -176,6 +184,7 @@ public class CardDialog extends AbstractDialog {
 
   public void setCard(FamilyMember member, List<FamilyMember> men, List<FamilyMember> women) {
     if (member != null) {
+      setTitle("Modifier une fiche");
       this.id = member.getId();
       setImage(member.getImage());
       this.nameFld.setText(member.getName().orElse(""));
@@ -183,9 +192,9 @@ public class CardDialog extends AbstractDialog {
       this.genderCombo.setSelectedIndex(member.getGender().ordinal());
       this.birthFld.setText(getDate(member.getBirthDate()));
       this.deathFld.setText(getDate(member.getDeathDate()));
-      setTitle("Modifier une fiche");
     }
     else {
+      setTitle("Ajouter une fiche");
       this.id = -1;
       setImage(Optional.empty());
       this.nameFld.setText("");
@@ -193,15 +202,16 @@ public class CardDialog extends AbstractDialog {
       this.genderCombo.setSelectedIndex(Gender.UNKNOW.ordinal());
       this.birthFld.setText("");
       this.deathFld.setText("");
-      setTitle("Ajouter une fiche");
     }
 
     ((DefaultComboBoxModel<FamilyMember>) this.fatherCombo.getModel()).removeAllElements();
-    if (men != null)
-      men.forEach(man -> this.fatherCombo.addItem(man));
+    this.fatherCombo.addItem(new DummyFamilyMember("Inconnu"));
+    men.forEach(man -> this.fatherCombo.addItem(man));
     ((DefaultComboBoxModel<FamilyMember>) this.motherCombo.getModel()).removeAllElements();
-    if (women != null)
-      women.forEach(man -> this.motherCombo.addItem(man));
+    this.motherCombo.addItem(new DummyFamilyMember("Inconnu"));
+    women.forEach(man -> this.motherCombo.addItem(man));
+
+    setValidateButtonEnabled(false);
   }
 
   public void setImage(Optional<BufferedImage> image) {
@@ -256,6 +266,20 @@ public class CardDialog extends AbstractDialog {
     }
 
     return null;
+  }
+
+  public boolean atLeastOneFieldCompleted() {
+    boolean ok = false;
+
+    ok |= this.nameFld.getText().length() > 0;
+    ok |= this.firstNameFld.getText().length() > 0;
+    ok |= this.genderCombo.getSelectedItem() != Gender.UNKNOW;
+    ok |= this.birthFld.getText().length() > 0;
+    ok |= this.deathFld.getText().length() > 0;
+    ok |= this.fatherCombo.getSelectedIndex() > 0;
+    ok |= this.motherCombo.getSelectedIndex() > 0;
+
+    return ok;
   }
 
   public void showErrorDialog(String message) {

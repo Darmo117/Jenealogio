@@ -62,6 +62,12 @@ public abstract class AbstractDialog extends JDialog {
     addWindowListener(controller);
   }
 
+  public void setValidateButtonEnabled(boolean enabled) {
+    if (this.validationBtn != null) {
+      this.validationBtn.setEnabled(enabled);
+    }
+  }
+
   public boolean isCanceled() {
     return this.canceled;
   }

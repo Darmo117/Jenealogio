@@ -19,6 +19,7 @@ import javax.swing.KeyStroke;
 import net.darmo_creations.controller.ExtensionFileFilter;
 import net.darmo_creations.controller.MainController;
 import net.darmo_creations.gui.dialog.CardDialog;
+import net.darmo_creations.gui.dialog.LinkDialog;
 import net.darmo_creations.model.Family;
 import net.darmo_creations.model.FamilyMember;
 import net.darmo_creations.model.Wedding;
@@ -30,7 +31,8 @@ public class MainFrame extends JFrame {
   private JMenuItem saveItem, saveAsItem, addCardItem, addLinkItem, modifyItem, deleteItem;
 
   private JFileChooser fileChooser;
-  private CardDialog addCardDialog;
+  private CardDialog cardDialog;
+  private LinkDialog linkDialog;
 
   public MainFrame() {
     MainController controller = new MainController(this);
@@ -44,7 +46,8 @@ public class MainFrame extends JFrame {
     this.fileChooser.setAcceptAllFileFilterUsed(false);
     this.fileChooser.setMultiSelectionEnabled(false);
     this.fileChooser.setFileFilter(new ExtensionFileFilter("Arbre généalogique", "tree"));
-    this.addCardDialog = new CardDialog(this);
+    this.cardDialog = new CardDialog(this);
+    this.linkDialog = new LinkDialog(this);
 
     controller.init();
 
@@ -153,7 +156,7 @@ public class MainFrame extends JFrame {
     this.saveAsItem.setEnabled(fileOpen);
     this.editMenu.setEnabled(true || fileOpen);
     this.addCardItem.setEnabled(true || fileOpen);
-    this.addLinkItem.setEnabled(fileOpen);
+    this.addLinkItem.setEnabled(true || fileOpen);
     if (fileOpen) {
       if (cardSelected && linkSelected)
         throw new IllegalStateException("can't select a card and a link at the same time");
@@ -171,7 +174,7 @@ public class MainFrame extends JFrame {
     this.displayMenu.setEnabled(fileOpen);
   }
 
-  public void setFamily(Family family) {
+  public void displayFamily(Family family) {
     // TODO
   }
 
@@ -185,26 +188,28 @@ public class MainFrame extends JFrame {
     return this.fileChooser.getSelectedFile();
   }
 
-  public Optional<FamilyMember> showAddCardDialog() {
-    this.addCardDialog.setCard(null, null, null);
-    this.addCardDialog.setVisible(true);
-    return this.addCardDialog.getCard();
+  public Optional<FamilyMember> showAddCardDialog(List<FamilyMember> men, List<FamilyMember> women) {
+    this.cardDialog.setCard(null, men, women);
+    this.cardDialog.setVisible(true);
+    return this.cardDialog.getCard();
   }
 
-  public Optional<Wedding> showAddLinkDialog() {
-    // TODO
-    return null;
+  public Optional<Wedding> showAddLinkDialog(List<FamilyMember> men, List<FamilyMember> women, List<FamilyMember> children) {
+    this.linkDialog.setLink(null, men, women, children);
+    this.linkDialog.setVisible(true);
+    return this.linkDialog.getLink();
   }
 
   public Optional<FamilyMember> showUpdateCard(FamilyMember member, List<FamilyMember> men, List<FamilyMember> women) {
-    this.addCardDialog.setCard(member, men, women);
-    this.addCardDialog.setVisible(true);
-    return this.addCardDialog.getCard();
+    this.cardDialog.setCard(member, men, women);
+    this.cardDialog.setVisible(true);
+    return this.cardDialog.getCard();
   }
 
-  public Optional<Wedding> showUpdateLink(Wedding wedding) {
-    // TODO
-    return null;
+  public Optional<Wedding> showUpdateLink(Wedding wedding, List<FamilyMember> men, List<FamilyMember> women, List<FamilyMember> children) {
+    this.linkDialog.setLink(wedding, men, women, children);
+    this.linkDialog.setVisible(true);
+    return this.linkDialog.getLink();
   }
 
   public void showAboutDialog() {
