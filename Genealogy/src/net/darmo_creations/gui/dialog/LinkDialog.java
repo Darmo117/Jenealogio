@@ -267,7 +267,7 @@ public class LinkDialog extends AbstractDialog {
         return new Date(year, month, date);
       }
 
-      throw new DateTimeException("");
+      throw new DateTimeException("wrong date format");
     }
 
     return null;

@@ -26,7 +26,7 @@ public final class Wedding {
     return Optional.ofNullable(this.date);
   }
 
-  public void setDate(Date date) {
+  void setDate(Date date) {
     this.date = date;
   }
 
@@ -34,7 +34,7 @@ public final class Wedding {
     return this.husband;
   }
 
-  public void setHusband(FamilyMember husband) {
+  void setHusband(FamilyMember husband) {
     this.husband = Objects.requireNonNull(husband);
   }
 
@@ -42,7 +42,7 @@ public final class Wedding {
     return this.wife;
   }
 
-  public void setWife(FamilyMember wife) {
+  void setWife(FamilyMember wife) {
     this.wife = Objects.requireNonNull(wife);
   }
 

@@ -6,19 +6,22 @@ import java.util.List;
 import java.util.Optional;
 
 public class Family {
+  private long id;
   private List<FamilyMember> members;
   private List<Wedding> weddings;
 
   public Family() {
+    this.id = 0;
     this.members = new ArrayList<>();
     this.weddings = new ArrayList<>();
   }
 
+  public long getNextMemberId() {
+    return this.id++;
+  }
+
   public Optional<FamilyMember> getMember(long id) {
-    for (FamilyMember member : this.members)
-      if (member.getId() == id)
-        return Optional.of(member);
-    return Optional.empty();
+    return this.members.stream().filter(member -> member.getId() == id).findAny();
   }
 
   public void addMember(FamilyMember member) {
@@ -27,17 +30,25 @@ public class Family {
   }
 
   public void updateMember(FamilyMember member) {
-    Optional<FamilyMember> optional = this.members.stream().filter(m1 -> m1.equals(member)).findFirst();
+    Optional<FamilyMember> optional = getMember(member.getId());
+
     if (optional.isPresent()) {
       FamilyMember m = optional.get();
+
       m.setImage(member.getImage().orElse(null));
       m.setName(member.getName().orElse(null));
       m.setFirstName(member.getFirstName().orElse(null));
       m.setGender(member.getGender());
       m.setBirthDate(member.getBirthDate().orElse(null));
       m.setDeathDate(member.getDeathDate().orElse(null));
-      m.setFather(member.getFather().orElse(null));
-      m.setMother(member.getMother().orElse(null));
+      if (member.getFather().isPresent())
+        m.setFather(getMember(member.getFather().get().getId()).orElseThrow(IllegalStateException::new));
+      else
+        m.setFather(null);
+      if (member.getMother().isPresent())
+        m.setMother(getMember(member.getMother().get().getId()).orElseThrow(IllegalStateException::new));
+      else
+        m.setMother(null);
     }
   }
 
@@ -51,10 +62,7 @@ public class Family {
   }
 
   public Optional<Wedding> getWedding(FamilyMember member) {
-    for (Wedding wedding : this.weddings)
-      if (wedding.getHusband().equals(member) || wedding.getWife().equals(member))
-        return Optional.of(wedding);
-    return Optional.empty();
+    return this.weddings.stream().filter(wedding -> wedding.getHusband().equals(member) || wedding.getWife().equals(member)).findAny();
   }
 
   public void addWedding(Wedding wedding) {
@@ -63,7 +71,16 @@ public class Family {
   }
 
   public void updateWedding(Wedding wedding) {
-    // TODO
+    Optional<Wedding> optional = getWedding(wedding.getHusband());
+
+    if (optional.isPresent()) {
+      Wedding w = optional.get();
+
+      w.setDate(wedding.getDate().orElse(null));
+      List<FamilyMember> children = w.getChildren();
+      children.forEach(child -> w.removeChild(child));
+      wedding.getChildren().forEach(child -> w.addChild(Family.this.getMember(child.getId()).orElseThrow(IllegalStateException::new)));
+    }
   }
 
   public void removeWedding(Wedding wedding) {
