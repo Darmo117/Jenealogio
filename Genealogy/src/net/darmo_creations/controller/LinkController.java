@@ -5,9 +5,9 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JList;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -16,18 +16,14 @@ import net.darmo_creations.model.FamilyMember;
 import net.darmo_creations.model.Wedding;
 
 public class LinkController extends AbstractDialogController<LinkDialog> implements KeyListener, ListSelectionListener, ItemListener {
-  private List<FamilyMember> availableChildren;
-
   public LinkController(LinkDialog dialog) {
     super(dialog);
-    this.availableChildren = new ArrayList<>();
   }
 
   public void reset(Wedding wedding, List<FamilyMember> potentialHusbands, List<FamilyMember> potentialWives, List<FamilyMember> potentialChildren) {
-    this.availableChildren.clear();
-    this.availableChildren.addAll(potentialChildren);
     this.dialog.setHusbandCombo(potentialHusbands, null);
     this.dialog.setWifeCombo(potentialWives, null);
+    this.dialog.setAvailableChildren(potentialChildren);
   }
 
   @Override
@@ -37,8 +33,13 @@ public class LinkController extends AbstractDialogController<LinkDialog> impleme
     if (!this.dialog.isVisible())
       return;
 
-    if (e.getActionCommand().equals("add")) {
-
+    switch (e.getActionCommand()) {
+      case "add":
+        this.dialog.addSelectedChildren();
+        break;
+      case "remove":
+        this.dialog.removeSelectedChildren();
+        break;
     }
   }
 
@@ -57,9 +58,17 @@ public class LinkController extends AbstractDialogController<LinkDialog> impleme
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public void valueChanged(ListSelectionEvent e) {
-    if (!e.getValueIsAdjusting())
-      this.dialog.setDeleteButtonEnabled(e.getFirstIndex() != -1);
+    if (!e.getValueIsAdjusting()) {
+      JList<FamilyMember> list = (JList<FamilyMember>) e.getSource();
+
+      if (list.getName().equals("children"))
+        this.dialog.setDeleteButtonEnabled(e.getFirstIndex() != -1);
+      else if (list.getName().equals("available-children"))
+        this.dialog.setAddButtonEnabled(e.getFirstIndex() != -1);
+      this.dialog.updateLists();
+    }
   }
 
   @Override

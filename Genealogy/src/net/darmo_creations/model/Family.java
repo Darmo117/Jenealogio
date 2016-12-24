@@ -116,16 +116,13 @@ public class Family {
   }
 
   /**
-   * Retourne toutes le personnes éligibles pour être les enfants du couple donné. Si les deux
-   * arguments sont null, tous les membres de la famille sont retournés.
+   * Retourne toutes le personnes éligibles pour être les enfants du couple donné. Si l'argument est
+   * null, tous les membres de la famille sont retournés.
    * 
-   * @param husband le mari
-   * @param wife l'épouse
+   * @param wedding le mariage
    * @return la liste des enfants potentiels
    */
-  public List<FamilyMember> getPotentialChildren(FamilyMember husband, FamilyMember wife) {
-    if ((husband == null) != (wife == null))
-      throw new NullPointerException("husband and wife must not be null separately");
+  public List<FamilyMember> getPotentialChildren(Wedding wedding) {
     List<FamilyMember> children = new ArrayList<>();
 
     // TODO

@@ -147,7 +147,7 @@ public class MainController extends WindowAdapter implements ActionListener {
     Optional<Wedding> wedding = this.frame.showAddLinkDialog(
         this.family.getPotentialHusbands(),
         this.family.getPotentialWives(),
-        this.family.getPotentialChildren(null, null));
+        this.family.getPotentialChildren(null));
     // @f1
 
     if (wedding.isPresent()) {
@@ -176,7 +176,7 @@ public class MainController extends WindowAdapter implements ActionListener {
           this.selectedLink,
           this.family.getPotentialHusbands(),
           this.family.getPotentialWives(),
-          this.family.getPotentialChildren(this.selectedLink.getHusband(), this.selectedLink.getWife()));
+          this.family.getPotentialChildren(this.selectedLink));
       // @f1
 
       if (wedding.isPresent()) {

@@ -1,7 +1,6 @@
 package net.darmo_creations.gui.dialog;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -10,7 +9,6 @@ import java.awt.event.WindowEvent;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.DateTimeException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -42,12 +40,11 @@ public class LinkDialog extends AbstractDialog {
   private LinkController controller;
   private JFormattedTextField dateFld;
   private JComboBox<FamilyMember> husbandCombo, wifeCombo;
-  private JList<FamilyMember> childrenList;
-  private JButton deleteBtn;
+  private JList<FamilyMember> childrenList, availChildrenList;
+  private JButton addBtn, removeBtn;
 
   public LinkDialog(MainFrame owner) {
     super(owner, Mode.VALIDATE_CANCEL_OPTION, true);
-    setPreferredSize(new Dimension(300, 220));
     setResizable(false);
 
     this.controller = new LinkController(this);
@@ -68,19 +65,24 @@ public class LinkDialog extends AbstractDialog {
     this.wifeCombo.addItemListener(this.controller);
     this.childrenList = new JList<>(new DefaultListModel<>());
     this.childrenList.addListSelectionListener(this.controller);
-    JButton addBtn = new JButton("Ajouter");
-    addBtn.setActionCommand("add");
-    addBtn.addActionListener(this.controller);
-    this.deleteBtn = new JButton("Supprimer");
-    this.deleteBtn.setActionCommand("delete");
-    this.deleteBtn.addActionListener(this.controller);
+    this.childrenList.setName("children");
+    this.availChildrenList = new JList<>(new DefaultListModel<>());
+    this.availChildrenList.addListSelectionListener(this.controller);
+    this.availChildrenList.setName("available-children");
+    this.addBtn = new JButton("^");
+    this.addBtn.setActionCommand("add");
+    this.addBtn.addActionListener(this.controller);
+    this.removeBtn = new JButton("v");
+    this.removeBtn.setActionCommand("remove");
+    this.removeBtn.addActionListener(this.controller);
 
     JPanel fieldsPnl = new JPanel(new GridBagLayout());
     fieldsPnl.setBorder(new EmptyBorder(5, 5, 5, 5));
     GridBagConstraints gbc = new GridBagConstraints();
     gbc.insets = new Insets(2, 2, 2, 2);
-    gbc.fill = GridBagConstraints.HORIZONTAL;
 
+    gbc.fill = GridBagConstraints.HORIZONTAL;
+    gbc.gridwidth = 2;
     gbc.gridy = 0;
     fieldsPnl.add(new JLabel("Date"), gbc);
     gbc.gridy = 1;
@@ -89,13 +91,12 @@ public class LinkDialog extends AbstractDialog {
     fieldsPnl.add(new JLabel("Épouse"), gbc);
     gbc.gridy = 3;
     fieldsPnl.add(new JLabel("Enfants"), gbc);
-    gbc.gridy = 4;
-    fieldsPnl.add(addBtn, gbc);
-    gbc.gridy = 5;
-    fieldsPnl.add(this.deleteBtn, gbc);
-    gbc.gridx = 1;
-    gbc.gridwidth = 2;
+    gbc.gridwidth = 3;
+    gbc.gridy = 6;
+    fieldsPnl.add(new JLabel("Enfants disponibles"), gbc);
+    gbc.gridwidth = 5;
     gbc.weightx = 1;
+    gbc.gridx = 2;
     gbc.gridy = 0;
     fieldsPnl.add(this.dateFld, gbc);
     gbc.gridy = 1;
@@ -103,9 +104,23 @@ public class LinkDialog extends AbstractDialog {
     gbc.gridy = 2;
     fieldsPnl.add(this.wifeCombo, gbc);
     gbc.gridy = 3;
-    gbc.gridheight = 3;
     gbc.fill = GridBagConstraints.BOTH;
+    gbc.gridheight = 3;
     fieldsPnl.add(new JScrollPane(this.childrenList), gbc);
+    gbc.gridy = 6;
+    gbc.gridheight = 1;
+    gbc.fill = GridBagConstraints.HORIZONTAL;
+    JPanel p = new JPanel();
+    p.add(this.addBtn);
+    p.add(this.removeBtn);
+    fieldsPnl.add(p, gbc);
+    gbc.gridwidth = 5;
+    gbc.weightx = 1;
+    gbc.gridx = 2;
+    gbc.gridy = 7;
+    gbc.fill = GridBagConstraints.BOTH;
+    gbc.gridheight = 3;
+    fieldsPnl.add(new JScrollPane(this.availChildrenList), gbc);
 
     add(fieldsPnl, BorderLayout.CENTER);
 
@@ -123,8 +138,12 @@ public class LinkDialog extends AbstractDialog {
     return this.wifeCombo.getSelectedIndex() > 0;
   }
 
+  public void setAddButtonEnabled(boolean enabled) {
+    this.addBtn.setEnabled(enabled);
+  }
+
   public void setDeleteButtonEnabled(boolean enabled) {
-    this.deleteBtn.setEnabled(enabled);
+    this.removeBtn.setEnabled(enabled);
   }
 
   public FamilyMember getSelectedHusband() {
@@ -155,26 +174,49 @@ public class LinkDialog extends AbstractDialog {
       this.wifeCombo.setSelectedIndex(0);
   }
 
-  public List<FamilyMember> getChildrenList() {
-    List<FamilyMember> children = new ArrayList<>();
-    DefaultListModel<FamilyMember> model = (DefaultListModel<FamilyMember>) this.childrenList.getModel();
-    int size = model.size();
+  public void setAvailableChildren(List<FamilyMember> children) {
+    DefaultListModel<FamilyMember> model = (DefaultListModel<FamilyMember>) this.availChildrenList.getModel();
+    model.removeAllElements();
+    children.forEach(child -> model.addElement(child));
+  }
 
-    for (int i = 0; i < size; i++) {
-      children.add(model.getElementAt(i));
+  public void addSelectedChildren() {
+    transfertItems(this.availChildrenList, this.childrenList);
+  }
+
+  public void removeSelectedChildren() {
+    transfertItems(this.childrenList, this.availChildrenList);
+  }
+
+  private void transfertItems(JList<FamilyMember> source, JList<FamilyMember> destination) {
+    if (!source.isSelectionEmpty()) {
+      List<FamilyMember> items = source.getSelectedValuesList();
+      DefaultListModel<FamilyMember> srcModel = (DefaultListModel<FamilyMember>) source.getModel();
+      DefaultListModel<FamilyMember> destModel = (DefaultListModel<FamilyMember>) destination.getModel();
+
+      items.forEach(child -> {
+        destModel.addElement(child);
+        srcModel.removeElement(child);
+      });
+      updateLists();
     }
+  }
 
-    return children;
+  public void updateLists() {
+    // TODO mettre à jour les listes et combos pour éviter les duplications
   }
 
   public void setLink(Wedding wedding, List<FamilyMember> potentialHusbands, List<FamilyMember> potentialWives, List<FamilyMember> potentialChildren) {
-    DefaultListModel<FamilyMember> model = (DefaultListModel<FamilyMember>) this.childrenList.getModel();
+    DefaultListModel<FamilyMember> model1 = (DefaultListModel<FamilyMember>) this.childrenList.getModel();
+    DefaultListModel<FamilyMember> model2 = (DefaultListModel<FamilyMember>) this.availChildrenList.getModel();
 
     if (wedding != null) {
       setTitle("Modifier un lien");
-      this.dateFld.setText(getDate(wedding.getDate()));
-      model.removeAllElements();
-      wedding.getChildren().forEach(child -> model.addElement(child));
+      this.dateFld.setText(formatDate(wedding.getDate()));
+      model1.removeAllElements();
+      wedding.getChildren().forEach(child -> model1.addElement(child));
+      model2.removeAllElements();
+      potentialChildren.forEach(child -> model2.addElement(child));
     }
     else {
       setTitle("Ajouter un lien");
@@ -183,11 +225,12 @@ public class LinkDialog extends AbstractDialog {
 
     this.controller.reset(wedding, potentialHusbands, potentialWives, potentialChildren);
 
+    setAddButtonEnabled(false);
     setDeleteButtonEnabled(false);
     setValidateButtonEnabled(false);
   }
 
-  private String getDate(Optional<Date> date) {
+  private String formatDate(Optional<Date> date) {
     if (date.isPresent()) {
       Date d = date.get();
       return String.format("%02d/%02d/%d", d.getYear(), d.getMonth(), d.getDate());
@@ -198,13 +241,13 @@ public class LinkDialog extends AbstractDialog {
 
   public Optional<Wedding> getLink() {
     if (!isCanceled()) {
-      DefaultListModel<FamilyMember> list = ((DefaultListModel<FamilyMember>) this.childrenList.getModel());
-      FamilyMember[] children = new FamilyMember[list.size()];
-
-      for (int i = 0; i < list.size(); i++)
-        children[i] = list.getElementAt(i);
-
-      Wedding wedding = new Wedding(parseDate(this.dateFld), (FamilyMember) this.husbandCombo.getSelectedItem(), (FamilyMember) this.wifeCombo.getSelectedItem(), children);
+      // @f0
+      Wedding wedding = new Wedding(
+          parseDate(this.dateFld),
+          (FamilyMember) this.husbandCombo.getSelectedItem(),
+          (FamilyMember) this.wifeCombo.getSelectedItem(),
+          getChildren());
+      // @f1
 
       return Optional.of(wedding);
     }
@@ -228,6 +271,18 @@ public class LinkDialog extends AbstractDialog {
     }
 
     return null;
+  }
+
+  private FamilyMember[] getChildren() {
+    DefaultListModel<FamilyMember> model = (DefaultListModel<FamilyMember>) this.childrenList.getModel();
+    int size = model.size();
+    FamilyMember[] children = new FamilyMember[size];
+
+    for (int i = 0; i < size; i++) {
+      children[i] = model.getElementAt(i);
+    }
+
+    return children;
   }
 
   public void showErrorDialog(String message) {
