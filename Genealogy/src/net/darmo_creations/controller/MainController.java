@@ -53,7 +53,9 @@ public class MainController extends WindowAdapter implements ActionListener {
           break;
         }
       case "save-as":
-        saveAs(this.frame.showSaveFileChooser().getAbsolutePath());
+        File file = this.frame.showSaveFileChooser();
+        if (file != null)
+          saveAs(file.getAbsolutePath());
         break;
       case "add-card":
         addMember();
@@ -61,8 +63,8 @@ public class MainController extends WindowAdapter implements ActionListener {
       case "add-link":
         addLink();
         break;
-      case "update":
-        update();
+      case "edit":
+        edit();
         break;
       case "delete":
         delete();
@@ -152,7 +154,7 @@ public class MainController extends WindowAdapter implements ActionListener {
     }
   }
 
-  private void update() {
+  private void edit() {
     if (this.selectedCard != null) {
       Optional<FamilyMember> member = this.frame.showUpdateCard(this.selectedCard);
 
