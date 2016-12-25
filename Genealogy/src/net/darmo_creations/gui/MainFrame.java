@@ -5,6 +5,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.Optional;
 import java.util.Set;
@@ -49,7 +51,16 @@ public class MainFrame extends JFrame {
 
     setTitle("Généalogie");
     setDefaultCloseOperation(EXIT_ON_CLOSE);
+    setMinimumSize(new Dimension(800, 600));
+
     addWindowListener(controller);
+    addWindowListener(new WindowAdapter() {
+      @Override
+      public void windowOpened(WindowEvent e) {
+        super.windowOpened(e);
+        MainFrame.this.displayPnl.requestFocus();
+      }
+    });
 
     this.fileChooser = new JFileChooser();
     this.fileChooser.setAcceptAllFileFilterUsed(false);
@@ -62,7 +73,6 @@ public class MainFrame extends JFrame {
 
     add(getJToolBar(controller), BorderLayout.NORTH);
     this.displayPnl = new DisplayPanel();
-    this.displayMenu.setMinimumSize(new Dimension(500, 500));
     add(this.displayPnl, BorderLayout.CENTER);
 
     controller.init();
