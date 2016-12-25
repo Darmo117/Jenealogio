@@ -31,6 +31,7 @@ import net.darmo_creations.model.Date;
 import net.darmo_creations.model.DummyFamilyMember;
 import net.darmo_creations.model.FamilyMember;
 import net.darmo_creations.model.Wedding;
+import net.darmo_creations.util.ImageUtil;
 
 public class LinkDialog extends AbstractDialog {
   private static final long serialVersionUID = -6591620133064467367L;
@@ -69,10 +70,10 @@ public class LinkDialog extends AbstractDialog {
     this.availChildrenList = new JList<>(new DefaultListModel<>());
     this.availChildrenList.addListSelectionListener(this.controller);
     this.availChildrenList.setName("available-children");
-    this.addBtn = new JButton("^");
+    this.addBtn = new JButton(ImageUtil.ARROW_UP);
     this.addBtn.setActionCommand("add");
     this.addBtn.addActionListener(this.controller);
-    this.removeBtn = new JButton("v");
+    this.removeBtn = new JButton(ImageUtil.ARROW_DOWN);
     this.removeBtn.setActionCommand("remove");
     this.removeBtn.addActionListener(this.controller);
 
@@ -202,8 +203,24 @@ public class LinkDialog extends AbstractDialog {
     }
   }
 
+  /**
+   * Met à jour les listes et combos en fonction des sélections.
+   */
   public void updateLists() {
-    // TODO mettre à jour les listes et combos pour éviter les duplications
+    DefaultComboBoxModel<FamilyMember> husbandComboModel = (DefaultComboBoxModel<FamilyMember>) this.husbandCombo.getModel();
+    DefaultComboBoxModel<FamilyMember> wifeComboModel = (DefaultComboBoxModel<FamilyMember>) this.wifeCombo.getModel();
+    DefaultListModel<FamilyMember> childrenListModel = (DefaultListModel<FamilyMember>) this.childrenList.getModel();
+    DefaultListModel<FamilyMember> availChildrenListModel = (DefaultListModel<FamilyMember>) this.availChildrenList.getModel();
+
+    if (isHusbandSelected())
+      availChildrenListModel.removeElement(getSelectedHusband());
+    if (isWifeSelected())
+      availChildrenListModel.removeElement(getSelectedWife());
+
+    for (int i = 0; i < childrenListModel.size(); i++) {
+      husbandComboModel.removeElement(childrenListModel.getElementAt(i));
+      wifeComboModel.removeElement(childrenListModel.getElementAt(i));
+    }
   }
 
   public void setLink(Wedding wedding, List<FamilyMember> potentialHusbands, List<FamilyMember> potentialWives, List<FamilyMember> potentialChildren) {

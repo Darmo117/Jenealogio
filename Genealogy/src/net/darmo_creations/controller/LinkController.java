@@ -55,6 +55,7 @@ public class LinkController extends AbstractDialogController<LinkDialog> impleme
   @Override
   public void itemStateChanged(ItemEvent e) {
     this.dialog.setValidateButtonEnabled(this.dialog.isHusbandSelected() && this.dialog.isWifeSelected());
+    this.dialog.updateLists();
   }
 
   @Override
