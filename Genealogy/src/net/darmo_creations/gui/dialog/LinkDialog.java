@@ -11,6 +11,7 @@ import java.text.SimpleDateFormat;
 import java.time.DateTimeException;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -151,7 +152,7 @@ public class LinkDialog extends AbstractDialog {
     return (FamilyMember) this.husbandCombo.getSelectedItem();
   }
 
-  public void setHusbandCombo(List<FamilyMember> potentialHusbands, FamilyMember memberToSelect) {
+  public void setHusbandCombo(Set<FamilyMember> potentialHusbands, FamilyMember memberToSelect) {
     ((DefaultComboBoxModel<FamilyMember>) this.husbandCombo.getModel()).removeAllElements();
     this.husbandCombo.addItem(new DummyFamilyMember("Sélectionner..."));
     potentialHusbands.forEach(man -> this.husbandCombo.addItem(man));
@@ -165,7 +166,7 @@ public class LinkDialog extends AbstractDialog {
     return (FamilyMember) this.wifeCombo.getSelectedItem();
   }
 
-  public void setWifeCombo(List<FamilyMember> potentialWives, FamilyMember memberToSelect) {
+  public void setWifeCombo(Set<FamilyMember> potentialWives, FamilyMember memberToSelect) {
     ((DefaultComboBoxModel<FamilyMember>) this.wifeCombo.getModel()).removeAllElements();
     this.wifeCombo.addItem(new DummyFamilyMember("Sélectionner..."));
     potentialWives.forEach(woman -> this.wifeCombo.addItem(woman));
@@ -175,7 +176,7 @@ public class LinkDialog extends AbstractDialog {
       this.wifeCombo.setSelectedIndex(0);
   }
 
-  public void setAvailableChildren(List<FamilyMember> children) {
+  public void setAvailableChildren(Set<FamilyMember> children) {
     DefaultListModel<FamilyMember> model = (DefaultListModel<FamilyMember>) this.availChildrenList.getModel();
     model.removeAllElements();
     children.forEach(child -> model.addElement(child));
@@ -223,7 +224,7 @@ public class LinkDialog extends AbstractDialog {
     }
   }
 
-  public void setLink(Wedding wedding, List<FamilyMember> potentialHusbands, List<FamilyMember> potentialWives, List<FamilyMember> potentialChildren) {
+  public void setLink(Wedding wedding, Set<FamilyMember> potentialHusbands, Set<FamilyMember> potentialWives, Set<FamilyMember> potentialChildren) {
     DefaultListModel<FamilyMember> model1 = (DefaultListModel<FamilyMember>) this.childrenList.getModel();
     DefaultListModel<FamilyMember> model2 = (DefaultListModel<FamilyMember>) this.availChildrenList.getModel();
 

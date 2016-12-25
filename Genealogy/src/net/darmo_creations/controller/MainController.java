@@ -130,11 +130,7 @@ public class MainController extends WindowAdapter implements ActionListener {
   }
 
   private void addMember() {
-    // @f0
-    Optional<FamilyMember> member = this.frame.showAddCardDialog(
-        this.family.getPotentialFathers(null),
-        this.family.getPotentialMothers(null));
-    // @f1
+    Optional<FamilyMember> member = this.frame.showAddCardDialog();
 
     if (member.isPresent()) {
       this.family.addMember(member.get());
@@ -158,12 +154,7 @@ public class MainController extends WindowAdapter implements ActionListener {
 
   private void update() {
     if (this.selectedCard != null) {
-      // @f0
-      Optional<FamilyMember> member = this.frame.showUpdateCard(
-          this.selectedCard,
-          this.family.getPotentialFathers(this.selectedCard),
-          this.family.getPotentialMothers(this.selectedCard));
-      // @f1
+      Optional<FamilyMember> member = this.frame.showUpdateCard(this.selectedCard);
 
       if (member.isPresent()) {
         this.family.updateMember(member.get());

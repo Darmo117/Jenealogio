@@ -4,8 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
 
-public final class Wedding {
+import net.darmo_creations.model.graph.Link;
+
+public final class Wedding extends Link<FamilyMember> {
   private Date date;
   private FamilyMember husband;
   private FamilyMember wife;
@@ -50,8 +54,9 @@ public final class Wedding {
     return this.children.contains(member);
   }
 
-  public List<FamilyMember> getChildren() {
-    return new ArrayList<>(this.children);
+  @Override
+  public Set<FamilyMember> getChildren() {
+    return new TreeSet<>(this.children);
   }
 
   public void addChild(FamilyMember child) {

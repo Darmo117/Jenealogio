@@ -1,19 +1,23 @@
 package net.darmo_creations.model;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
-public class Family {
+import net.darmo_creations.model.graph.Graph;
+import net.darmo_creations.model.graph.GraphExplorer;
+import net.darmo_creations.model.graph.Node;
+
+public class Family extends Graph<FamilyMember, Wedding> {
   private long id;
-  private List<FamilyMember> members;
-  private List<Wedding> weddings;
+  private Set<FamilyMember> members;
+  private Set<Wedding> weddings;
 
   public Family() {
     this.id = 0;
-    this.members = new ArrayList<>();
-    this.weddings = new ArrayList<>();
+    this.members = new HashSet<>();
+    this.weddings = new HashSet<>();
   }
 
   public long getNextMemberId() {
@@ -41,14 +45,6 @@ public class Family {
       m.setGender(member.getGender());
       m.setBirthDate(member.getBirthDate().orElse(null));
       m.setDeathDate(member.getDeathDate().orElse(null));
-      if (member.getFather().isPresent())
-        m.setFather(getMember(member.getFather().get().getId()).orElseThrow(IllegalStateException::new));
-      else
-        m.setFather(null);
-      if (member.getMother().isPresent())
-        m.setMother(getMember(member.getMother().get().getId()).orElseThrow(IllegalStateException::new));
-      else
-        m.setMother(null);
     }
   }
 
@@ -57,12 +53,14 @@ public class Family {
       Wedding wedding = it.next();
       if (wedding.isMarried(member))
         it.remove();
+      else if (wedding.isChild(member))
+        wedding.removeChild(member);
     }
     this.members.remove(member);
   }
 
   public Optional<Wedding> getWedding(FamilyMember member) {
-    return this.weddings.stream().filter(wedding -> wedding.getHusband().equals(member) || wedding.getWife().equals(member)).findAny();
+    return getLinkForNode(member);
   }
 
   public void addWedding(Wedding wedding) {
@@ -77,7 +75,7 @@ public class Family {
       Wedding w = optional.get();
 
       w.setDate(wedding.getDate().orElse(null));
-      List<FamilyMember> children = w.getChildren();
+      Set<FamilyMember> children = w.getChildren();
       children.forEach(child -> w.removeChild(child));
       wedding.getChildren().forEach(child -> w.addChild(Family.this.getMember(child.getId()).orElseThrow(IllegalStateException::new)));
     }
@@ -88,42 +86,14 @@ public class Family {
   }
 
   /**
-   * Retourne tous les hommes éligibles pour être le père de la personne donnée. Si l'argument est
-   * null, tous les hommes sont retournés.
-   * 
-   * @param member la personne de référence
-   * @return les pères potentiels
-   */
-  public List<FamilyMember> getPotentialFathers(FamilyMember member) {
-    List<FamilyMember> men = new ArrayList<>();
-
-    // TODO
-
-    return men;
-  }
-
-  /**
-   * Retourne toutes les femmes éligibles pour être la mère de la personne donnée. Si l'argument est
-   * null, toutes les femmes sont retournées.
-   * 
-   * @param member la personne de référence
-   * @return les mères potentielles
-   */
-  public List<FamilyMember> getPotentialMothers(FamilyMember member) {
-    List<FamilyMember> women = new ArrayList<>();
-
-    // TODO
-
-    return women;
-  }
-
-  /**
    * Retourne tous les hommes non encore mariés.
    * 
    * @return les hommes célibataires
    */
-  public List<FamilyMember> getPotentialHusbands() {
-    List<FamilyMember> men = new ArrayList<>();
+  public Set<FamilyMember> getPotentialHusbands() {
+    // Condition : les personnes doivent être des hommes célibataires qui ne font pas encore partie
+    // de la famille.
+    Set<FamilyMember> men = new HashSet<>();
 
     // TODO
 
@@ -135,8 +105,10 @@ public class Family {
    * 
    * @return les femmes célibataires
    */
-  public List<FamilyMember> getPotentialWives() {
-    List<FamilyMember> women = new ArrayList<>();
+  public Set<FamilyMember> getPotentialWives() {
+    // Condition : les personnes doivent être des femmes célibataires qui ne font pas encore partie
+    // de la famille.
+    Set<FamilyMember> women = new HashSet<>();
 
     // TODO
 
@@ -150,11 +122,42 @@ public class Family {
    * @param wedding le mariage
    * @return la liste des enfants potentiels
    */
-  public List<FamilyMember> getPotentialChildren(Wedding wedding) {
-    List<FamilyMember> children = new ArrayList<>();
+  public Set<FamilyMember> getPotentialChildren(Wedding wedding) {
+    // Condition : les personnes ne doivent pas déjà faire partie de la famille des deux conjoints.
+    Set<FamilyMember> candidates = new HashSet<>(this.members);
+    Set<FamilyMember> connectedSet = new HashSet<>();
+    GraphExplorer<FamilyMember, Wedding> explorer = new GraphExplorer<>(this);
 
-    // TODO
+    // Inutile de visiter le conjoint puisqu'il fait forcément partie de la même composante connexe.
+    connectedSet.addAll(explorer.explore(wedding.getHusband()));
+    // Soustraction ensembliste.
+    candidates.removeAll(connectedSet);
 
-    return children;
+    return candidates;
+  }
+
+  @Override
+  protected Optional<Wedding> getLinkForNode(Node<FamilyMember> node) {
+    return this.weddings.stream().filter(wedding -> wedding.getHusband().equals(node) || wedding.getWife().equals(node)).findAny();
+  }
+
+  @Override
+  protected Optional<FamilyMember> getLeftAncestorForNode(Node<FamilyMember> node) {
+    Optional<Wedding> optional = this.weddings.stream().filter(wedding -> wedding.getChildren().contains(node)).findAny();
+
+    if (optional.isPresent())
+      return Optional.of(optional.get().getHusband());
+
+    return Optional.empty();
+  }
+
+  @Override
+  protected Optional<FamilyMember> getRightAncestorForNode(Node<FamilyMember> node) {
+    Optional<Wedding> optional = this.weddings.stream().filter(wedding -> wedding.getChildren().contains(node)).findAny();
+
+    if (optional.isPresent())
+      return Optional.of(optional.get().getWife());
+
+    return Optional.empty();
   }
 }

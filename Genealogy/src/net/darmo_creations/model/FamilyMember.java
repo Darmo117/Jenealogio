@@ -5,9 +5,10 @@ import java.time.Period;
 import java.util.Objects;
 import java.util.Optional;
 
+import net.darmo_creations.model.graph.Node;
 import net.darmo_creations.util.CalendarUtil;
 
-public class FamilyMember {
+public class FamilyMember extends Node<FamilyMember> {
   private final long id;
   private BufferedImage image;
   private String name;
@@ -15,9 +16,11 @@ public class FamilyMember {
   private Gender gender;
   private Date birthDate;
   private Date deathDate;
-  private FamilyMember father;
-  private FamilyMember mother;
 
+  /**
+   * Une personne a un id interne, une photo, un nom, un prénom, un genre, une date de naissance et
+   * une date de décès. Une personne ne connaît pas ses parents.
+   */
   public FamilyMember(long id, BufferedImage image, String name, String firstName, Gender gender, Date birthDate, Date deathDate) {
     this.id = id;
     this.image = image;
@@ -109,22 +112,6 @@ public class FamilyMember {
 
   void setDeathDate(Date deathDate) {
     this.deathDate = deathDate;
-  }
-
-  public Optional<FamilyMember> getFather() {
-    return Optional.ofNullable(this.father);
-  }
-
-  void setFather(FamilyMember father) {
-    this.father = father;
-  }
-
-  public Optional<FamilyMember> getMother() {
-    return Optional.ofNullable(this.mother);
-  }
-
-  void setMother(FamilyMember mother) {
-    this.mother = mother;
   }
 
   @Override

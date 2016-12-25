@@ -14,13 +14,11 @@ import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.DateTimeException;
-import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.BoxLayout;
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -38,7 +36,6 @@ import net.darmo_creations.controller.ExtensionFileFilter;
 import net.darmo_creations.gui.MainFrame;
 import net.darmo_creations.gui.components.ImageLabel;
 import net.darmo_creations.model.Date;
-import net.darmo_creations.model.DummyFamilyMember;
 import net.darmo_creations.model.FamilyMember;
 import net.darmo_creations.model.Gender;
 
@@ -55,11 +52,10 @@ public class CardDialog extends AbstractDialog {
   private JTextField nameFld, firstNameFld;
   private JComboBox<Gender> genderCombo;
   private JFormattedTextField birthFld, deathFld;
-  private JComboBox<FamilyMember> fatherCombo, motherCombo;
 
   public CardDialog(MainFrame owner) {
     super(owner, Mode.VALIDATE_CANCEL_OPTION, true);
-    setPreferredSize(new Dimension(300, 420));
+    setPreferredSize(new Dimension(300, 360));
     setResizable(false);
 
     CardController controller = new CardController(this);
@@ -100,10 +96,6 @@ public class CardDialog extends AbstractDialog {
     this.deathFld = new JFormattedTextField(dateFormat);
     this.deathFld.addKeyListener(controller);
     this.deathFld.getDocument().addDocumentListener(controller);
-    this.fatherCombo = new JComboBox<>(new DefaultComboBoxModel<>());
-    this.fatherCombo.addItemListener(controller);
-    this.motherCombo = new JComboBox<>(new DefaultComboBoxModel<>());
-    this.motherCombo.addItemListener(controller);
 
     JPanel imagePnl = new JPanel();
     imagePnl.setBorder(new EmptyBorder(5, 5, 0, 5));
@@ -127,10 +119,6 @@ public class CardDialog extends AbstractDialog {
     fieldsPnl.add(new JLabel("Naissance"), gbc);
     gbc.gridy = 4;
     fieldsPnl.add(new JLabel("Décès"), gbc);
-    gbc.gridy = 5;
-    fieldsPnl.add(new JLabel("Père"), gbc);
-    gbc.gridy = 6;
-    fieldsPnl.add(new JLabel("Mère"), gbc);
     gbc.gridx = 1;
     gbc.gridwidth = 2;
     gbc.weightx = 1;
@@ -144,10 +132,6 @@ public class CardDialog extends AbstractDialog {
     fieldsPnl.add(this.birthFld, gbc);
     gbc.gridy = 4;
     fieldsPnl.add(this.deathFld, gbc);
-    gbc.gridy = 5;
-    fieldsPnl.add(this.fatherCombo, gbc);
-    gbc.gridy = 6;
-    fieldsPnl.add(this.motherCombo, gbc);
 
     add(imagePnl, BorderLayout.NORTH);
     add(fieldsPnl, BorderLayout.CENTER);
@@ -182,7 +166,7 @@ public class CardDialog extends AbstractDialog {
     return this.fileChooser.getSelectedFile();
   }
 
-  public void setCard(FamilyMember member, List<FamilyMember> men, List<FamilyMember> women) {
+  public void setCard(FamilyMember member) {
     if (member != null) {
       setTitle("Modifier une fiche");
       this.id = member.getId();
@@ -203,13 +187,6 @@ public class CardDialog extends AbstractDialog {
       this.birthFld.setText("");
       this.deathFld.setText("");
     }
-
-    ((DefaultComboBoxModel<FamilyMember>) this.fatherCombo.getModel()).removeAllElements();
-    this.fatherCombo.addItem(new DummyFamilyMember("Inconnu"));
-    men.forEach(man -> this.fatherCombo.addItem(man));
-    ((DefaultComboBoxModel<FamilyMember>) this.motherCombo.getModel()).removeAllElements();
-    this.motherCombo.addItem(new DummyFamilyMember("Inconnu"));
-    women.forEach(man -> this.motherCombo.addItem(man));
 
     setValidateButtonEnabled(false);
   }
@@ -236,8 +213,16 @@ public class CardDialog extends AbstractDialog {
 
   public Optional<FamilyMember> getCard() {
     if (!isCanceled()) {
-      Gender gender = Gender.values()[this.genderCombo.getSelectedIndex()];
-      FamilyMember member = new FamilyMember(this.id, this.image, getContent(this.nameFld), getContent(this.firstNameFld), gender, parseDate(this.birthFld), parseDate(this.deathFld));
+      // @f0
+      FamilyMember member = new FamilyMember(
+          this.id,
+          this.image,
+          getContent(this.nameFld),
+          getContent(this.firstNameFld),
+          Gender.values()[this.genderCombo.getSelectedIndex()],
+          parseDate(this.birthFld),
+          parseDate(this.deathFld));
+      // @f1
 
       return Optional.of(member);
     }
@@ -276,8 +261,6 @@ public class CardDialog extends AbstractDialog {
     ok |= this.genderCombo.getSelectedItem() != Gender.UNKNOW;
     ok |= this.birthFld.getText().length() > 0;
     ok |= this.deathFld.getText().length() > 0;
-    ok |= this.fatherCombo.getSelectedIndex() > 0;
-    ok |= this.motherCombo.getSelectedIndex() > 0;
 
     return ok;
   }

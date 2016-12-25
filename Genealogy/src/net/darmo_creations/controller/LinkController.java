@@ -5,7 +5,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.util.List;
+import java.util.Set;
 
 import javax.swing.JList;
 import javax.swing.event.ListSelectionEvent;
@@ -20,7 +20,7 @@ public class LinkController extends AbstractDialogController<LinkDialog> impleme
     super(dialog);
   }
 
-  public void reset(Wedding wedding, List<FamilyMember> potentialHusbands, List<FamilyMember> potentialWives, List<FamilyMember> potentialChildren) {
+  public void reset(Wedding wedding, Set<FamilyMember> potentialHusbands, Set<FamilyMember> potentialWives, Set<FamilyMember> potentialChildren) {
     this.dialog.setHusbandCombo(potentialHusbands, null);
     this.dialog.setWifeCombo(potentialWives, null);
     this.dialog.setAvailableChildren(potentialChildren);
