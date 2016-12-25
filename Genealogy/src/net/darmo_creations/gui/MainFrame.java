@@ -5,8 +5,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.Optional;
 import java.util.Set;
@@ -54,13 +52,6 @@ public class MainFrame extends JFrame {
     setMinimumSize(new Dimension(800, 600));
 
     addWindowListener(controller);
-    addWindowListener(new WindowAdapter() {
-      @Override
-      public void windowOpened(WindowEvent e) {
-        super.windowOpened(e);
-        MainFrame.this.displayPnl.requestFocus();
-      }
-    });
 
     this.fileChooser = new JFileChooser();
     this.fileChooser.setAcceptAllFileFilterUsed(false);
@@ -193,52 +184,52 @@ public class MainFrame extends JFrame {
 
     toolBar.add(b = new JButton(ImageUtil.NEW_TREE_BIG));
     b.setToolTipText("Nouvel arbre... (Ctrl+N)");
-    b.setFocusPainted(false);
+    b.setFocusable(false);
     b.setActionCommand("new");
     b.addActionListener(listener);
     toolBar.add(b = new JButton(ImageUtil.OPEN_BIG));
     b.setToolTipText("Ouvrir... (Ctrl+O)");
-    b.setFocusPainted(false);
+    b.setFocusable(false);
     b.setActionCommand("open");
     b.addActionListener(listener);
     toolBar.add(this.saveBtn = new JButton(ImageUtil.SAVE_BIG));
     this.saveBtn.setToolTipText("Enregistrer (Ctrl+S)");
-    this.saveBtn.setFocusPainted(false);
+    this.saveBtn.setFocusable(false);
     this.saveBtn.setActionCommand("save");
     this.saveBtn.addActionListener(listener);
     toolBar.add(this.saveAsBtn = new JButton(ImageUtil.SAVE_AS_BIG));
     this.saveAsBtn.setToolTipText("Enregistrer sous... (Ctrl+Maj+S)");
-    this.saveAsBtn.setFocusPainted(false);
+    this.saveAsBtn.setFocusable(false);
     this.saveAsBtn.setActionCommand("save-as");
     this.saveAsBtn.addActionListener(listener);
     toolBar.add(this.addCardBtn = new JButton(ImageUtil.ADD_CARD_BIG));
     this.addCardBtn.setToolTipText("Ajouter une fiche... (Ctrl+A)");
-    this.addCardBtn.setFocusPainted(false);
+    this.addCardBtn.setFocusable(false);
     this.addCardBtn.setActionCommand("add-card");
     this.addCardBtn.addActionListener(listener);
     toolBar.add(this.editCardBtn = new JButton(ImageUtil.EDIT_CARD_BIG));
     this.editCardBtn.setToolTipText("Éditer la fiche... (Ctrl+E)");
-    this.editCardBtn.setFocusPainted(false);
+    this.editCardBtn.setFocusable(false);
     this.editCardBtn.setActionCommand("edit");
     this.editCardBtn.addActionListener(listener);
     toolBar.add(this.deleteCardBtn = new JButton(ImageUtil.DELETE_CARD_BIG));
     this.deleteCardBtn.setToolTipText("Supprimer la fiche (Supprimer)");
-    this.deleteCardBtn.setFocusPainted(false);
+    this.deleteCardBtn.setFocusable(false);
     this.deleteCardBtn.setActionCommand("delete");
     this.deleteCardBtn.addActionListener(listener);
     toolBar.add(this.addLinkBtn = new JButton(ImageUtil.ADD_LINK_BIG));
     this.addLinkBtn.setToolTipText("Ajouter un lien... (Ctrl+L)");
-    this.addLinkBtn.setFocusPainted(false);
+    this.addLinkBtn.setFocusable(false);
     this.addLinkBtn.setActionCommand("add-link");
     this.addLinkBtn.addActionListener(listener);
     toolBar.add(this.editLinkBtn = new JButton(ImageUtil.EDIT_LINK_BIG));
     this.editLinkBtn.setToolTipText("Éditer le lien... (Ctrl+E)");
-    this.editLinkBtn.setFocusPainted(false);
+    this.editLinkBtn.setFocusable(false);
     this.editLinkBtn.setActionCommand("edit");
     this.editLinkBtn.addActionListener(listener);
     toolBar.add(this.deleteLinkBtn = new JButton(ImageUtil.DELETE_LINK_BIG));
     this.deleteLinkBtn.setToolTipText("Supprimer le lien (Supprimer)");
-    this.deleteLinkBtn.setFocusPainted(false);
+    this.deleteLinkBtn.setFocusable(false);
     this.deleteLinkBtn.setActionCommand("delete");
     this.deleteLinkBtn.addActionListener(listener);
 
