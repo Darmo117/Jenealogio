@@ -1,6 +1,8 @@
 package net.darmo_creations.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
@@ -18,9 +20,11 @@ import javax.swing.JOptionPane;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
+import javax.swing.border.MatteBorder;
 
 import net.darmo_creations.controller.ExtensionFileFilter;
 import net.darmo_creations.controller.MainController;
+import net.darmo_creations.gui.components.DisplayPanel;
 import net.darmo_creations.gui.dialog.CardDialog;
 import net.darmo_creations.gui.dialog.LinkDialog;
 import net.darmo_creations.model.Family;
@@ -31,13 +35,14 @@ import net.darmo_creations.util.ImageUtil;
 public class MainFrame extends JFrame {
   private static final long serialVersionUID = 2426665404072947885L;
 
-  private JMenu editMenu, displayMenu;
-  private JMenuItem saveItem, saveAsItem, addCardItem, addLinkItem, editItem, deleteItem;
-  private JButton saveBtn, saveAsBtn, addCardBtn, addLinkBtn, editCardBtn, editLinkBtn, deleteCardBtn, deleteLinkBtn;
-
   private JFileChooser fileChooser;
   private CardDialog cardDialog;
   private LinkDialog linkDialog;
+
+  private JMenu editMenu, displayMenu;
+  private JMenuItem saveItem, saveAsItem, addCardItem, addLinkItem, editItem, deleteItem;
+  private JButton saveBtn, saveAsBtn, addCardBtn, addLinkBtn, editCardBtn, editLinkBtn, deleteCardBtn, deleteLinkBtn;
+  private DisplayPanel displayPnl;
 
   public MainFrame() {
     MainController controller = new MainController(this);
@@ -54,7 +59,11 @@ public class MainFrame extends JFrame {
     this.linkDialog = new LinkDialog(this);
 
     setJMenuBar(initJMenuBar(controller));
+
     add(getJToolBar(controller), BorderLayout.NORTH);
+    this.displayPnl = new DisplayPanel();
+    this.displayMenu.setMinimumSize(new Dimension(500, 500));
+    add(this.displayPnl, BorderLayout.CENTER);
 
     controller.init();
 
@@ -169,6 +178,7 @@ public class MainFrame extends JFrame {
   private JToolBar getJToolBar(ActionListener listener) {
     JToolBar toolBar = new JToolBar(JToolBar.HORIZONTAL);
     toolBar.setFloatable(false);
+    toolBar.setBorder(new MatteBorder(0, 0, 1, 0, Color.GRAY));
     JButton b;
 
     toolBar.add(b = new JButton(ImageUtil.NEW_TREE_BIG));
