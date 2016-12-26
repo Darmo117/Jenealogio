@@ -85,7 +85,6 @@ public class LinkDialog extends AbstractDialog {
 
     gbc.fill = GridBagConstraints.HORIZONTAL;
     gbc.gridwidth = 2;
-    gbc.gridy = 0;
     fieldsPnl.add(new JLabel("Date"), gbc);
     gbc.gridy = 1;
     fieldsPnl.add(new JLabel("Époux"), gbc);

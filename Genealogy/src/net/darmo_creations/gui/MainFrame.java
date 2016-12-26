@@ -18,6 +18,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JRadioButtonMenuItem;
+import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.border.MatteBorder;
@@ -27,6 +28,7 @@ import net.darmo_creations.controller.MainController;
 import net.darmo_creations.gui.components.DisplayPanel;
 import net.darmo_creations.gui.dialog.CardDialog;
 import net.darmo_creations.gui.dialog.LinkDialog;
+import net.darmo_creations.gui.dialog.TreeCreationDialog;
 import net.darmo_creations.model.Family;
 import net.darmo_creations.model.FamilyMember;
 import net.darmo_creations.model.Wedding;
@@ -35,7 +37,10 @@ import net.darmo_creations.util.ImageUtil;
 public class MainFrame extends JFrame {
   private static final long serialVersionUID = 2426665404072947885L;
 
+  public static final String BASE_TITLE = "Généalogie";
+
   private JFileChooser fileChooser;
+  private TreeCreationDialog treeCreationDialog;
   private CardDialog cardDialog;
   private LinkDialog linkDialog;
 
@@ -47,8 +52,7 @@ public class MainFrame extends JFrame {
   public MainFrame() {
     MainController controller = new MainController(this);
 
-    setTitle("Généalogie");
-    setDefaultCloseOperation(EXIT_ON_CLOSE);
+    setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
     setMinimumSize(new Dimension(800, 600));
 
     addWindowListener(controller);
@@ -57,6 +61,7 @@ public class MainFrame extends JFrame {
     this.fileChooser.setAcceptAllFileFilterUsed(false);
     this.fileChooser.setMultiSelectionEnabled(false);
     this.fileChooser.setFileFilter(new ExtensionFileFilter("Arbre généalogique", "tree"));
+    this.treeCreationDialog = new TreeCreationDialog(this);
     this.cardDialog = new CardDialog(this);
     this.linkDialog = new LinkDialog(this);
 
@@ -64,7 +69,7 @@ public class MainFrame extends JFrame {
 
     add(getJToolBar(controller), BorderLayout.NORTH);
     this.displayPnl = new DisplayPanel();
-    add(this.displayPnl, BorderLayout.CENTER);
+    add(new JScrollPane(this.displayPnl), BorderLayout.CENTER);
 
     controller.init();
 
@@ -291,6 +296,11 @@ public class MainFrame extends JFrame {
   public File showOpenFileChooser() {
     this.fileChooser.showOpenDialog(this);
     return this.fileChooser.getSelectedFile();
+  }
+
+  public Optional<String> showCreateTreeDialog() {
+    this.treeCreationDialog.setVisible(true);
+    return this.treeCreationDialog.getTreeName();
   }
 
   public Optional<FamilyMember> showAddCardDialog() {

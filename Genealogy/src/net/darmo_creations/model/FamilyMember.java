@@ -135,4 +135,17 @@ public class FamilyMember extends Node<FamilyMember> {
     else
       return getName().orElse("?") + " " + getFirstName().orElse("?");
   }
+
+  FamilyMember copy(long newId) {
+    // @f0
+    return new FamilyMember(
+        newId,
+        getImage().orElse(null),
+        getName().orElse(null),
+        getFirstName().orElse(null),
+        getGender(),
+        getBirthDate().orElse(null),
+        getDeathDate().orElse(null));
+    // @f1
+  }
 }

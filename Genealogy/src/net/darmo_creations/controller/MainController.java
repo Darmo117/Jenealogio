@@ -35,7 +35,10 @@ public class MainController extends WindowAdapter implements ActionListener {
   }
 
   public void init() {
-    newFile();
+    this.fileOpen = false;
+    this.alreadySaved = false;
+    this.saved = false;
+    updateFrameMenus();
   }
 
   @Override
@@ -84,11 +87,15 @@ public class MainController extends WindowAdapter implements ActionListener {
   }
 
   private void newFile() {
-    this.family = new Family();
-    this.fileOpen = false;
-    this.alreadySaved = false;
-    this.saved = false;
-    updateFrameMenus();
+    Optional<String> name = this.frame.showCreateTreeDialog();
+
+    if (name.isPresent()) {
+      this.family = new Family(name.get());
+      this.fileOpen = true;
+      this.alreadySaved = false;
+      this.saved = false;
+      updateFrameMenus();
+    }
   }
 
   private void open() {
@@ -208,6 +215,7 @@ public class MainController extends WindowAdapter implements ActionListener {
   }
 
   private void updateFrameMenus() {
+    this.frame.setTitle(MainFrame.BASE_TITLE + (this.family != null ? " - " + this.family.getName() : ""));
     this.frame.updateMenus(this.fileOpen, this.selectedCard != null, this.selectedLink != null);
   }
 

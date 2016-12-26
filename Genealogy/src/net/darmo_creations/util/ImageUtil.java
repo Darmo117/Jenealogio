@@ -28,6 +28,8 @@ public final class ImageUtil {
   public static final ImageIcon ADD_LINK_BIG;
   public static final ImageIcon EDIT_LINK_BIG;
   public static final ImageIcon DELETE_LINK_BIG;
+  public static final ImageIcon ARROW_UP_BIG;
+  public static final ImageIcon ARROW_DOWN_BIG;
 
   static {
     NEW_TREE = new ImageIcon("res/icons/new_tree.png");
@@ -55,6 +57,8 @@ public final class ImageUtil {
     ADD_LINK_BIG = new ImageIcon("res/icons/add_link_32.png");
     EDIT_LINK_BIG = new ImageIcon("res/icons/edit_link_32.png");
     DELETE_LINK_BIG = new ImageIcon("res/icons/delete_link_32.png");
+    ARROW_UP_BIG = new ImageIcon("res/icons/arrow_up_32.png");
+    ARROW_DOWN_BIG = new ImageIcon("res/icons/arrow_down_32.png");
   }
 
   private ImageUtil() {}

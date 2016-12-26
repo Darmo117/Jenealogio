@@ -25,7 +25,7 @@ public class FamilyMemberPanel extends JPanel {
   private JLabel deathLbl;
   private JLabel ageLbl;
 
-  public FamilyMemberPanel(FamilyMember familyMember, Optional<Wedding> wedding, boolean detailled) {
+  public FamilyMemberPanel(FamilyMember familyMember, Wedding wedding, boolean detailled) {
     setLayout(new BorderLayout());
 
     this.id = familyMember.getId();
@@ -47,11 +47,11 @@ public class FamilyMemberPanel extends JPanel {
     setPreferredSize(new Dimension(200, 500));
   }
 
-  public void setInfo(FamilyMember familyMember, Optional<Wedding> wedding) {
+  public void setInfo(FamilyMember familyMember, Wedding wedding) {
     this.imageLbl.setIcon((Icon) null);
     this.nameLbl.setText(getFullName(familyMember.getName(), familyMember.getFirstName()));
     this.birthLbl.setText(getDate(familyMember.getBirthDate()));
-    this.weddingLbl.setText(wedding.isPresent() ? getDate(wedding.get().getDate()) : "-");
+    this.weddingLbl.setText(wedding != null ? getDate(wedding.getDate()) : "-");
     this.deathLbl.setText(getDate(familyMember.getDeathDate()));
     this.ageLbl.setText(getAge(familyMember.getAge()));
     revalidate();

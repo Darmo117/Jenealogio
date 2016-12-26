@@ -11,17 +11,23 @@ import net.darmo_creations.model.graph.Node;
 
 public class Family extends Graph<FamilyMember, Wedding> {
   private long id;
+  private String name;
   private Set<FamilyMember> members;
   private Set<Wedding> weddings;
 
-  public Family() {
+  public Family(String name) {
     this.id = 0;
+    this.name = name;
     this.members = new HashSet<>();
     this.weddings = new HashSet<>();
   }
 
-  public long getNextMemberId() {
-    return this.id++;
+  public String getName() {
+    return this.name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
   }
 
   public Optional<FamilyMember> getMember(long id) {
@@ -29,8 +35,9 @@ public class Family extends Graph<FamilyMember, Wedding> {
   }
 
   public void addMember(FamilyMember member) {
-    if (!this.members.contains(member))
-      this.members.add(member);
+    if (!this.members.contains(member)) {
+      this.members.add(member.copy(getNextMemberId()));
+    }
   }
 
   public void updateMember(FamilyMember member) {
@@ -123,6 +130,9 @@ public class Family extends Graph<FamilyMember, Wedding> {
    * @return la liste des enfants potentiels
    */
   public Set<FamilyMember> getPotentialChildren(Wedding wedding) {
+    if (wedding == null)
+      return new HashSet<>(this.members);
+
     // Condition : les personnes ne doivent pas déjà faire partie de la famille des deux conjoints.
     Set<FamilyMember> candidates = new HashSet<>(this.members);
     Set<FamilyMember> connectedSet = new HashSet<>();
@@ -159,5 +169,9 @@ public class Family extends Graph<FamilyMember, Wedding> {
       return Optional.of(optional.get().getWife());
 
     return Optional.empty();
+  }
+
+  private long getNextMemberId() {
+    return this.id++;
   }
 }
