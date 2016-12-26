@@ -17,7 +17,6 @@ import net.darmo_creations.model.Wedding;
 public class FamilyMemberPanel extends JPanel {
   private static final long serialVersionUID = 2109771883765681092L;
 
-  private final long id;
   private JLabel imageLbl;
   private JLabel nameLbl;
   private JLabel birthLbl;
@@ -28,23 +27,26 @@ public class FamilyMemberPanel extends JPanel {
   public FamilyMemberPanel(FamilyMember familyMember, Wedding wedding, boolean detailled) {
     setLayout(new BorderLayout());
 
-    this.id = familyMember.getId();
     JPanel infoPnl = new JPanel(new GridLayout());
     infoPnl.add(this.nameLbl = new JLabel());
     infoPnl.add(this.birthLbl = new JLabel());
-    if (detailled)
-      infoPnl.add(this.weddingLbl = new JLabel());
+    infoPnl.add(this.weddingLbl = new JLabel());
     infoPnl.add(this.deathLbl = new JLabel());
-    if (detailled) {
-      infoPnl.add(this.ageLbl = new JLabel());
-      add(this.imageLbl = new JLabel(), BorderLayout.CENTER);
-    }
+    infoPnl.add(this.ageLbl = new JLabel());
+    add(this.imageLbl = new JLabel(), BorderLayout.NORTH);
 
-    add(infoPnl, BorderLayout.SOUTH);
+    add(infoPnl, BorderLayout.CENTER);
 
     setInfo(familyMember, wedding);
+    setDetailledMode(detailled);
 
     setPreferredSize(new Dimension(200, 500));
+  }
+
+  public void setDetailledMode(boolean detailled) {
+    this.weddingLbl.setVisible(detailled);
+    this.ageLbl.setVisible(detailled);
+    this.imageLbl.setVisible(detailled);
   }
 
   public void setInfo(FamilyMember familyMember, Wedding wedding) {
@@ -89,9 +91,5 @@ public class FamilyMemberPanel extends JPanel {
       return String.format("%d/%2d/%d", d.getDate(), d.getMonth(), d.getYear());
     }
     return "-";
-  }
-
-  public long getId() {
-    return this.id;
   }
 }

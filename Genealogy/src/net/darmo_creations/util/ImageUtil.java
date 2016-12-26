@@ -1,5 +1,9 @@
 package net.darmo_creations.util;
 
+import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.WritableRaster;
+
 import javax.swing.ImageIcon;
 
 public final class ImageUtil {
@@ -59,6 +63,14 @@ public final class ImageUtil {
     DELETE_LINK_BIG = new ImageIcon("res/icons/delete_link_32.png");
     ARROW_UP_BIG = new ImageIcon("res/icons/arrow_up_32.png");
     ARROW_DOWN_BIG = new ImageIcon("res/icons/arrow_down_32.png");
+  }
+
+  public static BufferedImage deepCopy(BufferedImage image) {
+    ColorModel colorModel = image.getColorModel();
+    boolean alphaPremultiplied = colorModel.isAlphaPremultiplied();
+    WritableRaster raster = image.copyData(null);
+
+    return new BufferedImage(colorModel, raster, alphaPremultiplied, null);
   }
 
   private ImageUtil() {}

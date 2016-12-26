@@ -1,7 +1,6 @@
 package net.darmo_creations.model;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -9,20 +8,20 @@ import java.util.TreeSet;
 
 import net.darmo_creations.model.graph.Link;
 
-public final class Wedding extends Link<FamilyMember> {
+public final class Wedding extends Link<FamilyMember> implements Cloneable {
   private Date date;
   private FamilyMember husband;
   private FamilyMember wife;
-  private List<FamilyMember> children;
+  private Set<FamilyMember> children;
 
   public Wedding(Date date, FamilyMember husband, FamilyMember wife, FamilyMember... children) {
     if (husband.equals(wife))
       throw new IllegalArgumentException("husband and wife must be different");
-    setDate(date);
+    setDate(date != null ? date.clone() : null);
     setHusband(husband);
     setWife(wife);
-    this.children = new ArrayList<>();
-    for (FamilyMember child : this.children)
+    this.children = new HashSet<>();
+    for (FamilyMember child : children)
       addChild(child);
   }
 
@@ -39,7 +38,7 @@ public final class Wedding extends Link<FamilyMember> {
   }
 
   void setHusband(FamilyMember husband) {
-    this.husband = Objects.requireNonNull(husband);
+    this.husband = husband;
   }
 
   public FamilyMember getWife() {
@@ -47,7 +46,7 @@ public final class Wedding extends Link<FamilyMember> {
   }
 
   void setWife(FamilyMember wife) {
-    this.wife = Objects.requireNonNull(wife);
+    this.wife = wife;
   }
 
   public boolean isChild(FamilyMember member) {
@@ -63,13 +62,13 @@ public final class Wedding extends Link<FamilyMember> {
     Objects.requireNonNull(child);
     if (child.equals(getHusband()) || child.equals(getWife()))
       throw new IllegalArgumentException("can't be their own child");
-    if (this.children.contains(child))
+    if (this.children.contains(child.getId()))
       throw new IllegalArgumentException("child already present");
     this.children.add(child);
   }
 
   public void removeChild(FamilyMember child) {
-    this.children.remove(child);
+    this.children.remove(child.getId());
   }
 
   public boolean isMarried(FamilyMember member) {
@@ -91,8 +90,26 @@ public final class Wedding extends Link<FamilyMember> {
   public boolean equals(Object o) {
     if (o instanceof Wedding) {
       Wedding wedding = (Wedding) o;
-      return getHusband().equals(wedding.getHusband()) && getWife().equals(wedding.getWife());
+      return getHusband() == wedding.getHusband() && getWife() == wedding.getWife();
     }
     return false;
+  }
+
+  @Override
+  public Wedding clone() {
+    try {
+      Wedding w = (Wedding) super.clone();
+
+      getDate().ifPresent(date -> w.setDate(date));
+      w.setHusband(getHusband().clone());
+      w.setWife(getWife().clone());
+      w.children = new HashSet<>();
+      getChildren().forEach(child -> w.addChild(child));
+
+      return w;
+    }
+    catch (CloneNotSupportedException e) {
+      throw new Error(e);
+    }
   }
 }

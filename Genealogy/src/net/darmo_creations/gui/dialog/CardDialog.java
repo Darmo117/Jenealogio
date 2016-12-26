@@ -46,7 +46,6 @@ public class CardDialog extends AbstractDialog {
 
   private JFileChooser fileChooser;
 
-  private long id;
   private BufferedImage image;
   private JLabel imageLbl;
   private JTextField nameFld, firstNameFld;
@@ -169,7 +168,6 @@ public class CardDialog extends AbstractDialog {
   public void setCard(FamilyMember member) {
     if (member != null) {
       setTitle("Modifier une fiche");
-      this.id = member.getId();
       setImage(member.getImage());
       this.nameFld.setText(member.getName().orElse(""));
       this.firstNameFld.setText(member.getFirstName().orElse(""));
@@ -179,7 +177,6 @@ public class CardDialog extends AbstractDialog {
     }
     else {
       setTitle("Ajouter une fiche");
-      this.id = -1;
       setImage(Optional.empty());
       this.nameFld.setText("");
       this.firstNameFld.setText("");
@@ -215,7 +212,6 @@ public class CardDialog extends AbstractDialog {
     if (!isCanceled()) {
       // @f0
       FamilyMember member = new FamilyMember(
-          this.id,
           this.image,
           getContent(this.nameFld),
           getContent(this.firstNameFld),

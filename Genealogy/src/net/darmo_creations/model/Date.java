@@ -7,7 +7,7 @@ import java.util.Calendar;
  * 
  * @author Darmo
  */
-public final class Date implements Comparable<Date> {
+public final class Date implements Comparable<Date>, Cloneable {
   private final Calendar calendar;
 
   /**
@@ -54,5 +54,10 @@ public final class Date implements Comparable<Date> {
   @Override
   public int compareTo(Date date) {
     return this.calendar.compareTo(date.calendar);
+  }
+
+  @Override
+  public Date clone() {
+    return new Date(getYear(), getMonth(), getDate());
   }
 }

@@ -284,8 +284,12 @@ public class MainFrame extends JFrame {
     }
   }
 
-  public void displayFamily(Family family) {
-    // TODO
+  public void resetDisplay() {
+    this.displayPnl.reset();
+  }
+
+  public void refreshDisplay(Family family) {
+    this.displayPnl.refresh(family);
   }
 
   public File showSaveFileChooser() {

@@ -10,13 +10,13 @@ import net.darmo_creations.model.graph.GraphExplorer;
 import net.darmo_creations.model.graph.Node;
 
 public class Family extends Graph<FamilyMember, Wedding> {
-  private long id;
+  private long globalId;
   private String name;
   private Set<FamilyMember> members;
   private Set<Wedding> weddings;
 
   public Family(String name) {
-    this.id = 0;
+    this.globalId = 0;
     this.name = name;
     this.members = new HashSet<>();
     this.weddings = new HashSet<>();
@@ -30,8 +30,10 @@ public class Family extends Graph<FamilyMember, Wedding> {
     this.name = name;
   }
 
-  public Optional<FamilyMember> getMember(long id) {
-    return this.members.stream().filter(member -> member.getId() == id).findAny();
+  public Set<FamilyMember> getAllMembers() {
+    Set<FamilyMember> members = new HashSet<>();
+    this.members.forEach(member -> members.add(member.clone()));
+    return members;
   }
 
   public void addMember(FamilyMember member) {
@@ -66,17 +68,34 @@ public class Family extends Graph<FamilyMember, Wedding> {
     this.members.remove(member);
   }
 
+  public Set<Wedding> getAllWeddings() {
+    Set<Wedding> weddings = new HashSet<>();
+    this.weddings.forEach(wedding -> weddings.add(wedding.clone()));
+    return weddings;
+  }
+
   public Optional<Wedding> getWedding(FamilyMember member) {
-    return getLinkForNode(member);
+    Optional<Wedding> w = getLinkForNode(member);
+    return Optional.ofNullable(w.isPresent() ? w.get().clone() : null);
   }
 
   public void addWedding(Wedding wedding) {
-    if (!this.weddings.contains(wedding))
-      this.weddings.add(wedding);
+    if (!this.weddings.contains(wedding)) {
+      Wedding w = getLinkForNode(wedding.getHusband()).get();
+      FamilyMember[] children = w.getChildren().stream().map(child -> getMember(child.getId())).toArray(FamilyMember[]::new);
+
+      // @f0
+      this.weddings.add(new Wedding(
+          w.getDate().orElse(null),
+          getMember(wedding.getHusband().getId()).get(),
+          getMember(wedding.getWife().getId()).get(),
+          children));
+      // @f1
+    }
   }
 
   public void updateWedding(Wedding wedding) {
-    Optional<Wedding> optional = getWedding(wedding.getHusband());
+    Optional<Wedding> optional = getLinkForNode(wedding.getHusband());
 
     if (optional.isPresent()) {
       Wedding w = optional.get();
@@ -171,7 +190,11 @@ public class Family extends Graph<FamilyMember, Wedding> {
     return Optional.empty();
   }
 
+  private Optional<FamilyMember> getMember(long id) {
+    return this.members.stream().filter(member -> member.getId() == id).findAny();
+  }
+
   private long getNextMemberId() {
-    return this.id++;
+    return this.globalId++;
   }
 }

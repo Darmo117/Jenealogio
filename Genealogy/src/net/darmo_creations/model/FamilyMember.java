@@ -7,8 +7,9 @@ import java.util.Optional;
 
 import net.darmo_creations.model.graph.Node;
 import net.darmo_creations.util.CalendarUtil;
+import net.darmo_creations.util.ImageUtil;
 
-public class FamilyMember extends Node<FamilyMember> {
+public class FamilyMember extends Node<FamilyMember> implements Cloneable {
   private final long id;
   private BufferedImage image;
   private String name;
@@ -17,18 +18,22 @@ public class FamilyMember extends Node<FamilyMember> {
   private Date birthDate;
   private Date deathDate;
 
+  public FamilyMember(BufferedImage image, String name, String firstName, Gender gender, Date birthDate, Date deathDate) {
+    this(-1, image, name, firstName, gender, birthDate, deathDate);
+  }
+
   /**
    * Une personne a un id interne, une photo, un nom, un prénom, un genre, une date de naissance et
    * une date de décès. Une personne ne connaît pas ses parents.
    */
-  public FamilyMember(long id, BufferedImage image, String name, String firstName, Gender gender, Date birthDate, Date deathDate) {
+  private FamilyMember(long id, BufferedImage image, String name, String firstName, Gender gender, Date birthDate, Date deathDate) {
     this.id = id;
-    this.image = image;
+    this.image = image != null ? ImageUtil.deepCopy(image) : null;
     this.name = name;
     this.firstName = firstName;
     this.gender = Objects.requireNonNull(gender);
-    this.birthDate = birthDate;
-    this.deathDate = deathDate;
+    this.birthDate = birthDate != null ? birthDate.clone() : null;
+    this.deathDate = deathDate != null ? deathDate.clone() : null;
   }
 
   public long getId() {
@@ -36,11 +41,11 @@ public class FamilyMember extends Node<FamilyMember> {
   }
 
   public Optional<BufferedImage> getImage() {
-    return Optional.ofNullable(this.image);
+    return Optional.ofNullable(this.image != null ? ImageUtil.deepCopy(this.image) : null);
   }
 
   void setImage(BufferedImage image) {
-    this.image = image;
+    this.image = image != null ? ImageUtil.deepCopy(image) : null;
   }
 
   public Optional<String> getName() {
@@ -76,11 +81,11 @@ public class FamilyMember extends Node<FamilyMember> {
   }
 
   public Optional<Date> getBirthDate() {
-    return Optional.ofNullable(this.birthDate);
+    return Optional.ofNullable(this.birthDate != null ? this.birthDate.clone() : null);
   }
 
   void setBirthDate(Date birthDate) {
-    this.birthDate = birthDate;
+    this.birthDate = birthDate != null ? birthDate.clone() : null;
   }
 
   /**
@@ -107,11 +112,11 @@ public class FamilyMember extends Node<FamilyMember> {
   }
 
   public Optional<Date> getDeathDate() {
-    return Optional.ofNullable(this.deathDate);
+    return Optional.ofNullable(this.deathDate != null ? this.deathDate.clone() : null);
   }
 
   void setDeathDate(Date deathDate) {
-    this.deathDate = deathDate;
+    this.deathDate = deathDate != null ? deathDate.clone() : null;
   }
 
   @Override
@@ -136,10 +141,10 @@ public class FamilyMember extends Node<FamilyMember> {
       return getName().orElse("?") + " " + getFirstName().orElse("?");
   }
 
-  FamilyMember copy(long newId) {
+  FamilyMember copy(long id) {
     // @f0
     return new FamilyMember(
-        newId,
+        id,
         getImage().orElse(null),
         getName().orElse(null),
         getFirstName().orElse(null),
@@ -147,5 +152,21 @@ public class FamilyMember extends Node<FamilyMember> {
         getBirthDate().orElse(null),
         getDeathDate().orElse(null));
     // @f1
+  }
+
+  @Override
+  public FamilyMember clone() {
+    try {
+      FamilyMember m = (FamilyMember) super.clone();
+
+      getImage().ifPresent(image -> m.setImage(image));
+      getBirthDate().ifPresent(date -> m.setBirthDate(date));
+      getDeathDate().ifPresent(date -> m.setDeathDate(date));
+
+      return m;
+    }
+    catch (CloneNotSupportedException e) {
+      throw new Error(e);
+    }
   }
 }

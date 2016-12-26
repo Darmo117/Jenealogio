@@ -94,6 +94,7 @@ public class MainController extends WindowAdapter implements ActionListener {
       this.fileOpen = true;
       this.alreadySaved = false;
       this.saved = false;
+      this.frame.resetDisplay();
       updateFrameMenus();
     }
   }
@@ -108,7 +109,7 @@ public class MainController extends WindowAdapter implements ActionListener {
         this.fileOpen = true;
         this.alreadySaved = true;
         this.saved = true;
-        this.frame.displayFamily(this.family);
+        this.frame.refreshDisplay(this.family);
       }
       catch (IOException e) {
         this.frame.showErrorDialog("Une erreur est survenue pendant l'ouverture du fichier.");
@@ -220,6 +221,6 @@ public class MainController extends WindowAdapter implements ActionListener {
   }
 
   private void refreshFrame() {
-    // TODO Auto-generated method stub
+    this.frame.refreshDisplay(this.family);
   }
 }
