@@ -35,7 +35,7 @@ import net.darmo_creations.controllers.CardController;
 import net.darmo_creations.controllers.ExtensionFileFilter;
 import net.darmo_creations.gui.MainFrame;
 import net.darmo_creations.gui.components.ImageLabel;
-import net.darmo_creations.model.family.Date;
+import net.darmo_creations.model.Date;
 import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.model.family.Gender;
 

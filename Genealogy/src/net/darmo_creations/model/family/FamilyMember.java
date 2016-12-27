@@ -5,6 +5,7 @@ import java.time.Period;
 import java.util.Objects;
 import java.util.Optional;
 
+import net.darmo_creations.model.Date;
 import net.darmo_creations.model.graph.Node;
 import net.darmo_creations.util.CalendarUtil;
 import net.darmo_creations.util.ImageUtil;

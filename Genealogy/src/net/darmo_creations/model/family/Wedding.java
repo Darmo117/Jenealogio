@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 
+import net.darmo_creations.model.Date;
 import net.darmo_creations.model.graph.Link;
 
 public final class Wedding extends Link<FamilyMember> implements Cloneable {

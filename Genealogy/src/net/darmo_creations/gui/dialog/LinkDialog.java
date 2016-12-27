@@ -28,7 +28,7 @@ import javax.swing.border.EmptyBorder;
 
 import net.darmo_creations.controllers.LinkController;
 import net.darmo_creations.gui.MainFrame;
-import net.darmo_creations.model.family.Date;
+import net.darmo_creations.model.Date;
 import net.darmo_creations.model.family.DummyFamilyMember;
 import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.model.family.Wedding;

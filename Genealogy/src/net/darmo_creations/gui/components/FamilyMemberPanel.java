@@ -16,7 +16,7 @@ import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 
 import net.darmo_creations.gui.components.drag.Dragable;
-import net.darmo_creations.model.family.Date;
+import net.darmo_creations.model.Date;
 import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.model.family.Wedding;
 

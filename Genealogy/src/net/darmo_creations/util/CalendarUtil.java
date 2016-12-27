@@ -4,7 +4,7 @@ import java.util.Calendar;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import net.darmo_creations.model.family.Date;
+import net.darmo_creations.model.Date;
 
 public class CalendarUtil {
   public static Date getCurrentDate() {

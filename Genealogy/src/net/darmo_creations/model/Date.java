@@ -1,4 +1,4 @@
-package net.darmo_creations.model.family;
+package net.darmo_creations.model;
 
 import java.util.Calendar;
 
