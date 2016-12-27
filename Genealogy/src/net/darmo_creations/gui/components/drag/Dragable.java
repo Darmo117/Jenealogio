@@ -8,7 +8,5 @@ public interface Dragable {
 
   Rectangle getBounds();
 
-  void setSelected(boolean selected);
-
-  boolean isSelected();
+  void doClick();
 }

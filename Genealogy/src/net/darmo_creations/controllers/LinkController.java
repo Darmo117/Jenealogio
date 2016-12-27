@@ -1,4 +1,4 @@
-package net.darmo_creations.controller;
+package net.darmo_creations.controllers;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
@@ -12,8 +12,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import net.darmo_creations.gui.dialog.LinkDialog;
-import net.darmo_creations.model.FamilyMember;
-import net.darmo_creations.model.Wedding;
+import net.darmo_creations.model.family.FamilyMember;
+import net.darmo_creations.model.family.Wedding;
 
 public class LinkController extends AbstractDialogController<LinkDialog> implements KeyListener, ListSelectionListener, ItemListener {
   public LinkController(LinkDialog dialog) {

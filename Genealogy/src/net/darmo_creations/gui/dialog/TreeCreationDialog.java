@@ -11,7 +11,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import net.darmo_creations.controller.TreeCreationController;
+import net.darmo_creations.controllers.TreeCreationController;
 
 public class TreeCreationDialog extends AbstractDialog {
   private static final long serialVersionUID = -521752892964228483L;

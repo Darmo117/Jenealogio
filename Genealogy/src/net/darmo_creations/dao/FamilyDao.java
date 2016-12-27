@@ -2,7 +2,7 @@ package net.darmo_creations.dao;
 
 import java.io.IOException;
 
-import net.darmo_creations.model.Family;
+import net.darmo_creations.model.family.Family;
 
 public class FamilyDao {
   private static FamilyDao instance;

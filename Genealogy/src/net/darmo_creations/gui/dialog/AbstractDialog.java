@@ -14,7 +14,7 @@ import javax.swing.JPanel;
 import javax.swing.JRootPane;
 import javax.swing.KeyStroke;
 
-import net.darmo_creations.controller.AbstractDialogController;
+import net.darmo_creations.controllers.AbstractDialogController;
 
 public abstract class AbstractDialog extends JDialog {
   private static final long serialVersionUID = -7155586918339699837L;

@@ -23,15 +23,15 @@ import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.border.MatteBorder;
 
-import net.darmo_creations.controller.ExtensionFileFilter;
-import net.darmo_creations.controller.MainController;
+import net.darmo_creations.controllers.ExtensionFileFilter;
+import net.darmo_creations.controllers.MainController;
 import net.darmo_creations.gui.components.DisplayPanel;
 import net.darmo_creations.gui.dialog.CardDialog;
 import net.darmo_creations.gui.dialog.LinkDialog;
 import net.darmo_creations.gui.dialog.TreeCreationDialog;
-import net.darmo_creations.model.Family;
-import net.darmo_creations.model.FamilyMember;
-import net.darmo_creations.model.Wedding;
+import net.darmo_creations.model.family.Family;
+import net.darmo_creations.model.family.FamilyMember;
+import net.darmo_creations.model.family.Wedding;
 import net.darmo_creations.util.ImageUtil;
 
 public class MainFrame extends JFrame {

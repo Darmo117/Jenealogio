@@ -1,4 +1,4 @@
-package net.darmo_creations.controller;
+package net.darmo_creations.controllers;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -12,10 +12,10 @@ import javax.swing.JOptionPane;
 
 import net.darmo_creations.dao.FamilyDao;
 import net.darmo_creations.gui.MainFrame;
-import net.darmo_creations.model.Family;
-import net.darmo_creations.model.FamilyMember;
-import net.darmo_creations.model.Gender;
-import net.darmo_creations.model.Wedding;
+import net.darmo_creations.model.family.Family;
+import net.darmo_creations.model.family.FamilyMember;
+import net.darmo_creations.model.family.Gender;
+import net.darmo_creations.model.family.Wedding;
 
 public class MainController extends WindowAdapter implements ActionListener {
   private final MainFrame frame;

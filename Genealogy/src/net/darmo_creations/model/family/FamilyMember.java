@@ -1,4 +1,4 @@
-package net.darmo_creations.model;
+package net.darmo_creations.model.family;
 
 import java.awt.image.BufferedImage;
 import java.time.Period;

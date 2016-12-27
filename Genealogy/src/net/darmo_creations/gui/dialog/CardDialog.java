@@ -31,13 +31,13 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
-import net.darmo_creations.controller.CardController;
-import net.darmo_creations.controller.ExtensionFileFilter;
+import net.darmo_creations.controllers.CardController;
+import net.darmo_creations.controllers.ExtensionFileFilter;
 import net.darmo_creations.gui.MainFrame;
 import net.darmo_creations.gui.components.ImageLabel;
-import net.darmo_creations.model.Date;
-import net.darmo_creations.model.FamilyMember;
-import net.darmo_creations.model.Gender;
+import net.darmo_creations.model.family.Date;
+import net.darmo_creations.model.family.FamilyMember;
+import net.darmo_creations.model.family.Gender;
 
 public class CardDialog extends AbstractDialog {
   private static final long serialVersionUID = -6591620133064467367L;

@@ -1,4 +1,4 @@
-package net.darmo_creations.model;
+package net.darmo_creations.model.family;
 
 import java.util.HashSet;
 import java.util.Objects;

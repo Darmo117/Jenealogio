@@ -1,4 +1,4 @@
-package net.darmo_creations.controller;
+package net.darmo_creations.controllers;
 
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;

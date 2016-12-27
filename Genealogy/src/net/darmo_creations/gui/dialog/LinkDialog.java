@@ -26,12 +26,12 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 
-import net.darmo_creations.controller.LinkController;
+import net.darmo_creations.controllers.LinkController;
 import net.darmo_creations.gui.MainFrame;
-import net.darmo_creations.model.Date;
-import net.darmo_creations.model.DummyFamilyMember;
-import net.darmo_creations.model.FamilyMember;
-import net.darmo_creations.model.Wedding;
+import net.darmo_creations.model.family.Date;
+import net.darmo_creations.model.family.DummyFamilyMember;
+import net.darmo_creations.model.family.FamilyMember;
+import net.darmo_creations.model.family.Wedding;
 import net.darmo_creations.util.ImageUtil;
 
 public class LinkDialog extends AbstractDialog {

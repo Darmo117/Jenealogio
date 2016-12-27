@@ -1,4 +1,4 @@
-package net.darmo_creations.controller;
+package net.darmo_creations.controllers;
 
 import java.io.File;
 import java.util.Arrays;

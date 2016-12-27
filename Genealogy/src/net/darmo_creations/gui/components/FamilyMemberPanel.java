@@ -12,15 +12,19 @@ import java.util.Optional;
 import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 
 import net.darmo_creations.gui.components.drag.Dragable;
-import net.darmo_creations.model.Date;
-import net.darmo_creations.model.FamilyMember;
-import net.darmo_creations.model.Wedding;
+import net.darmo_creations.model.family.Date;
+import net.darmo_creations.model.family.FamilyMember;
+import net.darmo_creations.model.family.Wedding;
 
 public class FamilyMemberPanel extends JPanel implements Dragable {
   private static final long serialVersionUID = 2109771883765681092L;
+
+  private static final Border SELECTED_BORDER = new LineBorder(Color.ORANGE, 2);
+  private static final Border UNSELECTED_BORDER = new LineBorder(Color.GRAY, 2);
 
   private PanelModel model;
 
@@ -31,32 +35,32 @@ public class FamilyMemberPanel extends JPanel implements Dragable {
   private JLabel deathLbl;
   private JLabel ageLbl;
 
-  public FamilyMemberPanel(FamilyMember familyMember, Wedding wedding, boolean detailled) {
+  public FamilyMemberPanel(FamilyMember familyMember, Wedding wedding) {
+    super(new BorderLayout());
+    setPreferredSize(new Dimension(200, 250));
     setLayout(new BorderLayout());
     setBorder(new LineBorder(Color.BLACK));
 
-    this.model = new PanelModel(familyMember.getId(), true);
+    this.model = new PanelModel(familyMember.getId());
+
+    JPanel imagePnl = new JPanel();
+    imagePnl.setBorder(new LineBorder(Color.BLUE));
+    imagePnl.add(this.imageLbl = new JLabel((Icon) null, JLabel.CENTER));
+    this.imageLbl.setPreferredSize(new Dimension(120, 150));
+    this.imageLbl.setBorder(new LineBorder(Color.GRAY));
 
     JPanel infoPnl = new JPanel(new GridLayout(5, 1));
+    infoPnl.setBorder(new LineBorder(Color.GREEN));
     infoPnl.add(this.nameLbl = new JLabel());
     infoPnl.add(this.birthLbl = new JLabel());
     infoPnl.add(this.weddingLbl = new JLabel());
     infoPnl.add(this.deathLbl = new JLabel());
     infoPnl.add(this.ageLbl = new JLabel());
-    add(this.imageLbl = new JLabel(), BorderLayout.NORTH);
 
+    add(imagePnl, BorderLayout.NORTH);
     add(infoPnl, BorderLayout.CENTER);
 
     setInfo(familyMember, wedding);
-    setDetailledMode(detailled);
-
-    setPreferredSize(new Dimension(200, 500));
-  }
-
-  public void setDetailledMode(boolean detailled) {
-    this.weddingLbl.setVisible(detailled);
-    this.ageLbl.setVisible(detailled);
-    this.imageLbl.setVisible(detailled);
   }
 
   public void setInfo(FamilyMember familyMember, Wedding wedding) {
@@ -103,23 +107,55 @@ public class FamilyMemberPanel extends JPanel implements Dragable {
     return "-";
   }
 
-  @Override
   public boolean isSelected() {
     return this.model.isSelected();
   }
 
-  @Override
   public void setSelected(boolean selected) {
     this.model.setSelected(selected);
-    if (selected)
-      fireActionPerformed();
+    setBorder(selected ? SELECTED_BORDER : UNSELECTED_BORDER);
+  }
+
+  @Override
+  public void doClick() {
+    fireActionPerformed();
+  }
+
+  public void addActionListener(ActionListener l) {
+    this.listenerList.add(ActionListener.class, l);
+  }
+
+  public void removeActionListener(ActionListener l) {
+    this.listenerList.remove(ActionListener.class, l);
   }
 
   private void fireActionPerformed() {
-    ActionEvent e = new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "" + this.model.getId(), System.currentTimeMillis(), 0);
+    ActionEvent e = new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "select:" + this.model.getId(), System.currentTimeMillis(), 0);
 
     for (ActionListener l : this.listenerList.getListeners(ActionListener.class)) {
       l.actionPerformed(e);
+    }
+  }
+
+  private class PanelModel {
+    private boolean selected;
+    private final long id;
+
+    public PanelModel(long id) {
+      this.selected = false;
+      this.id = id;
+    }
+
+    public boolean isSelected() {
+      return this.selected;
+    }
+
+    public void setSelected(boolean selected) {
+      this.selected = selected;
+    }
+
+    public long getId() {
+      return this.id;
     }
   }
 }

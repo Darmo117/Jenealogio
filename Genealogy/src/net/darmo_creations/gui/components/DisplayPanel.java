@@ -16,35 +16,27 @@ import java.util.stream.Collectors;
 import javax.swing.JPanel;
 import javax.swing.Scrollable;
 
-import net.darmo_creations.gui.components.drag.DragController;
+import net.darmo_creations.controllers.DisplayController;
+import net.darmo_creations.controllers.DragController;
 import net.darmo_creations.gui.components.drag.DragableComponentContainer;
-import net.darmo_creations.model.Family;
-import net.darmo_creations.model.Wedding;
+import net.darmo_creations.model.family.Family;
+import net.darmo_creations.model.family.Wedding;
 
 public class DisplayPanel extends JPanel implements Scrollable, DragableComponentContainer<FamilyMemberPanel> {
   private static final long serialVersionUID = 8747904983365363275L;
 
+  private DisplayController controller;
   private Map<Long, FamilyMemberPanel> panels;
   private List<Link> links;
-  private boolean detailledMode;
 
   public DisplayPanel() {
     setPreferredSize(new Dimension(4000, 4000));
     setLayout(null);
+
+    this.controller = new DisplayController(this);
+
     this.panels = new HashMap<>();
     this.links = new ArrayList<>();
-    this.detailledMode = true;
-  }
-
-  public boolean isDetailledMode() {
-    return this.detailledMode;
-  }
-
-  public void setDetailledMode(boolean detailled) {
-    if (isDetailledMode() != detailled) {
-      this.detailledMode = detailled;
-      this.panels.forEach((id, component) -> component.setDetailledMode(detailled));
-    }
   }
 
   public void reset() {
@@ -64,10 +56,11 @@ public class DisplayPanel extends JPanel implements Scrollable, DragableComponen
         this.panels.get(id).setInfo(member, w);
       }
       else {
-        FamilyMemberPanel panel = new FamilyMemberPanel(member, w, isDetailledMode());
+        FamilyMemberPanel panel = new FamilyMemberPanel(member, w);
         DragController<FamilyMemberPanel> dragController = new DragController<>(this, panel);
 
         panel.setBounds(new Rectangle(panel.getPreferredSize()));
+        panel.addActionListener(this.controller);
         panel.addMouseListener(dragController);
         panel.addMouseMotionListener(dragController);
         this.panels.put(id, panel);
@@ -109,6 +102,10 @@ public class DisplayPanel extends JPanel implements Scrollable, DragableComponen
     repaint();
   }
 
+  public void selectPanel(long id) {
+    this.panels.forEach((pId, panel) -> panel.setSelected(pId == id));
+  }
+
   @Override
   protected void paintComponent(Graphics g) {
     super.paintComponent(g);
@@ -143,7 +140,10 @@ public class DisplayPanel extends JPanel implements Scrollable, DragableComponen
 
   @Override
   public Point getScrollOffset() {
-    return getVisibleRect().getLocation();
+    Point visibleOffset = getVisibleRect().getLocation();
+    Point onScreenLocation = getLocationOnScreen();
+
+    return new Point(onScreenLocation.x + visibleOffset.x, onScreenLocation.y + visibleOffset.y);
   }
 
   private class Link {
