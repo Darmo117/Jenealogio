@@ -14,6 +14,7 @@ import net.darmo_creations.dao.FamilyDao;
 import net.darmo_creations.gui.MainFrame;
 import net.darmo_creations.model.Family;
 import net.darmo_creations.model.FamilyMember;
+import net.darmo_creations.model.Gender;
 import net.darmo_creations.model.Wedding;
 
 public class MainController extends WindowAdapter implements ActionListener {
@@ -96,6 +97,9 @@ public class MainController extends WindowAdapter implements ActionListener {
       this.saved = false;
       this.frame.resetDisplay();
       updateFrameMenus();
+      // TEMP
+      this.family.addMember(new FamilyMember(null, "a", "b", Gender.MAN, null, null));
+      this.frame.refreshDisplay(this.family);
     }
   }
 

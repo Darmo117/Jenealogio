@@ -183,10 +183,14 @@ public class LinkDialog extends AbstractDialog {
 
   public void addSelectedChildren() {
     transfertItems(this.availChildrenList, this.childrenList);
+    if (this.availChildrenList.isSelectionEmpty())
+      this.addBtn.setEnabled(false);
   }
 
   public void removeSelectedChildren() {
     transfertItems(this.childrenList, this.availChildrenList);
+    if (this.childrenList.isSelectionEmpty())
+      this.removeBtn.setEnabled(false);
   }
 
   private void transfertItems(JList<FamilyMember> source, JList<FamilyMember> destination) {

@@ -1,21 +1,28 @@
 package net.darmo_creations.gui.components;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.time.Period;
 import java.util.Optional;
 
 import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.border.LineBorder;
 
+import net.darmo_creations.gui.components.drag.Dragable;
 import net.darmo_creations.model.Date;
 import net.darmo_creations.model.FamilyMember;
 import net.darmo_creations.model.Wedding;
 
-public class FamilyMemberPanel extends JPanel {
+public class FamilyMemberPanel extends JPanel implements Dragable {
   private static final long serialVersionUID = 2109771883765681092L;
+
+  private PanelModel model;
 
   private JLabel imageLbl;
   private JLabel nameLbl;
@@ -26,8 +33,11 @@ public class FamilyMemberPanel extends JPanel {
 
   public FamilyMemberPanel(FamilyMember familyMember, Wedding wedding, boolean detailled) {
     setLayout(new BorderLayout());
+    setBorder(new LineBorder(Color.BLACK));
 
-    JPanel infoPnl = new JPanel(new GridLayout());
+    this.model = new PanelModel(familyMember.getId(), true);
+
+    JPanel infoPnl = new JPanel(new GridLayout(5, 1));
     infoPnl.add(this.nameLbl = new JLabel());
     infoPnl.add(this.birthLbl = new JLabel());
     infoPnl.add(this.weddingLbl = new JLabel());
@@ -91,5 +101,25 @@ public class FamilyMemberPanel extends JPanel {
       return String.format("%d/%2d/%d", d.getDate(), d.getMonth(), d.getYear());
     }
     return "-";
+  }
+
+  @Override
+  public boolean isSelected() {
+    return this.model.isSelected();
+  }
+
+  @Override
+  public void setSelected(boolean selected) {
+    this.model.setSelected(selected);
+    if (selected)
+      fireActionPerformed();
+  }
+
+  private void fireActionPerformed() {
+    ActionEvent e = new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "" + this.model.getId(), System.currentTimeMillis(), 0);
+
+    for (ActionListener l : this.listenerList.getListeners(ActionListener.class)) {
+      l.actionPerformed(e);
+    }
   }
 }
