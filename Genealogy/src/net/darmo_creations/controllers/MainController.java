@@ -7,6 +7,8 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.JOptionPane;
 
@@ -20,6 +22,8 @@ import net.darmo_creations.model.family.Gender;
 import net.darmo_creations.model.family.Wedding;
 
 public class MainController extends WindowAdapter implements ActionListener, Observer {
+  private static final Pattern DOUBLE_CLICK_PATTERN = Pattern.compile("^double-click:(\\d+)$");
+
   private final MainFrame frame;
 
   private final FamilyDao familyDao;
@@ -98,6 +102,13 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
         this.selectedCard = this.family.getMember(id).orElseThrow(IllegalStateException::new);
       else
         this.selectedCard = null;
+    }
+    else if (o instanceof String) {
+      String s = "" + o;
+      Matcher m = DOUBLE_CLICK_PATTERN.matcher(s);
+
+      if (m.matches())
+        showDetails(Long.parseLong(m.group(1)));
     }
   }
 
@@ -253,5 +264,9 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
 
   private void refreshFrame() {
     this.frame.refreshDisplay(this.family);
+  }
+
+  private void showDetails(long id) {
+    this.family.getMember(id).ifPresent(m -> this.frame.showDetailsDialog(m, this.family.getWedding(m).orElse(null)));
   }
 }

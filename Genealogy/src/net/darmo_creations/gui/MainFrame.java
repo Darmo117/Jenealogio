@@ -24,6 +24,7 @@ import javax.swing.border.MatteBorder;
 import net.darmo_creations.controllers.ExtensionFileFilter;
 import net.darmo_creations.controllers.MainController;
 import net.darmo_creations.gui.components.DisplayPanel;
+import net.darmo_creations.gui.dialog.CardDetailsDialog;
 import net.darmo_creations.gui.dialog.CardDialog;
 import net.darmo_creations.gui.dialog.LinkDialog;
 import net.darmo_creations.gui.dialog.TreeCreationDialog;
@@ -41,6 +42,7 @@ public class MainFrame extends JFrame {
   private TreeCreationDialog treeCreationDialog;
   private CardDialog cardDialog;
   private LinkDialog linkDialog;
+  private CardDetailsDialog detailsDialog;
 
   private JMenu editMenu;
   private JMenuItem saveItem, saveAsItem, addCardItem, addLinkItem, editItem, deleteItem;
@@ -62,6 +64,7 @@ public class MainFrame extends JFrame {
     this.treeCreationDialog = new TreeCreationDialog(this);
     this.cardDialog = new CardDialog(this);
     this.linkDialog = new LinkDialog(this);
+    this.detailsDialog = new CardDetailsDialog(this);
 
     setJMenuBar(initJMenuBar(controller));
 
@@ -309,6 +312,11 @@ public class MainFrame extends JFrame {
     this.linkDialog.setLink(wedding, men, women, children);
     this.linkDialog.setVisible(true);
     return this.linkDialog.getLink();
+  }
+
+  public void showDetailsDialog(FamilyMember member, Wedding wedding) {
+    this.detailsDialog.setInfo(member, wedding);
+    this.detailsDialog.setVisible(true);
   }
 
   public void showAboutDialog() {

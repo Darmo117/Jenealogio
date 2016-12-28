@@ -16,7 +16,7 @@ import javax.swing.event.DocumentListener;
 
 import net.darmo_creations.gui.dialog.CardDialog;
 
-public class CardController extends AbstractDialogController<CardDialog> implements KeyListener, DocumentListener, ItemListener {
+public class CardController extends DefaultDialogController<CardDialog> implements KeyListener, DocumentListener, ItemListener {
   public CardController(CardDialog dialog) {
     super(dialog);
   }

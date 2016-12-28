@@ -18,6 +18,7 @@ import javax.swing.JPanel;
 import javax.swing.Scrollable;
 
 import net.darmo_creations.controllers.DisplayController;
+import net.darmo_creations.controllers.DoubleClickController;
 import net.darmo_creations.controllers.DragController;
 import net.darmo_creations.gui.components.drag.DragableComponentContainer;
 import net.darmo_creations.model.Observable;
@@ -71,6 +72,7 @@ public class DisplayPanel extends JPanel implements Scrollable, Observable, Drag
         panel.setBounds(new Rectangle(panel.getPreferredSize()));
         panel.addActionListener(this.controller);
         panel.addMouseListener(dragController);
+        panel.addMouseListener(new DoubleClickController(id, this.observers));
         panel.addMouseMotionListener(dragController);
         this.panels.put(id, panel);
         add(panel);

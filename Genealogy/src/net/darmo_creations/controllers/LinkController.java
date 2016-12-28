@@ -15,7 +15,7 @@ import net.darmo_creations.gui.dialog.LinkDialog;
 import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.model.family.Wedding;
 
-public class LinkController extends AbstractDialogController<LinkDialog> implements KeyListener, ListSelectionListener, ItemListener {
+public class LinkController extends DefaultDialogController<LinkDialog> implements KeyListener, ListSelectionListener, ItemListener {
   public LinkController(LinkDialog dialog) {
     super(dialog);
   }

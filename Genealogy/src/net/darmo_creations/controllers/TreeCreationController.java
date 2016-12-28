@@ -5,7 +5,7 @@ import javax.swing.event.DocumentListener;
 
 import net.darmo_creations.gui.dialog.TreeCreationDialog;
 
-public class TreeCreationController extends AbstractDialogController<TreeCreationDialog> implements DocumentListener {
+public class TreeCreationController extends DefaultDialogController<TreeCreationDialog> implements DocumentListener {
   public TreeCreationController(TreeCreationDialog dialog) {
     super(dialog);
   }

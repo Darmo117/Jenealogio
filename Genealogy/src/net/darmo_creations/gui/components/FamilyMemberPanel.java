@@ -111,8 +111,9 @@ public class FamilyMemberPanel extends JPanel implements Dragable {
     setSelected(false);
   }
 
-  public void setInfo(FamilyMember familyMember, Wedding wedding) {
-    switch (familyMember.getGender()) {
+  public void setInfo(FamilyMember member, Wedding wedding) {
+    this.model.setId(member.getId());
+    switch (member.getGender()) {
       case UNKNOW:
         setBackground(UNKNOW_GENDER_COLOR);
         break;
@@ -124,28 +125,15 @@ public class FamilyMemberPanel extends JPanel implements Dragable {
         break;
     }
 
-    this.nameLbl.setText(getFullName(familyMember.getName(), familyMember.getFirstName()));
-    this.birthLbl.setText(getDate(familyMember.getBirthDate()));
-    this.birthPlaceLbl.setText(familyMember.getBirthPlace().orElse(UNKNOWN_DATA));
+    this.nameLbl.setText(member.toString());
+    this.birthLbl.setText(getDate(member.getBirthDate()));
+    this.birthPlaceLbl.setText(member.getBirthPlace().orElse(UNKNOWN_DATA));
     this.weddingLbl.setText(wedding != null ? getDate(wedding.getDate()) : UNKNOWN_DATA);
     this.weddingPlaceLbl.setText(wedding != null ? wedding.getLocation().orElse(UNKNOWN_DATA) : UNKNOWN_DATA);
-    this.deathLbl.setText(getDate(familyMember.getDeathDate()));
-    this.deathPlaceLbl.setText(familyMember.getDeathPlace().orElse(UNKNOWN_DATA));
-    this.ageLbl.setText(getAge(familyMember.getAge()));
+    this.deathLbl.setText(getDate(member.getDeathDate()));
+    this.deathPlaceLbl.setText(member.getDeathPlace().orElse(UNKNOWN_DATA));
+    this.ageLbl.setText(getAge(member.getAge()));
     revalidate();
-  }
-
-  private String getFullName(Optional<String> name, Optional<String> firstName) {
-    String fullName = UNKNOWN_DATA;
-
-    if (firstName.isPresent())
-      fullName = firstName.get();
-    if (name.isPresent())
-      fullName += " " + name.get();
-    else if (firstName.isPresent())
-      fullName += " " + UNKNOWN_DATA;
-
-    return fullName;
   }
 
   private String getAge(Optional<Period> period) {
@@ -188,7 +176,7 @@ public class FamilyMemberPanel extends JPanel implements Dragable {
 
   @Override
   public void doClick() {
-    fireActionPerformed();
+    fireActionPerformed("select:" + this.model.getId());
   }
 
   public void addActionListener(ActionListener l) {
@@ -199,8 +187,8 @@ public class FamilyMemberPanel extends JPanel implements Dragable {
     this.listenerList.remove(ActionListener.class, l);
   }
 
-  private void fireActionPerformed() {
-    ActionEvent e = new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "select:" + this.model.getId(), System.currentTimeMillis(), ActionEvent.ACTION_PERFORMED);
+  private void fireActionPerformed(String actionCommand) {
+    ActionEvent e = new ActionEvent(this, ActionEvent.ACTION_PERFORMED, actionCommand, System.currentTimeMillis(), ActionEvent.ACTION_PERFORMED);
 
     for (ActionListener l : this.listenerList.getListeners(ActionListener.class)) {
       l.actionPerformed(e);
@@ -209,7 +197,7 @@ public class FamilyMemberPanel extends JPanel implements Dragable {
 
   private class PanelModel {
     private boolean selected;
-    private final long id;
+    private long id;
 
     public PanelModel(long id) {
       this.selected = false;
@@ -226,6 +214,10 @@ public class FamilyMemberPanel extends JPanel implements Dragable {
 
     public long getId() {
       return this.id;
+    }
+
+    public void setId(long id) {
+      this.id = id;
     }
   }
 }

@@ -7,10 +7,10 @@ import java.awt.event.WindowEvent;
 
 import net.darmo_creations.gui.dialog.AbstractDialog;
 
-public abstract class AbstractDialogController<T extends AbstractDialog> extends WindowAdapter implements ActionListener {
+public class DefaultDialogController<T extends AbstractDialog> extends WindowAdapter implements ActionListener {
   protected T dialog;
 
-  public AbstractDialogController(T dialog) {
+  public DefaultDialogController(T dialog) {
     this.dialog = dialog;
   }
 

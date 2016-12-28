@@ -14,7 +14,7 @@ import javax.swing.JPanel;
 import javax.swing.JRootPane;
 import javax.swing.KeyStroke;
 
-import net.darmo_creations.controllers.AbstractDialogController;
+import net.darmo_creations.controllers.DefaultDialogController;
 
 public abstract class AbstractDialog extends JDialog {
   private static final long serialVersionUID = -7155586918339699837L;
@@ -52,7 +52,7 @@ public abstract class AbstractDialog extends JDialog {
     installEscapeCloseOperation();
   }
 
-  public void setActionListener(AbstractDialogController<?> controller) {
+  public void setActionListener(DefaultDialogController<?> controller) {
     if (this.validationBtn != null)
       this.validationBtn.addActionListener(controller);
     if (this.cancelBtn != null)
