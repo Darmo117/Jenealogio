@@ -46,15 +46,16 @@ public class CardDialog extends AbstractDialog {
 
   private JFileChooser fileChooser;
 
+  private long id;
   private BufferedImage image;
   private JLabel imageLbl;
-  private JTextField nameFld, firstNameFld;
+  private JTextField nameFld, firstNameFld, birthPlaceFld, deathPlaceFld;
   private JComboBox<Gender> genderCombo;
   private JFormattedTextField birthFld, deathFld;
 
   public CardDialog(MainFrame owner) {
     super(owner, Mode.VALIDATE_CANCEL_OPTION, true);
-    setPreferredSize(new Dimension(300, 360));
+    setPreferredSize(new Dimension(300, 410));
     setResizable(false);
 
     CardController controller = new CardController(this);
@@ -92,9 +93,13 @@ public class CardDialog extends AbstractDialog {
     this.birthFld = new JFormattedTextField(dateFormat);
     this.birthFld.addKeyListener(controller);
     this.birthFld.getDocument().addDocumentListener(controller);
+    this.birthPlaceFld = new JTextField();
+    this.birthPlaceFld.getDocument().addDocumentListener(controller);
     this.deathFld = new JFormattedTextField(dateFormat);
     this.deathFld.addKeyListener(controller);
     this.deathFld.getDocument().addDocumentListener(controller);
+    this.deathPlaceFld = new JTextField();
+    this.deathPlaceFld.getDocument().addDocumentListener(controller);
 
     JPanel imagePnl = new JPanel();
     imagePnl.setBorder(new EmptyBorder(5, 5, 0, 5));
@@ -117,7 +122,11 @@ public class CardDialog extends AbstractDialog {
     gbc.gridy = 3;
     fieldsPnl.add(new JLabel("Naissance"), gbc);
     gbc.gridy = 4;
+    fieldsPnl.add(new JLabel("Endroit"), gbc);
+    gbc.gridy = 5;
     fieldsPnl.add(new JLabel("Décès"), gbc);
+    gbc.gridy = 6;
+    fieldsPnl.add(new JLabel("Endroit"), gbc);
     gbc.gridx = 1;
     gbc.gridwidth = 2;
     gbc.weightx = 1;
@@ -130,7 +139,11 @@ public class CardDialog extends AbstractDialog {
     gbc.gridy = 3;
     fieldsPnl.add(this.birthFld, gbc);
     gbc.gridy = 4;
+    fieldsPnl.add(this.birthPlaceFld, gbc);
+    gbc.gridy = 5;
     fieldsPnl.add(this.deathFld, gbc);
+    gbc.gridy = 6;
+    fieldsPnl.add(this.deathPlaceFld, gbc);
 
     add(imagePnl, BorderLayout.NORTH);
     add(fieldsPnl, BorderLayout.CENTER);
@@ -168,23 +181,30 @@ public class CardDialog extends AbstractDialog {
   public void setCard(FamilyMember member) {
     if (member != null) {
       setTitle("Modifier une fiche");
+      this.id = member.getId();
       setImage(member.getImage());
       this.nameFld.setText(member.getName().orElse(""));
       this.firstNameFld.setText(member.getFirstName().orElse(""));
       this.genderCombo.setSelectedIndex(member.getGender().ordinal());
       this.birthFld.setText(getDate(member.getBirthDate()));
+      this.birthPlaceFld.setText(member.getBirthPlace().orElse(""));
       this.deathFld.setText(getDate(member.getDeathDate()));
+      this.deathPlaceFld.setText(member.getDeathPlace().orElse(""));
     }
     else {
       setTitle("Ajouter une fiche");
+      this.id = -1;
       setImage(Optional.empty());
       this.nameFld.setText("");
       this.firstNameFld.setText("");
       this.genderCombo.setSelectedIndex(Gender.UNKNOW.ordinal());
       this.birthFld.setText("");
+      this.birthPlaceFld.setText("");
       this.deathFld.setText("");
+      this.deathPlaceFld.setText("");
     }
 
+    setCanceled(false);
     setValidateButtonEnabled(false);
   }
 
@@ -202,7 +222,7 @@ public class CardDialog extends AbstractDialog {
   private String getDate(Optional<Date> date) {
     if (date.isPresent()) {
       Date d = date.get();
-      return String.format("%02d/%02d/%d", d.getYear(), d.getMonth(), d.getDate());
+      return String.format("%02d/%02d/%d", d.getDate(), d.getMonth(), d.getYear());
     }
     else
       return "";
@@ -212,12 +232,15 @@ public class CardDialog extends AbstractDialog {
     if (!isCanceled()) {
       // @f0
       FamilyMember member = new FamilyMember(
+          this.id,
           this.image,
           getContent(this.nameFld),
           getContent(this.firstNameFld),
           Gender.values()[this.genderCombo.getSelectedIndex()],
           parseDate(this.birthFld),
-          parseDate(this.deathFld));
+          getContent(this.birthPlaceFld),
+          parseDate(this.deathFld),
+          getContent(this.deathPlaceFld));
       // @f1
 
       return Optional.of(member);

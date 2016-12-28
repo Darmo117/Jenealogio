@@ -3,13 +3,15 @@ package net.darmo_creations.gui.components;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.GridLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.time.Period;
 import java.util.Optional;
 
-import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.Border;
@@ -19,67 +21,129 @@ import net.darmo_creations.gui.components.drag.Dragable;
 import net.darmo_creations.model.Date;
 import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.model.family.Wedding;
+import net.darmo_creations.util.ImageUtil;
 
 public class FamilyMemberPanel extends JPanel implements Dragable {
   private static final long serialVersionUID = 2109771883765681092L;
 
-  private static final Border SELECTED_BORDER = new LineBorder(Color.ORANGE, 2);
+  private static final String UNKNOWN_DATA = "?";
+  private static final Border SELECTED_BORDER = new LineBorder(Color.BLUE.brighter(), 2);
   private static final Border UNSELECTED_BORDER = new LineBorder(Color.GRAY, 2);
+  public static final Color UNKNOW_GENDER_COLOR = Color.GRAY;
+  public static final Color MAN_COLOR = new Color(117, 191, 255);
+  public static final Color WOMAN_COLOR = new Color(255, 183, 255);
 
   private PanelModel model;
 
-  private JLabel imageLbl;
   private JLabel nameLbl;
   private JLabel birthLbl;
+  private JLabel birthPlaceLbl;
   private JLabel weddingLbl;
+  private JLabel weddingPlaceLbl;
   private JLabel deathLbl;
+  private JLabel deathPlaceLbl;
   private JLabel ageLbl;
 
   public FamilyMemberPanel(FamilyMember familyMember, Wedding wedding) {
     super(new BorderLayout());
-    setPreferredSize(new Dimension(200, 250));
+    setPreferredSize(new Dimension(200, 110));
     setLayout(new BorderLayout());
-    setBorder(new LineBorder(Color.BLACK));
 
     this.model = new PanelModel(familyMember.getId());
 
-    JPanel imagePnl = new JPanel();
-    imagePnl.setBorder(new LineBorder(Color.BLUE));
-    imagePnl.add(this.imageLbl = new JLabel((Icon) null, JLabel.CENTER));
-    this.imageLbl.setPreferredSize(new Dimension(120, 150));
-    this.imageLbl.setBorder(new LineBorder(Color.GRAY));
+    JPanel infoPnl = new JPanel(new GridBagLayout());
+    infoPnl.setOpaque(false);
 
-    JPanel infoPnl = new JPanel(new GridLayout(5, 1));
-    infoPnl.setBorder(new LineBorder(Color.GREEN));
-    infoPnl.add(this.nameLbl = new JLabel());
-    infoPnl.add(this.birthLbl = new JLabel());
-    infoPnl.add(this.weddingLbl = new JLabel());
-    infoPnl.add(this.deathLbl = new JLabel());
-    infoPnl.add(this.ageLbl = new JLabel());
+    GridBagConstraints gbc = new GridBagConstraints();
+    gbc.fill = GridBagConstraints.BOTH;
+    gbc.insets = new Insets(2, 2, 2, 2);
+    gbc.weightx = gbc.weighty = 1;
 
-    add(imagePnl, BorderLayout.NORTH);
+    gbc.gridx = 1;
+    gbc.gridwidth = 5;
+    infoPnl.add(this.nameLbl = new JLabel(), gbc);
+    gbc.gridx = 0;
+    gbc.gridy = 1;
+    gbc.gridwidth = 1;
+    infoPnl.add(new JLabel(ImageUtil.BABY), gbc);
+    gbc.gridx = 1;
+    gbc.gridwidth = 8;
+    infoPnl.add(this.birthLbl = new JLabel(), gbc);
+    gbc.gridx = 6;
+    gbc.gridwidth = 1;
+    infoPnl.add(new JLabel("à"), gbc);
+    gbc.gridx = 7;
+    gbc.gridwidth = 8;
+    infoPnl.add(this.birthPlaceLbl = new JLabel(), gbc);
+    gbc.gridx = 0;
+    gbc.gridy = 2;
+    gbc.gridwidth = 1;
+    infoPnl.add(new JLabel(ImageUtil.HEART), gbc);
+    gbc.gridx = 1;
+    gbc.gridwidth = 8;
+    infoPnl.add(this.weddingLbl = new JLabel(), gbc);
+    gbc.gridx = 6;
+    gbc.gridwidth = 1;
+    infoPnl.add(new JLabel("à"), gbc);
+    gbc.gridx = 7;
+    gbc.gridwidth = 8;
+    infoPnl.add(this.weddingPlaceLbl = new JLabel(), gbc);
+    gbc.gridx = 0;
+    gbc.gridy = 3;
+    gbc.gridwidth = 1;
+    infoPnl.add(new JLabel(ImageUtil.CROSS), gbc);
+    gbc.gridx = 1;
+    gbc.gridwidth = 8;
+    infoPnl.add(this.deathLbl = new JLabel(), gbc);
+    gbc.gridx = 6;
+    gbc.gridwidth = 1;
+    infoPnl.add(new JLabel("à"), gbc);
+    gbc.gridx = 7;
+    gbc.gridwidth = 8;
+    infoPnl.add(this.deathPlaceLbl = new JLabel(), gbc);
+    gbc.gridx = 1;
+    gbc.gridy = 4;
+    infoPnl.add(this.ageLbl = new JLabel(), gbc);
+
     add(infoPnl, BorderLayout.CENTER);
 
     setInfo(familyMember, wedding);
+    setSelected(false);
   }
 
   public void setInfo(FamilyMember familyMember, Wedding wedding) {
-    this.imageLbl.setIcon((Icon) null);
+    switch (familyMember.getGender()) {
+      case UNKNOW:
+        setBackground(UNKNOW_GENDER_COLOR);
+        break;
+      case MAN:
+        setBackground(MAN_COLOR);
+        break;
+      case WOMAN:
+        setBackground(WOMAN_COLOR);
+        break;
+    }
+
     this.nameLbl.setText(getFullName(familyMember.getName(), familyMember.getFirstName()));
     this.birthLbl.setText(getDate(familyMember.getBirthDate()));
-    this.weddingLbl.setText(wedding != null ? getDate(wedding.getDate()) : "-");
+    this.birthPlaceLbl.setText(familyMember.getBirthPlace().orElse(UNKNOWN_DATA));
+    this.weddingLbl.setText(wedding != null ? getDate(wedding.getDate()) : UNKNOWN_DATA);
+    this.weddingPlaceLbl.setText(wedding != null ? wedding.getLocation().orElse(UNKNOWN_DATA) : UNKNOWN_DATA);
     this.deathLbl.setText(getDate(familyMember.getDeathDate()));
+    this.deathPlaceLbl.setText(familyMember.getDeathPlace().orElse(UNKNOWN_DATA));
     this.ageLbl.setText(getAge(familyMember.getAge()));
     revalidate();
   }
 
   private String getFullName(Optional<String> name, Optional<String> firstName) {
-    String fullName = "-";
+    String fullName = UNKNOWN_DATA;
 
-    if (name.isPresent())
-      fullName = name.get();
     if (firstName.isPresent())
-      fullName += " " + firstName.get();
+      fullName = firstName.get();
+    if (name.isPresent())
+      fullName += " " + name.get();
+    else if (firstName.isPresent())
+      fullName += " " + UNKNOWN_DATA;
 
     return fullName;
   }
@@ -96,15 +160,21 @@ public class FamilyMemberPanel extends JPanel implements Dragable {
 
       return res;
     }
-    return "-";
+    return UNKNOWN_DATA;
   }
 
   private String getDate(Optional<Date> date) {
     if (date.isPresent()) {
       Date d = date.get();
-      return String.format("%d/%2d/%d", d.getDate(), d.getMonth(), d.getYear());
+      return String.format("%d/%02d/%d", d.getDate(), d.getMonth(), d.getYear());
     }
-    return "-";
+    return UNKNOWN_DATA;
+  }
+
+  @Override
+  public void setLocation(Point p) {
+    super.setLocation(p);
+    getParent().repaint();
   }
 
   public boolean isSelected() {
@@ -130,7 +200,7 @@ public class FamilyMemberPanel extends JPanel implements Dragable {
   }
 
   private void fireActionPerformed() {
-    ActionEvent e = new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "select:" + this.model.getId(), System.currentTimeMillis(), 0);
+    ActionEvent e = new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "select:" + this.model.getId(), System.currentTimeMillis(), ActionEvent.ACTION_PERFORMED);
 
     for (ActionListener l : this.listenerList.getListeners(ActionListener.class)) {
       l.actionPerformed(e);

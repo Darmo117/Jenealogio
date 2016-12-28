@@ -11,14 +11,16 @@ import net.darmo_creations.model.graph.Link;
 
 public final class Wedding extends Link<FamilyMember> implements Cloneable {
   private Date date;
+  private String location;
   private FamilyMember husband;
   private FamilyMember wife;
   private Set<FamilyMember> children;
 
-  public Wedding(Date date, FamilyMember husband, FamilyMember wife, FamilyMember... children) {
+  public Wedding(Date date, String location, FamilyMember husband, FamilyMember wife, FamilyMember... children) {
     if (husband.equals(wife))
       throw new IllegalArgumentException("husband and wife must be different");
     setDate(date != null ? date.clone() : null);
+    setLocation(location);
     setHusband(husband);
     setWife(wife);
     this.children = new HashSet<>();
@@ -32,6 +34,14 @@ public final class Wedding extends Link<FamilyMember> implements Cloneable {
 
   void setDate(Date date) {
     this.date = date;
+  }
+
+  public Optional<String> getLocation() {
+    return Optional.ofNullable(this.location);
+  }
+
+  void setLocation(String location) {
+    this.location = location;
   }
 
   public FamilyMember getHusband() {

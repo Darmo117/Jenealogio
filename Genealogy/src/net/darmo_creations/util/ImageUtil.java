@@ -21,6 +21,9 @@ public final class ImageUtil {
   public static final ImageIcon HELP;
   public static final ImageIcon ARROW_UP;
   public static final ImageIcon ARROW_DOWN;
+  public static final ImageIcon BABY;
+  public static final ImageIcon HEART;
+  public static final ImageIcon CROSS;
 
   public static final ImageIcon NEW_TREE_BIG;
   public static final ImageIcon OPEN_BIG;
@@ -50,6 +53,9 @@ public final class ImageUtil {
     HELP = new ImageIcon("res/icons/help.png");
     ARROW_UP = new ImageIcon("res/icons/arrow_up.png");
     ARROW_DOWN = new ImageIcon("res/icons/arrow_down.png");
+    BABY = new ImageIcon("res/icons/baby.png");
+    HEART = new ImageIcon("res/icons/heart.png");
+    CROSS = new ImageIcon("res/icons/cross.png");
 
     NEW_TREE_BIG = new ImageIcon("res/icons/new_tree_32.png");
     OPEN_BIG = new ImageIcon("res/icons/open_32.png");

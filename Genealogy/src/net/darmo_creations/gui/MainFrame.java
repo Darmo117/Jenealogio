@@ -9,7 +9,6 @@ import java.io.File;
 import java.util.Optional;
 import java.util.Set;
 
-import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -17,7 +16,6 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
@@ -44,7 +42,7 @@ public class MainFrame extends JFrame {
   private CardDialog cardDialog;
   private LinkDialog linkDialog;
 
-  private JMenu editMenu, displayMenu;
+  private JMenu editMenu;
   private JMenuItem saveItem, saveAsItem, addCardItem, addLinkItem, editItem, deleteItem;
   private JButton saveBtn, saveAsBtn, addCardBtn, addLinkBtn, editCardBtn, editLinkBtn, deleteCardBtn, deleteLinkBtn;
   private DisplayPanel displayPnl;
@@ -69,6 +67,7 @@ public class MainFrame extends JFrame {
 
     add(getJToolBar(controller), BorderLayout.NORTH);
     this.displayPnl = new DisplayPanel();
+    this.displayPnl.addObserver(controller);
     add(new JScrollPane(this.displayPnl), BorderLayout.CENTER);
 
     controller.init();
@@ -146,24 +145,6 @@ public class MainFrame extends JFrame {
       this.deleteItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
       this.deleteItem.addActionListener(listener);
       menuBar.add(this.editMenu);
-    }
-
-    // Menu 'Affichage'
-    {
-      this.displayMenu = new JMenu("Affichage");
-      this.displayMenu.setMnemonic('a');
-      ButtonGroup g = new ButtonGroup();
-      this.displayMenu.add(i = new JRadioButtonMenuItem("Affichage détaillé", true));
-      i.setActionCommand("display-detailled");
-      i.setMnemonic('d');
-      i.addActionListener(listener);
-      g.add(i);
-      this.displayMenu.add(i = new JRadioButtonMenuItem("Affichage simplifié"));
-      i.setActionCommand("display-simplified");
-      i.setMnemonic('s');
-      i.addActionListener(listener);
-      g.add(i);
-      menuBar.add(this.displayMenu);
     }
 
     // Menu 'Aide'
@@ -247,7 +228,6 @@ public class MainFrame extends JFrame {
     this.editMenu.setEnabled(fileOpen);
     this.addCardItem.setEnabled(fileOpen);
     this.addLinkItem.setEnabled(fileOpen);
-    this.displayMenu.setEnabled(fileOpen);
     this.editItem.setEnabled(fileOpen && (cardSelected || linkSelected));
     this.deleteItem.setEnabled(fileOpen && (cardSelected || linkSelected));
 

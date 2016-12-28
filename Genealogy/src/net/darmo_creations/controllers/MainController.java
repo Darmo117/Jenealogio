@@ -12,12 +12,14 @@ import javax.swing.JOptionPane;
 
 import net.darmo_creations.dao.FamilyDao;
 import net.darmo_creations.gui.MainFrame;
+import net.darmo_creations.model.Date;
+import net.darmo_creations.model.Observer;
 import net.darmo_creations.model.family.Family;
 import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.model.family.Gender;
 import net.darmo_creations.model.family.Wedding;
 
-public class MainController extends WindowAdapter implements ActionListener {
+public class MainController extends WindowAdapter implements ActionListener, Observer {
   private final MainFrame frame;
 
   private final FamilyDao familyDao;
@@ -87,7 +89,28 @@ public class MainController extends WindowAdapter implements ActionListener {
     exit();
   }
 
+  @Override
+  public void update(Object o) {
+    if (o instanceof Long) {
+      long id = (Long) o;
+      this.frame.updateMenus(this.fileOpen, id >= 0, false);
+      if (id >= 0)
+        this.selectedCard = this.family.getMember(id).orElseThrow(IllegalStateException::new);
+      else
+        this.selectedCard = null;
+    }
+  }
+
   private void newFile() {
+    if (this.fileOpen && !this.saved) {
+      int choice = this.frame.showConfirmDialog("Voulez-vous sauvegarder ?");
+
+      if (choice == JOptionPane.YES_OPTION)
+        save();
+      else if (choice == JOptionPane.CANCEL_OPTION || choice == JOptionPane.CLOSED_OPTION)
+        return;
+    }
+
     Optional<String> name = this.frame.showCreateTreeDialog();
 
     if (name.isPresent()) {
@@ -98,7 +121,7 @@ public class MainController extends WindowAdapter implements ActionListener {
       this.frame.resetDisplay();
       updateFrameMenus();
       // TEMP
-      this.family.addMember(new FamilyMember(null, "a", "b", Gender.MAN, null, null));
+      this.family.addMember(new FamilyMember(null, "Smith", "John", Gender.MAN, new Date(1913, 5, 7), "Londres", new Date(1982, 3, 29), "Paris"));
       this.frame.refreshDisplay(this.family);
     }
   }
@@ -155,8 +178,8 @@ public class MainController extends WindowAdapter implements ActionListener {
   private void addLink() {
     // @f0
     Optional<Wedding> wedding = this.frame.showAddLinkDialog(
-        this.family.getPotentialHusbands(),
-        this.family.getPotentialWives(),
+        this.family.getPotentialHusbands(null),
+        this.family.getPotentialWives(null),
         this.family.getPotentialChildren(null));
     // @f1
 
@@ -179,8 +202,8 @@ public class MainController extends WindowAdapter implements ActionListener {
       // @f0
       Optional<Wedding> wedding = this.frame.showUpdateLink(
           this.selectedLink,
-          this.family.getPotentialHusbands(),
-          this.family.getPotentialWives(),
+          this.family.getPotentialHusbands(this.selectedLink.getHusband()),
+          this.family.getPotentialWives(this.selectedLink.getHusband()),
           this.family.getPotentialChildren(this.selectedLink));
       // @f1
 
@@ -195,12 +218,16 @@ public class MainController extends WindowAdapter implements ActionListener {
     if (this.selectedCard != null) {
       if (this.frame.showConfirmDialog("Êtes-vous sûr de vouloir supprimer cette fiche ?") == JOptionPane.OK_OPTION) {
         this.family.removeMember(this.selectedCard);
+        this.selectedCard = null;
+        updateFrameMenus();
         refreshFrame();
       }
     }
     else if (this.selectedLink != null) {
       if (this.frame.showConfirmDialog("Êtes-vous sûr de vouloir supprimer de lien ?") == JOptionPane.OK_OPTION) {
         this.family.removeWedding(this.selectedLink);
+        this.selectedLink = null;
+        updateFrameMenus();
         refreshFrame();
       }
     }
@@ -210,9 +237,9 @@ public class MainController extends WindowAdapter implements ActionListener {
     if (this.fileOpen && !this.saved) {
       int choice = this.frame.showConfirmDialog("Voulez-vous sauvegarder ?");
 
-      if (choice == JOptionPane.OK_OPTION)
+      if (choice == JOptionPane.YES_OPTION)
         save();
-      else if (choice == JOptionPane.CANCEL_OPTION)
+      else if (choice == JOptionPane.CANCEL_OPTION || choice == JOptionPane.CLOSED_OPTION)
         return;
     }
 

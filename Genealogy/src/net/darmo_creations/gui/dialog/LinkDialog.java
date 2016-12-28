@@ -24,6 +24,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
 import net.darmo_creations.controllers.LinkController;
@@ -41,6 +42,7 @@ public class LinkDialog extends AbstractDialog {
 
   private LinkController controller;
   private JFormattedTextField dateFld;
+  private JTextField locationFld;
   private JComboBox<FamilyMember> husbandCombo, wifeCombo;
   private JList<FamilyMember> childrenList, availChildrenList;
   private JButton addBtn, removeBtn;
@@ -61,6 +63,7 @@ public class LinkDialog extends AbstractDialog {
     DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
     this.dateFld = new JFormattedTextField(dateFormat);
     this.dateFld.addKeyListener(this.controller);
+    this.locationFld = new JTextField();
     this.husbandCombo = new JComboBox<>();
     this.husbandCombo.addItemListener(this.controller);
     this.wifeCombo = new JComboBox<>();
@@ -87,13 +90,15 @@ public class LinkDialog extends AbstractDialog {
     gbc.gridwidth = 2;
     fieldsPnl.add(new JLabel("Date"), gbc);
     gbc.gridy = 1;
-    fieldsPnl.add(new JLabel("Époux"), gbc);
+    fieldsPnl.add(new JLabel("Endroit"), gbc);
     gbc.gridy = 2;
-    fieldsPnl.add(new JLabel("Épouse"), gbc);
+    fieldsPnl.add(new JLabel("Époux"), gbc);
     gbc.gridy = 3;
+    fieldsPnl.add(new JLabel("Épouse"), gbc);
+    gbc.gridy = 4;
     fieldsPnl.add(new JLabel("Enfants"), gbc);
     gbc.gridwidth = 3;
-    gbc.gridy = 6;
+    gbc.gridy = 7;
     fieldsPnl.add(new JLabel("Enfants disponibles"), gbc);
     gbc.gridwidth = 5;
     gbc.weightx = 1;
@@ -101,14 +106,16 @@ public class LinkDialog extends AbstractDialog {
     gbc.gridy = 0;
     fieldsPnl.add(this.dateFld, gbc);
     gbc.gridy = 1;
-    fieldsPnl.add(this.husbandCombo, gbc);
+    fieldsPnl.add(this.locationFld, gbc);
     gbc.gridy = 2;
-    fieldsPnl.add(this.wifeCombo, gbc);
+    fieldsPnl.add(this.husbandCombo, gbc);
     gbc.gridy = 3;
+    fieldsPnl.add(this.wifeCombo, gbc);
+    gbc.gridy = 4;
     gbc.fill = GridBagConstraints.BOTH;
     gbc.gridheight = 3;
     fieldsPnl.add(new JScrollPane(this.childrenList), gbc);
-    gbc.gridy = 6;
+    gbc.gridy = 7;
     gbc.gridheight = 1;
     gbc.fill = GridBagConstraints.HORIZONTAL;
     JPanel p = new JPanel();
@@ -118,7 +125,7 @@ public class LinkDialog extends AbstractDialog {
     gbc.gridwidth = 5;
     gbc.weightx = 1;
     gbc.gridx = 2;
-    gbc.gridy = 7;
+    gbc.gridy = 8;
     gbc.fill = GridBagConstraints.BOTH;
     gbc.gridheight = 3;
     fieldsPnl.add(new JScrollPane(this.availChildrenList), gbc);
@@ -230,18 +237,20 @@ public class LinkDialog extends AbstractDialog {
   public void setLink(Wedding wedding, Set<FamilyMember> potentialHusbands, Set<FamilyMember> potentialWives, Set<FamilyMember> potentialChildren) {
     DefaultListModel<FamilyMember> model1 = (DefaultListModel<FamilyMember>) this.childrenList.getModel();
     DefaultListModel<FamilyMember> model2 = (DefaultListModel<FamilyMember>) this.availChildrenList.getModel();
+    model1.removeAllElements();
+    model2.removeAllElements();
 
     if (wedding != null) {
       setTitle("Modifier un lien");
       this.dateFld.setText(formatDate(wedding.getDate()));
-      model1.removeAllElements();
+      this.locationFld.setText(wedding.getLocation().orElse(""));
       wedding.getChildren().forEach(child -> model1.addElement(child));
-      model2.removeAllElements();
       potentialChildren.forEach(child -> model2.addElement(child));
     }
     else {
       setTitle("Ajouter un lien");
       this.dateFld.setText("");
+      this.locationFld.setText("");
     }
 
     this.controller.reset(wedding, potentialHusbands, potentialWives, potentialChildren);
@@ -265,6 +274,7 @@ public class LinkDialog extends AbstractDialog {
       // @f0
       Wedding wedding = new Wedding(
           parseDate(this.dateFld),
+          this.locationFld.getText().length() > 0 ? this.locationFld.getText() : null,
           (FamilyMember) this.husbandCombo.getSelectedItem(),
           (FamilyMember) this.wifeCombo.getSelectedItem(),
           getChildren());

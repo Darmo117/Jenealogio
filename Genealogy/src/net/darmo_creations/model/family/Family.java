@@ -36,6 +36,10 @@ public class Family extends Graph<FamilyMember, Wedding> {
     return members;
   }
 
+  public Optional<FamilyMember> getMember(long id) {
+    return this.members.stream().filter(member -> member.getId() == id).findAny();
+  }
+
   public void addMember(FamilyMember member) {
     if (!this.members.contains(member)) {
       this.members.add(member.copy(getNextMemberId()));
@@ -53,7 +57,9 @@ public class Family extends Graph<FamilyMember, Wedding> {
       m.setFirstName(member.getFirstName().orElse(null));
       m.setGender(member.getGender());
       m.setBirthDate(member.getBirthDate().orElse(null));
+      m.setBirthPlace(member.getBirthPlace().orElse(null));
       m.setDeathDate(member.getDeathDate().orElse(null));
+      m.setDeathPlace(member.getDeathPlace().orElse(null));
     }
   }
 
@@ -81,12 +87,12 @@ public class Family extends Graph<FamilyMember, Wedding> {
 
   public void addWedding(Wedding wedding) {
     if (!this.weddings.contains(wedding)) {
-      Wedding w = getLinkForNode(wedding.getHusband()).get();
-      FamilyMember[] children = w.getChildren().stream().map(child -> getMember(child.getId())).toArray(FamilyMember[]::new);
+      FamilyMember[] children = wedding.getChildren().stream().map(child -> getMember(child.getId()).get()).toArray(FamilyMember[]::new);
 
       // @f0
       this.weddings.add(new Wedding(
-          w.getDate().orElse(null),
+          wedding.getDate().orElse(null),
+          wedding.getLocation().orElse(null),
           getMember(wedding.getHusband().getId()).get(),
           getMember(wedding.getWife().getId()).get(),
           children));
@@ -101,6 +107,7 @@ public class Family extends Graph<FamilyMember, Wedding> {
       Wedding w = optional.get();
 
       w.setDate(wedding.getDate().orElse(null));
+      w.setLocation(wedding.getLocation().orElse(null));
       Set<FamilyMember> children = w.getChildren();
       children.forEach(child -> w.removeChild(child));
       wedding.getChildren().forEach(child -> w.addChild(Family.this.getMember(child.getId()).orElseThrow(IllegalStateException::new)));
@@ -116,12 +123,20 @@ public class Family extends Graph<FamilyMember, Wedding> {
    * 
    * @return les hommes célibataires
    */
-  public Set<FamilyMember> getPotentialHusbands() {
+  public Set<FamilyMember> getPotentialHusbands(FamilyMember member) {
     // Condition : les personnes doivent être des hommes célibataires qui ne font pas encore partie
     // de la famille.
-    Set<FamilyMember> men = new HashSet<>();
+    Set<FamilyMember> men = new HashSet<>(this.members);
+    GraphExplorer<FamilyMember, Wedding> explorer = new GraphExplorer<>(this);
 
-    // TODO
+    if (member != null)
+      men.removeAll(explorer.explore(member));
+    // TODO enlever les hommes mariés.
+    for (Iterator<FamilyMember> it = men.iterator(); it.hasNext();) {
+      FamilyMember m = it.next();
+      if (m.isWoman() || m.isMan() && getWedding(m).isPresent())
+        it.remove();
+    }
 
     return men;
   }
@@ -131,12 +146,20 @@ public class Family extends Graph<FamilyMember, Wedding> {
    * 
    * @return les femmes célibataires
    */
-  public Set<FamilyMember> getPotentialWives() {
+  public Set<FamilyMember> getPotentialWives(FamilyMember member) {
     // Condition : les personnes doivent être des femmes célibataires qui ne font pas encore partie
     // de la famille.
-    Set<FamilyMember> women = new HashSet<>();
+    Set<FamilyMember> women = new HashSet<>(this.members);
+    GraphExplorer<FamilyMember, Wedding> explorer = new GraphExplorer<>(this);
 
-    // TODO
+    if (member != null)
+      women.removeAll(explorer.explore(member));
+    // TODO enlever les hommes mariés.
+    for (Iterator<FamilyMember> it = women.iterator(); it.hasNext();) {
+      FamilyMember m = it.next();
+      if (m.isMan() || m.isWoman() && getWedding(m).isPresent())
+        it.remove();
+    }
 
     return women;
   }
@@ -150,17 +173,15 @@ public class Family extends Graph<FamilyMember, Wedding> {
    */
   public Set<FamilyMember> getPotentialChildren(Wedding wedding) {
     if (wedding == null)
-      return new HashSet<>(this.members);
+      return getAllMembers();
 
     // Condition : les personnes ne doivent pas déjà faire partie de la famille des deux conjoints.
     Set<FamilyMember> candidates = new HashSet<>(this.members);
-    Set<FamilyMember> connectedSet = new HashSet<>();
     GraphExplorer<FamilyMember, Wedding> explorer = new GraphExplorer<>(this);
 
     // Inutile de visiter le conjoint puisqu'il fait forcément partie de la même composante connexe.
-    connectedSet.addAll(explorer.explore(wedding.getHusband()));
     // Soustraction ensembliste.
-    candidates.removeAll(connectedSet);
+    candidates.removeAll(explorer.explore(wedding.getHusband()));
 
     return candidates;
   }
@@ -188,10 +209,6 @@ public class Family extends Graph<FamilyMember, Wedding> {
       return Optional.of(optional.get().getWife());
 
     return Optional.empty();
-  }
-
-  private Optional<FamilyMember> getMember(long id) {
-    return this.members.stream().filter(member -> member.getId() == id).findAny();
   }
 
   private long getNextMemberId() {

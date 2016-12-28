@@ -1,5 +1,6 @@
 package net.darmo_creations.gui.components;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -19,11 +20,15 @@ import javax.swing.Scrollable;
 import net.darmo_creations.controllers.DisplayController;
 import net.darmo_creations.controllers.DragController;
 import net.darmo_creations.gui.components.drag.DragableComponentContainer;
+import net.darmo_creations.model.Observable;
+import net.darmo_creations.model.Observer;
 import net.darmo_creations.model.family.Family;
 import net.darmo_creations.model.family.Wedding;
 
-public class DisplayPanel extends JPanel implements Scrollable, DragableComponentContainer<FamilyMemberPanel> {
+public class DisplayPanel extends JPanel implements Scrollable, Observable, DragableComponentContainer<FamilyMemberPanel> {
   private static final long serialVersionUID = 8747904983365363275L;
+
+  private List<Observer> observers;
 
   private DisplayController controller;
   private Map<Long, FamilyMemberPanel> panels;
@@ -33,7 +38,9 @@ public class DisplayPanel extends JPanel implements Scrollable, DragableComponen
     setPreferredSize(new Dimension(4000, 4000));
     setLayout(null);
 
+    this.observers = new ArrayList<>();
     this.controller = new DisplayController(this);
+    addMouseListener(this.controller);
 
     this.panels = new HashMap<>();
     this.links = new ArrayList<>();
@@ -41,6 +48,8 @@ public class DisplayPanel extends JPanel implements Scrollable, DragableComponen
 
   public void reset() {
     this.panels.clear();
+    this.links.clear();
+    removeAll();
   }
 
   public void refresh(Family family) {
@@ -81,7 +90,7 @@ public class DisplayPanel extends JPanel implements Scrollable, DragableComponen
     family.getAllWeddings().forEach(wedding -> {
       long id1 = wedding.getHusband().getId();
       long id2 = wedding.getWife().getId();
-      Link link = new Link(id1, id2, null);
+      Link link = new Link(id1, id2, new HashSet<>());
       Set<Long> children = wedding.getChildren().stream().map(member -> member.getId()).collect(Collectors.toSet());
 
       if (this.links.contains(link)) {
@@ -104,13 +113,32 @@ public class DisplayPanel extends JPanel implements Scrollable, DragableComponen
 
   public void selectPanel(long id) {
     this.panels.forEach((pId, panel) -> panel.setSelected(pId == id));
+    notifyObservers(id);
   }
 
   @Override
   protected void paintComponent(Graphics g) {
     super.paintComponent(g);
     Graphics2D g2d = (Graphics2D) g;
-    // TODO dessiner les liens
+
+    g2d.setColor(Color.BLACK);
+    this.links.forEach(link -> {
+      // Lien entre les mariés.
+      Rectangle r1 = this.panels.get(link.getParent1()).getBounds();
+      Rectangle r2 = this.panels.get(link.getParent2()).getBounds();
+      Point p1 = new Point(r1.x + r1.width / 2, r1.y + r1.height / 2);
+      Point p2 = new Point(r2.x + r2.width / 2, r2.y + r2.height / 2);
+      Point middle = new Point((p1.x + p2.x) / 2, (p1.y + p2.y) / 2);
+
+      g2d.drawLine(p1.x, p1.y, p2.x, p2.y);
+      // Liens vers les enfants.
+      link.getChildren().forEach(child -> {
+        Rectangle r = this.panels.get(child).getBounds();
+        Point p = new Point(r.x + r.width / 2, r.y + r.height / 2);
+
+        g2d.drawLine(middle.x, middle.y, p.x, p.y);
+      });
+    });
   }
 
   @Override
@@ -140,10 +168,21 @@ public class DisplayPanel extends JPanel implements Scrollable, DragableComponen
 
   @Override
   public Point getScrollOffset() {
-    Point visibleOffset = getVisibleRect().getLocation();
-    Point onScreenLocation = getLocationOnScreen();
+    return getLocationOnScreen();
+  }
 
-    return new Point(onScreenLocation.x + visibleOffset.x, onScreenLocation.y + visibleOffset.y);
+  @Override
+  public void addObserver(Observer observer) {
+    this.observers.add(observer);
+  }
+
+  @Override
+  public void removeObserver(Observer observer) {
+    this.observers.remove(observer);
+  }
+
+  private void notifyObservers(Object o) {
+    this.observers.forEach(obs -> obs.update(o));
   }
 
   private class Link {

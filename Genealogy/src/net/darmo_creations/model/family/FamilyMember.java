@@ -10,31 +10,35 @@ import net.darmo_creations.model.graph.Node;
 import net.darmo_creations.util.CalendarUtil;
 import net.darmo_creations.util.ImageUtil;
 
-public class FamilyMember extends Node<FamilyMember> implements Cloneable {
+/**
+ * Une personne a un id interne, une photo, un nom, un prénom, un genre, une date de naissance et
+ * une date de décès. Une personne ne connaît pas ses parents.
+ */
+public class FamilyMember extends Node<FamilyMember> implements Comparable<FamilyMember>, Cloneable {
   private final long id;
   private BufferedImage image;
   private String name;
   private String firstName;
   private Gender gender;
   private Date birthDate;
+  private String birthPlace;
   private Date deathDate;
+  private String deathPlace;
 
-  public FamilyMember(BufferedImage image, String name, String firstName, Gender gender, Date birthDate, Date deathDate) {
-    this(-1, image, name, firstName, gender, birthDate, deathDate);
+  public FamilyMember(BufferedImage image, String name, String firstName, Gender gender, Date birthDate, String birthPlace, Date deathDate, String deathPlace) {
+    this(-1, image, name, firstName, gender, birthDate, birthPlace, deathDate, deathPlace);
   }
 
-  /**
-   * Une personne a un id interne, une photo, un nom, un prénom, un genre, une date de naissance et
-   * une date de décès. Une personne ne connaît pas ses parents.
-   */
-  private FamilyMember(long id, BufferedImage image, String name, String firstName, Gender gender, Date birthDate, Date deathDate) {
+  public FamilyMember(long id, BufferedImage image, String name, String firstName, Gender gender, Date birthDate, String birthPlace, Date deathDate, String deathPlace) {
     this.id = id;
     this.image = image != null ? ImageUtil.deepCopy(image) : null;
     this.name = name;
     this.firstName = firstName;
     this.gender = Objects.requireNonNull(gender);
     this.birthDate = birthDate != null ? birthDate.clone() : null;
+    this.birthPlace = birthPlace;
     this.deathDate = deathDate != null ? deathDate.clone() : null;
+    this.deathPlace = deathPlace;
   }
 
   public long getId() {
@@ -112,12 +116,28 @@ public class FamilyMember extends Node<FamilyMember> implements Cloneable {
     return Optional.of(Period.ofYears(years));
   }
 
+  public Optional<String> getBirthPlace() {
+    return Optional.ofNullable(this.birthPlace);
+  }
+
+  void setBirthPlace(String birthPlace) {
+    this.birthPlace = birthPlace;
+  }
+
   public Optional<Date> getDeathDate() {
     return Optional.ofNullable(this.deathDate != null ? this.deathDate.clone() : null);
   }
 
   void setDeathDate(Date deathDate) {
     this.deathDate = deathDate != null ? deathDate.clone() : null;
+  }
+
+  public Optional<String> getDeathPlace() {
+    return Optional.ofNullable(this.deathPlace);
+  }
+
+  void setDeathPlace(String deathPlace) {
+    this.deathPlace = deathPlace;
   }
 
   @Override
@@ -139,7 +159,7 @@ public class FamilyMember extends Node<FamilyMember> implements Cloneable {
     if (!getName().isPresent() && !getFirstName().isPresent())
       return "?";
     else
-      return getName().orElse("?") + " " + getFirstName().orElse("?");
+      return getFirstName().orElse("?") + " " + getName().orElse("?");
   }
 
   FamilyMember copy(long id) {
@@ -151,7 +171,9 @@ public class FamilyMember extends Node<FamilyMember> implements Cloneable {
         getFirstName().orElse(null),
         getGender(),
         getBirthDate().orElse(null),
-        getDeathDate().orElse(null));
+        getBirthPlace().orElse(null),
+        getDeathDate().orElse(null),
+        getDeathPlace().orElse(null));
     // @f1
   }
 
@@ -169,5 +191,10 @@ public class FamilyMember extends Node<FamilyMember> implements Cloneable {
     catch (CloneNotSupportedException e) {
       throw new Error(e);
     }
+  }
+
+  @Override
+  public int compareTo(FamilyMember f) {
+    return Long.compare(getId(), f.getId());
   }
 }
