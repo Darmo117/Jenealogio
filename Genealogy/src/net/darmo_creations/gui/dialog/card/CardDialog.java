@@ -1,4 +1,4 @@
-package net.darmo_creations.gui.dialog;
+package net.darmo_creations.gui.dialog.card;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -31,10 +31,10 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
-import net.darmo_creations.controllers.CardController;
 import net.darmo_creations.controllers.ExtensionFileFilter;
 import net.darmo_creations.gui.MainFrame;
 import net.darmo_creations.gui.components.ImageLabel;
+import net.darmo_creations.gui.dialog.AbstractDialog;
 import net.darmo_creations.model.Date;
 import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.model.family.Gender;
@@ -173,7 +173,7 @@ public class CardDialog extends AbstractDialog {
     return birth == null || death == null || (birth != null && death != null && birth.before(death));
   }
 
-  public File showOpenFileChooser() {
+  File showOpenFileChooser() {
     this.fileChooser.showOpenDialog(this);
     return this.fileChooser.getSelectedFile();
   }
@@ -208,7 +208,7 @@ public class CardDialog extends AbstractDialog {
     setValidateButtonEnabled(false);
   }
 
-  public void setImage(Optional<BufferedImage> image) {
+  void setImage(Optional<BufferedImage> image) {
     if (image.isPresent()) {
       this.image = image.get();
       this.imageLbl.setIcon(new ImageIcon(image.get()));
@@ -272,7 +272,7 @@ public class CardDialog extends AbstractDialog {
     return null;
   }
 
-  public boolean atLeastOneFieldCompleted() {
+  boolean atLeastOneFieldCompleted() {
     boolean ok = false;
 
     ok |= this.nameFld.getText().length() > 0;
@@ -284,7 +284,7 @@ public class CardDialog extends AbstractDialog {
     return ok;
   }
 
-  public void showErrorDialog(String message) {
+  void showErrorDialog(String message) {
     ((MainFrame) getParent()).showErrorDialog(message);
   }
 }

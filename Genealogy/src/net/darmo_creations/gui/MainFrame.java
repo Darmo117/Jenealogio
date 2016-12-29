@@ -7,7 +7,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.util.Optional;
-import java.util.Set;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -25,9 +24,9 @@ import net.darmo_creations.controllers.ExtensionFileFilter;
 import net.darmo_creations.controllers.MainController;
 import net.darmo_creations.gui.components.DisplayPanel;
 import net.darmo_creations.gui.dialog.CardDetailsDialog;
-import net.darmo_creations.gui.dialog.CardDialog;
-import net.darmo_creations.gui.dialog.LinkDialog;
 import net.darmo_creations.gui.dialog.TreeCreationDialog;
+import net.darmo_creations.gui.dialog.card.CardDialog;
+import net.darmo_creations.gui.dialog.link.LinkDialog;
 import net.darmo_creations.model.family.Family;
 import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.model.family.Wedding;
@@ -296,8 +295,8 @@ public class MainFrame extends JFrame {
     return this.cardDialog.getCard();
   }
 
-  public Optional<Wedding> showAddLinkDialog(Set<FamilyMember> men, Set<FamilyMember> women, Set<FamilyMember> children) {
-    this.linkDialog.setLink(null, men, women, children);
+  public Optional<Wedding> showAddLinkDialog(Family family) {
+    this.linkDialog.setLink(null, family);
     this.linkDialog.setVisible(true);
     return this.linkDialog.getLink();
   }
@@ -308,8 +307,8 @@ public class MainFrame extends JFrame {
     return this.cardDialog.getCard();
   }
 
-  public Optional<Wedding> showUpdateLink(Wedding wedding, Set<FamilyMember> men, Set<FamilyMember> women, Set<FamilyMember> children) {
-    this.linkDialog.setLink(wedding, men, women, children);
+  public Optional<Wedding> showUpdateLink(Wedding wedding, Family family) {
+    this.linkDialog.setLink(wedding, family);
     this.linkDialog.setVisible(true);
     return this.linkDialog.getLink();
   }

@@ -119,19 +119,16 @@ public class Family extends Graph<FamilyMember, Wedding> {
   }
 
   /**
-   * Retourne tous les hommes non encore mariés.
+   * Retourne tous les maris potentiels pour la femme donnée.
    * 
    * @return les hommes célibataires
    */
-  public Set<FamilyMember> getPotentialHusbands(FamilyMember member) {
-    // Condition : les personnes doivent être des hommes célibataires qui ne font pas encore partie
-    // de la famille.
+  public Set<FamilyMember> getPotentialHusbandsForWife(FamilyMember member) {
+    if (member != null && member.isMan())
+      return new HashSet<>();
+    // Condition : les personnes doivent être des hommes célibataires
     Set<FamilyMember> men = new HashSet<>(this.members);
-    GraphExplorer<FamilyMember, Wedding> explorer = new GraphExplorer<>(this);
 
-    if (member != null)
-      men.removeAll(explorer.explore(member));
-    // TODO enlever les hommes mariés.
     for (Iterator<FamilyMember> it = men.iterator(); it.hasNext();) {
       FamilyMember m = it.next();
       if (m.isWoman() || m.isMan() && getWedding(m).isPresent())
@@ -142,19 +139,16 @@ public class Family extends Graph<FamilyMember, Wedding> {
   }
 
   /**
-   * Retourne toutes les femmes non encore mariées.
+   * Retourne toutes les femmes potentielles pour l'homme donné.
    * 
    * @return les femmes célibataires
    */
-  public Set<FamilyMember> getPotentialWives(FamilyMember member) {
-    // Condition : les personnes doivent être des femmes célibataires qui ne font pas encore partie
-    // de la famille.
+  public Set<FamilyMember> getPotentialWivesForHusband(FamilyMember member) {
+    if (member != null && member.isWoman())
+      return new HashSet<>();
+    // Condition : les personnes doivent être des femmes célibataires
     Set<FamilyMember> women = new HashSet<>(this.members);
-    GraphExplorer<FamilyMember, Wedding> explorer = new GraphExplorer<>(this);
 
-    if (member != null)
-      women.removeAll(explorer.explore(member));
-    // TODO enlever les hommes mariés.
     for (Iterator<FamilyMember> it = women.iterator(); it.hasNext();) {
       FamilyMember m = it.next();
       if (m.isMan() || m.isWoman() && getWedding(m).isPresent())
@@ -165,8 +159,8 @@ public class Family extends Graph<FamilyMember, Wedding> {
   }
 
   /**
-   * Retourne toutes le personnes éligibles pour être les enfants du couple donné. Si l'argument est
-   * null, tous les membres de la famille sont retournés.
+   * Retourne toutes les personnes éligibles pour être les enfants du couple donné. Si l'argument
+   * est null, tous les membres de la famille sont retournés.
    * 
    * @param wedding le mariage
    * @return la liste des enfants potentiels
@@ -176,14 +170,14 @@ public class Family extends Graph<FamilyMember, Wedding> {
       return getAllMembers();
 
     // Condition : les personnes ne doivent pas déjà faire partie de la famille des deux conjoints.
-    Set<FamilyMember> candidates = new HashSet<>(this.members);
+    Set<FamilyMember> children = new HashSet<>(this.members);
     GraphExplorer<FamilyMember, Wedding> explorer = new GraphExplorer<>(this);
 
-    // Inutile de visiter le conjoint puisqu'il fait forcément partie de la même composante connexe.
-    // Soustraction ensembliste.
-    candidates.removeAll(explorer.explore(wedding.getHusband()));
+    children.removeAll(explorer.explore(wedding.getHusband()));
+    children.removeAll(explorer.explore(wedding.getWife()));
 
-    return candidates;
+    System.out.println(children);
+    return children;
   }
 
   @Override

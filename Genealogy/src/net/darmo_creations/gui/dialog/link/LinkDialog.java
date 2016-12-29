@@ -1,4 +1,4 @@
-package net.darmo_creations.gui.dialog;
+package net.darmo_creations.gui.dialog.link;
 
 import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
@@ -27,10 +27,11 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
-import net.darmo_creations.controllers.LinkController;
 import net.darmo_creations.gui.MainFrame;
+import net.darmo_creations.gui.dialog.AbstractDialog;
 import net.darmo_creations.model.Date;
 import net.darmo_creations.model.family.DummyFamilyMember;
+import net.darmo_creations.model.family.Family;
 import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.model.family.Wedding;
 import net.darmo_creations.util.ImageUtil;
@@ -65,8 +66,10 @@ public class LinkDialog extends AbstractDialog {
     this.dateFld.addKeyListener(this.controller);
     this.locationFld = new JTextField();
     this.husbandCombo = new JComboBox<>();
+    this.husbandCombo.setName("husband");
     this.husbandCombo.addItemListener(this.controller);
     this.wifeCombo = new JComboBox<>();
+    this.wifeCombo.setName("wife");
     this.wifeCombo.addItemListener(this.controller);
     this.childrenList = new JList<>(new DefaultListModel<>());
     this.childrenList.addListSelectionListener(this.controller);
@@ -138,114 +141,11 @@ public class LinkDialog extends AbstractDialog {
     setLocationRelativeTo(owner);
   }
 
-  public boolean isHusbandSelected() {
-    return this.husbandCombo.getSelectedIndex() > 0;
-  }
-
-  public boolean isWifeSelected() {
-    return this.wifeCombo.getSelectedIndex() > 0;
-  }
-
-  public void setAddButtonEnabled(boolean enabled) {
-    this.addBtn.setEnabled(enabled);
-  }
-
-  public void setDeleteButtonEnabled(boolean enabled) {
-    this.removeBtn.setEnabled(enabled);
-  }
-
-  public FamilyMember getSelectedHusband() {
-    return (FamilyMember) this.husbandCombo.getSelectedItem();
-  }
-
-  public void setHusbandCombo(Set<FamilyMember> potentialHusbands, FamilyMember memberToSelect) {
-    ((DefaultComboBoxModel<FamilyMember>) this.husbandCombo.getModel()).removeAllElements();
-    this.husbandCombo.addItem(new DummyFamilyMember("Sélectionner..."));
-    potentialHusbands.forEach(man -> this.husbandCombo.addItem(man));
-    if (memberToSelect != null)
-      this.husbandCombo.setSelectedItem(memberToSelect);
-    else
-      this.husbandCombo.setSelectedIndex(0);
-  }
-
-  public FamilyMember getSelectedWife() {
-    return (FamilyMember) this.wifeCombo.getSelectedItem();
-  }
-
-  public void setWifeCombo(Set<FamilyMember> potentialWives, FamilyMember memberToSelect) {
-    ((DefaultComboBoxModel<FamilyMember>) this.wifeCombo.getModel()).removeAllElements();
-    this.wifeCombo.addItem(new DummyFamilyMember("Sélectionner..."));
-    potentialWives.forEach(woman -> this.wifeCombo.addItem(woman));
-    if (memberToSelect != null)
-      this.wifeCombo.setSelectedItem(memberToSelect);
-    else
-      this.wifeCombo.setSelectedIndex(0);
-  }
-
-  public void setAvailableChildren(Set<FamilyMember> children) {
-    DefaultListModel<FamilyMember> model = (DefaultListModel<FamilyMember>) this.availChildrenList.getModel();
-    model.removeAllElements();
-    children.forEach(child -> model.addElement(child));
-  }
-
-  public void addSelectedChildren() {
-    transfertItems(this.availChildrenList, this.childrenList);
-    if (this.availChildrenList.isSelectionEmpty())
-      this.addBtn.setEnabled(false);
-  }
-
-  public void removeSelectedChildren() {
-    transfertItems(this.childrenList, this.availChildrenList);
-    if (this.childrenList.isSelectionEmpty())
-      this.removeBtn.setEnabled(false);
-  }
-
-  private void transfertItems(JList<FamilyMember> source, JList<FamilyMember> destination) {
-    if (!source.isSelectionEmpty()) {
-      List<FamilyMember> items = source.getSelectedValuesList();
-      DefaultListModel<FamilyMember> srcModel = (DefaultListModel<FamilyMember>) source.getModel();
-      DefaultListModel<FamilyMember> destModel = (DefaultListModel<FamilyMember>) destination.getModel();
-
-      items.forEach(child -> {
-        destModel.addElement(child);
-        srcModel.removeElement(child);
-      });
-      updateLists();
-    }
-  }
-
-  /**
-   * Met à jour les listes et combos en fonction des sélections.
-   */
-  public void updateLists() {
-    DefaultComboBoxModel<FamilyMember> husbandComboModel = (DefaultComboBoxModel<FamilyMember>) this.husbandCombo.getModel();
-    DefaultComboBoxModel<FamilyMember> wifeComboModel = (DefaultComboBoxModel<FamilyMember>) this.wifeCombo.getModel();
-    DefaultListModel<FamilyMember> childrenListModel = (DefaultListModel<FamilyMember>) this.childrenList.getModel();
-    DefaultListModel<FamilyMember> availChildrenListModel = (DefaultListModel<FamilyMember>) this.availChildrenList.getModel();
-
-    if (isHusbandSelected())
-      availChildrenListModel.removeElement(getSelectedHusband());
-    if (isWifeSelected())
-      availChildrenListModel.removeElement(getSelectedWife());
-
-    for (int i = 0; i < childrenListModel.size(); i++) {
-      husbandComboModel.removeElement(childrenListModel.getElementAt(i));
-      wifeComboModel.removeElement(childrenListModel.getElementAt(i));
-    }
-  }
-
-  public void setLink(Wedding wedding, Set<FamilyMember> potentialHusbands, Set<FamilyMember> potentialWives, Set<FamilyMember> potentialChildren) {
-    DefaultListModel<FamilyMember> model1 = (DefaultListModel<FamilyMember>) this.childrenList.getModel();
-    DefaultListModel<FamilyMember> model2 = (DefaultListModel<FamilyMember>) this.availChildrenList.getModel();
-    model1.removeAllElements();
-    model2.removeAllElements();
-
+  public void setLink(Wedding wedding, Family family) {
     if (wedding != null) {
       setTitle("Modifier un lien");
       this.dateFld.setText(formatDate(wedding.getDate()));
       this.locationFld.setText(wedding.getLocation().orElse(""));
-      wedding.getChildren().forEach(child -> model1.addElement(child));
-      potentialChildren.forEach(child -> model2.addElement(child));
     }
     else {
       setTitle("Ajouter un lien");
@@ -253,20 +153,15 @@ public class LinkDialog extends AbstractDialog {
       this.locationFld.setText("");
     }
 
-    this.controller.reset(wedding, potentialHusbands, potentialWives, potentialChildren);
+    this.husbandCombo.setEnabled(wedding == null);
+    this.wifeCombo.setEnabled(wedding == null);
 
+    this.controller.reset(wedding, family);
+
+    setCanceled(false);
     setAddButtonEnabled(false);
     setDeleteButtonEnabled(false);
     setValidateButtonEnabled(false);
-  }
-
-  private String formatDate(Optional<Date> date) {
-    if (date.isPresent()) {
-      Date d = date.get();
-      return String.format("%02d/%02d/%d", d.getYear(), d.getMonth(), d.getDate());
-    }
-    else
-      return "";
   }
 
   public Optional<Wedding> getLink() {
@@ -283,6 +178,119 @@ public class LinkDialog extends AbstractDialog {
       return Optional.of(wedding);
     }
     return Optional.empty();
+  }
+
+  boolean isHusbandSelected() {
+    return this.husbandCombo.getSelectedIndex() > 0;
+  }
+
+  boolean isWifeSelected() {
+    return this.wifeCombo.getSelectedIndex() > 0;
+  }
+
+  void setAddButtonEnabled(boolean enabled) {
+    this.addBtn.setEnabled(enabled);
+  }
+
+  void setDeleteButtonEnabled(boolean enabled) {
+    this.removeBtn.setEnabled(enabled);
+  }
+
+  FamilyMember getSelectedHusband() {
+    return (FamilyMember) this.husbandCombo.getSelectedItem();
+  }
+
+  void setHusbandCombo(Set<FamilyMember> potentialHusbands, FamilyMember memberToSelect) {
+    setCombo(this.husbandCombo, potentialHusbands, memberToSelect);
+  }
+
+  FamilyMember getSelectedWife() {
+    return (FamilyMember) this.wifeCombo.getSelectedItem();
+  }
+
+  void setWifeCombo(Set<FamilyMember> potentialWives, FamilyMember memberToSelect) {
+    setCombo(this.wifeCombo, potentialWives, memberToSelect);
+  }
+
+  private void setCombo(JComboBox<FamilyMember> combo, Set<FamilyMember> members, FamilyMember memberToSelect) {
+    ((DefaultComboBoxModel<FamilyMember>) combo.getModel()).removeAllElements();
+    combo.addItem(new DummyFamilyMember("Sélectionner..."));
+    members.forEach(member -> combo.addItem(member));
+
+    if (memberToSelect != null)
+      combo.setSelectedItem(memberToSelect);
+    else
+      combo.setSelectedIndex(0);
+  }
+
+  void setChildren(Set<FamilyMember> children) {
+    DefaultListModel<FamilyMember> model = (DefaultListModel<FamilyMember>) this.childrenList.getModel();
+    model.removeAllElements();
+    children.forEach(child -> model.addElement(child));
+  }
+
+  void setAvailableChildren(Set<FamilyMember> children) {
+    DefaultListModel<FamilyMember> model = (DefaultListModel<FamilyMember>) this.availChildrenList.getModel();
+    model.removeAllElements();
+    children.forEach(child -> model.addElement(child));
+  }
+
+  void addSelectedChildren() {
+    transfertItems(this.availChildrenList, this.childrenList);
+    if (this.availChildrenList.isSelectionEmpty())
+      this.addBtn.setEnabled(false);
+  }
+
+  void removeSelectedChildren() {
+    transfertItems(this.childrenList, this.availChildrenList);
+    if (this.childrenList.isSelectionEmpty())
+      this.removeBtn.setEnabled(false);
+  }
+
+  private void transfertItems(JList<FamilyMember> source, JList<FamilyMember> destination) {
+    if (!source.isSelectionEmpty()) {
+      List<FamilyMember> items = source.getSelectedValuesList();
+      DefaultListModel<FamilyMember> srcModel = (DefaultListModel<FamilyMember>) source.getModel();
+      DefaultListModel<FamilyMember> destModel = (DefaultListModel<FamilyMember>) destination.getModel();
+
+      items.forEach(child -> {
+        destModel.addElement(child);
+        srcModel.removeElement(child);
+      });
+    }
+  }
+
+  /**
+   * Met à jour les listes et combos en fonction des sélections.
+   */
+  void updateLists() {
+    DefaultComboBoxModel<FamilyMember> husbandComboModel = (DefaultComboBoxModel<FamilyMember>) this.husbandCombo.getModel();
+    DefaultComboBoxModel<FamilyMember> wifeComboModel = (DefaultComboBoxModel<FamilyMember>) this.wifeCombo.getModel();
+    DefaultListModel<FamilyMember> childrenListModel = (DefaultListModel<FamilyMember>) this.childrenList.getModel();
+    DefaultListModel<FamilyMember> availChildrenListModel = (DefaultListModel<FamilyMember>) this.availChildrenList.getModel();
+
+    if (isHusbandSelected())
+      availChildrenListModel.removeElement(getSelectedHusband());
+    if (isWifeSelected())
+      availChildrenListModel.removeElement(getSelectedWife());
+
+    for (int i = 0; i < childrenListModel.size(); i++) {
+      husbandComboModel.removeElement(childrenListModel.getElementAt(i));
+      wifeComboModel.removeElement(childrenListModel.getElementAt(i));
+    }
+  }
+
+  void showErrorDialog(String message) {
+    ((MainFrame) getParent()).showErrorDialog(message);
+  }
+
+  private String formatDate(Optional<Date> date) {
+    if (date.isPresent()) {
+      Date d = date.get();
+      return String.format("%02d/%02d/%d", d.getYear(), d.getMonth(), d.getDate());
+    }
+    else
+      return "";
   }
 
   private Date parseDate(JFormattedTextField field) throws DateTimeException {
@@ -314,9 +322,5 @@ public class LinkDialog extends AbstractDialog {
     }
 
     return children;
-  }
-
-  public void showErrorDialog(String message) {
-    ((MainFrame) getParent()).showErrorDialog(message);
   }
 }

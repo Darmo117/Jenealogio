@@ -133,6 +133,9 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
       updateFrameMenus();
       // TEMP
       this.family.addMember(new FamilyMember(null, "Smith", "John", Gender.MAN, new Date(1913, 5, 7), "Londres", new Date(1982, 3, 29), "Paris"));
+      this.family.addMember(new FamilyMember(null, "Smith", "Johanna", Gender.WOMAN, new Date(1913, 5, 7), "Londres", new Date(1982, 3, 29), "Paris"));
+      this.family.addMember(new FamilyMember(null, "Paul", "John", Gender.MAN, new Date(1913, 5, 7), "Londres", new Date(1982, 3, 29), "Paris"));
+      this.family.addMember(new FamilyMember(null, "Paul", "Johanna", Gender.WOMAN, new Date(1913, 5, 7), "Londres", new Date(1982, 3, 29), "Paris"));
       this.frame.refreshDisplay(this.family);
     }
   }
@@ -187,12 +190,7 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
   }
 
   private void addLink() {
-    // @f0
-    Optional<Wedding> wedding = this.frame.showAddLinkDialog(
-        this.family.getPotentialHusbands(null),
-        this.family.getPotentialWives(null),
-        this.family.getPotentialChildren(null));
-    // @f1
+    Optional<Wedding> wedding = this.frame.showAddLinkDialog(this.family);
 
     if (wedding.isPresent()) {
       this.family.addWedding(wedding.get());
@@ -210,13 +208,7 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
       }
     }
     else if (this.selectedLink != null) {
-      // @f0
-      Optional<Wedding> wedding = this.frame.showUpdateLink(
-          this.selectedLink,
-          this.family.getPotentialHusbands(this.selectedLink.getHusband()),
-          this.family.getPotentialWives(this.selectedLink.getHusband()),
-          this.family.getPotentialChildren(this.selectedLink));
-      // @f1
+      Optional<Wedding> wedding = this.frame.showUpdateLink(this.selectedLink, this.family);
 
       if (wedding.isPresent()) {
         this.family.updateWedding(wedding.get());

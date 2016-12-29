@@ -1,4 +1,4 @@
-package net.darmo_creations.controllers;
+package net.darmo_creations.gui.dialog.card;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
@@ -14,7 +14,7 @@ import javax.imageio.ImageIO;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import net.darmo_creations.gui.dialog.CardDialog;
+import net.darmo_creations.controllers.DefaultDialogController;
 
 public class CardController extends DefaultDialogController<CardDialog> implements KeyListener, DocumentListener, ItemListener {
   public CardController(CardDialog dialog) {
