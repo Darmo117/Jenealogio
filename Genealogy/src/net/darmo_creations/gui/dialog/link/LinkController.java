@@ -90,10 +90,16 @@ public class LinkController extends DefaultDialogController<LinkDialog> implemen
     if (!e.getValueIsAdjusting()) {
       JList<?> list = (JList<?>) e.getSource();
 
-      if (list.getName().equals("children"))
+      // TODO : voir comment ne pas déselectionner les listes.
+      this.dialog.setWifeCombo(this.family.getPotentialWivesForHusband(this.dialog.getSelectedHusband()), this.dialog.getSelectedWife());
+      this.dialog.setHusbandCombo(this.family.getPotentialHusbandsForWife(this.dialog.getSelectedWife()), this.dialog.getSelectedHusband());
+
+      if (list.getName().equals("children")) {
         this.dialog.setDeleteButtonEnabled(e.getFirstIndex() != -1);
-      else if (list.getName().equals("available-children"))
+      }
+      else if (list.getName().equals("available-children")) {
         this.dialog.setAddButtonEnabled(e.getFirstIndex() != -1);
+      }
     }
   }
 
