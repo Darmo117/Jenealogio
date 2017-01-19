@@ -91,6 +91,7 @@ public class LinkController extends DefaultDialogController<LinkDialog> implemen
       JList<?> list = (JList<?>) e.getSource();
 
       // TODO : voir comment ne pas déselectionner les listes.
+      // TODO : retirer des combos les enfants sélectionnés.
       this.dialog.setWifeCombo(this.family.getPotentialWivesForHusband(this.dialog.getSelectedHusband()), this.dialog.getSelectedWife());
       this.dialog.setHusbandCombo(this.family.getPotentialHusbandsForWife(this.dialog.getSelectedWife()), this.dialog.getSelectedHusband());
 
