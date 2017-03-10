@@ -1,39 +1,25 @@
 package net.darmo_creations.gui.components;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.time.Period;
 import java.util.Optional;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.border.Border;
-import javax.swing.border.LineBorder;
 
-import net.darmo_creations.gui.components.drag.Dragable;
 import net.darmo_creations.model.Date;
 import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.model.family.Wedding;
 import net.darmo_creations.util.Images;
 
-public class FamilyMemberPanel extends JPanel implements Dragable {
+public class DetailsPanel extends JPanel {
   private static final long serialVersionUID = 2109771883765681092L;
 
-  private static final String UNKNOWN_DATA = "?";
-  private static final Border SELECTED_BORDER = new LineBorder(Color.BLUE.brighter(), 2);
-  private static final Border UNSELECTED_BORDER = new LineBorder(Color.GRAY, 2);
-  public static final Color UNKNOW_GENDER_COLOR = Color.GRAY;
-  public static final Color MAN_COLOR = new Color(117, 191, 255);
-  public static final Color WOMAN_COLOR = new Color(37, 177, 19);
-
-  private PanelModel model;
+  public static final String UNKNOWN_DATA = "?";
 
   private JLabel nameLbl;
   private JLabel birthLbl;
@@ -44,15 +30,12 @@ public class FamilyMemberPanel extends JPanel implements Dragable {
   private JLabel deathPlaceLbl;
   private JLabel ageLbl;
 
-  public FamilyMemberPanel(FamilyMember familyMember, Wedding wedding) {
+  public DetailsPanel(FamilyMember familyMember, Wedding wedding) {
     super(new BorderLayout());
     setPreferredSize(new Dimension(200, 110));
     setLayout(new BorderLayout());
 
-    this.model = new PanelModel(familyMember.getId());
-
     JPanel infoPnl = new JPanel(new GridBagLayout());
-    infoPnl.setOpaque(false);
 
     GridBagConstraints gbc = new GridBagConstraints();
     gbc.fill = GridBagConstraints.BOTH;
@@ -108,23 +91,9 @@ public class FamilyMemberPanel extends JPanel implements Dragable {
     add(infoPnl, BorderLayout.CENTER);
 
     setInfo(familyMember, wedding);
-    setSelected(false);
   }
 
   public void setInfo(FamilyMember member, Wedding wedding) {
-    this.model.setId(member.getId());
-    switch (member.getGender()) {
-      case UNKNOW:
-        setBackground(UNKNOW_GENDER_COLOR);
-        break;
-      case MAN:
-        setBackground(MAN_COLOR);
-        break;
-      case WOMAN:
-        setBackground(WOMAN_COLOR);
-        break;
-    }
-
     this.nameLbl.setText(member.toString());
     this.birthLbl.setText(getDate(member.getBirthDate()));
     this.birthPlaceLbl.setText(member.getBirthPlace().orElse(UNKNOWN_DATA));
@@ -157,67 +126,5 @@ public class FamilyMemberPanel extends JPanel implements Dragable {
       return String.format("%d/%02d/%d", d.getDate(), d.getMonth(), d.getYear());
     }
     return UNKNOWN_DATA;
-  }
-
-  @Override
-  public void setLocation(Point p) {
-    super.setLocation(p);
-    getParent().repaint();
-  }
-
-  public boolean isSelected() {
-    return this.model.isSelected();
-  }
-
-  public void setSelected(boolean selected) {
-    this.model.setSelected(selected);
-    setBorder(selected ? SELECTED_BORDER : UNSELECTED_BORDER);
-  }
-
-  @Override
-  public void doClick() {
-    fireActionPerformed("select:" + this.model.getId());
-  }
-
-  public void addActionListener(ActionListener l) {
-    this.listenerList.add(ActionListener.class, l);
-  }
-
-  public void removeActionListener(ActionListener l) {
-    this.listenerList.remove(ActionListener.class, l);
-  }
-
-  private void fireActionPerformed(String actionCommand) {
-    ActionEvent e = new ActionEvent(this, ActionEvent.ACTION_PERFORMED, actionCommand, System.currentTimeMillis(), ActionEvent.ACTION_PERFORMED);
-
-    for (ActionListener l : this.listenerList.getListeners(ActionListener.class)) {
-      l.actionPerformed(e);
-    }
-  }
-
-  private class PanelModel {
-    private boolean selected;
-    private long id;
-
-    public PanelModel(long id) {
-      this.selected = false;
-      this.id = id;
-    }
-
-    public boolean isSelected() {
-      return this.selected;
-    }
-
-    public void setSelected(boolean selected) {
-      this.selected = selected;
-    }
-
-    public long getId() {
-      return this.id;
-    }
-
-    public void setId(long id) {
-      this.id = id;
-    }
   }
 }

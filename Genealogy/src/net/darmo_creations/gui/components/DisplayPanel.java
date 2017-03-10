@@ -21,10 +21,10 @@ import net.darmo_creations.controllers.DisplayController;
 import net.darmo_creations.controllers.DoubleClickController;
 import net.darmo_creations.controllers.DragController;
 import net.darmo_creations.gui.components.drag.DragableComponentContainer;
+import net.darmo_creations.gui.components.drag.FamilyMemberPanel;
 import net.darmo_creations.model.Observable;
 import net.darmo_creations.model.Observer;
 import net.darmo_creations.model.family.Family;
-import net.darmo_creations.model.family.Wedding;
 
 public class DisplayPanel extends JPanel implements Scrollable, Observable, DragableComponentContainer<FamilyMemberPanel> {
   private static final long serialVersionUID = 8747904983365363275L;
@@ -60,13 +60,12 @@ public class DisplayPanel extends JPanel implements Scrollable, Observable, Drag
     // Mise à jour/ajout des membres.
     family.getAllMembers().forEach(member -> {
       long id = member.getId();
-      Wedding w = family.getWedding(member).orElse(null);
 
-      if (keysToDelete.contains(id)) {
-        this.panels.get(id).setInfo(member, w);
+      if (this.panels.containsKey(id)) {
+        this.panels.get(id).setInfo(member);
       }
       else {
-        FamilyMemberPanel panel = new FamilyMemberPanel(member, w);
+        FamilyMemberPanel panel = new FamilyMemberPanel(member);
         DragController<FamilyMemberPanel> dragController = new DragController<>(this, panel);
 
         panel.setBounds(new Rectangle(panel.getPreferredSize()));

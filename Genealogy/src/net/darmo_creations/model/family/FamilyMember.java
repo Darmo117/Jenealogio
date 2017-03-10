@@ -25,11 +25,13 @@ public class FamilyMember extends Node<FamilyMember> implements Comparable<Famil
   private Date deathDate;
   private String deathPlace;
 
-  public FamilyMember(BufferedImage image, String name, String firstName, Gender gender, Date birthDate, String birthPlace, Date deathDate, String deathPlace) {
+  public FamilyMember(BufferedImage image, String name, String firstName, Gender gender, Date birthDate, String birthPlace, Date deathDate,
+      String deathPlace) {
     this(-1, image, name, firstName, gender, birthDate, birthPlace, deathDate, deathPlace);
   }
 
-  public FamilyMember(long id, BufferedImage image, String name, String firstName, Gender gender, Date birthDate, String birthPlace, Date deathDate, String deathPlace) {
+  public FamilyMember(long id, BufferedImage image, String name, String firstName, Gender gender, Date birthDate, String birthPlace, Date deathDate,
+      String deathPlace) {
     this.id = id;
     this.image = image != null ? Images.deepCopy(image) : null;
     this.name = name;
@@ -147,10 +149,8 @@ public class FamilyMember extends Node<FamilyMember> implements Comparable<Famil
 
   @Override
   public boolean equals(Object o) {
-    if (o instanceof FamilyMember) {
+    if (o instanceof FamilyMember)
       return getId() == ((FamilyMember) o).getId();
-    }
-
     return false;
   }
 
@@ -158,23 +158,12 @@ public class FamilyMember extends Node<FamilyMember> implements Comparable<Famil
   public String toString() {
     if (!getName().isPresent() && !getFirstName().isPresent())
       return "?";
-    else
-      return getFirstName().orElse("?") + " " + getName().orElse("?");
+    return getFirstName().orElse("?") + " " + getName().orElse("?");
   }
 
   FamilyMember copy(long id) {
-    // @f0
-    return new FamilyMember(
-        id,
-        getImage().orElse(null),
-        getName().orElse(null),
-        getFirstName().orElse(null),
-        getGender(),
-        getBirthDate().orElse(null),
-        getBirthPlace().orElse(null),
-        getDeathDate().orElse(null),
-        getDeathPlace().orElse(null));
-    // @f1
+    return new FamilyMember(id, getImage().orElse(null), getName().orElse(null), getFirstName().orElse(null), getGender(),
+        getBirthDate().orElse(null), getBirthPlace().orElse(null), getDeathDate().orElse(null), getDeathPlace().orElse(null));
   }
 
   @Override

@@ -10,7 +10,7 @@ import javax.swing.JPanel;
 import javax.swing.border.LineBorder;
 
 import net.darmo_creations.controllers.DefaultDialogController;
-import net.darmo_creations.gui.components.FamilyMemberPanel;
+import net.darmo_creations.gui.components.DetailsPanel;
 import net.darmo_creations.gui.components.ImageLabel;
 import net.darmo_creations.model.family.DummyFamilyMember;
 import net.darmo_creations.model.family.FamilyMember;
@@ -20,7 +20,7 @@ public class CardDetailsDialog extends AbstractDialog {
   private static final long serialVersionUID = 4772771687761193691L;
 
   private ImageLabel imageLbl;
-  private FamilyMemberPanel infoPnl;
+  private DetailsPanel infoPnl;
 
   public CardDetailsDialog(JFrame owner) {
     super(owner, Mode.CLOSE_OPTION, true);
@@ -32,7 +32,7 @@ public class CardDetailsDialog extends AbstractDialog {
     this.imageLbl.setMaximumSize(this.imageLbl.getPreferredSize());
     this.imageLbl.setBorder(new LineBorder(Color.GRAY));
     add(p, BorderLayout.NORTH);
-    add(this.infoPnl = new FamilyMemberPanel(new DummyFamilyMember(""), null), BorderLayout.CENTER);
+    add(this.infoPnl = new DetailsPanel(new DummyFamilyMember(""), null), BorderLayout.CENTER);
 
     setActionListener(new DefaultDialogController<CardDetailsDialog>(this));
 
