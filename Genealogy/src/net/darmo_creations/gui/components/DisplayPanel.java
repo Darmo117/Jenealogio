@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.ArrayList;
@@ -12,13 +11,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.swing.JPanel;
 import javax.swing.Scrollable;
-import javax.swing.SwingUtilities;
 
 import net.darmo_creations.controllers.DisplayController;
 import net.darmo_creations.controllers.DoubleClickController;
@@ -37,7 +34,6 @@ public class DisplayPanel extends JPanel implements Scrollable, Observable, Drag
   private DisplayController controller;
   private Map<Long, FamilyMemberPanel> panels;
   private List<Link> links;
-  private boolean showVirtualLink;
 
   public DisplayPanel() {
     setPreferredSize(new Dimension(4000, 4000));
@@ -117,10 +113,6 @@ public class DisplayPanel extends JPanel implements Scrollable, Observable, Drag
     repaint();
   }
 
-  public void showVirtualLink(boolean show) {
-    this.showVirtualLink = show;
-  }
-
   public void selectPanel(long id) {
     this.panels.forEach((pId, panel) -> panel.setSelected(pId == id));
     notifyObservers(id);
@@ -130,20 +122,6 @@ public class DisplayPanel extends JPanel implements Scrollable, Observable, Drag
   protected void paintComponent(Graphics g) {
     super.paintComponent(g);
     Graphics2D g2d = (Graphics2D) g;
-
-    if (this.showVirtualLink) {
-      Optional<FamilyMemberPanel> optPnl = this.panels.values().stream().filter(p -> p.isSelected()).findAny();
-
-      // FIXME
-      if (optPnl.isPresent()) {
-        FamilyMemberPanel p = optPnl.get();
-        Rectangle r = p.getBounds();
-        Point pos = MouseInfo.getPointerInfo().getLocation();
-
-        SwingUtilities.convertPointFromScreen(pos, this);
-        g2d.drawLine(r.x + r.width / 2, r.y + r.height / 2, pos.x, pos.y);
-      }
-    }
 
     g2d.setColor(Color.BLACK);
     this.links.forEach(link -> {

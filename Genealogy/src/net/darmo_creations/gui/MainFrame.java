@@ -281,10 +281,6 @@ public class MainFrame extends JFrame {
     this.displayPnl.refresh(family);
   }
 
-  public void showVirtualLink(boolean show) {
-    this.displayPnl.showVirtualLink(show);
-  }
-
   public File showSaveFileChooser() {
     this.fileChooser.showSaveDialog(this);
     return this.fileChooser.getSelectedFile();

@@ -218,7 +218,6 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
 
   private void toggleAddLink() {
     this.addingLink = !this.addingLink;
-    this.frame.showVirtualLink(this.addingLink);
     this.frame.setAddLinkButtonSelected(this.addingLink);
   }
 
