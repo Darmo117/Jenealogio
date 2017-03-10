@@ -1,45 +1,47 @@
 package net.darmo_creations.gui.dialog.link;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.util.HashSet;
+import java.util.Set;
 
-import javax.swing.JComboBox;
 import javax.swing.JList;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import net.darmo_creations.controllers.DefaultDialogController;
-import net.darmo_creations.model.family.Family;
+import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.model.family.Wedding;
 
-public class LinkController extends DefaultDialogController<LinkDialog> implements KeyListener, ListSelectionListener, ItemListener {
-  private Family family;
-  private boolean updatingCombo;
+public class LinkController extends DefaultDialogController<LinkDialog> implements KeyListener, ListSelectionListener {
+  private FamilyMember spouse1, spouse2;
 
   public LinkController(LinkDialog dialog) {
     super(dialog);
   }
 
-  public void reset(Wedding wedding, Family family) {
-    this.family = family;
-    this.updatingCombo = true;
-    if (wedding == null) {
-      this.dialog.setHusbandCombo(this.family.getPotentialHusbandsForWife(null), null);
-      this.dialog.setWifeCombo(this.family.getPotentialWivesForHusband(null), null);
-      this.dialog.setChildren(new HashSet<>());
-      this.dialog.setAvailableChildren(this.family.getPotentialChildren(null));
-    }
-    else {
-      this.dialog.setHusbandCombo(this.family.getPotentialHusbandsForWife(wedding.getWife()), wedding.getHusband());
-      this.dialog.setWifeCombo(this.family.getPotentialWivesForHusband(wedding.getHusband()), wedding.getWife());
-      this.dialog.setChildren(wedding.getChildren());
-      this.dialog.setAvailableChildren(this.family.getPotentialChildren(wedding));
-    }
-    this.updatingCombo = false;
+  public void reset(FamilyMember spouse1, FamilyMember spouse2, Set<FamilyMember> children) {
+    reset(new Wedding(null, null, spouse1, spouse2), children);
+  }
+
+  public void reset(Wedding wedding, Set<FamilyMember> children) {
+    this.spouse1 = wedding.getSpouse1();
+    this.spouse2 = wedding.getSpouse2();
+
+    this.dialog.setSpouse1(wedding.getSpouse1().toString());
+    this.dialog.setSpouse2(wedding.getSpouse2().toString());
+    this.dialog.setDate(wedding.getDate());
+    this.dialog.setWeddingLocation(wedding.getLocation());
+    this.dialog.setAvailableChildren(children);
+    this.dialog.setChildren(wedding.getChildren());
+
+    this.dialog.setCanceled(false);
+    this.dialog.setAddButtonEnabled(false);
+    this.dialog.setDeleteButtonEnabled(false);
+  }
+
+  public Wedding getWedding() {
+    return new Wedding(this.dialog.getDate(), this.dialog.getWeddingLocation(), this.spouse1, this.spouse2, this.dialog.getChildren());
   }
 
   @Override
@@ -69,31 +71,9 @@ public class LinkController extends DefaultDialogController<LinkDialog> implemen
   }
 
   @Override
-  public void itemStateChanged(ItemEvent e) {
-    if (this.updatingCombo)
-      return;
-
-    this.updatingCombo = true;
-    String name = ((JComboBox<?>) e.getSource()).getName();
-
-    this.dialog.setValidateButtonEnabled(this.dialog.isHusbandSelected() && this.dialog.isWifeSelected());
-    if (name.equals("husband"))
-      this.dialog.setWifeCombo(this.family.getPotentialWivesForHusband(this.dialog.getSelectedHusband()), this.dialog.getSelectedWife());
-    else if (name.equals("wife"))
-      this.dialog.setHusbandCombo(this.family.getPotentialHusbandsForWife(this.dialog.getSelectedWife()), this.dialog.getSelectedHusband());
-    this.dialog.setAvailableChildren(this.family.getPotentialChildren(this.dialog.isHusbandSelected() && this.dialog.isWifeSelected() ? this.dialog.getLink().get() : null));
-    this.updatingCombo = false;
-  }
-
-  @Override
   public void valueChanged(ListSelectionEvent e) {
     if (!e.getValueIsAdjusting()) {
       JList<?> list = (JList<?>) e.getSource();
-
-      // TODO : voir comment ne pas déselectionner les listes.
-      // TODO : retirer des combos les enfants sélectionnés.
-      this.dialog.setWifeCombo(this.family.getPotentialWivesForHusband(this.dialog.getSelectedHusband()), this.dialog.getSelectedWife());
-      this.dialog.setHusbandCombo(this.family.getPotentialHusbandsForWife(this.dialog.getSelectedWife()), this.dialog.getSelectedHusband());
 
       if (list.getName().equals("children")) {
         this.dialog.setDeleteButtonEnabled(e.getFirstIndex() != -1);

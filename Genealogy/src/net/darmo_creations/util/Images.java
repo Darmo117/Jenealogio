@@ -6,7 +6,7 @@ import java.awt.image.WritableRaster;
 
 import javax.swing.ImageIcon;
 
-public final class ImageUtil {
+public final class Images {
   public static final ImageIcon NEW_TREE;
   public static final ImageIcon OPEN;
   public static final ImageIcon SAVE;
@@ -79,5 +79,5 @@ public final class ImageUtil {
     return new BufferedImage(colorModel, raster, alphaPremultiplied, null);
   }
 
-  private ImageUtil() {}
+  private Images() {}
 }

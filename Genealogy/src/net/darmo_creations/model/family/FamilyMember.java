@@ -8,7 +8,7 @@ import java.util.Optional;
 import net.darmo_creations.model.Date;
 import net.darmo_creations.model.graph.Node;
 import net.darmo_creations.util.CalendarUtil;
-import net.darmo_creations.util.ImageUtil;
+import net.darmo_creations.util.Images;
 
 /**
  * Une personne a un id interne, une photo, un nom, un prénom, un genre, une date de naissance et
@@ -31,7 +31,7 @@ public class FamilyMember extends Node<FamilyMember> implements Comparable<Famil
 
   public FamilyMember(long id, BufferedImage image, String name, String firstName, Gender gender, Date birthDate, String birthPlace, Date deathDate, String deathPlace) {
     this.id = id;
-    this.image = image != null ? ImageUtil.deepCopy(image) : null;
+    this.image = image != null ? Images.deepCopy(image) : null;
     this.name = name;
     this.firstName = firstName;
     this.gender = Objects.requireNonNull(gender);
@@ -46,11 +46,11 @@ public class FamilyMember extends Node<FamilyMember> implements Comparable<Famil
   }
 
   public Optional<BufferedImage> getImage() {
-    return Optional.ofNullable(this.image != null ? ImageUtil.deepCopy(this.image) : null);
+    return Optional.ofNullable(this.image != null ? Images.deepCopy(this.image) : null);
   }
 
   void setImage(BufferedImage image) {
-    this.image = image != null ? ImageUtil.deepCopy(image) : null;
+    this.image = image != null ? Images.deepCopy(image) : null;
   }
 
   public Optional<String> getName() {

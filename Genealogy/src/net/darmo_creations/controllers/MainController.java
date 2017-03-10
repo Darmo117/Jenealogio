@@ -7,6 +7,7 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -35,6 +36,7 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
   private String fileName;
   private FamilyMember selectedCard;
   private Wedding selectedLink;
+  private boolean addingLink;
 
   public MainController(MainFrame frame) {
     this.frame = frame;
@@ -71,7 +73,7 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
         addMember();
         break;
       case "add-link":
-        addLink();
+        toggleAddLink();
         break;
       case "edit":
         edit();
@@ -98,13 +100,27 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
     if (o instanceof Long) {
       long id = (Long) o;
       this.frame.updateMenus(this.fileOpen, id >= 0, false);
-      if (id >= 0)
+      if (id >= 0) {
+        FamilyMember prev = null;
+
+        if (this.addingLink && this.selectedCard != null)
+          prev = this.selectedCard;
+
         this.selectedCard = this.family.getMember(id).orElseThrow(IllegalStateException::new);
-      else
+
+        if (prev != null && !prev.equals(this.selectedCard)) {
+          addLink(prev, this.selectedCard);
+          toggleAddLink();
+        }
+      }
+      else {
+        if (this.addingLink)
+          toggleAddLink();
         this.selectedCard = null;
+      }
     }
     else if (o instanceof String) {
-      String s = "" + o;
+      String s = (String) o;
       Matcher m = DOUBLE_CLICK_PATTERN.matcher(s);
 
       if (m.matches())
@@ -131,9 +147,11 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
       this.saved = false;
       this.frame.resetDisplay();
       updateFrameMenus();
+
       // TEMP
       this.family.addMember(new FamilyMember(null, "Smith", "John", Gender.MAN, new Date(1913, 5, 7), "Londres", new Date(1982, 3, 29), "Paris"));
-      this.family.addMember(new FamilyMember(null, "Smith", "Johanna", Gender.WOMAN, new Date(1913, 5, 7), "Londres", new Date(1982, 3, 29), "Paris"));
+      this.family.addMember(
+          new FamilyMember(null, "Smith", "Johanna", Gender.WOMAN, new Date(1913, 5, 7), "Londres", new Date(1982, 3, 29), "Paris"));
       this.family.addMember(new FamilyMember(null, "Paul", "John", Gender.MAN, new Date(1913, 5, 7), "Londres", new Date(1982, 3, 29), "Paris"));
       this.family.addMember(new FamilyMember(null, "Paul", "Johanna", Gender.WOMAN, new Date(1913, 5, 7), "Londres", new Date(1982, 3, 29), "Paris"));
       this.frame.refreshDisplay(this.family);
@@ -189,18 +207,24 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
     }
   }
 
-  private void addLink() {
-    Optional<Wedding> wedding = this.frame.showAddLinkDialog(this.family);
+  private void addLink(FamilyMember spouse1, FamilyMember spouse2) {
+    Set<FamilyMember> all = this.family.getAllMembers();
+    all.remove(spouse1);
+    all.remove(spouse2);
+    Optional<Wedding> optWedding = this.frame.showAddLinkDialog(spouse1, spouse2, all);
+    optWedding.ifPresent(w -> this.family.addWedding(w));
+    this.frame.refreshDisplay(this.family);
+  }
 
-    if (wedding.isPresent()) {
-      this.family.addWedding(wedding.get());
-      refreshFrame();
-    }
+  private void toggleAddLink() {
+    this.addingLink = !this.addingLink;
+    this.frame.showVirtualLink(this.addingLink);
+    this.frame.setAddLinkButtonSelected(this.addingLink);
   }
 
   private void edit() {
     if (this.selectedCard != null) {
-      Optional<FamilyMember> member = this.frame.showUpdateCard(this.selectedCard);
+      Optional<FamilyMember> member = this.frame.showUpdateCardDialog(this.selectedCard);
 
       if (member.isPresent()) {
         this.family.updateMember(member.get());
@@ -208,12 +232,13 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
       }
     }
     else if (this.selectedLink != null) {
-      Optional<Wedding> wedding = this.frame.showUpdateLink(this.selectedLink, this.family);
-
-      if (wedding.isPresent()) {
-        this.family.updateWedding(wedding.get());
-        refreshFrame();
-      }
+      // TEMP
+      // Optional<Wedding> wedding = this.frame.showUpdateLink(this.selectedLink, this.family);
+      //
+      // if (wedding.isPresent()) {
+      // this.family.updateWedding(wedding.get());
+      // refreshFrame();
+      // }
     }
   }
 

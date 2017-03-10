@@ -21,7 +21,7 @@ import net.darmo_creations.gui.components.drag.Dragable;
 import net.darmo_creations.model.Date;
 import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.model.family.Wedding;
-import net.darmo_creations.util.ImageUtil;
+import net.darmo_creations.util.Images;
 
 public class FamilyMemberPanel extends JPanel implements Dragable {
   private static final long serialVersionUID = 2109771883765681092L;
@@ -31,7 +31,7 @@ public class FamilyMemberPanel extends JPanel implements Dragable {
   private static final Border UNSELECTED_BORDER = new LineBorder(Color.GRAY, 2);
   public static final Color UNKNOW_GENDER_COLOR = Color.GRAY;
   public static final Color MAN_COLOR = new Color(117, 191, 255);
-  public static final Color WOMAN_COLOR = new Color(255, 183, 255);
+  public static final Color WOMAN_COLOR = new Color(37, 177, 19);
 
   private PanelModel model;
 
@@ -65,7 +65,7 @@ public class FamilyMemberPanel extends JPanel implements Dragable {
     gbc.gridx = 0;
     gbc.gridy = 1;
     gbc.gridwidth = 1;
-    infoPnl.add(new JLabel(ImageUtil.BABY), gbc);
+    infoPnl.add(new JLabel(Images.BABY), gbc);
     gbc.gridx = 1;
     gbc.gridwidth = 8;
     infoPnl.add(this.birthLbl = new JLabel(), gbc);
@@ -78,7 +78,7 @@ public class FamilyMemberPanel extends JPanel implements Dragable {
     gbc.gridx = 0;
     gbc.gridy = 2;
     gbc.gridwidth = 1;
-    infoPnl.add(new JLabel(ImageUtil.HEART), gbc);
+    infoPnl.add(new JLabel(Images.HEART), gbc);
     gbc.gridx = 1;
     gbc.gridwidth = 8;
     infoPnl.add(this.weddingLbl = new JLabel(), gbc);
@@ -91,7 +91,7 @@ public class FamilyMemberPanel extends JPanel implements Dragable {
     gbc.gridx = 0;
     gbc.gridy = 3;
     gbc.gridwidth = 1;
-    infoPnl.add(new JLabel(ImageUtil.CROSS), gbc);
+    infoPnl.add(new JLabel(Images.CROSS), gbc);
     gbc.gridx = 1;
     gbc.gridwidth = 8;
     infoPnl.add(this.deathLbl = new JLabel(), gbc);

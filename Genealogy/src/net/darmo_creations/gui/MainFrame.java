@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -16,6 +17,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
+import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.border.MatteBorder;
@@ -30,7 +32,7 @@ import net.darmo_creations.gui.dialog.link.LinkDialog;
 import net.darmo_creations.model.family.Family;
 import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.model.family.Wedding;
-import net.darmo_creations.util.ImageUtil;
+import net.darmo_creations.util.Images;
 
 public class MainFrame extends JFrame {
   private static final long serialVersionUID = 2426665404072947885L;
@@ -40,12 +42,13 @@ public class MainFrame extends JFrame {
   private JFileChooser fileChooser;
   private TreeCreationDialog treeCreationDialog;
   private CardDialog cardDialog;
-  private LinkDialog linkDialog;
   private CardDetailsDialog detailsDialog;
+  private LinkDialog linkDialog;
 
   private JMenu editMenu;
   private JMenuItem saveItem, saveAsItem, addCardItem, addLinkItem, editItem, deleteItem;
-  private JButton saveBtn, saveAsBtn, addCardBtn, addLinkBtn, editCardBtn, editLinkBtn, deleteCardBtn, deleteLinkBtn;
+  private JButton saveBtn, saveAsBtn, addCardBtn, editCardBtn, editLinkBtn, deleteCardBtn, deleteLinkBtn;
+  private JToggleButton addLinkBtn;
   private DisplayPanel displayPnl;
 
   public MainFrame() {
@@ -62,8 +65,8 @@ public class MainFrame extends JFrame {
     this.fileChooser.setFileFilter(new ExtensionFileFilter("Arbre généalogique", "tree"));
     this.treeCreationDialog = new TreeCreationDialog(this);
     this.cardDialog = new CardDialog(this);
-    this.linkDialog = new LinkDialog(this);
     this.detailsDialog = new CardDetailsDialog(this);
+    this.linkDialog = new LinkDialog(this);
 
     setJMenuBar(initJMenuBar(controller));
 
@@ -88,31 +91,31 @@ public class MainFrame extends JFrame {
       JMenu fileMenu = new JMenu("Fichier");
       fileMenu.setMnemonic('f');
       fileMenu.add(i = new JMenuItem("Nouvel arbre..."));
-      i.setIcon(ImageUtil.NEW_TREE);
+      i.setIcon(Images.NEW_TREE);
       i.setActionCommand("new");
       i.setMnemonic('n');
       i.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.CTRL_DOWN_MASK));
       i.addActionListener(listener);
       fileMenu.add(i = new JMenuItem("Ouvrir..."));
-      i.setIcon(ImageUtil.OPEN);
+      i.setIcon(Images.OPEN);
       i.setActionCommand("open");
       i.setMnemonic('n');
       i.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK));
       i.addActionListener(listener);
       fileMenu.add(this.saveItem = new JMenuItem("Enregistrer"));
-      this.saveItem.setIcon(ImageUtil.SAVE);
+      this.saveItem.setIcon(Images.SAVE);
       this.saveItem.setActionCommand("save");
       this.saveItem.setMnemonic('e');
       this.saveItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK));
       this.saveItem.addActionListener(listener);
       fileMenu.add(this.saveAsItem = new JMenuItem("Enregistrer sous..."));
-      this.saveAsItem.setIcon(ImageUtil.SAVE_AS);
+      this.saveAsItem.setIcon(Images.SAVE_AS);
       this.saveAsItem.setActionCommand("save-as");
       this.saveAsItem.setMnemonic('s');
       this.saveAsItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK));
       this.saveAsItem.addActionListener(listener);
       fileMenu.add(i = new JMenuItem("Quitter"));
-      i.setIcon(ImageUtil.EXIT);
+      i.setIcon(Images.EXIT);
       i.setActionCommand("exit");
       i.setMnemonic('Q');
       i.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4, KeyEvent.ALT_DOWN_MASK));
@@ -125,13 +128,13 @@ public class MainFrame extends JFrame {
       this.editMenu = new JMenu("Édition");
       this.editMenu.setMnemonic('é');
       this.editMenu.add(this.addCardItem = new JMenuItem("Ajouter une fiche..."));
-      this.addCardItem.setIcon(ImageUtil.ADD_CARD);
+      this.addCardItem.setIcon(Images.ADD_CARD);
       this.addCardItem.setActionCommand("add-card");
       this.addCardItem.setMnemonic('a');
       this.addCardItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, KeyEvent.CTRL_DOWN_MASK));
       this.addCardItem.addActionListener(listener);
       this.editMenu.add(this.addLinkItem = new JMenuItem("Ajouter un lien..."));
-      this.addLinkItem.setIcon(ImageUtil.ADD_LINK);
+      this.addLinkItem.setIcon(Images.ADD_LINK);
       this.addLinkItem.setActionCommand("add-link");
       this.addLinkItem.setMnemonic('l');
       this.addLinkItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, KeyEvent.CTRL_DOWN_MASK));
@@ -154,7 +157,7 @@ public class MainFrame extends JFrame {
       JMenu helpMenu = new JMenu("Aide");
       helpMenu.setMnemonic('i');
       helpMenu.add(i = new JMenuItem("À propos..."));
-      i.setIcon(ImageUtil.HELP);
+      i.setIcon(Images.HELP);
       i.setActionCommand("about");
       i.setMnemonic('à');
       i.addActionListener(listener);
@@ -170,52 +173,52 @@ public class MainFrame extends JFrame {
     toolBar.setBorder(new MatteBorder(0, 0, 1, 0, Color.GRAY));
     JButton b;
 
-    toolBar.add(b = new JButton(ImageUtil.NEW_TREE_BIG));
+    toolBar.add(b = new JButton(Images.NEW_TREE_BIG));
     b.setToolTipText("Nouvel arbre... (Ctrl+N)");
     b.setFocusable(false);
     b.setActionCommand("new");
     b.addActionListener(listener);
-    toolBar.add(b = new JButton(ImageUtil.OPEN_BIG));
+    toolBar.add(b = new JButton(Images.OPEN_BIG));
     b.setToolTipText("Ouvrir... (Ctrl+O)");
     b.setFocusable(false);
     b.setActionCommand("open");
     b.addActionListener(listener);
-    toolBar.add(this.saveBtn = new JButton(ImageUtil.SAVE_BIG));
+    toolBar.add(this.saveBtn = new JButton(Images.SAVE_BIG));
     this.saveBtn.setToolTipText("Enregistrer (Ctrl+S)");
     this.saveBtn.setFocusable(false);
     this.saveBtn.setActionCommand("save");
     this.saveBtn.addActionListener(listener);
-    toolBar.add(this.saveAsBtn = new JButton(ImageUtil.SAVE_AS_BIG));
+    toolBar.add(this.saveAsBtn = new JButton(Images.SAVE_AS_BIG));
     this.saveAsBtn.setToolTipText("Enregistrer sous... (Ctrl+Maj+S)");
     this.saveAsBtn.setFocusable(false);
     this.saveAsBtn.setActionCommand("save-as");
     this.saveAsBtn.addActionListener(listener);
-    toolBar.add(this.addCardBtn = new JButton(ImageUtil.ADD_CARD_BIG));
+    toolBar.add(this.addCardBtn = new JButton(Images.ADD_CARD_BIG));
     this.addCardBtn.setToolTipText("Ajouter une fiche... (Ctrl+A)");
     this.addCardBtn.setFocusable(false);
     this.addCardBtn.setActionCommand("add-card");
     this.addCardBtn.addActionListener(listener);
-    toolBar.add(this.editCardBtn = new JButton(ImageUtil.EDIT_CARD_BIG));
+    toolBar.add(this.editCardBtn = new JButton(Images.EDIT_CARD_BIG));
     this.editCardBtn.setToolTipText("Éditer la fiche... (Ctrl+E)");
     this.editCardBtn.setFocusable(false);
     this.editCardBtn.setActionCommand("edit");
     this.editCardBtn.addActionListener(listener);
-    toolBar.add(this.deleteCardBtn = new JButton(ImageUtil.DELETE_CARD_BIG));
+    toolBar.add(this.deleteCardBtn = new JButton(Images.DELETE_CARD_BIG));
     this.deleteCardBtn.setToolTipText("Supprimer la fiche (Supprimer)");
     this.deleteCardBtn.setFocusable(false);
     this.deleteCardBtn.setActionCommand("delete");
     this.deleteCardBtn.addActionListener(listener);
-    toolBar.add(this.addLinkBtn = new JButton(ImageUtil.ADD_LINK_BIG));
+    toolBar.add(this.addLinkBtn = new JToggleButton(Images.ADD_LINK_BIG));
     this.addLinkBtn.setToolTipText("Ajouter un lien... (Ctrl+L)");
     this.addLinkBtn.setFocusable(false);
     this.addLinkBtn.setActionCommand("add-link");
     this.addLinkBtn.addActionListener(listener);
-    toolBar.add(this.editLinkBtn = new JButton(ImageUtil.EDIT_LINK_BIG));
+    toolBar.add(this.editLinkBtn = new JButton(Images.EDIT_LINK_BIG));
     this.editLinkBtn.setToolTipText("Éditer le lien... (Ctrl+E)");
     this.editLinkBtn.setFocusable(false);
     this.editLinkBtn.setActionCommand("edit");
     this.editLinkBtn.addActionListener(listener);
-    toolBar.add(this.deleteLinkBtn = new JButton(ImageUtil.DELETE_LINK_BIG));
+    toolBar.add(this.deleteLinkBtn = new JButton(Images.DELETE_LINK_BIG));
     this.deleteLinkBtn.setToolTipText("Supprimer le lien (Supprimer)");
     this.deleteLinkBtn.setFocusable(false);
     this.deleteLinkBtn.setActionCommand("delete");
@@ -247,15 +250,15 @@ public class MainFrame extends JFrame {
         throw new IllegalStateException("can't select a card and a link at the same time");
       if (cardSelected) {
         this.editItem.setText("Éditer la fiche...");
-        this.editItem.setIcon(ImageUtil.EDIT_CARD);
+        this.editItem.setIcon(Images.EDIT_CARD);
         this.deleteItem.setText("Supprimer la fiche");
-        this.deleteItem.setIcon(ImageUtil.DELETE_CARD);
+        this.deleteItem.setIcon(Images.DELETE_CARD);
       }
       else if (linkSelected) {
         this.editItem.setText("Éditer le lien...");
-        this.editItem.setIcon(ImageUtil.EDIT_LINK);
+        this.editItem.setIcon(Images.EDIT_LINK);
         this.deleteItem.setText("Supprimer le lien");
-        this.deleteItem.setIcon(ImageUtil.DELETE_LINK);
+        this.deleteItem.setIcon(Images.DELETE_LINK);
       }
       else {
         this.editItem.setText("Éditer...");
@@ -266,12 +269,20 @@ public class MainFrame extends JFrame {
     }
   }
 
+  public void setAddLinkButtonSelected(boolean selected) {
+    this.addLinkBtn.setSelected(selected);
+  }
+
   public void resetDisplay() {
     this.displayPnl.reset();
   }
 
   public void refreshDisplay(Family family) {
     this.displayPnl.refresh(family);
+  }
+
+  public void showVirtualLink(boolean show) {
+    this.displayPnl.showVirtualLink(show);
   }
 
   public File showSaveFileChooser() {
@@ -295,20 +306,20 @@ public class MainFrame extends JFrame {
     return this.cardDialog.getCard();
   }
 
-  public Optional<Wedding> showAddLinkDialog(Family family) {
-    this.linkDialog.setLink(null, family);
+  public Optional<Wedding> showAddLinkDialog(FamilyMember spouse1, FamilyMember spouse2, Set<FamilyMember> children) {
+    this.linkDialog.addLink(spouse1, spouse2, children);
     this.linkDialog.setVisible(true);
     return this.linkDialog.getLink();
   }
 
-  public Optional<FamilyMember> showUpdateCard(FamilyMember member) {
+  public Optional<FamilyMember> showUpdateCardDialog(FamilyMember member) {
     this.cardDialog.setCard(member);
     this.cardDialog.setVisible(true);
     return this.cardDialog.getCard();
   }
 
-  public Optional<Wedding> showUpdateLink(Wedding wedding, Family family) {
-    this.linkDialog.setLink(wedding, family);
+  public Optional<Wedding> showUpdateLinkDialog(Wedding wedding, Set<FamilyMember> children) {
+    this.linkDialog.updateLink(wedding, children);
     this.linkDialog.setVisible(true);
     return this.linkDialog.getLink();
   }

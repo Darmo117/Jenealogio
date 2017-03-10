@@ -9,7 +9,7 @@ import net.darmo_creations.model.Date;
 public class CalendarUtil {
   public static Date getCurrentDate() {
     long offset = Calendar.getInstance().get(Calendar.ZONE_OFFSET);
-    // On évite la valeur null si aucun ID n'est trouvé.
+    // Avoid null if no ID found
     String id = "";
 
     for (String i : TimeZone.getAvailableIDs()) {
