@@ -15,11 +15,11 @@ import javax.swing.border.LineBorder;
 import net.darmo_creations.gui.MainFrame;
 import net.darmo_creations.gui.components.DetailsPanel;
 import net.darmo_creations.gui.components.ImageLabel;
-import net.darmo_creations.model.Observable;
-import net.darmo_creations.model.Observer;
 import net.darmo_creations.model.family.DummyFamilyMember;
 import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.model.family.Wedding;
+import net.darmo_creations.util.Observable;
+import net.darmo_creations.util.Observer;
 
 public class CardDetailsDialog extends AbstractDialog implements Observable {
   private static final long serialVersionUID = 4772771687761193691L;

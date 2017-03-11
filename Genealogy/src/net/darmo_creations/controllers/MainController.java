@@ -16,11 +16,11 @@ import javax.swing.JOptionPane;
 import net.darmo_creations.dao.FamilyDao;
 import net.darmo_creations.gui.MainFrame;
 import net.darmo_creations.model.Date;
-import net.darmo_creations.model.Observer;
 import net.darmo_creations.model.family.Family;
 import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.model.family.Gender;
 import net.darmo_creations.model.family.Wedding;
+import net.darmo_creations.util.Observer;
 
 public class MainController extends WindowAdapter implements ActionListener, Observer {
   private static final Pattern DOUBLE_CLICK_PATTERN = Pattern.compile("^double-click:(\\d+)$");

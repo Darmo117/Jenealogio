@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import net.darmo_creations.model.Observer;
+import net.darmo_creations.util.Observer;
 
 public class DoubleClickController extends MouseAdapter {
   private List<Observer> observers;
