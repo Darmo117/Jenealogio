@@ -4,8 +4,11 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.AbstractAction;
+import javax.swing.AbstractButton;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
@@ -14,18 +17,19 @@ import javax.swing.JPanel;
 import javax.swing.JRootPane;
 import javax.swing.KeyStroke;
 
-import net.darmo_creations.controllers.DefaultDialogController;
-
 public abstract class AbstractDialog extends JDialog {
   private static final long serialVersionUID = -7155586918339699837L;
 
+  private JPanel buttonsPnl;
   private JButton validationBtn, cancelBtn, closeBtn;
+  private List<AbstractButton> additionnalBtns;
   private boolean canceled;
 
   public AbstractDialog(JFrame owner, Mode mode, boolean modal) {
     super(owner, modal);
 
-    JPanel buttonsPnl = new JPanel();
+    this.buttonsPnl = new JPanel();
+    this.additionnalBtns = new ArrayList<>();
 
     if (mode == Mode.VALIDATE_CANCEL_OPTION) {
       this.validationBtn = new JButton("Valider");
@@ -35,21 +39,26 @@ public abstract class AbstractDialog extends JDialog {
       this.cancelBtn.setActionCommand("cancel");
       this.cancelBtn.setFocusPainted(false);
 
-      buttonsPnl.add(this.validationBtn);
-      buttonsPnl.add(this.cancelBtn);
+      this.buttonsPnl.add(this.validationBtn);
+      this.buttonsPnl.add(this.cancelBtn);
     }
     else if (mode == Mode.CLOSE_OPTION) {
       this.closeBtn = new JButton("Fermer");
       this.closeBtn.setActionCommand("close");
       this.closeBtn.setFocusPainted(false);
 
-      buttonsPnl.add(this.closeBtn);
+      this.buttonsPnl.add(this.closeBtn);
     }
 
-    add(buttonsPnl, BorderLayout.SOUTH);
+    add(this.buttonsPnl, BorderLayout.SOUTH);
 
     setCanceled(false);
     installEscapeCloseOperation();
+  }
+
+  public void addButton(AbstractButton button) {
+    this.buttonsPnl.add(button);
+    this.additionnalBtns.add(button);
   }
 
   public void setActionListener(DefaultDialogController<?> controller) {
@@ -59,6 +68,7 @@ public abstract class AbstractDialog extends JDialog {
       this.cancelBtn.addActionListener(controller);
     if (this.closeBtn != null)
       this.closeBtn.addActionListener(controller);
+    this.additionnalBtns.forEach(b -> b.addActionListener(controller));
     addWindowListener(controller);
   }
 

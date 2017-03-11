@@ -9,7 +9,7 @@ import javax.swing.JList;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import net.darmo_creations.controllers.DefaultDialogController;
+import net.darmo_creations.gui.dialog.DefaultDialogController;
 import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.model.family.Wedding;
 

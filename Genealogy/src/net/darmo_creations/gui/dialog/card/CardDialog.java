@@ -19,7 +19,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.BoxLayout;
-import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -79,7 +78,7 @@ public class CardDialog extends AbstractDialog {
     this.imageLbl.setAlignmentX(Component.CENTER_ALIGNMENT);
     this.imageLbl.setBorder(new LineBorder(Color.GRAY));
     JButton imageBtn = new JButton("Choisir une image...");
-    imageBtn.setActionCommand("chose-image");
+    imageBtn.setActionCommand("choose-image");
     imageBtn.addActionListener(controller);
     imageBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
     imageBtn.setFocusPainted(false);
@@ -215,7 +214,7 @@ public class CardDialog extends AbstractDialog {
     }
     else {
       this.image = null;
-      this.imageLbl.setIcon((Icon) null);
+      this.imageLbl.setIcon(null);
     }
   }
 
@@ -231,15 +230,8 @@ public class CardDialog extends AbstractDialog {
   public Optional<FamilyMember> getCard() {
     if (!isCanceled()) {
       // @f0
-      FamilyMember member = new FamilyMember(
-          this.id,
-          this.image,
-          getContent(this.nameFld),
-          getContent(this.firstNameFld),
-          Gender.values()[this.genderCombo.getSelectedIndex()],
-          parseDate(this.birthFld),
-          getContent(this.birthPlaceFld),
-          parseDate(this.deathFld),
+      FamilyMember member = new FamilyMember(this.id, this.image, getContent(this.nameFld), getContent(this.firstNameFld),
+          Gender.values()[this.genderCombo.getSelectedIndex()], parseDate(this.birthFld), getContent(this.birthPlaceFld), parseDate(this.deathFld),
           getContent(this.deathPlaceFld));
       // @f1
 

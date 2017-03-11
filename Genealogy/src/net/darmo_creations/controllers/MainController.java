@@ -125,6 +125,8 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
 
       if (m.matches())
         showDetails(Long.parseLong(m.group(1)));
+      else if (s.equals("edit"))
+        edit();
     }
   }
 

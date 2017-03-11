@@ -14,7 +14,7 @@ import javax.imageio.ImageIO;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import net.darmo_creations.controllers.DefaultDialogController;
+import net.darmo_creations.gui.dialog.DefaultDialogController;
 
 public class CardController extends DefaultDialogController<CardDialog> implements KeyListener, DocumentListener, ItemListener {
   public CardController(CardDialog dialog) {
@@ -25,7 +25,7 @@ public class CardController extends DefaultDialogController<CardDialog> implemen
   public void actionPerformed(ActionEvent e) {
     super.actionPerformed(e);
     switch (e.getActionCommand()) {
-      case "chose-image":
+      case "choose-image":
         setImage();
     }
   }
@@ -62,7 +62,7 @@ public class CardController extends DefaultDialogController<CardDialog> implemen
     if (file != null) {
       Optional<BufferedImage> image;
       try {
-        image = Optional.of(ImageIO.read(file));
+        image = Optional.ofNullable(ImageIO.read(file));
       }
       catch (IOException e) {
         this.dialog.showErrorDialog("Erreur lors de l'ouverture de l'image !");

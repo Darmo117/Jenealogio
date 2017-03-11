@@ -66,6 +66,7 @@ public class MainFrame extends JFrame {
     this.treeCreationDialog = new TreeCreationDialog(this);
     this.cardDialog = new CardDialog(this);
     this.detailsDialog = new CardDetailsDialog(this);
+    this.detailsDialog.addObserver(controller);
     this.linkDialog = new LinkDialog(this);
 
     setJMenuBar(initJMenuBar(controller));

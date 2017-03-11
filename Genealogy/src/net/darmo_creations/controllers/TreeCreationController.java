@@ -3,6 +3,7 @@ package net.darmo_creations.controllers;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import net.darmo_creations.gui.dialog.DefaultDialogController;
 import net.darmo_creations.gui.dialog.TreeCreationDialog;
 
 public class TreeCreationController extends DefaultDialogController<TreeCreationDialog> implements DocumentListener {

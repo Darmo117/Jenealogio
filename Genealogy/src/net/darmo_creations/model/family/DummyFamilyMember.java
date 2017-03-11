@@ -8,6 +8,11 @@ public class DummyFamilyMember extends FamilyMember {
   }
 
   @Override
+  void setName(String name) {
+    super.setName(Objects.requireNonNull(name));
+  }
+
+  @Override
   public String toString() {
     return getName().get();
   }

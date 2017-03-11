@@ -132,6 +132,7 @@ public class DisplayPanel extends JPanel implements Scrollable, Observable, Drag
       Point middle = new Point((p1.x + p2.x) / 2, (p1.y + p2.y) / 2);
 
       g2d.drawLine(p1.x, p1.y, p2.x, p2.y);
+      g2d.setColor(Color.BLUE);
       // Liens vers les enfants.
       link.getChildren().forEach(child -> {
         Rectangle r = this.panels.get(child).getBounds();
