@@ -76,7 +76,7 @@ public final class Wedding implements Cloneable {
   }
 
   public void removeChild(FamilyMember child) {
-    this.children.remove(child.getId());
+    this.children.remove(child);
   }
 
   public boolean isMarried(FamilyMember member) {

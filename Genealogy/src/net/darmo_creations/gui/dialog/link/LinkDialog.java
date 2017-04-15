@@ -30,8 +30,8 @@ import net.darmo_creations.gui.dialog.AbstractDialog;
 import net.darmo_creations.model.Date;
 import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.model.family.Wedding;
-import net.darmo_creations.util.Images;
 import net.darmo_creations.util.I18n;
+import net.darmo_creations.util.Images;
 
 public class LinkDialog extends AbstractDialog {
   private static final long serialVersionUID = -6591620133064467367L;
