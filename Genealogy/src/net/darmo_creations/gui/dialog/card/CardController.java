@@ -15,6 +15,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import net.darmo_creations.gui.dialog.DefaultDialogController;
+import net.darmo_creations.util.I18n;
 
 public class CardController extends DefaultDialogController<CardDialog> implements KeyListener, DocumentListener, ItemListener {
   public CardController(CardDialog dialog) {
@@ -65,7 +66,7 @@ public class CardController extends DefaultDialogController<CardDialog> implemen
         image = Optional.ofNullable(ImageIO.read(file));
       }
       catch (IOException e) {
-        this.dialog.showErrorDialog("Erreur lors de l'ouverture de l'image !");
+        this.dialog.showErrorDialog(I18n.getLocalizedString("popup.open_image_error.text"));
         image = Optional.empty();
       }
       this.dialog.setImage(image);

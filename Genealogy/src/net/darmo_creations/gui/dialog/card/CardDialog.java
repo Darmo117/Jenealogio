@@ -37,6 +37,7 @@ import net.darmo_creations.gui.dialog.AbstractDialog;
 import net.darmo_creations.model.Date;
 import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.model.family.Gender;
+import net.darmo_creations.util.I18n;
 
 public class CardDialog extends AbstractDialog {
   private static final long serialVersionUID = -6591620133064467367L;
@@ -69,7 +70,7 @@ public class CardDialog extends AbstractDialog {
     this.fileChooser = new JFileChooser();
     this.fileChooser.setAcceptAllFileFilterUsed(false);
     this.fileChooser.setMultiSelectionEnabled(false);
-    this.fileChooser.setFileFilter(new ExtensionFileFilter("Fichier image", "png", "jpg", "jpeg", "bmp"));
+    this.fileChooser.setFileFilter(new ExtensionFileFilter(I18n.getLocalizedString("file_type.image.desc"), "png", "jpg", "jpeg", "bmp"));
 
     this.image = null;
     this.imageLbl = new ImageLabel(null);
@@ -77,7 +78,7 @@ public class CardDialog extends AbstractDialog {
     this.imageLbl.setMaximumSize(this.imageLbl.getPreferredSize());
     this.imageLbl.setAlignmentX(Component.CENTER_ALIGNMENT);
     this.imageLbl.setBorder(new LineBorder(Color.GRAY));
-    JButton imageBtn = new JButton("Choisir une image...");
+    JButton imageBtn = new JButton(I18n.getLocalizedString("button.choose_image.text"));
     imageBtn.setActionCommand("choose-image");
     imageBtn.addActionListener(controller);
     imageBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -88,7 +89,7 @@ public class CardDialog extends AbstractDialog {
     this.firstNameFld.getDocument().addDocumentListener(controller);
     this.genderCombo = new JComboBox<>(Gender.values());
     this.genderCombo.addItemListener(controller);
-    DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+    DateFormat dateFormat = new SimpleDateFormat(I18n.getLocalizedString("date.format"));
     this.birthFld = new JFormattedTextField(dateFormat);
     this.birthFld.addKeyListener(controller);
     this.birthFld.getDocument().addDocumentListener(controller);
@@ -113,19 +114,19 @@ public class CardDialog extends AbstractDialog {
     gbc.fill = GridBagConstraints.HORIZONTAL;
 
     gbc.gridy = 0;
-    fieldsPnl.add(new JLabel("Nom"), gbc);
+    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.name.text")), gbc);
     gbc.gridy = 1;
-    fieldsPnl.add(new JLabel("Prénom"), gbc);
+    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.first_name.text")), gbc);
     gbc.gridy = 2;
-    fieldsPnl.add(new JLabel("Genre"), gbc);
+    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.gender.text")), gbc);
     gbc.gridy = 3;
-    fieldsPnl.add(new JLabel("Naissance"), gbc);
+    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.birth_date.text")), gbc);
     gbc.gridy = 4;
-    fieldsPnl.add(new JLabel("Endroit"), gbc);
+    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.birth_location.text")), gbc);
     gbc.gridy = 5;
-    fieldsPnl.add(new JLabel("Décès"), gbc);
+    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.death_date.text")), gbc);
     gbc.gridy = 6;
-    fieldsPnl.add(new JLabel("Endroit"), gbc);
+    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.death_location.text")), gbc);
     gbc.gridx = 1;
     gbc.gridwidth = 2;
     gbc.weightx = 1;
@@ -157,7 +158,7 @@ public class CardDialog extends AbstractDialog {
   public void setVisible(boolean b) {
     if (!isCanceled() && !b) {
       if (!checkDates())
-        showErrorDialog("La date de naissance doit être inférieure à la date de décès !");
+        showErrorDialog(I18n.getLocalizedString("popup.birth_date_error.text"));
       else
         super.setVisible(false);
     }
@@ -177,9 +178,10 @@ public class CardDialog extends AbstractDialog {
     return this.fileChooser.getSelectedFile();
   }
 
+  // TODO tout déplacer dans le contrôleur.
   public void setCard(FamilyMember member) {
     if (member != null) {
-      setTitle("Modifier une fiche");
+      setTitle(I18n.getLocalizedString("dialog.update_card.title"));
       this.id = member.getId();
       setImage(member.getImage());
       this.nameFld.setText(member.getName().orElse(""));
@@ -191,7 +193,7 @@ public class CardDialog extends AbstractDialog {
       this.deathPlaceFld.setText(member.getDeathPlace().orElse(""));
     }
     else {
-      setTitle("Ajouter une fiche");
+      setTitle(I18n.getLocalizedString("dialog.add_card.title"));
       this.id = -1;
       setImage(Optional.empty());
       this.nameFld.setText("");
@@ -219,21 +221,16 @@ public class CardDialog extends AbstractDialog {
   }
 
   private String getDate(Optional<Date> date) {
-    if (date.isPresent()) {
-      Date d = date.get();
-      return String.format("%02d/%02d/%d", d.getDate(), d.getMonth(), d.getYear());
-    }
-    else
-      return "";
+    if (date.isPresent())
+      return I18n.getFormattedDate(date.get());
+    return "";
   }
 
   public Optional<FamilyMember> getCard() {
     if (!isCanceled()) {
-      // @f0
       FamilyMember member = new FamilyMember(this.id, this.image, getContent(this.nameFld), getContent(this.firstNameFld),
           Gender.values()[this.genderCombo.getSelectedIndex()], parseDate(this.birthFld), getContent(this.birthPlaceFld), parseDate(this.deathFld),
           getContent(this.deathPlaceFld));
-      // @f1
 
       return Optional.of(member);
     }
@@ -250,15 +247,19 @@ public class CardDialog extends AbstractDialog {
 
     if (str.length() > 0) {
       Matcher matcher = DATE_PATTERN.matcher(str);
+
       if (matcher.matches()) {
+        String format = I18n.getLocalizedString("date.format");
+        boolean monthFirst = format.startsWith("M");
+
         int year = Integer.parseInt(matcher.group(3));
-        int month = Integer.parseInt(matcher.group(2));
-        int date = Integer.parseInt(matcher.group(1));
+        int month = Integer.parseInt(matcher.group(monthFirst ? 1 : 2));
+        int date = Integer.parseInt(matcher.group(monthFirst ? 2 : 1));
 
         return new Date(year, month, date);
       }
 
-      throw new DateTimeException("");
+      throw new DateTimeException("wrong date format");
     }
 
     return null;

@@ -1,5 +1,6 @@
 package net.darmo_creations.controllers;
 
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -14,8 +15,15 @@ public class DisplayController extends MouseAdapter implements ActionListener {
 
   private DisplayPanel panel;
 
+  private Point mouseLocation;
+
   public DisplayController(DisplayPanel panel) {
     this.panel = panel;
+    this.mouseLocation = new Point();
+  }
+
+  public Point getMouseLocation() {
+    return (Point) this.mouseLocation.clone();
   }
 
   @Override
@@ -31,5 +39,14 @@ public class DisplayController extends MouseAdapter implements ActionListener {
   @Override
   public void mouseClicked(MouseEvent e) {
     this.panel.selectPanel(-1);
+    this.panel.selectLinkIfHovered();
+    if (e.getClickCount() == 2)
+      this.panel.editLinkIfHovered();
+  }
+
+  @Override
+  public void mouseMoved(MouseEvent e) {
+    this.mouseLocation = e.getPoint();
+    this.panel.repaint();
   }
 }

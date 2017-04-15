@@ -31,6 +31,7 @@ import net.darmo_creations.model.Date;
 import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.model.family.Wedding;
 import net.darmo_creations.util.Images;
+import net.darmo_creations.util.I18n;
 
 public class LinkDialog extends AbstractDialog {
   private static final long serialVersionUID = -6591620133064467367L;
@@ -57,7 +58,7 @@ public class LinkDialog extends AbstractDialog {
       }
     });
 
-    DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+    DateFormat dateFormat = new SimpleDateFormat(I18n.getLocalizedString("date.format"));
     this.dateFld = new JFormattedTextField(dateFormat);
     this.dateFld.addKeyListener(this.controller);
     this.locationFld = new JTextField();
@@ -85,18 +86,18 @@ public class LinkDialog extends AbstractDialog {
 
     gbc.fill = GridBagConstraints.HORIZONTAL;
     gbc.gridwidth = 2;
-    fieldsPnl.add(new JLabel("Date"), gbc);
+    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.wedding_date.text")), gbc);
     gbc.gridy = 1;
-    fieldsPnl.add(new JLabel("Endroit"), gbc);
+    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.wedding_location.text")), gbc);
     gbc.gridy = 2;
-    fieldsPnl.add(new JLabel("Époux"), gbc);
+    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.spouse1.text")), gbc);
     gbc.gridy = 3;
-    fieldsPnl.add(new JLabel("Épouse"), gbc);
+    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.spouse2.text")), gbc);
     gbc.gridy = 4;
-    fieldsPnl.add(new JLabel("Enfants"), gbc);
+    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.children.text")), gbc);
     gbc.gridwidth = 3;
     gbc.gridy = 7;
-    fieldsPnl.add(new JLabel("Enfants disponibles"), gbc);
+    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.available_children.text")), gbc);
     gbc.gridwidth = 5;
     gbc.weightx = 1;
     gbc.gridx = 2;
@@ -136,12 +137,12 @@ public class LinkDialog extends AbstractDialog {
   }
 
   public void addLink(FamilyMember spouse1, FamilyMember spouse2, Set<FamilyMember> children) {
-    setTitle("Ajouter un lien");
+    setTitle(I18n.getLocalizedString("dialog.add_link.title"));
     this.controller.reset(spouse1, spouse2, children);
   }
 
   public void updateLink(Wedding wedding, Set<FamilyMember> children) {
-    setTitle("Modifier un lien");
+    setTitle(I18n.getLocalizedString("dialog.update_link.title"));
     this.controller.reset(wedding, children);
   }
 
@@ -236,10 +237,8 @@ public class LinkDialog extends AbstractDialog {
   }
 
   private String formatDate(Optional<Date> date) {
-    if (date.isPresent()) {
-      Date d = date.get();
-      return String.format("%02d/%02d/%d", d.getYear(), d.getMonth(), d.getDate());
-    }
+    if (date.isPresent())
+      return I18n.getFormattedDate(date.get());
     return "";
   }
 
@@ -249,9 +248,12 @@ public class LinkDialog extends AbstractDialog {
     if (str.length() > 0) {
       Matcher matcher = DATE_PATTERN.matcher(str);
       if (matcher.matches()) {
+        String format = I18n.getLocalizedString("date.format");
+        boolean monthFirst = format.startsWith("M");
+
         int year = Integer.parseInt(matcher.group(3));
-        int month = Integer.parseInt(matcher.group(2));
-        int date = Integer.parseInt(matcher.group(1));
+        int month = Integer.parseInt(matcher.group(monthFirst ? 1 : 2));
+        int date = Integer.parseInt(matcher.group(monthFirst ? 2 : 1));
 
         return new Date(year, month, date);
       }

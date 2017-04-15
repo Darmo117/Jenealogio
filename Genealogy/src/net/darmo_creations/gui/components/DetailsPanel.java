@@ -14,6 +14,7 @@ import javax.swing.JPanel;
 import net.darmo_creations.model.Date;
 import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.model.family.Wedding;
+import net.darmo_creations.util.I18n;
 import net.darmo_creations.util.Images;
 
 public class DetailsPanel extends JPanel {
@@ -54,7 +55,7 @@ public class DetailsPanel extends JPanel {
     infoPnl.add(this.birthLbl = new JLabel(), gbc);
     gbc.gridx = 6;
     gbc.gridwidth = 1;
-    infoPnl.add(new JLabel("à"), gbc);
+    infoPnl.add(new JLabel(I18n.getLocalizedWord("in", false)), gbc);
     gbc.gridx = 7;
     gbc.gridwidth = 8;
     infoPnl.add(this.birthPlaceLbl = new JLabel(), gbc);
@@ -67,7 +68,7 @@ public class DetailsPanel extends JPanel {
     infoPnl.add(this.weddingLbl = new JLabel(), gbc);
     gbc.gridx = 6;
     gbc.gridwidth = 1;
-    infoPnl.add(new JLabel("à"), gbc);
+    infoPnl.add(new JLabel(I18n.getLocalizedWord("in", false)), gbc);
     gbc.gridx = 7;
     gbc.gridwidth = 8;
     infoPnl.add(this.weddingPlaceLbl = new JLabel(), gbc);
@@ -80,7 +81,7 @@ public class DetailsPanel extends JPanel {
     infoPnl.add(this.deathLbl = new JLabel(), gbc);
     gbc.gridx = 6;
     gbc.gridwidth = 1;
-    infoPnl.add(new JLabel("à"), gbc);
+    infoPnl.add(new JLabel(I18n.getLocalizedWord("in", false)), gbc);
     gbc.gridx = 7;
     gbc.gridwidth = 8;
     infoPnl.add(this.deathPlaceLbl = new JLabel(), gbc);
@@ -110,10 +111,10 @@ public class DetailsPanel extends JPanel {
       Period p = period.get();
       int years = p.getYears();
       int months = p.getMonths();
-      String res = years + " an" + (years > 1 ? "s" : "");
+      String res = years + " " + I18n.getLocalizedWord("year", years > 1);
 
       if (months > 0)
-        res += months + " mois";
+        res += months + " " + I18n.getLocalizedWord("month", months > 1);
 
       return res;
     }
@@ -121,10 +122,8 @@ public class DetailsPanel extends JPanel {
   }
 
   private String getDate(Optional<Date> date) {
-    if (date.isPresent()) {
-      Date d = date.get();
-      return String.format("%d/%02d/%d", d.getDate(), d.getMonth(), d.getYear());
-    }
+    if (date.isPresent())
+      return I18n.getFormattedDate(date.get());
     return UNKNOWN_DATA;
   }
 }

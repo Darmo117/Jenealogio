@@ -20,10 +20,13 @@ import net.darmo_creations.model.family.Family;
 import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.model.family.Gender;
 import net.darmo_creations.model.family.Wedding;
+import net.darmo_creations.util.I18n;
 import net.darmo_creations.util.Observer;
 
 public class MainController extends WindowAdapter implements ActionListener, Observer {
-  private static final Pattern DOUBLE_CLICK_PATTERN = Pattern.compile("^double-click:(\\d+)$");
+  private static final Pattern DOUBLE_CLICK_MEMBER_PATTERN = Pattern.compile("double-click:member-(\\d+)");
+  private static final Pattern DOUBLE_CLICK_WEDDING_PATTERN = Pattern.compile("double-click:link-(\\d+)-(\\d+)");
+  private static final Pattern CLICK_WEDDING_PATTERN = Pattern.compile("click:link-(\\d+)-(\\d+)");
 
   private final MainFrame frame;
 
@@ -99,16 +102,17 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
   public void update(Object o) {
     if (o instanceof Long) {
       long id = (Long) o;
+
       this.frame.updateMenus(this.fileOpen, id >= 0, false);
       if (id >= 0) {
         FamilyMember prev = null;
 
-        if (this.addingLink && this.selectedCard != null)
+        if (this.addingLink && this.selectedCard != null && !this.family.isMarried(this.selectedCard))
           prev = this.selectedCard;
 
         this.selectedCard = this.family.getMember(id).orElseThrow(IllegalStateException::new);
 
-        if (prev != null && !prev.equals(this.selectedCard)) {
+        if (prev != null && !prev.equals(this.selectedCard) && !this.family.isMarried(this.selectedCard)) {
           addLink(prev, this.selectedCard);
           toggleAddLink();
         }
@@ -118,13 +122,27 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
           toggleAddLink();
         this.selectedCard = null;
       }
+      this.selectedLink = null;
     }
     else if (o instanceof String) {
       String s = (String) o;
-      Matcher m = DOUBLE_CLICK_PATTERN.matcher(s);
+      Matcher m = DOUBLE_CLICK_MEMBER_PATTERN.matcher(s);
+      Matcher m1 = DOUBLE_CLICK_WEDDING_PATTERN.matcher(s);
+      Matcher m2 = CLICK_WEDDING_PATTERN.matcher(s);
 
       if (m.matches())
         showDetails(Long.parseLong(m.group(1)));
+      else if (m1.matches())
+        edit();
+      else if (m2.matches()) {
+        Optional<FamilyMember> optM = this.family.getMember(Long.parseLong(m2.group(1)));
+        if (optM.isPresent()) {
+          Optional<Wedding> w = this.family.getWedding(optM.get());
+          if (w.isPresent())
+            this.selectedLink = w.get();
+        }
+        this.frame.updateMenus(this.fileOpen, false, this.selectedLink != null);
+      }
       else if (s.equals("edit"))
         edit();
     }
@@ -132,7 +150,7 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
 
   private void newFile() {
     if (this.fileOpen && !this.saved) {
-      int choice = this.frame.showConfirmDialog("Voulez-vous sauvegarder ?");
+      int choice = this.frame.showConfirmDialog(I18n.getLocalizedString("popup.save_confirm.text"));
 
       if (choice == JOptionPane.YES_OPTION)
         save();
@@ -151,11 +169,14 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
       updateFrameMenus();
 
       // TEMP
-      this.family.addMember(new FamilyMember(null, "Smith", "John", Gender.MAN, new Date(1913, 5, 7), "Londres", new Date(1982, 3, 29), "Paris"));
+      this.family.addMember(
+          new FamilyMember(null, "Smith", "John", Gender.MAN, new Date(1913, 5, 7), "Londres", new Date(1982, 3, 29), "Paris"));
       this.family.addMember(
           new FamilyMember(null, "Smith", "Johanna", Gender.WOMAN, new Date(1913, 5, 7), "Londres", new Date(1982, 3, 29), "Paris"));
-      this.family.addMember(new FamilyMember(null, "Paul", "John", Gender.MAN, new Date(1913, 5, 7), "Londres", new Date(1982, 3, 29), "Paris"));
-      this.family.addMember(new FamilyMember(null, "Paul", "Johanna", Gender.WOMAN, new Date(1913, 5, 7), "Londres", new Date(1982, 3, 29), "Paris"));
+      this.family.addMember(
+          new FamilyMember(null, "Paul", "John", Gender.MAN, new Date(1913, 5, 7), "Londres", new Date(1982, 3, 29), "Paris"));
+      this.family.addMember(
+          new FamilyMember(null, "Paul", "Johanna", Gender.WOMAN, new Date(1913, 5, 7), "Londres", new Date(1982, 3, 29), "Paris"));
       this.frame.refreshDisplay(this.family);
     }
   }
@@ -173,7 +194,7 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
         this.frame.refreshDisplay(this.family);
       }
       catch (IOException e) {
-        this.frame.showErrorDialog("Une erreur est survenue pendant l'ouverture du fichier.");
+        this.frame.showErrorDialog(I18n.getLocalizedString("popup.open_file_error.text"));
       }
       updateFrameMenus();
     }
@@ -196,7 +217,7 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
       this.saved = true;
     }
     catch (IOException e) {
-      this.frame.showErrorDialog("Une erreur est survenue pendant la sauvegarde !");
+      this.frame.showErrorDialog(I18n.getLocalizedString("popup.save_file_error.text"));
     }
   }
 
@@ -233,19 +254,18 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
       }
     }
     else if (this.selectedLink != null) {
-      // TEMP
-      // Optional<Wedding> wedding = this.frame.showUpdateLink(this.selectedLink, this.family);
-      //
-      // if (wedding.isPresent()) {
-      // this.family.updateWedding(wedding.get());
-      // refreshFrame();
-      // }
+      Optional<Wedding> wedding = this.frame.showUpdateLinkDialog(this.selectedLink, this.family.getPotentialChildren(this.selectedLink));
+
+      if (wedding.isPresent()) {
+        this.family.updateWedding(wedding.get());
+        refreshFrame();
+      }
     }
   }
 
   private void delete() {
     if (this.selectedCard != null) {
-      if (this.frame.showConfirmDialog("Êtes-vous sûr de vouloir supprimer cette fiche ?") == JOptionPane.OK_OPTION) {
+      if (this.frame.showConfirmDialog(I18n.getLocalizedString("popup.delete_card_confirm.text")) == JOptionPane.OK_OPTION) {
         this.family.removeMember(this.selectedCard);
         this.selectedCard = null;
         updateFrameMenus();
@@ -253,7 +273,7 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
       }
     }
     else if (this.selectedLink != null) {
-      if (this.frame.showConfirmDialog("Êtes-vous sûr de vouloir supprimer de lien ?") == JOptionPane.OK_OPTION) {
+      if (this.frame.showConfirmDialog(I18n.getLocalizedString("popup.delete_link_confirm.text")) == JOptionPane.OK_OPTION) {
         this.family.removeWedding(this.selectedLink);
         this.selectedLink = null;
         updateFrameMenus();
@@ -264,7 +284,7 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
 
   private void exit() {
     if (this.fileOpen && !this.saved) {
-      int choice = this.frame.showConfirmDialog("Voulez-vous sauvegarder ?");
+      int choice = this.frame.showConfirmDialog(I18n.getLocalizedString("popup.save_confirm.text"));
 
       if (choice == JOptionPane.YES_OPTION)
         save();
@@ -272,6 +292,7 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
         return;
     }
 
+    I18n.saveLocale();
     this.frame.dispose();
   }
 

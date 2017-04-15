@@ -7,9 +7,8 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import net.darmo_creations.model.Date;
-import net.darmo_creations.model.graph.Link;
 
-public final class Wedding extends Link<FamilyMember> implements Cloneable {
+public final class Wedding implements Cloneable {
   private Date date;
   private String location;
   private FamilyMember spouse1, spouse2;
@@ -63,7 +62,6 @@ public final class Wedding extends Link<FamilyMember> implements Cloneable {
     return this.children.contains(member);
   }
 
-  @Override
   public Set<FamilyMember> getChildren() {
     return new TreeSet<>(this.children);
   }

@@ -17,6 +17,8 @@ import javax.swing.JPanel;
 import javax.swing.JRootPane;
 import javax.swing.KeyStroke;
 
+import net.darmo_creations.util.I18n;
+
 public abstract class AbstractDialog extends JDialog {
   private static final long serialVersionUID = -7155586918339699837L;
 
@@ -32,10 +34,10 @@ public abstract class AbstractDialog extends JDialog {
     this.additionnalBtns = new ArrayList<>();
 
     if (mode == Mode.VALIDATE_CANCEL_OPTION) {
-      this.validationBtn = new JButton("Valider");
+      this.validationBtn = new JButton(I18n.getLocalizedString("button.validate.text"));
       this.validationBtn.setActionCommand("validate");
       this.validationBtn.setFocusPainted(false);
-      this.cancelBtn = new JButton("Annuler");
+      this.cancelBtn = new JButton(I18n.getLocalizedString("button.cancel.text"));
       this.cancelBtn.setActionCommand("cancel");
       this.cancelBtn.setFocusPainted(false);
 
@@ -43,7 +45,7 @@ public abstract class AbstractDialog extends JDialog {
       this.buttonsPnl.add(this.cancelBtn);
     }
     else if (mode == Mode.CLOSE_OPTION) {
-      this.closeBtn = new JButton("Fermer");
+      this.closeBtn = new JButton(I18n.getLocalizedString("button.close.text"));
       this.closeBtn.setActionCommand("close");
       this.closeBtn.setFocusPainted(false);
 
@@ -87,7 +89,7 @@ public abstract class AbstractDialog extends JDialog {
   }
 
   private void installEscapeCloseOperation() {
-    String actionKey = "WINDOW_CLOSING";
+    final String actionKey = "WINDOW_CLOSING";
     JRootPane root = getRootPane();
 
     root.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), actionKey);

@@ -18,6 +18,7 @@ import net.darmo_creations.gui.components.ImageLabel;
 import net.darmo_creations.model.family.DummyFamilyMember;
 import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.model.family.Wedding;
+import net.darmo_creations.util.I18n;
 import net.darmo_creations.util.Observable;
 import net.darmo_creations.util.Observer;
 
@@ -42,7 +43,7 @@ public class CardDetailsDialog extends AbstractDialog implements Observable {
     this.imageLbl.setBorder(new LineBorder(Color.GRAY));
     add(imagePnl, BorderLayout.NORTH);
     add(this.infoPnl = new DetailsPanel(new DummyFamilyMember(""), null), BorderLayout.CENTER);
-    JButton editBtn = new JButton("Éditer");
+    JButton editBtn = new JButton(I18n.getLocalizedString("button.edit.text"));
     addButton(editBtn);
     editBtn.setActionCommand("edit");
 

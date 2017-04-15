@@ -6,10 +6,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import net.darmo_creations.model.graph.Graph;
-import net.darmo_creations.model.graph.Node;
-
-public class Family extends Graph<FamilyMember, Wedding> {
+public class Family {
   private long globalId;
   private String name;
   private Set<FamilyMember> members;
@@ -37,9 +34,11 @@ public class Family extends Graph<FamilyMember, Wedding> {
   }
 
   public Optional<FamilyMember> getMember(long id) {
-    // @f0
-    return this.members.stream().filter(member -> member.getId() == id).findAny();
-    // @f1
+    // #f:0
+    return this.members.stream()
+        .filter(member -> member.getId() == id)
+        .findAny();
+    // #f:1
   }
 
   public void addMember(FamilyMember member) {
@@ -83,21 +82,26 @@ public class Family extends Graph<FamilyMember, Wedding> {
   }
 
   public Optional<Wedding> getWedding(FamilyMember member) {
-    Optional<Wedding> w = getLinkForNode(member);
+    Optional<Wedding> w = getWeddingForMember(member);
     return Optional.ofNullable(w.isPresent() ? w.get().clone() : null);
   }
 
   public void addWedding(Wedding wedding) {
     if (!this.weddings.contains(wedding)) {
-      FamilyMember[] children = wedding.getChildren().stream().map(child -> getMember(child.getId()).get()).toArray(FamilyMember[]::new);
+      // #f:0
+      FamilyMember[] children = wedding.getChildren().stream()
+          .map(child -> getMember(child.getId()).get())
+          .toArray(FamilyMember[]::new);
 
-      this.weddings.add(new Wedding(wedding.getDate().orElse(null), wedding.getLocation().orElse(null), getMember(wedding.getSpouse1().getId()).get(),
-          getMember(wedding.getSpouse2().getId()).get(), children));
+      this.weddings.add(new Wedding(wedding.getDate().orElse(null), wedding.getLocation().orElse(null),
+          getMember(wedding.getSpouse1().getId()).get(), getMember(wedding.getSpouse2().getId()).get(),
+          children));
+      // #f:1
     }
   }
 
   public void updateWedding(Wedding wedding) {
-    Optional<Wedding> optional = getLinkForNode(wedding.getSpouse1());
+    Optional<Wedding> optional = getWeddingForMember(wedding.getSpouse1());
 
     if (optional.isPresent()) {
       Wedding w = optional.get();
@@ -138,10 +142,8 @@ public class Family extends Graph<FamilyMember, Wedding> {
   public Set<FamilyMember> getPotentialWivesForHusband(FamilyMember member) {
     if (member != null && member.isWoman())
       return new HashSet<>();
-    // @f0
     return getAllMembers().stream().filter(m -> m.isWoman() && (member == null || !isMarried(member)) && !m.equals(member)).collect(
         Collectors.toCollection(HashSet::new));
-    // @f1
   }
 
   /**
@@ -154,41 +156,13 @@ public class Family extends Graph<FamilyMember, Wedding> {
   public Set<FamilyMember> getPotentialChildren(Wedding wedding) {
     if (wedding == null)
       return getAllMembers();
-    // @f0
-    return getAllMembers().stream().filter(m -> !m.equals(wedding.getSpouse1()) && !m.equals(wedding.getSpouse2()) && !wedding.isChild(m)).collect(
-        Collectors.toCollection(HashSet::new));
-    // @f1
+    return getAllMembers().stream().filter(
+        m -> !m.equals(wedding.getSpouse1()) && !m.equals(wedding.getSpouse2()) && !wedding.isChild(m)).collect(
+            Collectors.toCollection(HashSet::new));
   }
 
-  @Override
-  protected Optional<Wedding> getLinkForNode(Node<FamilyMember> node) {
-    // @f0
+  private Optional<Wedding> getWeddingForMember(FamilyMember node) {
     return this.weddings.stream().filter(wedding -> wedding.getSpouse1().equals(node) || wedding.getSpouse2().equals(node)).findAny();
-    // @f1
-  }
-
-  @Override
-  protected Optional<FamilyMember> getLeftAncestorForNode(Node<FamilyMember> node) {
-    // @f0
-    Optional<Wedding> optional = this.weddings.stream().filter(wedding -> wedding.getChildren().contains(node)).findAny();
-    // @f1
-
-    if (optional.isPresent())
-      return Optional.of(optional.get().getSpouse1());
-
-    return Optional.empty();
-  }
-
-  @Override
-  protected Optional<FamilyMember> getRightAncestorForNode(Node<FamilyMember> node) {
-    // @f0
-    Optional<Wedding> optional = this.weddings.stream().filter(wedding -> wedding.getChildren().contains(node)).findAny();
-    // @f1
-
-    if (optional.isPresent())
-      return Optional.of(optional.get().getSpouse2());
-
-    return Optional.empty();
   }
 
   private long getNextMemberId() {

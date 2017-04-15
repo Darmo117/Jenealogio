@@ -10,17 +10,15 @@ import net.darmo_creations.util.Observer;
 
 public class DoubleClickController extends MouseAdapter {
   private List<Observer> observers;
-  private long id;
 
-  public DoubleClickController(long id, Collection<Observer> observers) {
-    this.id = id;
+  public DoubleClickController(Collection<Observer> observers) {
     this.observers = new ArrayList<>(observers);
   }
 
   @Override
   public void mouseClicked(MouseEvent e) {
     if (e.getClickCount() == 2) {
-      this.observers.forEach(obs -> obs.update("double-click:" + this.id));
+      this.observers.forEach(obs -> obs.update("double-click:" + e.getComponent().getName()));
     }
   }
 }

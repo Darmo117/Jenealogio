@@ -30,6 +30,8 @@ public class DragController<T extends Dragable> extends MouseAdapter {
   public void mouseDragged(MouseEvent e) {
     Rectangle bounds = this.dragable.getBounds();
     Rectangle containerBounds = this.handler.getBounds();
+    if (this.grabPoint == null)
+      mousePressed(e);
     int newX = Math.max(containerBounds.x, Math.min(containerBounds.width - bounds.width, e.getXOnScreen() - getXOffset() - this.grabPoint.x));
     int newY = Math.max(containerBounds.y, Math.min(containerBounds.height - bounds.height, e.getYOnScreen() - getYOffset() - this.grabPoint.y));
 

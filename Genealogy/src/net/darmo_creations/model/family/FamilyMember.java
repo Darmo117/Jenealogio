@@ -6,7 +6,6 @@ import java.util.Objects;
 import java.util.Optional;
 
 import net.darmo_creations.model.Date;
-import net.darmo_creations.model.graph.Node;
 import net.darmo_creations.util.CalendarUtil;
 import net.darmo_creations.util.Images;
 
@@ -14,7 +13,7 @@ import net.darmo_creations.util.Images;
  * Une personne a un id interne, une photo, un nom, un prénom, un genre, une date de naissance et
  * une date de décès. Une personne ne connaît pas ses parents.
  */
-public class FamilyMember extends Node<FamilyMember> implements Comparable<FamilyMember>, Cloneable {
+public class FamilyMember implements Comparable<FamilyMember>, Cloneable {
   private final long id;
   private BufferedImage image;
   private String name;
@@ -30,8 +29,8 @@ public class FamilyMember extends Node<FamilyMember> implements Comparable<Famil
     this(-1, image, name, firstName, gender, birthDate, birthPlace, deathDate, deathPlace);
   }
 
-  public FamilyMember(long id, BufferedImage image, String name, String firstName, Gender gender, Date birthDate, String birthPlace, Date deathDate,
-      String deathPlace) {
+  public FamilyMember(long id, BufferedImage image, String name, String firstName, Gender gender, Date birthDate, String birthPlace,
+      Date deathDate, String deathPlace) {
     this.id = id;
     this.image = image != null ? Images.deepCopy(image) : null;
     this.name = name;

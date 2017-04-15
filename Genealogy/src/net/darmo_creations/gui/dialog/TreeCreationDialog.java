@@ -12,6 +12,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import net.darmo_creations.controllers.TreeCreationController;
+import net.darmo_creations.util.I18n;
 
 public class TreeCreationDialog extends AbstractDialog {
   private static final long serialVersionUID = -521752892964228483L;
@@ -22,7 +23,7 @@ public class TreeCreationDialog extends AbstractDialog {
     super(owner, Mode.VALIDATE_CANCEL_OPTION, true);
     setResizable(false);
 
-    setTitle("Nouvel arbre");
+    setTitle(I18n.getLocalizedString("dialog.new_tree.title"));
 
     TreeCreationController controller = new TreeCreationController(this);
 
@@ -35,7 +36,7 @@ public class TreeCreationDialog extends AbstractDialog {
 
     gbc.fill = GridBagConstraints.HORIZONTAL;
     gbc.gridwidth = 1;
-    fieldsPnl.add(new JLabel("Nom"), gbc);
+    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.tree_name.text")), gbc);
     gbc.gridwidth = 2;
     gbc.weightx = 1;
     gbc.gridx = 1;
