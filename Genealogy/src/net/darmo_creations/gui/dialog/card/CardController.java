@@ -15,11 +15,43 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import net.darmo_creations.gui.dialog.DefaultDialogController;
+import net.darmo_creations.model.family.FamilyMember;
+import net.darmo_creations.model.family.Gender;
 import net.darmo_creations.util.I18n;
 
 public class CardController extends DefaultDialogController<CardDialog> implements KeyListener, DocumentListener, ItemListener {
   public CardController(CardDialog dialog) {
     super(dialog);
+  }
+
+  public void reset(FamilyMember member) {
+    if (member != null) {
+      this.dialog.setTitle(I18n.getLocalizedString("dialog.update_card.title"));
+      this.dialog.setId(member.getId());
+      this.dialog.setImage(member.getImage());
+      this.dialog.setMemberName(member.getName().orElse(""));
+      this.dialog.setFirstName(member.getFirstName().orElse(""));
+      this.dialog.setGender(member.getGender());
+      this.dialog.setBirthDate(member.getBirthDate());
+      this.dialog.setBirthLocation(member.getBirthPlace().orElse(""));
+      this.dialog.setDeathDate(member.getDeathDate());
+      this.dialog.setDeathLocation(member.getDeathPlace().orElse(""));
+    }
+    else {
+      this.dialog.setTitle(I18n.getLocalizedString("dialog.add_card.title"));
+      this.dialog.setId(-1);
+      this.dialog.setImage(Optional.empty());
+      this.dialog.setMemberName("");
+      this.dialog.setFirstName("");
+      this.dialog.setGender(Gender.UNKNOW);
+      this.dialog.setBirthDate(Optional.empty());
+      this.dialog.setBirthLocation("");
+      this.dialog.setDeathDate(Optional.empty());
+      this.dialog.setDeathLocation("");
+    }
+
+    this.dialog.setCanceled(false);
+    this.dialog.setValidateButtonEnabled(false);
   }
 
   @Override

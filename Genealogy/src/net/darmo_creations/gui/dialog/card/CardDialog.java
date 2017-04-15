@@ -44,12 +44,14 @@ public class CardDialog extends AbstractDialog {
 
   private static final Pattern DATE_PATTERN = Pattern.compile("(\\d+{1,2})/(\\d+{2})/(\\d+{4})");
 
+  private CardController controller;
+
   private JFileChooser fileChooser;
 
   private long id;
   private BufferedImage image;
   private JLabel imageLbl;
-  private JTextField nameFld, firstNameFld, birthPlaceFld, deathPlaceFld;
+  private JTextField nameFld, firstNameFld, birthLocationFld, deathLocationFld;
   private JComboBox<Gender> genderCombo;
   private JFormattedTextField birthFld, deathFld;
 
@@ -58,7 +60,7 @@ public class CardDialog extends AbstractDialog {
     setPreferredSize(new Dimension(300, 410));
     setResizable(false);
 
-    CardController controller = new CardController(this);
+    this.controller = new CardController(this);
 
     addWindowListener(new WindowAdapter() {
       @Override
@@ -80,26 +82,26 @@ public class CardDialog extends AbstractDialog {
     this.imageLbl.setBorder(new LineBorder(Color.GRAY));
     JButton imageBtn = new JButton(I18n.getLocalizedString("button.choose_image.text"));
     imageBtn.setActionCommand("choose-image");
-    imageBtn.addActionListener(controller);
+    imageBtn.addActionListener(this.controller);
     imageBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
     imageBtn.setFocusPainted(false);
     this.nameFld = new JTextField();
-    this.nameFld.getDocument().addDocumentListener(controller);
+    this.nameFld.getDocument().addDocumentListener(this.controller);
     this.firstNameFld = new JTextField();
-    this.firstNameFld.getDocument().addDocumentListener(controller);
+    this.firstNameFld.getDocument().addDocumentListener(this.controller);
     this.genderCombo = new JComboBox<>(Gender.values());
-    this.genderCombo.addItemListener(controller);
+    this.genderCombo.addItemListener(this.controller);
     DateFormat dateFormat = new SimpleDateFormat(I18n.getLocalizedString("date.format"));
     this.birthFld = new JFormattedTextField(dateFormat);
-    this.birthFld.addKeyListener(controller);
-    this.birthFld.getDocument().addDocumentListener(controller);
-    this.birthPlaceFld = new JTextField();
-    this.birthPlaceFld.getDocument().addDocumentListener(controller);
+    this.birthFld.addKeyListener(this.controller);
+    this.birthFld.getDocument().addDocumentListener(this.controller);
+    this.birthLocationFld = new JTextField();
+    this.birthLocationFld.getDocument().addDocumentListener(this.controller);
     this.deathFld = new JFormattedTextField(dateFormat);
-    this.deathFld.addKeyListener(controller);
-    this.deathFld.getDocument().addDocumentListener(controller);
-    this.deathPlaceFld = new JTextField();
-    this.deathPlaceFld.getDocument().addDocumentListener(controller);
+    this.deathFld.addKeyListener(this.controller);
+    this.deathFld.getDocument().addDocumentListener(this.controller);
+    this.deathLocationFld = new JTextField();
+    this.deathLocationFld.getDocument().addDocumentListener(this.controller);
 
     JPanel imagePnl = new JPanel();
     imagePnl.setBorder(new EmptyBorder(5, 5, 0, 5));
@@ -139,19 +141,89 @@ public class CardDialog extends AbstractDialog {
     gbc.gridy = 3;
     fieldsPnl.add(this.birthFld, gbc);
     gbc.gridy = 4;
-    fieldsPnl.add(this.birthPlaceFld, gbc);
+    fieldsPnl.add(this.birthLocationFld, gbc);
     gbc.gridy = 5;
     fieldsPnl.add(this.deathFld, gbc);
     gbc.gridy = 6;
-    fieldsPnl.add(this.deathPlaceFld, gbc);
+    fieldsPnl.add(this.deathLocationFld, gbc);
 
     add(imagePnl, BorderLayout.NORTH);
     add(fieldsPnl, BorderLayout.CENTER);
 
-    setActionListener(controller);
+    setActionListener(this.controller);
 
     pack();
     setLocationRelativeTo(owner);
+  }
+
+  public void setId(long id) {
+    this.id = id;
+  }
+
+  public long getId() {
+    return this.id;
+  }
+
+  public String getMemberName() {
+    return getContent(this.nameFld);
+  }
+
+  public void setMemberName(String name) {
+    this.nameFld.setText(name);
+  }
+
+  public String getFirstName() {
+    return getContent(this.firstNameFld);
+  }
+
+  public void setFirstName(String firstName) {
+    this.firstNameFld.setText(firstName);
+  }
+
+  public Gender getGender() {
+    return Gender.values()[this.genderCombo.getSelectedIndex()];
+  }
+
+  public void setGender(Gender gender) {
+    this.genderCombo.setSelectedIndex(gender.ordinal());
+  }
+
+  public Date getBirthDate() {
+    return parseDate(this.birthFld);
+  }
+
+  public void setBirthDate(Optional<Date> date) {
+    this.birthFld.setText(getDate(date));
+  }
+
+  public String getBirthLocation() {
+    return getContent(this.birthLocationFld);
+  }
+
+  public void setBirthLocation(String location) {
+    this.birthLocationFld.setText(location);
+  }
+
+  public Date getDeathDate() {
+    return parseDate(this.deathFld);
+  }
+
+  public void setDeathDate(Optional<Date> date) {
+    this.deathFld.setText(getDate(date));
+  }
+
+  public String getDeathLocation() {
+    return getContent(this.deathLocationFld);
+  }
+
+  public void setDeathLocation(String location) {
+    this.deathLocationFld.setText(location);
+  }
+
+  private String getDate(Optional<Date> date) {
+    if (date.isPresent())
+      return I18n.getFormattedDate(date.get());
+    return "";
   }
 
   @Override
@@ -178,35 +250,8 @@ public class CardDialog extends AbstractDialog {
     return this.fileChooser.getSelectedFile();
   }
 
-  // TODO tout déplacer dans le contrôleur.
   public void setCard(FamilyMember member) {
-    if (member != null) {
-      setTitle(I18n.getLocalizedString("dialog.update_card.title"));
-      this.id = member.getId();
-      setImage(member.getImage());
-      this.nameFld.setText(member.getName().orElse(""));
-      this.firstNameFld.setText(member.getFirstName().orElse(""));
-      this.genderCombo.setSelectedIndex(member.getGender().ordinal());
-      this.birthFld.setText(getDate(member.getBirthDate()));
-      this.birthPlaceFld.setText(member.getBirthPlace().orElse(""));
-      this.deathFld.setText(getDate(member.getDeathDate()));
-      this.deathPlaceFld.setText(member.getDeathPlace().orElse(""));
-    }
-    else {
-      setTitle(I18n.getLocalizedString("dialog.add_card.title"));
-      this.id = -1;
-      setImage(Optional.empty());
-      this.nameFld.setText("");
-      this.firstNameFld.setText("");
-      this.genderCombo.setSelectedIndex(Gender.UNKNOW.ordinal());
-      this.birthFld.setText("");
-      this.birthPlaceFld.setText("");
-      this.deathFld.setText("");
-      this.deathPlaceFld.setText("");
-    }
-
-    setCanceled(false);
-    setValidateButtonEnabled(false);
+    this.controller.reset(member);
   }
 
   void setImage(Optional<BufferedImage> image) {
@@ -220,17 +265,10 @@ public class CardDialog extends AbstractDialog {
     }
   }
 
-  private String getDate(Optional<Date> date) {
-    if (date.isPresent())
-      return I18n.getFormattedDate(date.get());
-    return "";
-  }
-
   public Optional<FamilyMember> getCard() {
     if (!isCanceled()) {
-      FamilyMember member = new FamilyMember(this.id, this.image, getContent(this.nameFld), getContent(this.firstNameFld),
-          Gender.values()[this.genderCombo.getSelectedIndex()], parseDate(this.birthFld), getContent(this.birthPlaceFld), parseDate(this.deathFld),
-          getContent(this.deathPlaceFld));
+      FamilyMember member = new FamilyMember(getId(), this.image, getMemberName(), getFirstName(), getGender(), getBirthDate(),
+          getBirthLocation(), getDeathDate(), getDeathLocation());
 
       return Optional.of(member);
     }
