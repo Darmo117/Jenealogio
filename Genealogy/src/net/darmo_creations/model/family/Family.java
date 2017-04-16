@@ -32,17 +32,11 @@ public class Family {
   }
 
   public Set<FamilyMember> getAllMembers() {
-    Set<FamilyMember> members = new HashSet<>();
-    this.members.forEach(member -> members.add(member.clone()));
-    return members;
+    return new HashSet<>(this.members);
   }
 
   public Optional<FamilyMember> getMember(long id) {
-    // #f:0
-    return this.members.stream()
-        .filter(member -> member.getId() == id)
-        .findAny();
-    // #f:1
+    return this.members.stream().filter(member -> member.getId() == id).findAny();
   }
 
   public void addMember(FamilyMember member) {
@@ -80,14 +74,11 @@ public class Family {
   }
 
   public Set<Wedding> getAllWeddings() {
-    Set<Wedding> weddings = new HashSet<>();
-    this.weddings.forEach(wedding -> weddings.add(wedding.clone()));
-    return weddings;
+    return new HashSet<>(this.weddings);
   }
 
   public Optional<Wedding> getWedding(FamilyMember member) {
-    Optional<Wedding> w = getWeddingForMember(member);
-    return Optional.ofNullable(w.isPresent() ? w.get().clone() : null);
+    return this.weddings.stream().filter(wedding -> wedding.getSpouse1().equals(member) || wedding.getSpouse2().equals(member)).findAny();
   }
 
   public void addWedding(Wedding wedding) {
@@ -105,7 +96,7 @@ public class Family {
   }
 
   public void updateWedding(Wedding wedding) {
-    Optional<Wedding> optional = getWeddingForMember(wedding.getSpouse1());
+    Optional<Wedding> optional = getWedding(wedding.getSpouse1());
 
     if (optional.isPresent()) {
       Wedding w = optional.get();
@@ -127,30 +118,6 @@ public class Family {
   }
 
   /**
-   * Retourne tous les maris potentiels pour la femme donnée.
-   * 
-   * @return les hommes célibataires
-   */
-  public Set<FamilyMember> getPotentialHusbandsForWife(FamilyMember member) {
-    if (member != null && member.isMan())
-      return new HashSet<>();
-    return getAllMembers().stream().filter(m -> m.isMan() && (member == null || !isMarried(member)) && !m.equals(member)).collect(
-        Collectors.toCollection(HashSet::new));
-  }
-
-  /**
-   * Retourne toutes les femmes potentielles pour l'homme donné.
-   * 
-   * @return les femmes célibataires
-   */
-  public Set<FamilyMember> getPotentialWivesForHusband(FamilyMember member) {
-    if (member != null && member.isWoman())
-      return new HashSet<>();
-    return getAllMembers().stream().filter(m -> m.isWoman() && (member == null || !isMarried(member)) && !m.equals(member)).collect(
-        Collectors.toCollection(HashSet::new));
-  }
-
-  /**
    * Retourne toutes les personnes éligibles pour être les enfants du couple donné. Si l'argument
    * est null, tous les membres de la famille sont retournés.
    * 
@@ -163,10 +130,6 @@ public class Family {
     return getAllMembers().stream().filter(
         m -> !m.equals(wedding.getSpouse1()) && !m.equals(wedding.getSpouse2()) && !wedding.isChild(m)).collect(
             Collectors.toCollection(HashSet::new));
-  }
-
-  private Optional<Wedding> getWeddingForMember(FamilyMember node) {
-    return this.weddings.stream().filter(wedding -> wedding.getSpouse1().equals(node) || wedding.getSpouse2().equals(node)).findAny();
   }
 
   public long getGlobalId() {
