@@ -3,19 +3,20 @@ package net.darmo_creations.model;
 import java.util.Calendar;
 
 /**
- * Classe représentant une date. La représentation interne est gérée par une instance de Calendar.
+ * This class represents a date. It uses an instance of {@link java.util.Calendar} to handle data.
+ * <b>N.B.</b>: unlike the Calendar class, January is 1 not 0, and so on.
  * 
- * @author Darmo
+ * @author Damien Vergnet
  */
 public final class Date implements Comparable<Date>, Cloneable {
   private final Calendar calendar;
 
   /**
-   * Crée une date à partir d'une année, d'un mois et d'un jour dans le mois.
+   * Creates a date from a year, a month and a date (day in the month).
    * 
-   * @param year l'année
-   * @param month le mois (1 pour janvier)
-   * @param date le jour dans le mois (1 pour le premier)
+   * @param year the year
+   * @param month the month (1 for January)
+   * @param date the day in the month (1 for the first day)
    */
   public Date(int year, int month, int date) {
     this.calendar = Calendar.getInstance();
@@ -23,30 +24,44 @@ public final class Date implements Comparable<Date>, Cloneable {
   }
 
   /**
-   * @return l'année
+   * @return the year
    */
   public int getYear() {
     return this.calendar.get(Calendar.YEAR);
   }
 
   /**
-   * @return le mois (1 pour janvier)
+   * @return the month (1 for January)
    */
   public int getMonth() {
     return this.calendar.get(Calendar.MONTH) + 1;
   }
 
   /**
-   * @return le jour dans le mois (1 pour le premier)
+   * @return the day in the month (1 for the first day)
    */
   public int getDate() {
     return this.calendar.get(Calendar.DAY_OF_MONTH);
   }
 
+  /**
+   * Returns whether this date represents a time before the time represented by the specified date.
+   * 
+   * @param date the date to be compared
+   * @return true if the time of this date is before the time represented by {@code date}; false
+   *         otherwise
+   */
   public boolean before(Date date) {
     return this.calendar.before(date.calendar);
   }
 
+  /**
+   * Returns whether this date represents a time after the time represented by the specified date.
+   * 
+   * @param date the date to be compared
+   * @return true if the time of this date is after the time represented by {@code date}; false
+   *         otherwise
+   */
   public boolean after(Date date) {
     return this.calendar.after(date.calendar);
   }

@@ -15,18 +15,26 @@ import java.util.ResourceBundle;
 
 import net.darmo_creations.model.Date;
 
+/**
+ * This class handles internationalization for the whole application.
+ * 
+ * @author Damien Vergnet
+ */
 public class I18n {
   private static final Locale DEFAULT_LOCALE = Locale.US;
 
   private static Locale locale;
   private static ResourceBundle resource;
 
+  /**
+   * Loads the preferred locale.<br/>
+   * <b>This method must be called before any other from this class.</b>
+   */
   public static void init() {
     try {
       List<String> lines = Files.readAllLines(Paths.get(getJarDir() + "config.dat"));
       if (!lines.isEmpty()) {
         String[] s = lines.get(0).split("_");
-
         locale = new Locale(s[0], s[1]);
       }
     }
@@ -36,6 +44,11 @@ public class I18n {
     resource = ResourceBundle.getBundle("langs/lang", locale);
   }
 
+  /**
+   * Saves the current locale.
+   * 
+   * @return true if and only if the locale was saved
+   */
   public static boolean saveLocale() {
     try {
       List<String> lines = new ArrayList<>();
@@ -49,11 +62,24 @@ public class I18n {
     }
   }
 
+  /**
+   * Returns a formatted dated with the localized date pattern.
+   * 
+   * @param date the date to format
+   * @return the formatted date
+   */
   public static String getFormattedDate(Date date) {
     DateTimeFormatter f = DateTimeFormatter.ofPattern(I18n.getLocalizedString("date.format"));
     return f.format(LocalDate.of(date.getYear(), date.getMonth(), date.getDate()));
   }
 
+  /**
+   * Returns the localized string corresponding to the given key. If no key was found, the key is
+   * returned.
+   * 
+   * @param unlocalizedString the unlocalized string
+   * @return the localized string
+   */
   public static String getLocalizedString(String unlocalizedString) {
     try {
       return resource.getString(unlocalizedString);
@@ -63,14 +89,35 @@ public class I18n {
     }
   }
 
+  /**
+   * Returns the localized word corresponding to the given key. If no key was found, the key is
+   * returned.
+   * 
+   * @param unlocalizedWord the unlocalized word
+   * @param plural if true, the plural will be returned
+   * @return the localized word
+   */
   public static String getLocalizedWord(String unlocalizedWord, boolean plural) {
     return getLocalizedString("word." + unlocalizedWord + (plural ? ".plural" : ""));
   }
 
+  /**
+   * Returns the localized mnemonic for the given key. If no key was found, '\0' (null character)
+   * will be returned. No need to specify '.mnemonic' in the key.
+   * 
+   * @param unlocalizedString the key
+   * @return the localized mnemonic
+   */
   public static char getLocalizedMnemonic(String unlocalizedString) {
-    return getLocalizedString(unlocalizedString + ".mnemonic").charAt(0);
+    String s = getLocalizedString(unlocalizedString + ".mnemonic");
+    if (s.length() == 1)
+      return s.charAt(0);
+    return '\0';
   }
 
+  /**
+   * @return the path to the jar
+   */
   private static String getJarDir() {
     try {
       String path = I18n.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath();

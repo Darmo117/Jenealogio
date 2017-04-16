@@ -2,19 +2,21 @@ package net.darmo_creations.model.family;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * A family has members and each member can be married.
+ * A family has members and each member can be married. The update methods do not use directly the
+ * provided arguments but rather copy their fields to keep the family consistent.
  * 
  * @author Damien Vergnet
  */
 public class Family {
   /** The global ID */
   private long globalId;
-  /** THis family's name */
+  /** This family's name */
   private String name;
   /** Members */
   private Set<FamilyMember> members;
@@ -31,18 +33,18 @@ public class Family {
   }
 
   /**
-   * Creates a family with given members and weddings.
+   * Creates a family with the given members and weddings.
    * 
-   * @param globalId global ID
+   * @param globalId global ID's initial value
    * @param name family's name
    * @param members the members
    * @param weddings the weddings
    */
   public Family(long globalId, String name, Set<FamilyMember> members, Set<Wedding> weddings) {
     this.globalId = globalId;
-    this.name = name;
-    this.members = members;
-    this.weddings = weddings;
+    setName(name);
+    this.members = Objects.requireNonNull(members);
+    this.weddings = Objects.requireNonNull(weddings);
   }
 
   /**
@@ -58,10 +60,12 @@ public class Family {
    * @param name the new name
    */
   public void setName(String name) {
-    this.name = name;
+    this.name = Objects.requireNonNull(name);
   }
 
   /**
+   * Returns all the members. The set returned is a copy of the internal one.
+   * 
    * @return all the members
    */
   public Set<FamilyMember> getAllMembers() {
@@ -79,7 +83,8 @@ public class Family {
   }
 
   /**
-   * Adds a member to the family.
+   * Adds a member to the family. If the given member already exist in this family, nothing will
+   * happen.
    * 
    * @param member the new member
    */
@@ -90,7 +95,7 @@ public class Family {
   }
 
   /**
-   * Updates an existing member.
+   * Updates an existing member. If the member does not exist in this family, nothing will happen.
    * 
    * @param member the member's updated data
    */
@@ -112,7 +117,8 @@ public class Family {
   }
 
   /**
-   * Deletes a member from the family. Also removes associated wedding.
+   * Deletes a member from the family. Also removes associated wedding. If the member does not exist
+   * in this family, nothing will happen.
    * 
    * @param member the member to remove
    */
@@ -128,6 +134,8 @@ public class Family {
   }
 
   /**
+   * Returns all the weddings. The set returned is a copy of the internal one.
+   * 
    * @return all the weddings
    */
   public Set<Wedding> getAllWeddings() {
@@ -135,7 +143,8 @@ public class Family {
   }
 
   /**
-   * Gets the wedding for the given member.
+   * Gets the wedding for the given member. This method checks for every wedding if one of the two
+   * spouses is the given member.
    * 
    * @param member the member
    * @return the wedding or nothing if none were found
@@ -145,13 +154,14 @@ public class Family {
   }
 
   /**
-   * Adds a wedding.
+   * Adds a wedding. If one of the two spouses is already married or the wedding already exists,
+   * nothing will happen.
    * 
    * @param wedding the new wedding
    */
   public void addWedding(Wedding wedding) {
     // TODO vérifier que les époux ne soient pas déjà mariés.
-    if (!this.weddings.contains(wedding)) {
+    if (!this.weddings.contains(wedding) && !isMarried(wedding.getSpouse1()) && !isMarried(wedding.getSpouse2())) {
       // #f:0
       FamilyMember[] children = wedding.getChildren().stream()
           .map(child -> getMember(child.getId()).get())
@@ -165,7 +175,7 @@ public class Family {
   }
 
   /**
-   * Updates the given wedding.
+   * Updates the given wedding. If the wedding does not exist in this family, nothing will happen.
    * 
    * @param wedding the wedding's new data
    */
@@ -184,7 +194,7 @@ public class Family {
   }
 
   /**
-   * Deletes a wedding.
+   * Deletes a wedding. If the wedding does not exist in this family, nothing will happen.
    * 
    * @param wedding the wedding to delete
    */

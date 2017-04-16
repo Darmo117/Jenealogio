@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -71,15 +72,17 @@ public class CardDetailsDialog extends AbstractDialog implements Observable {
 
   @Override
   public void addObserver(Observer observer) {
-    this.observers.add(observer);
+    this.observers.add(Objects.requireNonNull(observer));
   }
 
   @Override
   public void removeObserver(Observer observer) {
-    this.observers.remove(observer);
+    if (observer != null)
+      this.observers.remove(observer);
   }
 
-  private void notifyObservers(Object o) {
-    this.observers.forEach(obs -> obs.update(o));
+  @Override
+  public void notifyObservers(Object o) {
+    this.observers.forEach(obs -> obs.update(this, o));
   }
 }

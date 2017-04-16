@@ -6,7 +6,15 @@ import java.util.TimeZone;
 
 import net.darmo_creations.model.Date;
 
+/**
+ * Useful functions to handle dates.
+ * 
+ * @author Damien Vergnet
+ */
 public class CalendarUtil {
+  /**
+   * @return the current date
+   */
   public static Date getCurrentDate() {
     long offset = Calendar.getInstance().get(Calendar.ZONE_OFFSET);
     // Avoid null if no ID found

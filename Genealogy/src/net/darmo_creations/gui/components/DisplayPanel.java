@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -249,16 +250,18 @@ public class DisplayPanel extends JPanel implements Scrollable, Observable, Drag
 
   @Override
   public void addObserver(Observer observer) {
-    this.observers.add(observer);
+    this.observers.add(Objects.requireNonNull(observer));
   }
 
   @Override
   public void removeObserver(Observer observer) {
-    this.observers.remove(observer);
+    if (observer != null)
+      this.observers.remove(observer);
   }
 
-  private void notifyObservers(Object o) {
-    this.observers.forEach(obs -> obs.update(o));
+  @Override
+  public void notifyObservers(Object o) {
+    this.observers.forEach(obs -> obs.update(this, o));
   }
 
   private class Link {

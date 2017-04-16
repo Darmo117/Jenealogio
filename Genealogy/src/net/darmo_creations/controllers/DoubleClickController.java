@@ -18,7 +18,7 @@ public class DoubleClickController extends MouseAdapter {
   @Override
   public void mouseClicked(MouseEvent e) {
     if (e.getClickCount() == 2) {
-      this.observers.forEach(obs -> obs.update("double-click:" + e.getComponent().getName()));
+      this.observers.forEach(obs -> obs.update(null, "double-click:" + e.getComponent().getName()));
     }
   }
 }

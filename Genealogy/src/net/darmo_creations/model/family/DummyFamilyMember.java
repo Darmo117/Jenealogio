@@ -3,7 +3,7 @@ package net.darmo_creations.model.family;
 import java.util.Objects;
 
 /**
- * This class is used for searching in collections.
+ * This class represents a dummy family member.
  * 
  * @author Damien Vergnet
  */

@@ -25,6 +25,7 @@ import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.model.family.Gender;
 import net.darmo_creations.model.family.Wedding;
 import net.darmo_creations.util.I18n;
+import net.darmo_creations.util.Observable;
 import net.darmo_creations.util.Observer;
 
 public class MainController extends WindowAdapter implements ActionListener, Observer {
@@ -106,7 +107,7 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
   }
 
   @Override
-  public void update(Object o) {
+  public void update(Observable obs, Object o) {
     if (o instanceof Long) {
       long id = (Long) o;
 

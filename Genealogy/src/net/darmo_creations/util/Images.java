@@ -6,6 +6,11 @@ import java.awt.image.WritableRaster;
 
 import javax.swing.ImageIcon;
 
+/**
+ * This class holds all images for the app and provides a method to copy images.
+ * 
+ * @author Damien Vergnet
+ */
 public final class Images {
   public static final ImageIcon NEW_TREE;
   public static final ImageIcon OPEN;
@@ -71,6 +76,12 @@ public final class Images {
     ARROW_DOWN_BIG = new ImageIcon("res/icons/arrow_down_32.png");
   }
 
+  /**
+   * Makes a deep copy of the given image <i>without its properties</i>.
+   * 
+   * @param image the image to copy.
+   * @return the copy image
+   */
   public static BufferedImage deepCopy(BufferedImage image) {
     ColorModel colorModel = image.getColorModel();
     boolean alphaPremultiplied = colorModel.isAlphaPremultiplied();
