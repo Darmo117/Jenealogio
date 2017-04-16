@@ -10,8 +10,10 @@ import net.darmo_creations.util.CalendarUtil;
 import net.darmo_creations.util.Images;
 
 /**
- * Une personne a un id interne, une photo, un nom, un prénom, un genre, une date de naissance et
- * une date de décès. Une personne ne connaît pas ses parents.
+ * A family member has an internal ID, a name, first name, gender, birth and death date and
+ * location, an image.
+ * 
+ * @author Damien Vergnet
  */
 public class FamilyMember implements Comparable<FamilyMember>, Cloneable {
   private final long id;
@@ -24,11 +26,36 @@ public class FamilyMember implements Comparable<FamilyMember>, Cloneable {
   private Date deathDate;
   private String deathLocation;
 
+  /**
+   * Creates a new member.
+   * 
+   * @param image [nullable] profile image
+   * @param name [nullable]
+   * @param firstName [nullable]
+   * @param gender
+   * @param birthDate [nullable]
+   * @param birthPlace [nullable]
+   * @param deathDate [nullable]
+   * @param deathPlace [nullable]
+   */
   public FamilyMember(BufferedImage image, String name, String firstName, Gender gender, Date birthDate, String birthPlace, Date deathDate,
       String deathPlace) {
     this(-1, image, name, firstName, gender, birthDate, birthPlace, deathDate, deathPlace);
   }
 
+  /**
+   * Creates a new member.
+   * 
+   * @param id internal ID
+   * @param image [nullable] profile image
+   * @param name [nullable]
+   * @param firstName [nullable]
+   * @param gender
+   * @param birthDate [nullable]
+   * @param birthPlace [nullable]
+   * @param deathDate [nullable]
+   * @param deathPlace [nullable]
+   */
   public FamilyMember(long id, BufferedImage image, String name, String firstName, Gender gender, Date birthDate, String birthLocation,
       Date deathDate, String deathLocation) {
     this.id = id;
@@ -42,14 +69,25 @@ public class FamilyMember implements Comparable<FamilyMember>, Cloneable {
     this.deathLocation = deathLocation;
   }
 
+  /**
+   * @return internal ID
+   */
   public long getId() {
     return this.id;
   }
 
+  /**
+   * @return profile image
+   */
   public Optional<BufferedImage> getImage() {
     return Optional.ofNullable(this.image != null ? Images.deepCopy(this.image) : null);
   }
 
+  /**
+   * Sets the profile image.
+   * 
+   * @param image the new profile image
+   */
   void setImage(BufferedImage image) {
     this.image = image != null ? Images.deepCopy(image) : null;
   }
@@ -95,7 +133,11 @@ public class FamilyMember implements Comparable<FamilyMember>, Cloneable {
   }
 
   /**
-   * @return l'âge actuel de la personne ou au moment de sa mort (si la date est renseignée)
+   * Returns the member's age.<br/>
+   * <i>Special cases</i>: if the birthday is not available, the age will be empty; if the death
+   * date is not available, age will be calculated based on the current date.
+   * 
+   * @return the member's current age
    */
   public Optional<Period> getAge() {
     if (!getBirthDate().isPresent())
@@ -110,7 +152,7 @@ public class FamilyMember implements Comparable<FamilyMember>, Cloneable {
     int birthDay = birthDate.getDate();
     int years = currentDate.getYear() - birthDate.getYear();
 
-    // Si la date exacte n'est pas encore passée on retranche 1.
+    // If the date is not yet behind, remove.
     if (birthMonth > currentMonth || birthMonth == currentMonth && birthDay > currentDay)
       years = years == 0 ? 0 : years - 1;
 
