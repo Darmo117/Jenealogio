@@ -14,6 +14,7 @@ import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.DateTimeException;
+import java.time.format.DateTimeParseException;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -297,7 +298,7 @@ public class CardDialog extends AbstractDialog {
         return new Date(year, month, date);
       }
 
-      throw new DateTimeException("wrong date format");
+      throw new DateTimeParseException("wrong date format", str, -1);
     }
 
     return null;

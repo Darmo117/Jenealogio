@@ -23,13 +23,12 @@ import javax.swing.Scrollable;
 import net.darmo_creations.controllers.DisplayController;
 import net.darmo_creations.controllers.DoubleClickController;
 import net.darmo_creations.controllers.DragController;
-import net.darmo_creations.gui.components.drag.DragableComponentContainer;
-import net.darmo_creations.gui.components.drag.FamilyMemberPanel;
+import net.darmo_creations.gui.components.draggable.DraggableComponentContainer;
 import net.darmo_creations.model.family.Family;
 import net.darmo_creations.util.Observable;
 import net.darmo_creations.util.Observer;
 
-public class DisplayPanel extends JPanel implements Scrollable, Observable, DragableComponentContainer<FamilyMemberPanel> {
+public class DisplayPanel extends JPanel implements Scrollable, Observable, DraggableComponentContainer<FamilyMemberPanel> {
   private static final long serialVersionUID = 8747904983365363275L;
 
   private List<Observer> observers;
@@ -58,6 +57,10 @@ public class DisplayPanel extends JPanel implements Scrollable, Observable, Drag
   }
 
   public void refresh(Family family) {
+    refresh(family, new HashMap<>());
+  }
+
+  public void refresh(Family family, Map<Long, Point> positions) {
     Set<Long> updatedOrAdded = new HashSet<>();
     Set<Long> keysToDelete = new HashSet<>(this.panels.keySet());
 
@@ -73,7 +76,13 @@ public class DisplayPanel extends JPanel implements Scrollable, Observable, Drag
         FamilyMemberPanel panel = new FamilyMemberPanel(member);
         DragController<FamilyMemberPanel> dragController = new DragController<>(this, panel);
 
-        panel.setBounds(new Rectangle(panel.getPreferredSize()));
+        if (positions != null && positions.containsKey(member.getId())) {
+          Point p = positions.get(member.getId());
+          // Évite de repeindre pour chaque panel.
+          panel.setBounds(new Rectangle(p, panel.getPreferredSize()));
+        }
+        else
+          panel.setBounds(new Rectangle(panel.getPreferredSize()));
         panel.setName("member-" + id);
         panel.addActionListener(this.controller);
         panel.addMouseListener(dragController);
@@ -116,6 +125,16 @@ public class DisplayPanel extends JPanel implements Scrollable, Observable, Drag
 
     revalidate();
     repaint();
+  }
+
+  public Map<Long, Point> getCardsPositions() {
+    Map<Long, Point> points = new HashMap<>();
+
+    for (Long id : this.panels.keySet()) {
+      points.put(id, this.panels.get(id).getLocation());
+    }
+
+    return points;
   }
 
   public void selectPanel(long id) {

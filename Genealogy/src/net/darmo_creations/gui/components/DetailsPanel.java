@@ -97,11 +97,11 @@ public class DetailsPanel extends JPanel {
   public void setInfo(FamilyMember member, Wedding wedding) {
     this.nameLbl.setText(member.toString());
     this.birthLbl.setText(getDate(member.getBirthDate()));
-    this.birthPlaceLbl.setText(member.getBirthPlace().orElse(UNKNOWN_DATA));
+    this.birthPlaceLbl.setText(member.getBirthLocation().orElse(UNKNOWN_DATA));
     this.weddingLbl.setText(wedding != null ? getDate(wedding.getDate()) : UNKNOWN_DATA);
     this.weddingPlaceLbl.setText(wedding != null ? wedding.getLocation().orElse(UNKNOWN_DATA) : UNKNOWN_DATA);
     this.deathLbl.setText(getDate(member.getDeathDate()));
-    this.deathPlaceLbl.setText(member.getDeathPlace().orElse(UNKNOWN_DATA));
+    this.deathPlaceLbl.setText(member.getDeathLocation().orElse(UNKNOWN_DATA));
     this.ageLbl.setText(getAge(member.getAge()));
     revalidate();
   }

@@ -20,26 +20,26 @@ public class FamilyMember implements Comparable<FamilyMember>, Cloneable {
   private String firstName;
   private Gender gender;
   private Date birthDate;
-  private String birthPlace;
+  private String birthLocation;
   private Date deathDate;
-  private String deathPlace;
+  private String deathLocation;
 
   public FamilyMember(BufferedImage image, String name, String firstName, Gender gender, Date birthDate, String birthPlace, Date deathDate,
       String deathPlace) {
     this(-1, image, name, firstName, gender, birthDate, birthPlace, deathDate, deathPlace);
   }
 
-  public FamilyMember(long id, BufferedImage image, String name, String firstName, Gender gender, Date birthDate, String birthPlace,
-      Date deathDate, String deathPlace) {
+  public FamilyMember(long id, BufferedImage image, String name, String firstName, Gender gender, Date birthDate, String birthLocation,
+      Date deathDate, String deathLocation) {
     this.id = id;
     this.image = image != null ? Images.deepCopy(image) : null;
     this.name = name;
     this.firstName = firstName;
     this.gender = Objects.requireNonNull(gender);
     this.birthDate = birthDate != null ? birthDate.clone() : null;
-    this.birthPlace = birthPlace;
+    this.birthLocation = birthLocation;
     this.deathDate = deathDate != null ? deathDate.clone() : null;
-    this.deathPlace = deathPlace;
+    this.deathLocation = deathLocation;
   }
 
   public long getId() {
@@ -117,12 +117,12 @@ public class FamilyMember implements Comparable<FamilyMember>, Cloneable {
     return Optional.of(Period.ofYears(years));
   }
 
-  public Optional<String> getBirthPlace() {
-    return Optional.ofNullable(this.birthPlace);
+  public Optional<String> getBirthLocation() {
+    return Optional.ofNullable(this.birthLocation);
   }
 
-  void setBirthPlace(String birthPlace) {
-    this.birthPlace = birthPlace;
+  void setBirthPlace(String birthLocation) {
+    this.birthLocation = birthLocation;
   }
 
   public Optional<Date> getDeathDate() {
@@ -133,12 +133,12 @@ public class FamilyMember implements Comparable<FamilyMember>, Cloneable {
     this.deathDate = deathDate != null ? deathDate.clone() : null;
   }
 
-  public Optional<String> getDeathPlace() {
-    return Optional.ofNullable(this.deathPlace);
+  public Optional<String> getDeathLocation() {
+    return Optional.ofNullable(this.deathLocation);
   }
 
-  void setDeathPlace(String deathPlace) {
-    this.deathPlace = deathPlace;
+  void setDeathLocation(String deathLocation) {
+    this.deathLocation = deathLocation;
   }
 
   @Override
@@ -162,7 +162,7 @@ public class FamilyMember implements Comparable<FamilyMember>, Cloneable {
 
   FamilyMember copy(long id) {
     return new FamilyMember(id, getImage().orElse(null), getName().orElse(null), getFirstName().orElse(null), getGender(),
-        getBirthDate().orElse(null), getBirthPlace().orElse(null), getDeathDate().orElse(null), getDeathPlace().orElse(null));
+        getBirthDate().orElse(null), getBirthLocation().orElse(null), getDeathDate().orElse(null), getDeathLocation().orElse(null));
   }
 
   @Override

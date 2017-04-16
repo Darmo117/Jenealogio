@@ -1,4 +1,4 @@
-package net.darmo_creations.gui.components.drag;
+package net.darmo_creations.gui.components;
 
 import java.awt.Color;
 import java.awt.Point;
@@ -10,9 +10,10 @@ import javax.swing.JPanel;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 
+import net.darmo_creations.gui.components.draggable.Draggable;
 import net.darmo_creations.model.family.FamilyMember;
 
-public class FamilyMemberPanel extends JPanel implements Dragable {
+public class FamilyMemberPanel extends JPanel implements Draggable {
   private static final long serialVersionUID = 8199650844222484357L;
 
   private static final Border SELECTED_BORDER = new LineBorder(Color.BLUE.brighter(), 2);

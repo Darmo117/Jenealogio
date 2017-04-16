@@ -13,10 +13,14 @@ public class Family {
   private Set<Wedding> weddings;
 
   public Family(String name) {
-    this.globalId = 0;
+    this(0, name, new HashSet<>(), new HashSet<>());
+  }
+
+  public Family(long globalId, String name, Set<FamilyMember> members, Set<Wedding> weddings) {
+    this.globalId = globalId;
     this.name = name;
-    this.members = new HashSet<>();
-    this.weddings = new HashSet<>();
+    this.members = members;
+    this.weddings = weddings;
   }
 
   public String getName() {
@@ -58,9 +62,9 @@ public class Family {
       m.setFirstName(member.getFirstName().orElse(null));
       m.setGender(member.getGender());
       m.setBirthDate(member.getBirthDate().orElse(null));
-      m.setBirthPlace(member.getBirthPlace().orElse(null));
+      m.setBirthPlace(member.getBirthLocation().orElse(null));
       m.setDeathDate(member.getDeathDate().orElse(null));
-      m.setDeathPlace(member.getDeathPlace().orElse(null));
+      m.setDeathLocation(member.getDeathLocation().orElse(null));
     }
   }
 
@@ -165,7 +169,16 @@ public class Family {
     return this.weddings.stream().filter(wedding -> wedding.getSpouse1().equals(node) || wedding.getSpouse2().equals(node)).findAny();
   }
 
+  public long getGlobalId() {
+    return this.globalId;
+  }
+
   private long getNextMemberId() {
     return this.globalId++;
+  }
+
+  @Override
+  public String toString() {
+    return getName() + this.members + "," + this.weddings;
   }
 }

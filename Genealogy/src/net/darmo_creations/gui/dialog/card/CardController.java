@@ -33,9 +33,9 @@ public class CardController extends DefaultDialogController<CardDialog> implemen
       this.dialog.setFirstName(member.getFirstName().orElse(""));
       this.dialog.setGender(member.getGender());
       this.dialog.setBirthDate(member.getBirthDate());
-      this.dialog.setBirthLocation(member.getBirthPlace().orElse(""));
+      this.dialog.setBirthLocation(member.getBirthLocation().orElse(""));
       this.dialog.setDeathDate(member.getDeathDate());
-      this.dialog.setDeathLocation(member.getDeathPlace().orElse(""));
+      this.dialog.setDeathLocation(member.getDeathLocation().orElse(""));
     }
     else {
       this.dialog.setTitle(I18n.getLocalizedString("dialog.add_card.title"));

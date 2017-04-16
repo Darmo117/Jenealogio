@@ -5,17 +5,17 @@ import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-import net.darmo_creations.gui.components.drag.Dragable;
-import net.darmo_creations.gui.components.drag.DragableComponentContainer;
+import net.darmo_creations.gui.components.draggable.Draggable;
+import net.darmo_creations.gui.components.draggable.DraggableComponentContainer;
 
-public class DragController<T extends Dragable> extends MouseAdapter {
+public class DragController<T extends Draggable> extends MouseAdapter {
   public static final int GRID_STEP = 10;
 
-  private DragableComponentContainer<T> handler;
+  private DraggableComponentContainer<T> handler;
   private T dragable;
   private Point grabPoint;
 
-  public DragController(DragableComponentContainer<T> handler, T dragable) {
+  public DragController(DraggableComponentContainer<T> handler, T dragable) {
     this.handler = handler;
     this.dragable = dragable;
   }

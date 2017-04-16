@@ -3,9 +3,11 @@ package net.darmo_creations.gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -32,8 +34,8 @@ import net.darmo_creations.gui.dialog.link.LinkDialog;
 import net.darmo_creations.model.family.Family;
 import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.model.family.Wedding;
-import net.darmo_creations.util.Images;
 import net.darmo_creations.util.I18n;
+import net.darmo_creations.util.Images;
 
 public class MainFrame extends JFrame {
   private static final long serialVersionUID = 2426665404072947885L;
@@ -63,7 +65,7 @@ public class MainFrame extends JFrame {
     this.fileChooser = new JFileChooser();
     this.fileChooser.setAcceptAllFileFilterUsed(false);
     this.fileChooser.setMultiSelectionEnabled(false);
-    this.fileChooser.setFileFilter(new ExtensionFileFilter(I18n.getLocalizedString("file_type.tree.desc"), "tree"));
+    this.fileChooser.setFileFilter(new ExtensionFileFilter(I18n.getLocalizedString("file_type.tree.desc"), "gtree"));
     this.treeCreationDialog = new TreeCreationDialog(this);
     this.cardDialog = new CardDialog(this);
     this.detailsDialog = new CardDetailsDialog(this);
@@ -281,6 +283,14 @@ public class MainFrame extends JFrame {
 
   public void refreshDisplay(Family family) {
     this.displayPnl.refresh(family);
+  }
+
+  public void refreshDisplay(Family family, Map<Long, Point> positions) {
+    this.displayPnl.refresh(family, positions);
+  }
+
+  public Map<Long, Point> getCardsPositions() {
+    return this.displayPnl.getCardsPositions();
   }
 
   public File showSaveFileChooser() {

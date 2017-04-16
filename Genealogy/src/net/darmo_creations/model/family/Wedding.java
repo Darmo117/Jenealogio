@@ -120,4 +120,9 @@ public final class Wedding implements Cloneable {
       throw new Error(e);
     }
   }
+
+  @Override
+  public String toString() {
+    return getSpouse1() + "<->" + getSpouse2();
+  }
 }

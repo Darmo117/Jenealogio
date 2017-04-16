@@ -1,11 +1,15 @@
 package net.darmo_creations.controllers;
 
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -63,14 +67,17 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
         open();
         break;
       case "save":
-        if (this.alreadySaved) {
-          save();
-          break;
-        }
+        boolean ok;
+        if (this.alreadySaved)
+          ok = save();
+        else
+          ok = saveAs();
+        if (!ok)
+          this.frame.showErrorDialog(I18n.getLocalizedString("popup.save_file_error.text"));
+        break;
       case "save-as":
-        File file = this.frame.showSaveFileChooser();
-        if (file != null)
-          saveAs(file.getAbsolutePath());
+        if (!saveAs())
+          this.frame.showErrorDialog(I18n.getLocalizedString("popup.save_file_error.text"));
         break;
       case "add-card":
         addMember();
@@ -182,42 +189,66 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
   }
 
   private void open() {
+    if (this.fileOpen) {
+      int choice = this.frame.showConfirmDialog(I18n.getLocalizedString("popup.open_confirm.text"));
+
+      if (choice != JOptionPane.YES_OPTION)
+        return;
+    }
+
     File file = this.frame.showOpenFileChooser();
 
     if (file != null) {
       this.fileName = file.getAbsolutePath();
       try {
-        this.family = this.familyDao.open(this.fileName);
+        Map<Long, Point> positions = new HashMap<>();
+
+        this.family = this.familyDao.open(this.fileName, positions);
         this.fileOpen = true;
         this.alreadySaved = true;
         this.saved = true;
-        this.frame.refreshDisplay(this.family);
+        this.frame.resetDisplay();
+        this.frame.refreshDisplay(this.family, positions);
       }
-      catch (IOException e) {
+      catch (IOException | ParseException __) {
         this.frame.showErrorDialog(I18n.getLocalizedString("popup.open_file_error.text"));
       }
       updateFrameMenus();
     }
   }
 
-  private void saveAs(String name) {
-    this.fileName = name;
-    save();
+  private boolean saveAs() {
+    File file = this.frame.showSaveFileChooser();
+
+    if (file != null) {
+      String path = file.getAbsolutePath();
+
+      if (!path.endsWith(".gtree"))
+        path += ".gtree";
+      this.fileName = path;
+
+      return save();
+    }
+
+    return true;
   }
 
-  private void save() {
+  private boolean save() {
     if (this.fileName == null)
-      return;
+      return true;
 
     try {
-      this.familyDao.save(this.family);
+      Map<Long, Point> points = this.frame.getCardsPositions();
+      this.familyDao.save(this.fileName, this.family, points);
 
       if (!this.alreadySaved)
         this.alreadySaved = true;
       this.saved = true;
+      return true;
     }
-    catch (IOException e) {
+    catch (IOException __) {
       this.frame.showErrorDialog(I18n.getLocalizedString("popup.save_file_error.text"));
+      return false;
     }
   }
 
@@ -286,8 +317,18 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
     if (this.fileOpen && !this.saved) {
       int choice = this.frame.showConfirmDialog(I18n.getLocalizedString("popup.save_confirm.text"));
 
-      if (choice == JOptionPane.YES_OPTION)
-        save();
+      if (choice == JOptionPane.YES_OPTION) {
+        boolean ok;
+
+        if (this.alreadySaved)
+          ok = save();
+        else
+          ok = saveAs();
+        if (!ok) {
+          this.frame.showErrorDialog(I18n.getLocalizedString("popup.save_file_error.text"));
+          return;
+        }
+      }
       else if (choice == JOptionPane.CANCEL_OPTION || choice == JOptionPane.CLOSED_OPTION)
         return;
     }
