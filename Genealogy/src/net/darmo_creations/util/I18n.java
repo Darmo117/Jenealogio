@@ -76,4 +76,44 @@ public class I18n {
       return s.charAt(0);
     return '\0';
   }
+
+  public static enum Language {
+    ENGLISH("English", "en_US", Locale.US),
+    FRENCH("Français", "fr_FR", Locale.FRANCE);
+
+    private final String name;
+    private final String code;
+    private final Locale locale;
+
+    private Language(String name, String code, Locale locale) {
+      this.name = name;
+      this.code = code;
+      this.locale = locale;
+    }
+
+    public String getName() {
+      return this.name;
+    }
+
+    public String getCode() {
+      return this.code;
+    }
+
+    public Locale getLocale() {
+      return this.locale;
+    }
+
+    @Override
+    public String toString() {
+      return getName();
+    }
+
+    public static Language fromCode(String code) {
+      for (Language l : values()) {
+        if (l.getCode().equals(code))
+          return l;
+      }
+      return null;
+    }
+  }
 }

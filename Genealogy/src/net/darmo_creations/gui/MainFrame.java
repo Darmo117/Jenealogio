@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -18,6 +19,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
@@ -78,7 +80,7 @@ public class MainFrame extends JFrame {
     this.detailsDialog.addObserver(controller);
     this.linkDialog = new LinkDialog(this);
 
-    setJMenuBar(initJMenuBar(controller));
+    setJMenuBar(initJMenuBar(controller, config));
 
     add(getJToolBar(controller), BorderLayout.NORTH);
     this.displayPnl = new DisplayPanel();
@@ -98,7 +100,7 @@ public class MainFrame extends JFrame {
    * @param listener the action listener
    * @return the menu bar
    */
-  private JMenuBar initJMenuBar(ActionListener listener) {
+  private JMenuBar initJMenuBar(ActionListener listener, GlobalConfig config) {
     JMenuBar menuBar = new JMenuBar();
     JMenuItem i;
 
@@ -172,7 +174,23 @@ public class MainFrame extends JFrame {
     {
       JMenu optionsMenu = new JMenu(I18n.getLocalizedString("menu.options.text"));
       optionsMenu.setMnemonic(I18n.getLocalizedMnemonic("menu.options"));
-      // TODO
+      optionsMenu.add(i = new JMenuItem(I18n.getLocalizedString("item.colors.text")));
+      i.setIcon(Images.COLOR_WHEEL);
+      i.setActionCommand("edit_colors");
+      i.setMnemonic(I18n.getLocalizedMnemonic("item.colors"));
+      i.addActionListener(listener);
+      JMenu langMenu = new JMenu(I18n.getLocalizedString("menu.lang.text"));
+      langMenu.setMnemonic(I18n.getLocalizedMnemonic("menu.lang"));
+      optionsMenu.add(langMenu);
+      ButtonGroup bg = new ButtonGroup();
+      for (I18n.Language l : I18n.Language.values()) {
+        langMenu.add(i = new JRadioButtonMenuItem(l.getName()));
+        i.setSelected(l.getCode().equals(config.getLocale().toString()));
+        i.setIcon(Images.getCountryFlag(l.getCode()));
+        i.setActionCommand("lang-" + l.getCode());
+        i.addActionListener(listener);
+        bg.add(i);
+      }
       menuBar.add(optionsMenu);
     }
 

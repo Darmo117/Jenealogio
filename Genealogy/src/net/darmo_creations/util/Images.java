@@ -29,6 +29,7 @@ public final class Images {
   public static final ImageIcon BABY;
   public static final ImageIcon HEART;
   public static final ImageIcon CROSS;
+  public static final ImageIcon COLOR_WHEEL;
 
   public static final ImageIcon NEW_TREE_BIG;
   public static final ImageIcon OPEN_BIG;
@@ -61,6 +62,7 @@ public final class Images {
     BABY = new ImageIcon("res/icons/baby.png");
     HEART = new ImageIcon("res/icons/heart.png");
     CROSS = new ImageIcon("res/icons/cross.png");
+    COLOR_WHEEL = new ImageIcon("res/icons/color_wheel.png");
 
     NEW_TREE_BIG = new ImageIcon("res/icons/new_tree_32.png");
     OPEN_BIG = new ImageIcon("res/icons/open_32.png");
@@ -74,6 +76,16 @@ public final class Images {
     DELETE_LINK_BIG = new ImageIcon("res/icons/delete_link_32.png");
     ARROW_UP_BIG = new ImageIcon("res/icons/arrow_up_32.png");
     ARROW_DOWN_BIG = new ImageIcon("res/icons/arrow_down_32.png");
+  }
+
+  public static ImageIcon getCountryFlag(String langCode) {
+    switch (langCode) {
+      case "en_US":
+        return new ImageIcon("res/icons/flag_great_britain.png");
+      case "fr_FR":
+        return new ImageIcon("res/icons/flag_france.png");
+    }
+    return null;
   }
 
   /**
