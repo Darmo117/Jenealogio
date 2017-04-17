@@ -35,6 +35,7 @@ public class DisplayPanel extends JPanel implements Scrollable, Observable, Drag
   private List<Observer> observers;
 
   private DisplayController controller;
+  private DoubleClickController doubleClickController;
   private Map<Long, FamilyMemberPanel> panels;
   private List<Link> links;
 
@@ -44,6 +45,7 @@ public class DisplayPanel extends JPanel implements Scrollable, Observable, Drag
 
     this.observers = new ArrayList<>();
     this.controller = new DisplayController(this);
+    this.doubleClickController = new DoubleClickController(this.observers);
     addMouseListener(this.controller);
     addMouseMotionListener(this.controller);
 
@@ -65,7 +67,6 @@ public class DisplayPanel extends JPanel implements Scrollable, Observable, Drag
     Set<Long> updatedOrAdded = new HashSet<>();
     Set<Long> keysToDelete = new HashSet<>(this.panels.keySet());
 
-    DoubleClickController controller = new DoubleClickController(this.observers);
     // Mise à jour/ajout des membres.
     family.getAllMembers().forEach(member -> {
       long id = member.getId();
@@ -87,7 +88,7 @@ public class DisplayPanel extends JPanel implements Scrollable, Observable, Drag
         panel.setName("member-" + id);
         panel.addActionListener(this.controller);
         panel.addMouseListener(dragController);
-        panel.addMouseListener(controller);
+        panel.addMouseListener(this.doubleClickController);
         panel.addMouseMotionListener(dragController);
         this.panels.put(id, panel);
         add(panel);

@@ -28,22 +28,37 @@ import net.darmo_creations.util.I18n;
 import net.darmo_creations.util.Observable;
 import net.darmo_creations.util.Observer;
 
+/**
+ * This is controller handles events from the MainFrame class.
+ * 
+ * @author Damien Vergnet
+ */
 public class MainController extends WindowAdapter implements ActionListener, Observer {
   private static final Pattern DOUBLE_CLICK_MEMBER_PATTERN = Pattern.compile("double-click:member-(\\d+)");
   private static final Pattern DOUBLE_CLICK_WEDDING_PATTERN = Pattern.compile("double-click:link-(\\d+)-(\\d+)");
   private static final Pattern CLICK_WEDDING_PATTERN = Pattern.compile("click:link-(\\d+)-(\\d+)");
 
+  /** Frame being monitored. */
   private final MainFrame frame;
 
+  /** Main DAO. */
   private final FamilyDao familyDao;
 
+  /** The family (model). */
   private Family family;
+  /** Is a file open? */
   private boolean fileOpen;
+  /** Has the file already been saved? */
   private boolean alreadySaved;
+  /** Has the file been saved since the last modifications? */
   private boolean saved;
+  /** The name of the last saved file. */
   private String fileName;
+  /** The currently selected card. */
   private FamilyMember selectedCard;
+  /** The currently selected link. */
   private Wedding selectedLink;
+  /** Are we adding a link? */
   private boolean addingLink;
 
   public MainController(MainFrame frame) {
@@ -51,6 +66,9 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
     this.familyDao = FamilyDao.instance();
   }
 
+  /**
+   * Initializes the controller.
+   */
   public void init() {
     this.fileOpen = false;
     this.alreadySaved = false;
@@ -156,6 +174,9 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
     }
   }
 
+  /**
+   * Creates a new file. Asks the user if the current file is not saved.
+   */
   private void newFile() {
     if (this.fileOpen && !this.saved) {
       int choice = this.frame.showConfirmDialog(I18n.getLocalizedString("popup.save_confirm.text"));
@@ -186,9 +207,13 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
       this.family.addMember(
           new FamilyMember(null, "Paul", "Johanna", Gender.WOMAN, new Date(1913, 5, 7), "Londres", new Date(1982, 3, 29), "Paris"));
       this.frame.refreshDisplay(this.family);
+      // TEMP end
     }
   }
 
+  /**
+   * Opens a file. Asks the user if the current file is not saved.
+   */
   private void open() {
     if (this.fileOpen) {
       int choice = this.frame.showConfirmDialog(I18n.getLocalizedString("popup.open_confirm.text"));
@@ -204,7 +229,7 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
       try {
         Map<Long, Point> positions = new HashMap<>();
 
-        this.family = this.familyDao.open(this.fileName, positions);
+        this.family = this.familyDao.load(this.fileName, positions);
         this.fileOpen = true;
         this.alreadySaved = true;
         this.saved = true;
@@ -218,6 +243,11 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
     }
   }
 
+  /**
+   * Saves the file as another file.
+   * 
+   * @return true if and only if save was successful
+   */
   private boolean saveAs() {
     File file = this.frame.showSaveFileChooser();
 
@@ -234,6 +264,11 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
     return true;
   }
 
+  /**
+   * Saves the current file.
+   * 
+   * @return true if and only if the save was successful
+   */
   private boolean save() {
     if (this.fileName == null)
       return true;
@@ -253,6 +288,9 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
     }
   }
 
+  /**
+   * Opens up the "add card" dialog then adds the new card to the model.
+   */
   private void addMember() {
     Optional<FamilyMember> member = this.frame.showAddCardDialog();
 
@@ -262,6 +300,9 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
     }
   }
 
+  /**
+   * Opens up the "add link" dialog then adds the new link to the model.
+   */
   private void addLink(FamilyMember spouse1, FamilyMember spouse2) {
     Set<FamilyMember> all = this.family.getAllMembers();
     all.remove(spouse1);
@@ -271,11 +312,17 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
     this.frame.refreshDisplay(this.family);
   }
 
+  /**
+   * Toggles add link mode.
+   */
   private void toggleAddLink() {
     this.addingLink = !this.addingLink;
     this.frame.setAddLinkButtonSelected(this.addingLink);
   }
 
+  /**
+   * Opens up "edit card" or "edit link" dialog then updates the model.
+   */
   private void edit() {
     if (this.selectedCard != null) {
       Optional<FamilyMember> member = this.frame.showUpdateCardDialog(this.selectedCard);
@@ -295,6 +342,9 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
     }
   }
 
+  /**
+   * Deletes the selected card or link. Asks the user to confirm the action.
+   */
   private void delete() {
     if (this.selectedCard != null) {
       if (this.frame.showConfirmDialog(I18n.getLocalizedString("popup.delete_card_confirm.text")) == JOptionPane.OK_OPTION) {
@@ -314,6 +364,9 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
     }
   }
 
+  /**
+   * Exits the application. The user is asked to save if the file is not.
+   */
   private void exit() {
     if (this.fileOpen && !this.saved) {
       int choice = this.frame.showConfirmDialog(I18n.getLocalizedString("popup.save_confirm.text"));
@@ -338,15 +391,26 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
     this.frame.dispose();
   }
 
+  /**
+   * Updates main frame menus.
+   */
   private void updateFrameMenus() {
     this.frame.setTitle(MainFrame.BASE_TITLE + (this.family != null ? " - " + this.family.getName() : ""));
     this.frame.updateMenus(this.fileOpen, this.selectedCard != null, this.selectedLink != null);
   }
 
+  /**
+   * Refreshes tree display.
+   */
   private void refreshFrame() {
     this.frame.refreshDisplay(this.family);
   }
 
+  /**
+   * Opens up the "card details" dialog.
+   * 
+   * @param id the member ID
+   */
   private void showDetails(long id) {
     this.family.getMember(id).ifPresent(m -> this.frame.showDetailsDialog(m, this.family.getWedding(m).orElse(null)));
   }

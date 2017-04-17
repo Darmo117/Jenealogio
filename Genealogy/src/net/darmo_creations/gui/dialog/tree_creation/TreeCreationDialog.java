@@ -1,4 +1,4 @@
-package net.darmo_creations.gui.dialog;
+package net.darmo_creations.gui.dialog.tree_creation;
 
 import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
@@ -11,7 +11,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import net.darmo_creations.controllers.TreeCreationController;
+import net.darmo_creations.gui.dialog.AbstractDialog;
+import net.darmo_creations.gui.dialog.AbstractDialog.Mode;
 import net.darmo_creations.util.I18n;
 
 public class TreeCreationDialog extends AbstractDialog {

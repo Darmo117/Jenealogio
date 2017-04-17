@@ -2,17 +2,26 @@ package net.darmo_creations.controllers;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import net.darmo_creations.util.Observer;
 
+/**
+ * This controller handles double-click events.
+ * 
+ * @author Damien Vergnet
+ */
 public class DoubleClickController extends MouseAdapter {
-  private List<Observer> observers;
+  private Collection<Observer> observers;
 
+  /**
+   * Creates a controller that will notify the given observers. The list an me modified afterwards
+   * as it is not copied.
+   * 
+   * @param observers the observers
+   */
   public DoubleClickController(Collection<Observer> observers) {
-    this.observers = new ArrayList<>(observers);
+    this.observers = observers;
   }
 
   @Override

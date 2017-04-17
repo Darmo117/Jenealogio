@@ -33,19 +33,35 @@ import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.model.family.Gender;
 import net.darmo_creations.model.family.Wedding;
 
+/**
+ * This class handles I/O operations for the {@code Family} class.
+ * 
+ * @author Damien Vergnet
+ */
 public class FamilyDao {
   private static FamilyDao instance;
 
+  /**
+   * @return the instance
+   */
   public static FamilyDao instance() {
     if (instance == null)
       instance = new FamilyDao();
     return instance;
   }
 
-  private FamilyDao() {}
-
-  public Family open(String file, Map<Long, Point> locations) throws IOException, ParseException {
+  /**
+   * Loads the family from the given file.
+   * 
+   * @param file the file to load
+   * @param locations <i>[output parameter]</i> this map will hold the location of all the cards
+   * @return the loaded family object
+   * @throws IOException if an I/O error occured
+   * @throws ParseException if the file is corrupted/wrongly formatted
+   */
+  public Family load(String file, Map<Long, Point> locations) throws IOException, ParseException {
     String jsonString = String.join("", Files.readAllLines(Paths.get(file)));
+
     try {
       JSONParser p = new JSONParser();
       JSONObject obj = (JSONObject) p.parse(jsonString);
@@ -53,6 +69,7 @@ public class FamilyDao {
       Set<Wedding> weddings = new HashSet<>();
       Family family = new Family((Long) obj.get("global_id"), (String) obj.get("name"), members, weddings);
 
+      // Members loading
       JSONArray membersObj = (JSONArray) obj.get("members");
       for (Object o : membersObj) {
         JSONObject memberObj = (JSONObject) o;
@@ -73,6 +90,7 @@ public class FamilyDao {
         members.add(new FamilyMember(id, image, name, firstName, gender, birthDate, birthLocation, deathDate, deathLocation));
       }
 
+      // Weddings loading
       JSONArray weddingsObj = (JSONArray) obj.get("weddings");
       for (Object o : weddingsObj) {
         JSONObject weddingObj = (JSONObject) o;
@@ -98,13 +116,29 @@ public class FamilyDao {
     }
   }
 
+  /**
+   * Returns nul if the given string is empty ({@code "".equals(s)}).
+   * 
+   * @param s the string
+   * @return null if the string is empty; s otherwise
+   */
   private String getNullIfEmpty(String s) {
     return "".equals(s) ? null : s;
   }
 
+  /**
+   * The pattern for dates formatted as YYYY-MM-dd
+   */
   private static final Pattern DATE_PATTERN = Pattern.compile("(\\d{4})-(\\d{2})-(\\d{2})");
 
-  private Date getDate(String s) {
+  /**
+   * Returns the date object corresponding to the given string (YYYY-MM-dd format).
+   * 
+   * @param s the string
+   * @return the date object or null if the string is empty
+   * @throws DateTimeParseException if the date was wrongly formatted
+   */
+  private Date getDate(String s) throws DateTimeParseException {
     if (!s.isEmpty()) {
       Matcher matcher = DATE_PATTERN.matcher(s);
 
@@ -122,6 +156,14 @@ public class FamilyDao {
     return null;
   }
 
+  /**
+   * Saves the given family to the disk.
+   * 
+   * @param file the file to save to
+   * @param family the family object
+   * @param positions the locations for each card panel
+   * @throws IOException if an I/O error occured
+   */
   @SuppressWarnings("unchecked")
   public void save(String file, Family family, Map<Long, Point> positions) throws IOException {
     JSONObject obj = new JSONObject();
@@ -170,6 +212,13 @@ public class FamilyDao {
     Files.write(Paths.get(file), Arrays.asList(obj.toJSONString()));
   }
 
+  /**
+   * Formats a date object as "YYYY-MM-dd" and puts it in the given JSON object under the given key.
+   * 
+   * @param obj the JSON object
+   * @param key the key
+   * @param optDate the date
+   */
   @SuppressWarnings("unchecked")
   private void formatDate(JSONObject obj, String key, Optional<Date> optDate) {
     String date = "";
@@ -182,26 +231,50 @@ public class FamilyDao {
     obj.put(key, date);
   }
 
-  private String base64Encode(Optional<BufferedImage> image) throws IOException {
-    if (image.isPresent()) {
-      try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-        ImageIO.write(image.get(), "png", baos);
-        return DatatypeConverter.printBase64Binary(baos.toByteArray());
+  /**
+   * Encodes an image to a base64 string.
+   * 
+   * @param image the image
+   * @return the base64 string or an empty string if nothing was given
+   */
+  private String base64Encode(Optional<BufferedImage> image) {
+    try {
+      if (image.isPresent()) {
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+          ImageIO.write(image.get(), "png", baos);
+          return DatatypeConverter.printBase64Binary(baos.toByteArray());
+        }
       }
+      else
+        return "";
     }
-    else
-      return "";
+    catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
-  private BufferedImage base64Decode(String base64) throws IOException {
-    if (base64 != null && !"".equals(base64)) {
-      byte[] imageByte = DatatypeConverter.parseBase64Binary(base64);
+  /**
+   * Decodes a base64 string and returns the corresponding image.
+   * 
+   * @param base64 the base64 string
+   * @return the corresponding image
+   */
+  private BufferedImage base64Decode(String base64) {
+    try {
+      if (base64 != null && !"".equals(base64)) {
+        byte[] imageByte = DatatypeConverter.parseBase64Binary(base64);
 
-      try (ByteArrayInputStream bis = new ByteArrayInputStream(imageByte)) {
-        return ImageIO.read(bis);
+        try (ByteArrayInputStream bis = new ByteArrayInputStream(imageByte)) {
+          return ImageIO.read(bis);
+        }
       }
+      else
+        return null;
     }
-    else
-      return null;
+    catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
+
+  private FamilyDao() {}
 }

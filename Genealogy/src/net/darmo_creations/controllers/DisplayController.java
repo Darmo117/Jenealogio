@@ -10,11 +10,15 @@ import java.util.regex.Pattern;
 
 import net.darmo_creations.gui.components.DisplayPanel;
 
+/**
+ * This controller handles cards and links selection and notifies the DisplayPanel.
+ * 
+ * @author Damien Vergnet
+ */
 public class DisplayController extends MouseAdapter implements ActionListener {
   private static final Pattern SELECT_PATTERN = Pattern.compile("^select:(\\d+)$");
 
   private DisplayPanel panel;
-
   private Point mouseLocation;
 
   public DisplayController(DisplayPanel panel) {
@@ -22,10 +26,16 @@ public class DisplayController extends MouseAdapter implements ActionListener {
     this.mouseLocation = new Point();
   }
 
+  /**
+   * @return the last location of the mouse
+   */
   public Point getMouseLocation() {
     return (Point) this.mouseLocation.clone();
   }
 
+  /**
+   * Called when a card panel is selected. Tells the DisplayPanel what card was selected.
+   */
   @Override
   public void actionPerformed(ActionEvent e) {
     String cmd = e.getActionCommand();
@@ -36,6 +46,10 @@ public class DisplayController extends MouseAdapter implements ActionListener {
     }
   }
 
+  /**
+   * Called the mouse is clicked inside the DisplayPanel. Deselects all cards and checks if a link
+   * was clicked or double-clicked.
+   */
   @Override
   public void mouseClicked(MouseEvent e) {
     this.panel.selectPanel(-1);
@@ -44,6 +58,9 @@ public class DisplayController extends MouseAdapter implements ActionListener {
       this.panel.editLinkIfHovered();
   }
 
+  /**
+   * Repaints the DisplayPanel everytime the mouse moves.
+   */
   @Override
   public void mouseMoved(MouseEvent e) {
     this.mouseLocation = e.getPoint();
