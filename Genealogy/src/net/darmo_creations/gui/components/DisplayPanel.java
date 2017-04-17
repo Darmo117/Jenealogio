@@ -1,7 +1,6 @@
 package net.darmo_creations.gui.components;
 
 import java.awt.BasicStroke;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -25,6 +24,7 @@ import net.darmo_creations.controllers.DisplayController;
 import net.darmo_creations.controllers.DoubleClickController;
 import net.darmo_creations.gui.components.draggable.DragController;
 import net.darmo_creations.gui.components.draggable.DraggableComponentContainer;
+import net.darmo_creations.model.GlobalConfig;
 import net.darmo_creations.model.family.Family;
 import net.darmo_creations.util.Observable;
 import net.darmo_creations.util.Observer;
@@ -43,6 +43,7 @@ public class DisplayPanel extends JPanel implements Scrollable, Observable, Drag
 
   private List<Observer> observers;
 
+  private GlobalConfig config;
   private DisplayController controller;
   private DoubleClickController doubleClickController;
   private Map<Long, FamilyMemberPanel> panels;
@@ -76,8 +77,8 @@ public class DisplayPanel extends JPanel implements Scrollable, Observable, Drag
    * 
    * @param family the model
    */
-  public void refresh(Family family) {
-    refresh(family, new HashMap<>());
+  public void refresh(Family family, GlobalConfig config) {
+    refresh(family, new HashMap<>(), config);
   }
 
   /**
@@ -87,7 +88,8 @@ public class DisplayPanel extends JPanel implements Scrollable, Observable, Drag
    * @param family the model
    * @param positions the positions
    */
-  public void refresh(Family family, Map<Long, Point> positions) {
+  public void refresh(Family family, Map<Long, Point> positions, GlobalConfig config) {
+    this.config = config;
     Set<Long> updatedOrAdded = new HashSet<>();
     Set<Long> keysToDelete = new HashSet<>(this.panels.keySet());
 
@@ -102,10 +104,10 @@ public class DisplayPanel extends JPanel implements Scrollable, Observable, Drag
           Point p = positions.get(member.getId());
           panel.setBounds(new Rectangle(p, panel.getPreferredSize()));
         }
-        panel.setInfo(member);
+        panel.setInfo(member, this.config);
       }
       else {
-        FamilyMemberPanel panel = new FamilyMemberPanel(member);
+        FamilyMemberPanel panel = new FamilyMemberPanel(member, this.config);
         DragController<FamilyMemberPanel> dragController = new DragController<>(this, panel);
 
         if (positions != null && positions.containsKey(member.getId())) {
@@ -250,7 +252,7 @@ public class DisplayPanel extends JPanel implements Scrollable, Observable, Drag
     g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
     g2d.setStroke(new BasicStroke(2));
     this.links.forEach(link -> {
-      // Lien entre les époux.
+      // Link between parents
       Rectangle r1 = this.panels.get(link.getParent1()).getBounds();
       Rectangle r2 = this.panels.get(link.getParent2()).getBounds();
       Point p1 = new Point(r1.x + r1.width / 2, r1.y + r1.height / 2);
@@ -258,13 +260,13 @@ public class DisplayPanel extends JPanel implements Scrollable, Observable, Drag
       Point middle = new Point((p1.x + p2.x) / 2, (p1.y + p2.y) / 2);
 
       if (isMouseOnLink(p1, p2))
-        g2d.setColor(Color.RED);
+        g2d.setColor(this.config.getLinkHoverColor());
       else
-        g2d.setColor(link.isSelected() ? Color.GREEN : Color.BLACK);
+        g2d.setColor(link.isSelected() ? this.config.getLinkSelectionColor() : this.config.getLinkColor());
       g2d.drawLine(p1.x, p1.y, p2.x, p2.y);
 
-      g2d.setColor(Color.BLUE);
-      // Liens vers les enfants.
+      g2d.setColor(this.config.getChildLinkColor());
+      // Links to children
       link.getChildren().forEach(child -> {
         Rectangle r = this.panels.get(child).getBounds();
         Point p = new Point(r.x + r.width / 2, r.y + r.height / 2);

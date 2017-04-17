@@ -1,14 +1,7 @@
 package net.darmo_creations.util;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
@@ -21,45 +14,14 @@ import net.darmo_creations.model.Date;
  * @author Damien Vergnet
  */
 public class I18n {
-  private static final Locale DEFAULT_LOCALE = Locale.US;
-
-  private static Locale locale;
   private static ResourceBundle resource;
 
   /**
    * Loads the preferred locale.<br/>
    * <b>This method must be called before any other from this class.</b>
    */
-  public static void init() {
-    try {
-      List<String> lines = Files.readAllLines(Paths.get(getJarDir() + "config.dat"));
-      if (!lines.isEmpty()) {
-        String[] s = lines.get(0).split("_");
-        locale = new Locale(s[0], s[1]);
-      }
-    }
-    catch (IOException e) {
-      locale = DEFAULT_LOCALE;
-    }
+  public static void init(Locale locale) {
     resource = ResourceBundle.getBundle("langs/lang", locale);
-  }
-
-  /**
-   * Saves the current locale.
-   * 
-   * @return true if and only if the locale was saved
-   */
-  public static boolean saveLocale() {
-    try {
-      List<String> lines = new ArrayList<>();
-      lines.add(locale.toString());
-      Files.write(Paths.get(getJarDir() + "config.dat"), lines);
-
-      return true;
-    }
-    catch (IOException e) {
-      return false;
-    }
   }
 
   /**
@@ -91,7 +53,7 @@ public class I18n {
 
   /**
    * Returns the localized word corresponding to the given key. If no key was found, the key is
-   * returned.
+   * returned. No need to specify "word." at the beginning.
    * 
    * @param unlocalizedWord the unlocalized word
    * @param plural if true, the plural will be returned
@@ -103,7 +65,7 @@ public class I18n {
 
   /**
    * Returns the localized mnemonic for the given key. If no key was found, '\0' (null character)
-   * will be returned. No need to specify '.mnemonic' in the key.
+   * will be returned. No need to specify ".mnemonic" in the key.
    * 
    * @param unlocalizedString the key
    * @return the localized mnemonic
@@ -113,24 +75,5 @@ public class I18n {
     if (s.length() == 1)
       return s.charAt(0);
     return '\0';
-  }
-
-  /**
-   * @return the path to the jar
-   */
-  private static String getJarDir() {
-    try {
-      String path = I18n.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
-
-      if (File.separatorChar == '\\') {
-        path = path.replace('/', '\\');
-        path = path.substring(1); // Removes the first /.
-      }
-
-      return path;
-    }
-    catch (URISyntaxException e) {
-      return null;
-    }
   }
 }

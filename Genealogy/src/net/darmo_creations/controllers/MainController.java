@@ -17,12 +17,12 @@ import java.util.regex.Pattern;
 
 import javax.swing.JOptionPane;
 
+import net.darmo_creations.dao.ConfigDao;
 import net.darmo_creations.dao.FamilyDao;
 import net.darmo_creations.gui.MainFrame;
-import net.darmo_creations.model.Date;
+import net.darmo_creations.model.GlobalConfig;
 import net.darmo_creations.model.family.Family;
 import net.darmo_creations.model.family.FamilyMember;
-import net.darmo_creations.model.family.Gender;
 import net.darmo_creations.model.family.Wedding;
 import net.darmo_creations.util.I18n;
 import net.darmo_creations.util.Observable;
@@ -40,10 +40,10 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
 
   /** Frame being monitored. */
   private final MainFrame frame;
-
   /** Main DAO. */
   private final FamilyDao familyDao;
 
+  private GlobalConfig config;
   /** The family (model). */
   private Family family;
   /** Is a file open? */
@@ -61,8 +61,9 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
   /** Are we adding a link? */
   private boolean addingLink;
 
-  public MainController(MainFrame frame) {
+  public MainController(MainFrame frame, GlobalConfig config) {
     this.frame = frame;
+    this.config = config;
     this.familyDao = FamilyDao.instance();
   }
 
@@ -196,18 +197,6 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
       this.saved = false;
       this.frame.resetDisplay();
       updateFrameMenus();
-
-      // TEMP
-      this.family.addMember(
-          new FamilyMember(null, "Smith", "John", Gender.MAN, new Date(1913, 5, 7), "Londres", new Date(1982, 3, 29), "Paris"));
-      this.family.addMember(
-          new FamilyMember(null, "Smith", "Johanna", Gender.WOMAN, new Date(1913, 5, 7), "Londres", new Date(1982, 3, 29), "Paris"));
-      this.family.addMember(
-          new FamilyMember(null, "Paul", "John", Gender.MAN, new Date(1913, 5, 7), "Londres", new Date(1982, 3, 29), "Paris"));
-      this.family.addMember(
-          new FamilyMember(null, "Paul", "Johanna", Gender.WOMAN, new Date(1913, 5, 7), "Londres", new Date(1982, 3, 29), "Paris"));
-      this.frame.refreshDisplay(this.family);
-      // TEMP end
     }
   }
 
@@ -234,7 +223,7 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
         this.alreadySaved = true;
         this.saved = true;
         this.frame.resetDisplay();
-        this.frame.refreshDisplay(this.family, positions);
+        this.frame.refreshDisplay(this.family, positions, this.config);
       }
       catch (IOException | ParseException __) {
         this.frame.showErrorDialog(I18n.getLocalizedString("popup.open_file_error.text"));
@@ -309,7 +298,7 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
     all.remove(spouse2);
     Optional<Wedding> optWedding = this.frame.showAddLinkDialog(spouse1, spouse2, all);
     optWedding.ifPresent(w -> this.family.addWedding(w));
-    this.frame.refreshDisplay(this.family);
+    this.frame.refreshDisplay(this.family, this.config);
   }
 
   /**
@@ -387,7 +376,7 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
         return;
     }
 
-    I18n.saveLocale();
+    ConfigDao.getInstance().save(this.config);
     this.frame.dispose();
   }
 
@@ -403,7 +392,7 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
    * Refreshes tree display.
    */
   private void refreshFrame() {
-    this.frame.refreshDisplay(this.family);
+    this.frame.refreshDisplay(this.family, this.config);
   }
 
   /**

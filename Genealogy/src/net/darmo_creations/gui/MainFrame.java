@@ -31,6 +31,7 @@ import net.darmo_creations.gui.dialog.CardDetailsDialog;
 import net.darmo_creations.gui.dialog.card.CardDialog;
 import net.darmo_creations.gui.dialog.link.LinkDialog;
 import net.darmo_creations.gui.dialog.tree_creation.TreeCreationDialog;
+import net.darmo_creations.model.GlobalConfig;
 import net.darmo_creations.model.family.Family;
 import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.model.family.Wedding;
@@ -59,8 +60,8 @@ public class MainFrame extends JFrame {
   private JToggleButton addLinkBtn;
   private DisplayPanel displayPnl;
 
-  public MainFrame() {
-    MainController controller = new MainController(this);
+  public MainFrame(GlobalConfig config) {
+    MainController controller = new MainController(this, config);
 
     setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
     setMinimumSize(new Dimension(800, 600));
@@ -101,7 +102,7 @@ public class MainFrame extends JFrame {
     JMenuBar menuBar = new JMenuBar();
     JMenuItem i;
 
-    // Menu 'Files'
+    // 'Files' menu
     {
       JMenu fileMenu = new JMenu(I18n.getLocalizedString("menu.file.text"));
       fileMenu.setMnemonic(I18n.getLocalizedMnemonic("menu.file"));
@@ -138,7 +139,7 @@ public class MainFrame extends JFrame {
       menuBar.add(fileMenu);
     }
 
-    // Menu 'Edit'
+    // 'Edit' menu
     {
       this.editMenu = new JMenu(I18n.getLocalizedString("menu.edit.text"));
       this.editMenu.setMnemonic(I18n.getLocalizedMnemonic("menu.edit"));
@@ -167,7 +168,15 @@ public class MainFrame extends JFrame {
       menuBar.add(this.editMenu);
     }
 
-    // Menu 'Help'
+    // 'Options' menu
+    {
+      JMenu optionsMenu = new JMenu(I18n.getLocalizedString("menu.options.text"));
+      optionsMenu.setMnemonic(I18n.getLocalizedMnemonic("menu.options"));
+      // TODO
+      menuBar.add(optionsMenu);
+    }
+
+    // 'Help' menu
     {
       JMenu helpMenu = new JMenu(I18n.getLocalizedString("menu.help.text"));
       helpMenu.setMnemonic(I18n.getLocalizedMnemonic("menu.help"));
@@ -319,8 +328,8 @@ public class MainFrame extends JFrame {
    * 
    * @param family the tree
    */
-  public void refreshDisplay(Family family) {
-    this.displayPnl.refresh(family);
+  public void refreshDisplay(Family family, GlobalConfig config) {
+    this.displayPnl.refresh(family, config);
   }
 
   /**
@@ -329,8 +338,8 @@ public class MainFrame extends JFrame {
    * @param family the tree
    * @param positions positions for all cards
    */
-  public void refreshDisplay(Family family, Map<Long, Point> positions) {
-    this.displayPnl.refresh(family, positions);
+  public void refreshDisplay(Family family, Map<Long, Point> positions, GlobalConfig config) {
+    this.displayPnl.refresh(family, positions, config);
   }
 
   /**
