@@ -37,6 +37,11 @@ import net.darmo_creations.model.family.Wedding;
 import net.darmo_creations.util.I18n;
 import net.darmo_creations.util.Images;
 
+/**
+ * The main frame of the application.
+ *
+ * @author Damien Vergnet
+ */
 public class MainFrame extends JFrame {
   private static final long serialVersionUID = 2426665404072947885L;
 
@@ -86,11 +91,17 @@ public class MainFrame extends JFrame {
     setExtendedState(MAXIMIZED_BOTH);
   }
 
+  /**
+   * Initializes the menu bar.
+   * 
+   * @param listener the action listener
+   * @return the menu bar
+   */
   private JMenuBar initJMenuBar(ActionListener listener) {
     JMenuBar menuBar = new JMenuBar();
     JMenuItem i;
 
-    // Menu 'Fichier'
+    // Menu 'Files'
     {
       JMenu fileMenu = new JMenu(I18n.getLocalizedString("menu.file.text"));
       fileMenu.setMnemonic(I18n.getLocalizedMnemonic("menu.file"));
@@ -127,7 +138,7 @@ public class MainFrame extends JFrame {
       menuBar.add(fileMenu);
     }
 
-    // Menu 'Édition'
+    // Menu 'Edit'
     {
       this.editMenu = new JMenu(I18n.getLocalizedString("menu.edit.text"));
       this.editMenu.setMnemonic(I18n.getLocalizedMnemonic("menu.edit"));
@@ -156,7 +167,7 @@ public class MainFrame extends JFrame {
       menuBar.add(this.editMenu);
     }
 
-    // Menu 'Aide'
+    // Menu 'Help'
     {
       JMenu helpMenu = new JMenu(I18n.getLocalizedString("menu.help.text"));
       helpMenu.setMnemonic(I18n.getLocalizedMnemonic("menu.help"));
@@ -171,6 +182,12 @@ public class MainFrame extends JFrame {
     return menuBar;
   }
 
+  /**
+   * Initializes the tool bar.
+   * 
+   * @param listener the action listener
+   * @return the tool bar
+   */
   private JToolBar getJToolBar(ActionListener listener) {
     JToolBar toolBar = new JToolBar(JToolBar.HORIZONTAL);
     toolBar.setFloatable(false);
@@ -231,6 +248,14 @@ public class MainFrame extends JFrame {
     return toolBar;
   }
 
+  /**
+   * Updates the menu bar. The last two arguments cannot be true at the same time or an
+   * IllegalStateException will be thrown.
+   * 
+   * @param fileOpen is a file open?
+   * @param cardSelected is a card selected?
+   * @param linkSelected is a link selected?
+   */
   public void updateMenus(boolean fileOpen, boolean cardSelected, boolean linkSelected) {
     this.saveItem.setEnabled(fileOpen);
     this.saveAsItem.setEnabled(fileOpen);
@@ -273,78 +298,162 @@ public class MainFrame extends JFrame {
     }
   }
 
+  /**
+   * Sets the selection state of the "add link" button.
+   * 
+   * @param selected
+   */
   public void setAddLinkButtonSelected(boolean selected) {
     this.addLinkBtn.setSelected(selected);
   }
 
+  /**
+   * Resets the tree display.
+   */
   public void resetDisplay() {
     this.displayPnl.reset();
   }
 
+  /**
+   * Refreshes the tree display.
+   * 
+   * @param family the tree
+   */
   public void refreshDisplay(Family family) {
     this.displayPnl.refresh(family);
   }
 
+  /**
+   * Refreshes the tree display using the given cards positions.
+   * 
+   * @param family the tree
+   * @param positions positions for all cards
+   */
   public void refreshDisplay(Family family, Map<Long, Point> positions) {
     this.displayPnl.refresh(family, positions);
   }
 
+  /**
+   * @return the positions of all cards
+   */
   public Map<Long, Point> getCardsPositions() {
     return this.displayPnl.getCardsPositions();
   }
 
+  /**
+   * Shows the "save" file chooser.
+   * 
+   * @return the selected file
+   */
   public File showSaveFileChooser() {
     this.fileChooser.showSaveDialog(this);
     return this.fileChooser.getSelectedFile();
   }
 
+  /**
+   * Shows the "open" file chooser.
+   * 
+   * @return the selected file
+   */
   public File showOpenFileChooser() {
     this.fileChooser.showOpenDialog(this);
     return this.fileChooser.getSelectedFile();
   }
 
+  /**
+   * Shows the tree creation dialog.
+   * 
+   * @return the tree name or nothing if the dialog was dismissed/canceled
+   */
   public Optional<String> showCreateTreeDialog() {
     this.treeCreationDialog.setVisible(true);
     return this.treeCreationDialog.getTreeName();
   }
 
+  /**
+   * Shows the "add card" dialog.
+   * 
+   * @return the new card or nothing if the dialog was dismissed/canceled
+   */
   public Optional<FamilyMember> showAddCardDialog() {
     this.cardDialog.setCard(null);
     this.cardDialog.setVisible(true);
     return this.cardDialog.getCard();
   }
 
+  /**
+   * Shows the "add link" dialog.
+   * 
+   * @param spouse1 one spouse
+   * @param spouse2 the other spouse
+   * @param children the potential children
+   * @return the new link or nothing if the dialog was dismissed/canceled
+   */
   public Optional<Wedding> showAddLinkDialog(FamilyMember spouse1, FamilyMember spouse2, Set<FamilyMember> children) {
     this.linkDialog.addLink(spouse1, spouse2, children);
     this.linkDialog.setVisible(true);
     return this.linkDialog.getLink();
   }
 
+  /**
+   * Shows the "update card" dialog.
+   * 
+   * @param member the member to update
+   * @return the updated card or nothing if the dialog was dismissed/canceled
+   */
   public Optional<FamilyMember> showUpdateCardDialog(FamilyMember member) {
     this.cardDialog.setCard(member);
     this.cardDialog.setVisible(true);
     return this.cardDialog.getCard();
   }
 
+  /**
+   * Shows the "update link" dialog.
+   * 
+   * @param wedding the link to update
+   * @param children the potential children
+   * @return the updated link or nothing if the dialog was dismissed/canceled
+   */
   public Optional<Wedding> showUpdateLinkDialog(Wedding wedding, Set<FamilyMember> children) {
     this.linkDialog.updateLink(wedding, children);
     this.linkDialog.setVisible(true);
     return this.linkDialog.getLink();
   }
 
+  /**
+   * Shows the "card details" dialog.
+   * 
+   * @param member the member to display
+   * @param wedding the wedding it is part of
+   */
   public void showDetailsDialog(FamilyMember member, Wedding wedding) {
     this.detailsDialog.setInfo(member, wedding);
     this.detailsDialog.setVisible(true);
   }
 
+  /**
+   * Shows the "about" dialog.
+   */
   public void showAboutDialog() {
     // TODO
   }
 
+  /**
+   * Shows an error message.
+   * 
+   * @param message the message
+   */
   public void showErrorDialog(String message) {
     JOptionPane.showMessageDialog(this, message, "Erreur", JOptionPane.ERROR_MESSAGE);
   }
 
+  /**
+   * Shows a confirm dialog.
+   * 
+   * @param message the message
+   * @return an integer indicating the option selected by the user (either YES_OPTION, NO_OPTION,
+   *         CANCEL_OPTION or CLOSED_OPTION)
+   */
   public int showConfirmDialog(String message) {
     return JOptionPane.showConfirmDialog(this, message, "Confirmation", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
   }

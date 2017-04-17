@@ -13,17 +13,40 @@ import net.darmo_creations.gui.dialog.DefaultDialogController;
 import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.model.family.Wedding;
 
+/**
+ * This controller handles actions of the LinkDialog class.
+ *
+ * @author Damien Vergnet
+ */
 public class LinkController extends DefaultDialogController<LinkDialog> implements KeyListener, ListSelectionListener {
   private FamilyMember spouse1, spouse2;
 
+  /**
+   * Creates a controller.
+   * 
+   * @param dialog the dialog
+   */
   public LinkController(LinkDialog dialog) {
     super(dialog);
   }
 
+  /**
+   * Resets the dialog.
+   * 
+   * @param spouse1 one spouse
+   * @param spouse2 the other spouse
+   * @param children the children
+   */
   public void reset(FamilyMember spouse1, FamilyMember spouse2, Set<FamilyMember> children) {
     reset(new Wedding(null, null, spouse1, spouse2), children);
   }
 
+  /**
+   * Resets the dialog.
+   * 
+   * @param wedding the link
+   * @param children the children
+   */
   public void reset(Wedding wedding, Set<FamilyMember> children) {
     this.spouse1 = wedding.getSpouse1();
     this.spouse2 = wedding.getSpouse2();
@@ -40,7 +63,10 @@ public class LinkController extends DefaultDialogController<LinkDialog> implemen
     this.dialog.setDeleteButtonEnabled(false);
   }
 
-  public Wedding getWedding() {
+  /**
+   * @return the link
+   */
+  public Wedding getLink() {
     return new Wedding(this.dialog.getDate(), this.dialog.getWeddingLocation(), this.spouse1, this.spouse2, this.dialog.getChildren());
   }
 

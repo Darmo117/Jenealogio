@@ -19,11 +19,26 @@ import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.model.family.Gender;
 import net.darmo_creations.util.I18n;
 
+/**
+ * This controller handles events from the CardDialog class.
+ *
+ * @author Damien Vergnet
+ */
 public class CardController extends DefaultDialogController<CardDialog> implements KeyListener, DocumentListener, ItemListener {
+  /**
+   * Creates a controller.
+   * 
+   * @param dialog the dialog
+   */
   public CardController(CardDialog dialog) {
     super(dialog);
   }
 
+  /**
+   * Resets the associated dialog.
+   * 
+   * @param member the member to display
+   */
   public void reset(FamilyMember member) {
     if (member != null) {
       this.dialog.setTitle(I18n.getLocalizedString("dialog.update_card.title"));
@@ -90,6 +105,9 @@ public class CardController extends DefaultDialogController<CardDialog> implemen
     this.dialog.setValidateButtonEnabled(this.dialog.atLeastOneFieldCompleted());
   }
 
+  /**
+   * Opens up a file chooser then set the profile image on the dialog.
+   */
   private void setImage() {
     File file = this.dialog.showOpenFileChooser();
     if (file != null) {

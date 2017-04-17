@@ -16,13 +16,17 @@ import javax.swing.border.LineBorder;
 import net.darmo_creations.gui.MainFrame;
 import net.darmo_creations.gui.components.DetailsPanel;
 import net.darmo_creations.gui.components.ImageLabel;
-import net.darmo_creations.model.family.DummyFamilyMember;
 import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.model.family.Wedding;
 import net.darmo_creations.util.I18n;
 import net.darmo_creations.util.Observable;
 import net.darmo_creations.util.Observer;
 
+/**
+ * This dialog dislays details about a person.
+ *
+ * @author Damien Vergnet
+ */
 public class CardDetailsDialog extends AbstractDialog implements Observable {
   private static final long serialVersionUID = 4772771687761193691L;
 
@@ -31,6 +35,11 @@ public class CardDetailsDialog extends AbstractDialog implements Observable {
   private ImageLabel imageLbl;
   private DetailsPanel infoPnl;
 
+  /**
+   * Creates a dialog.
+   * 
+   * @param owner the owner
+   */
   public CardDetailsDialog(MainFrame owner) {
     super(owner, Mode.CLOSE_OPTION, true);
     setResizable(false);
@@ -43,7 +52,7 @@ public class CardDetailsDialog extends AbstractDialog implements Observable {
     this.imageLbl.setMaximumSize(this.imageLbl.getPreferredSize());
     this.imageLbl.setBorder(new LineBorder(Color.GRAY));
     add(imagePnl, BorderLayout.NORTH);
-    add(this.infoPnl = new DetailsPanel(new DummyFamilyMember(""), null), BorderLayout.CENTER);
+    add(this.infoPnl = new DetailsPanel(), BorderLayout.CENTER);
     JButton editBtn = new JButton(I18n.getLocalizedString("button.edit.text"));
     addButton(editBtn);
     editBtn.setActionCommand("edit");
@@ -64,6 +73,12 @@ public class CardDetailsDialog extends AbstractDialog implements Observable {
     setLocationRelativeTo(owner);
   }
 
+  /**
+   * Sets displayed information.
+   * 
+   * @param member the person
+   * @param wedding the wedding it is part of
+   */
   public void setInfo(FamilyMember member, Wedding wedding) {
     setTitle(member.toString());
     member.getImage().ifPresent(img -> this.imageLbl.setIcon(new ImageIcon(img)));

@@ -14,9 +14,15 @@ import javax.swing.JPanel;
 import net.darmo_creations.model.Date;
 import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.model.family.Wedding;
+import net.darmo_creations.util.CalendarUtil;
 import net.darmo_creations.util.I18n;
 import net.darmo_creations.util.Images;
 
+/**
+ * This class displays all data of a person.
+ *
+ * @author Damien Vergnet
+ */
 public class DetailsPanel extends JPanel {
   private static final long serialVersionUID = 2109771883765681092L;
 
@@ -31,7 +37,7 @@ public class DetailsPanel extends JPanel {
   private JLabel deathPlaceLbl;
   private JLabel ageLbl;
 
-  public DetailsPanel(FamilyMember familyMember, Wedding wedding) {
+  public DetailsPanel() {
     super(new BorderLayout());
     setPreferredSize(new Dimension(200, 110));
     setLayout(new BorderLayout());
@@ -90,10 +96,14 @@ public class DetailsPanel extends JPanel {
     infoPnl.add(this.ageLbl = new JLabel(), gbc);
 
     add(infoPnl, BorderLayout.CENTER);
-
-    setInfo(familyMember, wedding);
   }
 
+  /**
+   * Sets displayed data.
+   * 
+   * @param member the person
+   * @param wedding the wedding it is part of
+   */
   public void setInfo(FamilyMember member, Wedding wedding) {
     this.nameLbl.setText(member.toString());
     this.birthLbl.setText(getDate(member.getBirthDate()));
@@ -106,6 +116,12 @@ public class DetailsPanel extends JPanel {
     revalidate();
   }
 
+  /**
+   * Returns the age of the dislayed member.
+   * 
+   * @param period the time period
+   * @return the formatted age
+   */
   private String getAge(Optional<Period> period) {
     if (period.isPresent()) {
       Period p = period.get();
@@ -118,12 +134,17 @@ public class DetailsPanel extends JPanel {
 
       return res;
     }
+
     return UNKNOWN_DATA;
   }
 
+  /**
+   * Formats the given date.
+   * 
+   * @param date the date
+   * @return the formatted date
+   */
   private String getDate(Optional<Date> date) {
-    if (date.isPresent())
-      return I18n.getFormattedDate(date.get());
-    return UNKNOWN_DATA;
+    return CalendarUtil.formatDate(date).orElse(UNKNOWN_DATA);
   }
 }

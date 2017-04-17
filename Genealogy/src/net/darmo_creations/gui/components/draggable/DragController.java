@@ -1,12 +1,9 @@
-package net.darmo_creations.controllers;
+package net.darmo_creations.gui.components.draggable;
 
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-
-import net.darmo_creations.gui.components.draggable.Draggable;
-import net.darmo_creations.gui.components.draggable.DraggableComponentContainer;
 
 /**
  * This controller handles dragging events.

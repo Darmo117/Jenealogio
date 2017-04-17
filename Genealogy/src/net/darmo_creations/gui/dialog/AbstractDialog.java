@@ -19,6 +19,11 @@ import javax.swing.KeyStroke;
 
 import net.darmo_creations.util.I18n;
 
+/**
+ * This class is a template for dialog windows. It provides default buttons and behaviour.
+ * 
+ * @author Damien Vergnet
+ */
 public abstract class AbstractDialog extends JDialog {
   private static final long serialVersionUID = -7155586918339699837L;
 
@@ -27,6 +32,14 @@ public abstract class AbstractDialog extends JDialog {
   private List<AbstractButton> additionnalBtns;
   private boolean canceled;
 
+  /**
+   * Creates a dialog.
+   * 
+   * @param owner the owner window
+   * @param mode the buttons mode
+   * @param modal is it modal?
+   * @see Mode
+   */
   public AbstractDialog(JFrame owner, Mode mode, boolean modal) {
     super(owner, modal);
 
@@ -58,11 +71,21 @@ public abstract class AbstractDialog extends JDialog {
     installEscapeCloseOperation();
   }
 
+  /**
+   * Adds a button to the bottom panel, to the right of the existing ones.
+   * 
+   * @param button the button to add
+   */
   public void addButton(AbstractButton button) {
     this.buttonsPnl.add(button);
     this.additionnalBtns.add(button);
   }
 
+  /**
+   * Sets the action listener. Will replace the previous one.
+   * 
+   * @param controller the new controller
+   */
   public void setActionListener(DefaultDialogController<?> controller) {
     if (this.validationBtn != null)
       this.validationBtn.addActionListener(controller);
@@ -74,20 +97,36 @@ public abstract class AbstractDialog extends JDialog {
     addWindowListener(controller);
   }
 
+  /**
+   * Enables/disables the "Validate" button.
+   * 
+   * @param enabled
+   */
   public void setValidateButtonEnabled(boolean enabled) {
     if (this.validationBtn != null) {
       this.validationBtn.setEnabled(enabled);
     }
   }
 
+  /**
+   * @return true if the user clicked "Cancel"; false otherwise
+   */
   public boolean isCanceled() {
     return this.canceled;
   }
 
+  /**
+   * Sets the dialog to cancelled or not.
+   * 
+   * @param canceled
+   */
   public void setCanceled(boolean canceled) {
     this.canceled = canceled;
   }
 
+  /**
+   * Installs the escape close event.
+   */
   private void installEscapeCloseOperation() {
     final String actionKey = "WINDOW_CLOSING";
     JRootPane root = getRootPane();
@@ -103,8 +142,15 @@ public abstract class AbstractDialog extends JDialog {
     });
   }
 
+  /**
+   * Buttons modes.
+   *
+   * @author Damien Vergnet
+   */
   public static enum Mode {
+    /** One close button only. */
     CLOSE_OPTION,
+    /** Two buttons: Validate and Cancel. */
     VALIDATE_CANCEL_OPTION;
   }
 }

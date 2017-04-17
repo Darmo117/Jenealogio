@@ -13,11 +13,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.DateTimeException;
-import java.time.format.DateTimeParseException;
 import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -38,12 +34,16 @@ import net.darmo_creations.gui.dialog.AbstractDialog;
 import net.darmo_creations.model.Date;
 import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.model.family.Gender;
+import net.darmo_creations.util.CalendarUtil;
 import net.darmo_creations.util.I18n;
 
+/**
+ * This dialog lets the user add or edit cards.
+ *
+ * @author Damien Vergnet
+ */
 public class CardDialog extends AbstractDialog {
   private static final long serialVersionUID = -6591620133064467367L;
-
-  private static final Pattern DATE_PATTERN = Pattern.compile("(\\d+{1,2})/(\\d+{2})/(\\d+{4})");
 
   private CardController controller;
 
@@ -56,6 +56,11 @@ public class CardDialog extends AbstractDialog {
   private JComboBox<Gender> genderCombo;
   private JFormattedTextField birthFld, deathFld;
 
+  /**
+   * Creates a new dialog.
+   * 
+   * @param owner the owner
+   */
   public CardDialog(MainFrame owner) {
     super(owner, Mode.VALIDATE_CANCEL_OPTION, true);
     setPreferredSize(new Dimension(300, 410));
@@ -157,74 +162,132 @@ public class CardDialog extends AbstractDialog {
     setLocationRelativeTo(owner);
   }
 
-  public void setId(long id) {
-    this.id = id;
-  }
-
+  /**
+   * @return the ID
+   */
   public long getId() {
     return this.id;
   }
 
+  /**
+   * Sets the ID.
+   * 
+   * @param id the new ID
+   */
+  public void setId(long id) {
+    this.id = id;
+  }
+
+  /**
+   * @return member's name
+   */
   public String getMemberName() {
     return getContent(this.nameFld);
   }
 
+  /**
+   * Sets member's name.
+   * 
+   * @param name the new name
+   */
   public void setMemberName(String name) {
     this.nameFld.setText(name);
   }
 
+  /**
+   * @return first name
+   */
   public String getFirstName() {
     return getContent(this.firstNameFld);
   }
 
+  /**
+   * Sets the first name.
+   * 
+   * @param firstName the new first name
+   */
   public void setFirstName(String firstName) {
     this.firstNameFld.setText(firstName);
   }
 
+  /**
+   * @return the gender
+   */
   public Gender getGender() {
     return Gender.values()[this.genderCombo.getSelectedIndex()];
   }
 
+  /**
+   * Sets the gender.
+   * 
+   * @param gender the new gender
+   */
   public void setGender(Gender gender) {
     this.genderCombo.setSelectedIndex(gender.ordinal());
   }
 
+  /**
+   * @return the birthday
+   */
   public Date getBirthDate() {
-    return parseDate(this.birthFld);
+    return CalendarUtil.parseDate(this.birthFld.getText());
   }
 
+  /**
+   * Sets the birthday.
+   * 
+   * @param date the new date
+   */
   public void setBirthDate(Optional<Date> date) {
-    this.birthFld.setText(getDate(date));
+    this.birthFld.setText(CalendarUtil.formatDate(date).orElse(""));
   }
 
+  /**
+   * @return the birth location
+   */
   public String getBirthLocation() {
     return getContent(this.birthLocationFld);
   }
 
+  /**
+   * Sets the birth location.
+   * 
+   * @param location the new location
+   */
   public void setBirthLocation(String location) {
     this.birthLocationFld.setText(location);
   }
 
+  /**
+   * @return the death date
+   */
   public Date getDeathDate() {
-    return parseDate(this.deathFld);
+    return CalendarUtil.parseDate(this.deathFld.getText());
   }
 
+  /**
+   * Sets the death date.
+   * 
+   * @param date the date
+   */
   public void setDeathDate(Optional<Date> date) {
-    this.deathFld.setText(getDate(date));
+    this.deathFld.setText(CalendarUtil.formatDate(date).orElse(""));
   }
 
+  /**
+   * @return the death location
+   */
   public String getDeathLocation() {
     return getContent(this.deathLocationFld);
   }
 
+  /**
+   * Sets the death location.
+   * 
+   * @param location the new location
+   */
   public void setDeathLocation(String location) {
     this.deathLocationFld.setText(location);
-  }
-
-  private String getDate(Optional<Date> date) {
-    if (date.isPresent())
-      return I18n.getFormattedDate(date.get());
-    return "";
   }
 
   @Override
@@ -239,22 +302,42 @@ public class CardDialog extends AbstractDialog {
       super.setVisible(b);
   }
 
+  /**
+   * Checks if the dates are valid.
+   * 
+   * @return true if and only if all dates are well formatted
+   */
   private boolean checkDates() {
-    Date birth = parseDate(this.birthFld);
-    Date death = parseDate(this.deathFld);
+    Date birth = CalendarUtil.parseDate(this.birthFld.getText());
+    Date death = CalendarUtil.parseDate(this.deathFld.getText());
 
     return birth == null || death == null || (birth != null && death != null && birth.before(death));
   }
 
+  /**
+   * Shows the "open" file chooser.
+   * 
+   * @return the selected file
+   */
   File showOpenFileChooser() {
     this.fileChooser.showOpenDialog(this);
     return this.fileChooser.getSelectedFile();
   }
 
+  /**
+   * Sets card data.
+   * 
+   * @param member the member to display
+   */
   public void setCard(FamilyMember member) {
     this.controller.reset(member);
   }
 
+  /**
+   * Sets the image.
+   * 
+   * @param image the image
+   */
   void setImage(Optional<BufferedImage> image) {
     if (image.isPresent()) {
       this.image = image.get();
@@ -266,6 +349,9 @@ public class CardDialog extends AbstractDialog {
     }
   }
 
+  /**
+   * @return the card or nothing if the dialog was canceled
+   */
   public Optional<FamilyMember> getCard() {
     if (!isCanceled()) {
       FamilyMember member = new FamilyMember(getId(), this.image, getMemberName(), getFirstName(), getGender(), getBirthDate(),
@@ -276,34 +362,22 @@ public class CardDialog extends AbstractDialog {
     return Optional.empty();
   }
 
+  /**
+   * Returns the content of a text field.
+   * 
+   * @param field the text field
+   * @return text field's content
+   */
   private String getContent(JTextField field) {
     String text = field.getText();
     return text.length() > 0 ? text : null;
   }
 
-  private Date parseDate(JFormattedTextField field) throws DateTimeException {
-    String str = field.getText();
-
-    if (str.length() > 0) {
-      Matcher matcher = DATE_PATTERN.matcher(str);
-
-      if (matcher.matches()) {
-        String format = I18n.getLocalizedString("date.format");
-        boolean monthFirst = format.startsWith("M");
-
-        int year = Integer.parseInt(matcher.group(3));
-        int month = Integer.parseInt(matcher.group(monthFirst ? 1 : 2));
-        int date = Integer.parseInt(matcher.group(monthFirst ? 2 : 1));
-
-        return new Date(year, month, date);
-      }
-
-      throw new DateTimeParseException("wrong date format", str, -1);
-    }
-
-    return null;
-  }
-
+  /**
+   * Tells if at least one field has been completed.
+   * 
+   * @return true if a field has been completed
+   */
   boolean atLeastOneFieldCompleted() {
     boolean ok = false;
 
@@ -316,6 +390,11 @@ public class CardDialog extends AbstractDialog {
     return ok;
   }
 
+  /**
+   * Shows an error message.
+   * 
+   * @param message the message
+   */
   void showErrorDialog(String message) {
     ((MainFrame) getParent()).showErrorDialog(message);
   }

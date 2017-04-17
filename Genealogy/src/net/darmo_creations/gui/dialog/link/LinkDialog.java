@@ -8,12 +8,9 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.DateTimeException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -30,13 +27,17 @@ import net.darmo_creations.gui.dialog.AbstractDialog;
 import net.darmo_creations.model.Date;
 import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.model.family.Wedding;
+import net.darmo_creations.util.CalendarUtil;
 import net.darmo_creations.util.I18n;
 import net.darmo_creations.util.Images;
 
+/**
+ * This dialog lets the user add or edit links.
+ *
+ * @author Damien Vergnet
+ */
 public class LinkDialog extends AbstractDialog {
   private static final long serialVersionUID = -6591620133064467367L;
-
-  private static final Pattern DATE_PATTERN = Pattern.compile("(\\d+{1,2})/(\\d+{2})/(\\d+{4})");
 
   private LinkController controller;
   private JFormattedTextField dateFld;
@@ -45,6 +46,11 @@ public class LinkDialog extends AbstractDialog {
   private JList<FamilyMember> childrenList, availChildrenList;
   private JButton addBtn, removeBtn;
 
+  /**
+   * Creates a new dialog.
+   * 
+   * @param owner the owner
+   */
   public LinkDialog(MainFrame owner) {
     super(owner, Mode.VALIDATE_CANCEL_OPTION, true);
     setResizable(false);
@@ -136,54 +142,109 @@ public class LinkDialog extends AbstractDialog {
     setLocationRelativeTo(owner);
   }
 
+  /**
+   * Sets the dialog to "add link" mode. The two spouses must be different
+   * 
+   * @param spouse1 one spouse
+   * @param spouse2 the other spouse
+   * @param children the potential children
+   */
   public void addLink(FamilyMember spouse1, FamilyMember spouse2, Set<FamilyMember> children) {
     setTitle(I18n.getLocalizedString("dialog.add_link.title"));
     this.controller.reset(spouse1, spouse2, children);
   }
 
+  /**
+   * Sets the dialog to "update link" mode.
+   * 
+   * @param wedding the link
+   * @param children the potential children
+   */
   public void updateLink(Wedding wedding, Set<FamilyMember> children) {
     setTitle(I18n.getLocalizedString("dialog.update_link.title"));
     this.controller.reset(wedding, children);
   }
 
+  /**
+   * @return the created/updated link or nothing if the dialog was canceled
+   */
   public Optional<Wedding> getLink() {
     if (!isCanceled())
-      return Optional.of(this.controller.getWedding());
+      return Optional.of(this.controller.getLink());
     return Optional.empty();
   }
 
+  /**
+   * Enables/disables the "add" button.
+   * 
+   * @param enabled
+   */
   void setAddButtonEnabled(boolean enabled) {
     this.addBtn.setEnabled(enabled);
   }
 
+  /**
+   * Enables/disables the "remove" button.
+   * 
+   * @param enabled
+   */
   void setDeleteButtonEnabled(boolean enabled) {
     this.removeBtn.setEnabled(enabled);
   }
 
-  void setSpouse1(String str) {
-    this.spouse1Field.setText(str);
+  /**
+   * Sets the first spouse.
+   * 
+   * @param name the name
+   */
+  void setSpouse1(String name) {
+    this.spouse1Field.setText(name);
   }
 
-  void setSpouse2(String str) {
-    this.spouse2Field.setText(str);
+  /**
+   * Sets the second spouse.
+   * 
+   * @param name the name
+   */
+  void setSpouse2(String name) {
+    this.spouse2Field.setText(name);
   }
 
+  /**
+   * @return the date
+   */
   Date getDate() {
-    return parseDate(this.dateFld);
+    return CalendarUtil.parseDate(this.dateFld.getText());
   }
 
+  /**
+   * Sets the date.
+   * 
+   * @param date the new date
+   */
   void setDate(Optional<Date> date) {
-    this.dateFld.setText(formatDate(date));
+    this.dateFld.setText(CalendarUtil.formatDate(date).orElse(""));
   }
 
+  /**
+   * @return the wedding location
+   */
   String getWeddingLocation() {
     return this.locationFld.getText();
   }
 
+  /**
+   * Sets the weding location.
+   * 
+   * @param location the new location
+   */
   void setWeddingLocation(Optional<String> location) {
     this.locationFld.setText(location.orElse(""));
   }
 
+  /**
+   * @return the children
+   */
   FamilyMember[] getChildren() {
     DefaultListModel<FamilyMember> model = (DefaultListModel<FamilyMember>) this.childrenList.getModel();
     FamilyMember[] children = new FamilyMember[model.size()];
@@ -195,30 +256,52 @@ public class LinkDialog extends AbstractDialog {
     return children;
   }
 
+  /**
+   * Sets the list of children.
+   * 
+   * @param children the children
+   */
   void setChildren(Set<FamilyMember> children) {
     DefaultListModel<FamilyMember> model = (DefaultListModel<FamilyMember>) this.childrenList.getModel();
     model.removeAllElements();
     children.forEach(child -> model.addElement(child));
   }
 
+  /**
+   * Sets the list of potential children.
+   * 
+   * @param children the potential children
+   */
   void setAvailableChildren(Set<FamilyMember> children) {
     DefaultListModel<FamilyMember> model = (DefaultListModel<FamilyMember>) this.availChildrenList.getModel();
     model.removeAllElements();
     children.forEach(child -> model.addElement(child));
   }
 
+  /**
+   * Add the selected children to the list.
+   */
   void addSelectedChildren() {
     transfertItems(this.availChildrenList, this.childrenList);
     if (this.availChildrenList.isSelectionEmpty())
       this.addBtn.setEnabled(false);
   }
 
+  /**
+   * Remove the selected children from the list.
+   */
   void removeSelectedChildren() {
     transfertItems(this.childrenList, this.availChildrenList);
     if (this.childrenList.isSelectionEmpty())
       this.removeBtn.setEnabled(false);
   }
 
+  /**
+   * Transfer selected items from {@code source} to {@code destination}.
+   * 
+   * @param source source list
+   * @param destination destination list
+   */
   private void transfertItems(JList<FamilyMember> source, JList<FamilyMember> destination) {
     if (!source.isSelectionEmpty()) {
       List<FamilyMember> items = source.getSelectedValuesList();
@@ -232,35 +315,12 @@ public class LinkDialog extends AbstractDialog {
     }
   }
 
+  /**
+   * Shows an error message.
+   * 
+   * @param message the message
+   */
   void showErrorDialog(String message) {
     ((MainFrame) getParent()).showErrorDialog(message);
-  }
-
-  private String formatDate(Optional<Date> date) {
-    if (date.isPresent())
-      return I18n.getFormattedDate(date.get());
-    return "";
-  }
-
-  private Date parseDate(JFormattedTextField field) throws DateTimeException {
-    String str = field.getText();
-
-    if (str.length() > 0) {
-      Matcher matcher = DATE_PATTERN.matcher(str);
-      if (matcher.matches()) {
-        String format = I18n.getLocalizedString("date.format");
-        boolean monthFirst = format.startsWith("M");
-
-        int year = Integer.parseInt(matcher.group(3));
-        int month = Integer.parseInt(matcher.group(monthFirst ? 1 : 2));
-        int date = Integer.parseInt(matcher.group(monthFirst ? 2 : 1));
-
-        return new Date(year, month, date);
-      }
-
-      throw new DateTimeException("wrong date format");
-    }
-
-    return null;
   }
 }

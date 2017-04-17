@@ -5,6 +5,13 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
+/**
+ * This controller gives a default behaviour to the AbstractDialog window.
+ * 
+ * @author Damien Vergnet
+ *
+ * @param <T> the dialog type
+ */
 public class DefaultDialogController<T extends AbstractDialog> extends WindowAdapter implements ActionListener {
   protected T dialog;
 
