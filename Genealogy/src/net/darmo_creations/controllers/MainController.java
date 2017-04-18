@@ -112,6 +112,7 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
         delete();
         break;
       case "edit_colors":
+        editColors();
         break;
       case "about":
         this.frame.showAboutDialog();
@@ -206,17 +207,16 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
    * Opens a file. Asks the user if the current file is not saved.
    */
   private void open() {
-    if (this.fileOpen) {
+    if (this.fileOpen && !this.saved) {
       int choice = this.frame.showConfirmDialog(I18n.getLocalizedString("popup.open_confirm.text"));
-
       if (choice != JOptionPane.YES_OPTION)
         return;
     }
 
-    File file = this.frame.showOpenFileChooser();
+    Optional<File> opt = this.frame.showOpenFileChooser();
 
-    if (file != null) {
-      this.fileName = file.getAbsolutePath();
+    if (opt.isPresent()) {
+      this.fileName = opt.get().getAbsolutePath();
       try {
         Map<Long, Point> positions = new HashMap<>();
 
@@ -240,10 +240,10 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
    * @return true if and only if save was successful
    */
   private boolean saveAs() {
-    File file = this.frame.showSaveFileChooser();
+    Optional<File> opt = this.frame.showSaveFileChooser();
 
-    if (file != null) {
-      String path = file.getAbsolutePath();
+    if (opt.isPresent()) {
+      String path = opt.get().getAbsolutePath();
 
       if (!path.endsWith(".gtree"))
         path += ".gtree";
@@ -352,6 +352,16 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
         updateFrameMenus();
         refreshFrame();
       }
+    }
+  }
+
+  private void editColors() {
+    Optional<GlobalConfig> opt = this.frame.showEditColorsDialog(this.config);
+
+    if (opt.isPresent()) {
+      this.config = opt.get();
+      if (this.fileOpen)
+        this.frame.refreshDisplay(this.family, this.config);
     }
   }
 

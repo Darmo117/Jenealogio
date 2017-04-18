@@ -32,6 +32,7 @@ import net.darmo_creations.gui.components.DisplayPanel;
 import net.darmo_creations.gui.dialog.CardDetailsDialog;
 import net.darmo_creations.gui.dialog.card.CardDialog;
 import net.darmo_creations.gui.dialog.link.LinkDialog;
+import net.darmo_creations.gui.dialog.options.EditColorsDialog;
 import net.darmo_creations.gui.dialog.tree_creation.TreeCreationDialog;
 import net.darmo_creations.model.GlobalConfig;
 import net.darmo_creations.model.family.Family;
@@ -55,6 +56,7 @@ public class MainFrame extends JFrame {
   private CardDialog cardDialog;
   private CardDetailsDialog detailsDialog;
   private LinkDialog linkDialog;
+  private EditColorsDialog editColorsDialog;
 
   private JMenu editMenu;
   private JMenuItem saveItem, saveAsItem, addCardItem, addLinkItem, editItem, deleteItem;
@@ -79,6 +81,7 @@ public class MainFrame extends JFrame {
     this.detailsDialog = new CardDetailsDialog(this);
     this.detailsDialog.addObserver(controller);
     this.linkDialog = new LinkDialog(this);
+    this.editColorsDialog = new EditColorsDialog(this);
 
     setJMenuBar(initJMenuBar(controller, config));
 
@@ -372,9 +375,9 @@ public class MainFrame extends JFrame {
    * 
    * @return the selected file
    */
-  public File showSaveFileChooser() {
-    this.fileChooser.showSaveDialog(this);
-    return this.fileChooser.getSelectedFile();
+  public Optional<File> showSaveFileChooser() {
+    int choice = this.fileChooser.showSaveDialog(this);
+    return Optional.ofNullable(choice != JFileChooser.APPROVE_OPTION ? null : this.fileChooser.getSelectedFile());
   }
 
   /**
@@ -382,9 +385,9 @@ public class MainFrame extends JFrame {
    * 
    * @return the selected file
    */
-  public File showOpenFileChooser() {
-    this.fileChooser.showOpenDialog(this);
-    return this.fileChooser.getSelectedFile();
+  public Optional<File> showOpenFileChooser() {
+    int choice = this.fileChooser.showOpenDialog(this);
+    return Optional.ofNullable(choice != JFileChooser.APPROVE_OPTION ? null : this.fileChooser.getSelectedFile());
   }
 
   /**
@@ -451,11 +454,23 @@ public class MainFrame extends JFrame {
    * Shows the "card details" dialog.
    * 
    * @param member the member to display
-   * @param wedding the wedding it is part of
+   * @param wedding the wedding it is part of or nothing if the dialog was dismissed/canceled
    */
   public void showDetailsDialog(FamilyMember member, Wedding wedding) {
     this.detailsDialog.setInfo(member, wedding);
     this.detailsDialog.setVisible(true);
+  }
+
+  /**
+   * Shows the "edit colors" dialog.
+   * 
+   * @param config the current config
+   * @return the new config or nothing if the dialog was dismissed/canceled
+   */
+  public Optional<GlobalConfig> showEditColorsDialog(GlobalConfig config) {
+    this.editColorsDialog.setConfig(config.clone());
+    this.editColorsDialog.setVisible(true);
+    return this.editColorsDialog.getConfig();
   }
 
   /**
@@ -471,7 +486,7 @@ public class MainFrame extends JFrame {
    * @param message the message
    */
   public void showErrorDialog(String message) {
-    JOptionPane.showMessageDialog(this, message, "Erreur", JOptionPane.ERROR_MESSAGE);
+    JOptionPane.showMessageDialog(this, message, I18n.getLocalizedString("popup.error.title"), JOptionPane.ERROR_MESSAGE);
   }
 
   /**
@@ -482,6 +497,7 @@ public class MainFrame extends JFrame {
    *         CANCEL_OPTION or CLOSED_OPTION)
    */
   public int showConfirmDialog(String message) {
-    return JOptionPane.showConfirmDialog(this, message, "Confirmation", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+    return JOptionPane.showConfirmDialog(this, message, I18n.getLocalizedString("popup.confirm.title"), JOptionPane.YES_NO_CANCEL_OPTION,
+        JOptionPane.QUESTION_MESSAGE);
   }
 }

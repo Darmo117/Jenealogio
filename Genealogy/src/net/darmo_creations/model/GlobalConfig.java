@@ -3,17 +3,17 @@ package net.darmo_creations.model;
 import java.awt.Color;
 import java.util.Locale;
 
-public class GlobalConfig {
+public class GlobalConfig implements Cloneable {
   private Locale locale;
 
-  private Color panelBorderColor, panelSelectionColor;
+  private Color cardBorderColor, cardSelectionColor;
   private Color unknownGenderColor, femaleColor, maleColor;
   private Color linkColor, childLinkColor, linkHoverColor, linkSelectionColor;
 
   public GlobalConfig() {
     setLocale(Locale.US);
-    setPanelBorderColor(Color.GRAY);
-    setPanelSelectionColor(Color.BLUE);
+    setCardBorderColor(Color.GRAY);
+    setCardSelectionColor(Color.BLUE);
     setUnknownGenderColor(Color.GRAY);
     setMaleColor(new Color(117, 191, 255));
     setFemaleColor(new Color(37, 177, 19));
@@ -31,20 +31,20 @@ public class GlobalConfig {
     this.locale = locale;
   }
 
-  public Color getPanelBorderColor() {
-    return this.panelBorderColor;
+  public Color getCardBorderColor() {
+    return this.cardBorderColor;
   }
 
-  public void setPanelBorderColor(Color panelBorderColor) {
-    this.panelBorderColor = panelBorderColor;
+  public void setCardBorderColor(Color cardBorderColor) {
+    this.cardBorderColor = cardBorderColor;
   }
 
-  public Color getPanelSelectionColor() {
-    return this.panelSelectionColor;
+  public Color getCardSelectionColor() {
+    return this.cardSelectionColor;
   }
 
-  public void setPanelSelectionColor(Color panelSelectionColor) {
-    this.panelSelectionColor = panelSelectionColor;
+  public void setCardSelectionColor(Color cardSelectionColor) {
+    this.cardSelectionColor = cardSelectionColor;
   }
 
   public Color getUnknownGenderColor() {
@@ -101,5 +101,17 @@ public class GlobalConfig {
 
   public void setLinkSelectionColor(Color linkSelectionColor) {
     this.linkSelectionColor = linkSelectionColor;
+  }
+
+  @Override
+  public GlobalConfig clone() {
+    try {
+      GlobalConfig config = (GlobalConfig) super.clone();
+      config.setLocale((Locale) getLocale().clone());
+      return config;
+    }
+    catch (CloneNotSupportedException e) {
+      throw new Error(e);
+    }
   }
 }

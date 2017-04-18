@@ -46,8 +46,8 @@ public class FamilyMemberPanel extends JPanel implements Draggable {
    * @param member the member to display
    */
   public void setInfo(FamilyMember member, GlobalConfig config) {
-    this.selectedBorder = new LineBorder(config.getPanelSelectionColor(), 2);
-    this.unselectedBorder = new LineBorder(config.getPanelBorderColor(), 2);
+    this.selectedBorder = new LineBorder(config.getCardSelectionColor(), 2);
+    this.unselectedBorder = new LineBorder(config.getCardBorderColor(), 2);
 
     switch (member.getGender()) {
       case UNKNOW:

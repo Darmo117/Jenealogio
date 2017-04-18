@@ -77,9 +77,15 @@ public class I18n {
     return '\0';
   }
 
+  /**
+   * This enum lists all available languages.
+   *
+   * @author Damien Vergnet
+   */
   public static enum Language {
     ENGLISH("English", "en_US", Locale.US),
-    FRENCH("Français", "fr_FR", Locale.FRANCE);
+    FRENCH("Français", "fr_FR", Locale.FRANCE),
+    ESPERANTO("Esperanto", "eo", new Locale("eo"));
 
     private final String name;
     private final String code;
@@ -91,14 +97,23 @@ public class I18n {
       this.locale = locale;
     }
 
+    /**
+     * @return the name written in the language
+     */
     public String getName() {
       return this.name;
     }
 
+    /**
+     * @return language code
+     */
     public String getCode() {
       return this.code;
     }
 
+    /**
+     * @return corresponding locale
+     */
     public Locale getLocale() {
       return this.locale;
     }
@@ -108,6 +123,12 @@ public class I18n {
       return getName();
     }
 
+    /**
+     * Returns the value matching the code.
+     * 
+     * @param code language code
+     * @return the matching value
+     */
     public static Language fromCode(String code) {
       for (Language l : values()) {
         if (l.getCode().equals(code))
