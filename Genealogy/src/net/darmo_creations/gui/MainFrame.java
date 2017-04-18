@@ -27,6 +27,7 @@ import javax.swing.KeyStroke;
 import javax.swing.border.MatteBorder;
 
 import net.darmo_creations.config.GlobalConfig;
+import net.darmo_creations.config.Language;
 import net.darmo_creations.controllers.ExtensionFileFilter;
 import net.darmo_creations.controllers.MainController;
 import net.darmo_creations.gui.components.DisplayPanel;
@@ -186,9 +187,9 @@ public class MainFrame extends JFrame {
       langMenu.setMnemonic(I18n.getLocalizedMnemonic("menu.lang"));
       optionsMenu.add(langMenu);
       ButtonGroup bg = new ButtonGroup();
-      for (I18n.Language l : I18n.Language.values()) {
+      for (Language l : Language.values()) {
         langMenu.add(i = new JRadioButtonMenuItem(l.getName()));
-        i.setSelected(l.getCode().equals(config.getLocale().toString()));
+        i.setSelected(l.getCode().equals(config.getLanguage().toString()));
         i.setIcon(Images.getCountryFlag(l.getCode()));
         i.setActionCommand("lang-" + l.getCode());
         i.addActionListener(listener);

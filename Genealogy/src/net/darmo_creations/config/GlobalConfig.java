@@ -2,17 +2,14 @@ package net.darmo_creations.config;
 
 import java.awt.Color;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
-import net.darmo_creations.util.I18n;
-
 public class GlobalConfig implements Cloneable {
-  private Locale locale;
+  private Language language;
   private Map<ConfigKey<?>, Object> map;
 
   public GlobalConfig() {
-    setLocale(I18n.Language.ENGLISH.getLocale());
+    setLanguage(Language.ENGLISH);
     this.map = new HashMap<>();
     setValue(ColorConfigKey.CARD_BORDER, Color.GRAY);
     setValue(ColorConfigKey.CARD_SELECTED_BORDER, Color.BLUE);
@@ -25,12 +22,12 @@ public class GlobalConfig implements Cloneable {
     setValue(ColorConfigKey.LINK_SELECTED, Color.GREEN);
   }
 
-  public Locale getLocale() {
-    return this.locale;
+  public Language getLanguage() {
+    return this.language;
   }
 
-  public void setLocale(Locale locale) {
-    this.locale = locale;
+  public void setLanguage(Language language) {
+    this.language = language;
   }
 
   @SuppressWarnings("unchecked")
@@ -45,9 +42,7 @@ public class GlobalConfig implements Cloneable {
   @Override
   public GlobalConfig clone() {
     try {
-      GlobalConfig config = (GlobalConfig) super.clone();
-      config.setLocale((Locale) getLocale().clone());
-      return config;
+      return (GlobalConfig) super.clone();
     }
     catch (CloneNotSupportedException e) {
       throw new Error(e);

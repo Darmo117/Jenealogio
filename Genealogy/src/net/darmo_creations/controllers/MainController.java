@@ -18,6 +18,7 @@ import java.util.regex.Pattern;
 import javax.swing.JOptionPane;
 
 import net.darmo_creations.config.GlobalConfig;
+import net.darmo_creations.config.Language;
 import net.darmo_creations.dao.ConfigDao;
 import net.darmo_creations.dao.FamilyDao;
 import net.darmo_creations.gui.MainFrame;
@@ -126,7 +127,7 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
     Matcher m = CHANGE_LANG_PATTERN.matcher(e.getActionCommand());
 
     if (m.matches()) {
-      this.config.setLocale(I18n.Language.fromCode(m.group(1)).getLocale());
+      this.config.setLanguage(Language.fromCode(m.group(1)));
       this.frame.showWarningDialog(I18n.getLocalizedString("popup.change_language_warning.text"));
     }
   }

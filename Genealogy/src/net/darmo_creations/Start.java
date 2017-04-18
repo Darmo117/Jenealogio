@@ -12,7 +12,7 @@ import net.darmo_creations.util.I18n;
 public class Start {
   public static void main(String[] args) {
     GlobalConfig config = ConfigDao.getInstance().load();
-    I18n.init(config.getLocale());
+    I18n.init(config.getLanguage().getLocale());
 
     try {
       UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());

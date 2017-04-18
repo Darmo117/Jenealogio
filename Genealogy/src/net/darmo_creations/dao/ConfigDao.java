@@ -21,6 +21,7 @@ import org.xml.sax.SAXException;
 
 import net.darmo_creations.config.ColorConfigKey;
 import net.darmo_creations.config.GlobalConfig;
+import net.darmo_creations.config.Language;
 import net.darmo_creations.util.I18n;
 
 public class ConfigDao {
@@ -46,9 +47,9 @@ public class ConfigDao {
       Element root = (Element) doc.getElementsByTagName("Config").item(0);
 
       Element locale = (Element) root.getElementsByTagName("Locale").item(0);
-      I18n.Language language = I18n.Language.fromCode(locale.getTextContent());
+      Language language = Language.fromCode(locale.getTextContent());
       if (language != null)
-        config.setLocale(language.getLocale());
+        config.setLanguage(language);
 
       Element colors = (Element) root.getElementsByTagName("Colors").item(0);
       NodeList list = colors.getElementsByTagName("Color");
@@ -74,7 +75,7 @@ public class ConfigDao {
       Element root = doc.createElement("Config");
 
       Element locale = doc.createElement("Locale");
-      locale.appendChild(doc.createTextNode(config.getLocale().toString()));
+      locale.appendChild(doc.createTextNode(config.getLanguage().toString()));
       root.appendChild(locale);
 
       Element colors = doc.createElement("Colors");
