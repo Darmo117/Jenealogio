@@ -19,7 +19,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import net.darmo_creations.model.GlobalConfig;
+import net.darmo_creations.config.ColorConfigKey;
+import net.darmo_creations.config.GlobalConfig;
 import net.darmo_creations.util.I18n;
 
 public class ConfigDao {
@@ -43,45 +44,18 @@ public class ConfigDao {
       doc.getDocumentElement().normalize();
 
       Element root = (Element) doc.getElementsByTagName("Config").item(0);
+
       Element locale = (Element) root.getElementsByTagName("Locale").item(0);
       I18n.Language language = I18n.Language.fromCode(locale.getTextContent());
       if (language != null)
         config.setLocale(language.getLocale());
+
       Element colors = (Element) root.getElementsByTagName("Colors").item(0);
       NodeList list = colors.getElementsByTagName("Color");
       for (int i = 0; i < list.getLength(); i++) {
         Element color = (Element) list.item(i);
         Color c = new Color(Integer.parseInt(color.getTextContent()));
-
-        switch (color.getAttribute("name")) {
-          case "card_border":
-            config.setCardBorderColor(c);
-            break;
-          case "card_selected_border":
-            config.setCardSelectionColor(c);
-            break;
-          case "gender_unknown":
-            config.setUnknownGenderColor(c);
-            break;
-          case "gender_male":
-            config.setMaleColor(c);
-            break;
-          case "gender_female":
-            config.setFemaleColor(c);
-            break;
-          case "link":
-            config.setLinkColor(c);
-            break;
-          case "link_child":
-            config.setChildLinkColor(c);
-            break;
-          case "link_hovered":
-            config.setLinkHoverColor(c);
-            break;
-          case "link_selected":
-            config.setLinkSelectionColor(c);
-            break;
-        }
+        config.setValue(ColorConfigKey.fromName(color.getAttribute("name")), c);
       }
 
       return config;
@@ -98,46 +72,18 @@ public class ConfigDao {
       Document doc = docBuilder.newDocument();
 
       Element root = doc.createElement("Config");
+
       Element locale = doc.createElement("Locale");
       locale.appendChild(doc.createTextNode(config.getLocale().toString()));
       root.appendChild(locale);
+
       Element colors = doc.createElement("Colors");
-      Element color = doc.createElement("Color");
-      color.setAttribute("name", "card_border");
-      color.appendChild(doc.createTextNode("" + config.getCardBorderColor().getRGB()));
-      colors.appendChild(color);
-      color = doc.createElement("Color");
-      color.setAttribute("name", "card_selected_border");
-      color.appendChild(doc.createTextNode("" + config.getCardSelectionColor().getRGB()));
-      colors.appendChild(color);
-      color = doc.createElement("Color");
-      color.setAttribute("name", "gender_unknown");
-      color.appendChild(doc.createTextNode("" + config.getUnknownGenderColor().getRGB()));
-      colors.appendChild(color);
-      color = doc.createElement("Color");
-      color.setAttribute("name", "gender_male");
-      color.appendChild(doc.createTextNode("" + config.getMaleColor().getRGB()));
-      colors.appendChild(color);
-      color = doc.createElement("Color");
-      color.setAttribute("name", "gender_female");
-      color.appendChild(doc.createTextNode("" + config.getFemaleColor().getRGB()));
-      colors.appendChild(color);
-      color = doc.createElement("Color");
-      color.setAttribute("name", "link");
-      color.appendChild(doc.createTextNode("" + config.getLinkColor().getRGB()));
-      colors.appendChild(color);
-      color = doc.createElement("Color");
-      color.setAttribute("name", "link_child");
-      color.appendChild(doc.createTextNode("" + config.getChildLinkColor().getRGB()));
-      colors.appendChild(color);
-      color = doc.createElement("Color");
-      color.setAttribute("name", "link_hovered");
-      color.appendChild(doc.createTextNode("" + config.getLinkHoverColor().getRGB()));
-      colors.appendChild(color);
-      color = doc.createElement("Color");
-      color.setAttribute("name", "link_selected");
-      color.appendChild(doc.createTextNode("" + config.getLinkSelectionColor().getRGB()));
-      colors.appendChild(color);
+      for (ColorConfigKey key : ColorConfigKey.values()) {
+        Element color = doc.createElement("Color");
+        color.setAttribute("name", key.getName());
+        color.appendChild(doc.createTextNode("" + config.getValue(key).getRGB()));
+        colors.appendChild(color);
+      }
       root.appendChild(colors);
 
       doc.appendChild(root);

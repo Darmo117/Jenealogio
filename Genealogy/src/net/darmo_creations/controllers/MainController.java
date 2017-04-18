@@ -17,10 +17,10 @@ import java.util.regex.Pattern;
 
 import javax.swing.JOptionPane;
 
+import net.darmo_creations.config.GlobalConfig;
 import net.darmo_creations.dao.ConfigDao;
 import net.darmo_creations.dao.FamilyDao;
 import net.darmo_creations.gui.MainFrame;
-import net.darmo_creations.model.GlobalConfig;
 import net.darmo_creations.model.family.Family;
 import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.model.family.Wedding;

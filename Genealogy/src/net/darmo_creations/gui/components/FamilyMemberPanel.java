@@ -9,8 +9,9 @@ import javax.swing.JPanel;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 
+import net.darmo_creations.config.ColorConfigKey;
+import net.darmo_creations.config.GlobalConfig;
 import net.darmo_creations.gui.components.draggable.Draggable;
-import net.darmo_creations.model.GlobalConfig;
 import net.darmo_creations.model.family.FamilyMember;
 
 /**
@@ -46,18 +47,18 @@ public class FamilyMemberPanel extends JPanel implements Draggable {
    * @param member the member to display
    */
   public void setInfo(FamilyMember member, GlobalConfig config) {
-    this.selectedBorder = new LineBorder(config.getCardSelectionColor(), 2);
-    this.unselectedBorder = new LineBorder(config.getCardBorderColor(), 2);
+    this.selectedBorder = new LineBorder(config.getValue(ColorConfigKey.CARD_SELECTED_BORDER), 2);
+    this.unselectedBorder = new LineBorder(config.getValue(ColorConfigKey.CARD_BORDER), 2);
 
     switch (member.getGender()) {
       case UNKNOW:
-        setBackground(config.getUnknownGenderColor());
+        setBackground(config.getValue(ColorConfigKey.GENDER_UNKNOWN));
         break;
       case MAN:
-        setBackground(config.getMaleColor());
+        setBackground(config.getValue(ColorConfigKey.GENDER_MALE));
         break;
       case WOMAN:
-        setBackground(config.getFemaleColor());
+        setBackground(config.getValue(ColorConfigKey.GENDER_FEMALE));
         break;
     }
 

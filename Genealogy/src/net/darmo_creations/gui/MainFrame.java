@@ -26,6 +26,7 @@ import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.border.MatteBorder;
 
+import net.darmo_creations.config.GlobalConfig;
 import net.darmo_creations.controllers.ExtensionFileFilter;
 import net.darmo_creations.controllers.MainController;
 import net.darmo_creations.gui.components.DisplayPanel;
@@ -34,7 +35,6 @@ import net.darmo_creations.gui.dialog.card.CardDialog;
 import net.darmo_creations.gui.dialog.link.LinkDialog;
 import net.darmo_creations.gui.dialog.options.EditColorsDialog;
 import net.darmo_creations.gui.dialog.tree_creation.TreeCreationDialog;
-import net.darmo_creations.model.GlobalConfig;
 import net.darmo_creations.model.family.Family;
 import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.model.family.Wedding;

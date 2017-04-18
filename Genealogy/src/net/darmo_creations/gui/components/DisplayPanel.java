@@ -20,11 +20,12 @@ import java.util.stream.Collectors;
 import javax.swing.JPanel;
 import javax.swing.Scrollable;
 
+import net.darmo_creations.config.ColorConfigKey;
+import net.darmo_creations.config.GlobalConfig;
 import net.darmo_creations.controllers.DisplayController;
 import net.darmo_creations.controllers.DoubleClickController;
 import net.darmo_creations.gui.components.draggable.DragController;
 import net.darmo_creations.gui.components.draggable.DraggableComponentContainer;
-import net.darmo_creations.model.GlobalConfig;
 import net.darmo_creations.model.family.Family;
 import net.darmo_creations.util.Observable;
 import net.darmo_creations.util.Observer;
@@ -260,12 +261,12 @@ public class DisplayPanel extends JPanel implements Scrollable, Observable, Drag
       Point middle = new Point((p1.x + p2.x) / 2, (p1.y + p2.y) / 2);
 
       if (isMouseOnLink(p1, p2))
-        g2d.setColor(this.config.getLinkHoverColor());
+        g2d.setColor(this.config.getValue(ColorConfigKey.LINK_HOVERED));
       else
-        g2d.setColor(link.isSelected() ? this.config.getLinkSelectionColor() : this.config.getLinkColor());
+        g2d.setColor(link.isSelected() ? this.config.getValue(ColorConfigKey.LINK_SELECTED) : this.config.getValue(ColorConfigKey.LINK));
       g2d.drawLine(p1.x, p1.y, p2.x, p2.y);
 
-      g2d.setColor(this.config.getChildLinkColor());
+      g2d.setColor(this.config.getValue(ColorConfigKey.LINK_CHILD));
       // Links to children
       link.getChildren().forEach(child -> {
         Rectangle r = this.panels.get(child).getBounds();

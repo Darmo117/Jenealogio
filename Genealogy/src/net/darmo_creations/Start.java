@@ -4,9 +4,9 @@ import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import net.darmo_creations.config.GlobalConfig;
 import net.darmo_creations.dao.ConfigDao;
 import net.darmo_creations.gui.MainFrame;
-import net.darmo_creations.model.GlobalConfig;
 import net.darmo_creations.util.I18n;
 
 public class Start {

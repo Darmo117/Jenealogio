@@ -15,10 +15,10 @@ import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
+import net.darmo_creations.config.GlobalConfig;
 import net.darmo_creations.gui.NamedTreeNode;
 import net.darmo_creations.gui.components.ColorButton;
 import net.darmo_creations.gui.dialog.AbstractDialog;
-import net.darmo_creations.model.GlobalConfig;
 import net.darmo_creations.util.I18n;
 
 public class EditColorsDialog extends AbstractDialog {
