@@ -500,4 +500,13 @@ public class MainFrame extends JFrame {
     return JOptionPane.showConfirmDialog(this, message, I18n.getLocalizedString("popup.confirm.title"), JOptionPane.YES_NO_CANCEL_OPTION,
         JOptionPane.QUESTION_MESSAGE);
   }
+
+  /**
+   * Shows a warning message.
+   * 
+   * @param message the message
+   */
+  public void showWarningDialog(String message) {
+    JOptionPane.showMessageDialog(this, message, I18n.getLocalizedString("popup.warning.title"), JOptionPane.WARNING_MESSAGE);
+  }
 }

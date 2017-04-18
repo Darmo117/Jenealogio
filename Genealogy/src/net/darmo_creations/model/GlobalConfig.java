@@ -3,6 +3,8 @@ package net.darmo_creations.model;
 import java.awt.Color;
 import java.util.Locale;
 
+import net.darmo_creations.util.I18n;
+
 public class GlobalConfig implements Cloneable {
   private Locale locale;
 
@@ -11,7 +13,7 @@ public class GlobalConfig implements Cloneable {
   private Color linkColor, childLinkColor, linkHoverColor, linkSelectionColor;
 
   public GlobalConfig() {
-    setLocale(Locale.US);
+    setLocale(I18n.Language.ENGLISH.getLocale());
     setCardBorderColor(Color.GRAY);
     setCardSelectionColor(Color.BLUE);
     setUnknownGenderColor(Color.GRAY);

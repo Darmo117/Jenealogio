@@ -1,7 +1,23 @@
 package net.darmo_creations.dao;
 
+import java.awt.Color;
 import java.io.File;
+import java.io.IOException;
 import java.net.URISyntaxException;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import net.darmo_creations.model.GlobalConfig;
 import net.darmo_creations.util.I18n;
@@ -16,11 +32,122 @@ public class ConfigDao {
   }
 
   public GlobalConfig load() {
-    return new GlobalConfig(); // TODO
+    try {
+      GlobalConfig config = new GlobalConfig();
+
+      File fXmlFile = new File(getJarDir() + "config.xml");
+      DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+      DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+      Document doc = dBuilder.parse(fXmlFile);
+
+      doc.getDocumentElement().normalize();
+
+      Element root = (Element) doc.getElementsByTagName("Config").item(0);
+      Element locale = (Element) root.getElementsByTagName("Locale").item(0);
+      I18n.Language language = I18n.Language.fromCode(locale.getTextContent());
+      if (language != null)
+        config.setLocale(language.getLocale());
+      Element colors = (Element) root.getElementsByTagName("Colors").item(0);
+      NodeList list = colors.getElementsByTagName("Color");
+      for (int i = 0; i < list.getLength(); i++) {
+        Element color = (Element) list.item(i);
+        Color c = new Color(Integer.parseInt(color.getTextContent()));
+
+        switch (color.getAttribute("name")) {
+          case "card_border":
+            config.setCardBorderColor(c);
+            break;
+          case "card_selected_border":
+            config.setCardSelectionColor(c);
+            break;
+          case "gender_unknown":
+            config.setUnknownGenderColor(c);
+            break;
+          case "gender_male":
+            config.setMaleColor(c);
+            break;
+          case "gender_female":
+            config.setFemaleColor(c);
+            break;
+          case "link":
+            config.setLinkColor(c);
+            break;
+          case "link_child":
+            config.setChildLinkColor(c);
+            break;
+          case "link_hovered":
+            config.setLinkHoverColor(c);
+            break;
+          case "link_selected":
+            config.setLinkSelectionColor(c);
+            break;
+        }
+      }
+
+      return config;
+    }
+    catch (NullPointerException | ClassCastException | ParserConfigurationException | SAXException | IOException __) {
+      return new GlobalConfig();
+    }
   }
 
   public void save(GlobalConfig config) {
-    // TODO
+    try {
+      DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+      DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+      Document doc = docBuilder.newDocument();
+
+      Element root = doc.createElement("Config");
+      Element locale = doc.createElement("Locale");
+      locale.appendChild(doc.createTextNode(config.getLocale().toString()));
+      root.appendChild(locale);
+      Element colors = doc.createElement("Colors");
+      Element color = doc.createElement("Color");
+      color.setAttribute("name", "card_border");
+      color.appendChild(doc.createTextNode("" + config.getCardBorderColor().getRGB()));
+      colors.appendChild(color);
+      color = doc.createElement("Color");
+      color.setAttribute("name", "card_selected_border");
+      color.appendChild(doc.createTextNode("" + config.getCardSelectionColor().getRGB()));
+      colors.appendChild(color);
+      color = doc.createElement("Color");
+      color.setAttribute("name", "gender_unknown");
+      color.appendChild(doc.createTextNode("" + config.getUnknownGenderColor().getRGB()));
+      colors.appendChild(color);
+      color = doc.createElement("Color");
+      color.setAttribute("name", "gender_male");
+      color.appendChild(doc.createTextNode("" + config.getMaleColor().getRGB()));
+      colors.appendChild(color);
+      color = doc.createElement("Color");
+      color.setAttribute("name", "gender_female");
+      color.appendChild(doc.createTextNode("" + config.getFemaleColor().getRGB()));
+      colors.appendChild(color);
+      color = doc.createElement("Color");
+      color.setAttribute("name", "link");
+      color.appendChild(doc.createTextNode("" + config.getLinkColor().getRGB()));
+      colors.appendChild(color);
+      color = doc.createElement("Color");
+      color.setAttribute("name", "link_child");
+      color.appendChild(doc.createTextNode("" + config.getChildLinkColor().getRGB()));
+      colors.appendChild(color);
+      color = doc.createElement("Color");
+      color.setAttribute("name", "link_hovered");
+      color.appendChild(doc.createTextNode("" + config.getLinkHoverColor().getRGB()));
+      colors.appendChild(color);
+      color = doc.createElement("Color");
+      color.setAttribute("name", "link_selected");
+      color.appendChild(doc.createTextNode("" + config.getLinkSelectionColor().getRGB()));
+      colors.appendChild(color);
+      root.appendChild(colors);
+
+      doc.appendChild(root);
+
+      Transformer transformer = TransformerFactory.newInstance().newTransformer();
+      StreamResult result = new StreamResult(new File(getJarDir() + "config.xml"));
+
+      transformer.transform(new DOMSource(doc), result);
+    }
+    catch (ParserConfigurationException | TransformerException __) {}
   }
 
   /**

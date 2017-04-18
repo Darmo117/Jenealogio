@@ -37,6 +37,7 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
   private static final Pattern DOUBLE_CLICK_MEMBER_PATTERN = Pattern.compile("double-click:member-(\\d+)");
   private static final Pattern DOUBLE_CLICK_WEDDING_PATTERN = Pattern.compile("double-click:link-(\\d+)-(\\d+)");
   private static final Pattern CLICK_WEDDING_PATTERN = Pattern.compile("click:link-(\\d+)-(\\d+)");
+  private static final Pattern CHANGE_LANG_PATTERN = Pattern.compile("lang-(\\w+)");
 
   /** Frame being monitored. */
   private final MainFrame frame;
@@ -120,6 +121,13 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
       case "exit":
         exit();
         break;
+    }
+
+    Matcher m = CHANGE_LANG_PATTERN.matcher(e.getActionCommand());
+
+    if (m.matches()) {
+      this.config.setLocale(I18n.Language.fromCode(m.group(1)).getLocale());
+      this.frame.showWarningDialog(I18n.getLocalizedString("popup.change_language_warning.text"));
     }
   }
 
