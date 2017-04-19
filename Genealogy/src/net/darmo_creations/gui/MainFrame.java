@@ -202,8 +202,12 @@ public class MainFrame extends JFrame {
     {
       JMenu helpMenu = new JMenu(I18n.getLocalizedString("menu.help.text"));
       helpMenu.setMnemonic(I18n.getLocalizedMnemonic("menu.help"));
-      helpMenu.add(i = new JMenuItem(I18n.getLocalizedString("item.about.text")));
+      helpMenu.add(i = new JMenuItem(I18n.getLocalizedString("item.help.text")));
       i.setIcon(Images.HELP);
+      i.setActionCommand("help");
+      i.setMnemonic(I18n.getLocalizedMnemonic("item.help"));
+      i.addActionListener(listener);
+      helpMenu.add(i = new JMenuItem(I18n.getLocalizedString("item.about.text")));
       i.setActionCommand("about");
       i.setMnemonic(I18n.getLocalizedMnemonic("item.about"));
       i.addActionListener(listener);

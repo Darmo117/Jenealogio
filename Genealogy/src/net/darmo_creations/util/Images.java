@@ -93,7 +93,7 @@ public final class Images {
       case FRENCH:
         return new ImageIcon("res/icons/flag_france.png");
       case ESPERANTO:
-        return null; // TODO
+        return new ImageIcon("res/icons/flag_esperanto.png");
     }
     return null;
   }
