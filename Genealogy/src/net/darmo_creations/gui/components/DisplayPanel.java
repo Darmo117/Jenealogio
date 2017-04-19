@@ -101,11 +101,11 @@ public class DisplayPanel extends JPanel implements Scrollable, Observable, Drag
       if (this.panels.containsKey(id)) {
         FamilyMemberPanel panel = this.panels.get(id);
 
+        panel.setInfo(member, this.config);
         if (positions != null && positions.containsKey(member.getId())) {
           Point p = positions.get(member.getId());
           panel.setBounds(new Rectangle(p, panel.getPreferredSize()));
         }
-        panel.setInfo(member, this.config);
       }
       else {
         FamilyMemberPanel panel = new FamilyMemberPanel(member, this.config);

@@ -10,6 +10,7 @@ import java.util.Optional;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
 
 import net.darmo_creations.model.Date;
 import net.darmo_creations.model.family.FamilyMember;
@@ -39,8 +40,13 @@ public class DetailsPanel extends JPanel {
 
   public DetailsPanel() {
     super(new BorderLayout());
-    setPreferredSize(new Dimension(200, 110));
+    setPreferredSize(new Dimension(300, 110));
     setLayout(new BorderLayout());
+
+    this.nameLbl = new JLabel();
+    this.nameLbl.setHorizontalAlignment(JLabel.CENTER);
+    this.nameLbl.setBorder(new EmptyBorder(0, 10, 0, 10));
+    add(this.nameLbl, BorderLayout.NORTH);
 
     JPanel infoPnl = new JPanel(new GridBagLayout());
 
@@ -49,50 +55,47 @@ public class DetailsPanel extends JPanel {
     gbc.insets = new Insets(2, 2, 2, 2);
     gbc.weightx = gbc.weighty = 1;
 
-    gbc.gridx = 1;
-    gbc.gridwidth = 5;
-    infoPnl.add(this.nameLbl = new JLabel(), gbc);
     gbc.gridx = 0;
-    gbc.gridy = 1;
+    gbc.gridy = 0;
     gbc.gridwidth = 1;
     infoPnl.add(new JLabel(Images.BABY), gbc);
     gbc.gridx = 1;
-    gbc.gridwidth = 8;
+    gbc.gridwidth = 5;
     infoPnl.add(this.birthLbl = new JLabel(), gbc);
     gbc.gridx = 6;
     gbc.gridwidth = 1;
     infoPnl.add(new JLabel(I18n.getLocalizedWord("in", false)), gbc);
     gbc.gridx = 7;
-    gbc.gridwidth = 8;
+    gbc.gridwidth = 5;
     infoPnl.add(this.birthPlaceLbl = new JLabel(), gbc);
     gbc.gridx = 0;
-    gbc.gridy = 2;
+    gbc.gridy = 1;
     gbc.gridwidth = 1;
     infoPnl.add(new JLabel(Images.HEART), gbc);
     gbc.gridx = 1;
-    gbc.gridwidth = 8;
+    gbc.gridwidth = 5;
     infoPnl.add(this.weddingLbl = new JLabel(), gbc);
     gbc.gridx = 6;
     gbc.gridwidth = 1;
     infoPnl.add(new JLabel(I18n.getLocalizedWord("in", false)), gbc);
     gbc.gridx = 7;
-    gbc.gridwidth = 8;
+    gbc.gridwidth = 5;
     infoPnl.add(this.weddingPlaceLbl = new JLabel(), gbc);
     gbc.gridx = 0;
-    gbc.gridy = 3;
+    gbc.gridy = 2;
     gbc.gridwidth = 1;
     infoPnl.add(new JLabel(Images.CROSS), gbc);
     gbc.gridx = 1;
-    gbc.gridwidth = 8;
+    gbc.gridwidth = 5;
     infoPnl.add(this.deathLbl = new JLabel(), gbc);
     gbc.gridx = 6;
     gbc.gridwidth = 1;
     infoPnl.add(new JLabel(I18n.getLocalizedWord("in", false)), gbc);
     gbc.gridx = 7;
-    gbc.gridwidth = 8;
+    gbc.gridwidth = 5;
     infoPnl.add(this.deathPlaceLbl = new JLabel(), gbc);
     gbc.gridx = 1;
-    gbc.gridy = 4;
+    gbc.gridy = 3;
     infoPnl.add(this.ageLbl = new JLabel(), gbc);
 
     add(infoPnl, BorderLayout.CENTER);

@@ -216,7 +216,6 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
    * Opens a file. Asks the user if the current file is not saved.
    */
   private void open() {
-    System.out.println(this.fileOpen + " " + this.saved);
     if (this.fileOpen && !this.saved) {
       int choice = this.frame.showConfirmDialog(I18n.getLocalizedString("popup.open_confirm.text"));
       if (choice != JOptionPane.YES_OPTION)

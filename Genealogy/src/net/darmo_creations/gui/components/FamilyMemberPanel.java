@@ -1,5 +1,6 @@
 package net.darmo_creations.gui.components;
 
+import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -64,6 +65,12 @@ public class FamilyMemberPanel extends JPanel implements Draggable {
 
     this.model.setId(member.getId());
     this.nameLbl.setText(member.toString());
+
+    Dimension size = this.nameLbl.getPreferredSize();
+    size.width += 20;
+    size.height *= 2;
+    setSize(size);
+    revalidate();
   }
 
   @Override
