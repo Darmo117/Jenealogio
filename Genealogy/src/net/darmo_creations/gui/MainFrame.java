@@ -190,7 +190,7 @@ public class MainFrame extends JFrame {
       for (Language l : Language.values()) {
         langMenu.add(i = new JRadioButtonMenuItem(l.getName()));
         i.setSelected(l.getCode().equals(config.getLanguage().toString()));
-        i.setIcon(Images.getCountryFlag(l.getCode()));
+        i.setIcon(Images.getCountryFlag(l));
         i.setActionCommand("lang-" + l.getCode());
         i.addActionListener(listener);
         bg.add(i);

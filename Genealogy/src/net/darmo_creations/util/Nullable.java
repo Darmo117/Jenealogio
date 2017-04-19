@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 
 /**
  * This annotation specifies a parameter that accepts the value <code>null</code>. It is just a hint
- * for the developpers and not for reflection purposes.
+ * for developpers and not for reflection purposes.
  * 
  * @author Damien Vergnet
  */

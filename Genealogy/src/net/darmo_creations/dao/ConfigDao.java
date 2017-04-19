@@ -22,8 +22,12 @@ import org.xml.sax.SAXException;
 import net.darmo_creations.config.ColorConfigKey;
 import net.darmo_creations.config.GlobalConfig;
 import net.darmo_creations.config.Language;
-import net.darmo_creations.util.I18n;
 
+/**
+ * This class handles I/O operations for the {@code GlobalConfig} class.
+ *
+ * @author Damien Vergnet
+ */
 public class ConfigDao {
   private static ConfigDao instance;
 
@@ -33,6 +37,11 @@ public class ConfigDao {
     return instance;
   }
 
+  /**
+   * Loads the config stored in the "config.xml" file in the same directory as the jar.
+   * 
+   * @return the config or null if a fatal error occured
+   */
   public GlobalConfig load() {
     try {
       GlobalConfig config = new GlobalConfig();
@@ -66,6 +75,11 @@ public class ConfigDao {
     }
   }
 
+  /**
+   * Saves the given config to the "config.xml" file in the same directory as the jar.
+   * 
+   * @param config the config
+   */
   public void save(GlobalConfig config) {
     try {
       DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
@@ -102,7 +116,7 @@ public class ConfigDao {
    */
   private static String getJarDir() {
     try {
-      String path = I18n.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
+      String path = ConfigDao.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
 
       if (File.separatorChar == '\\') {
         path = path.replace('/', '\\');

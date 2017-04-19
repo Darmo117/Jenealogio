@@ -37,7 +37,7 @@ public enum Language {
   }
 
   /**
-   * @return corresponding locale
+   * @return a copy of the corresponding locale
    */
   public Locale getLocale() {
     return (Locale) this.locale.clone();

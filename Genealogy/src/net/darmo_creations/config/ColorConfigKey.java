@@ -2,6 +2,11 @@ package net.darmo_creations.config;
 
 import java.awt.Color;
 
+/**
+ * This type of keys are associated with the {@code Color} class.
+ *
+ * @author Damien Vergnet
+ */
 public enum ColorConfigKey implements ConfigKey<Color> {
   CARD_BORDER("card_border"),
   CARD_SELECTED_BORDER("card_selected_border"),
@@ -24,11 +29,12 @@ public enum ColorConfigKey implements ConfigKey<Color> {
     return this.name;
   }
 
-  @Override
-  public Class<Color> getValueClass() {
-    return Color.class;
-  }
-
+  /**
+   * Returns the key matching the given name.
+   * 
+   * @param name the name
+   * @return the key or null if no key were found
+   */
   public static ColorConfigKey fromName(String name) {
     for (ColorConfigKey key : values()) {
       if (key.getName().equals(name))

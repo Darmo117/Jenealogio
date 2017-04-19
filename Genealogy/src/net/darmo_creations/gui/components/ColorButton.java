@@ -5,26 +5,46 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.util.Objects;
 
 import javax.swing.Icon;
 import javax.swing.JButton;
 
+/**
+ * A color button is a JButton which display a color. This color can be changed and recovered.
+ *
+ * @author Damien Vergnet
+ */
 public class ColorButton extends JButton {
   private static final long serialVersionUID = 3060407471739094850L;
 
+  /**
+   * Creates a button displaying initialized to black.
+   */
   public ColorButton() {
     this(Color.BLACK);
   }
 
+  /**
+   * Creates a button displaying initialized to the given color.
+   */
   public ColorButton(Color color) {
     setPreferredSize(new Dimension(49, 23));
     setColor(color);
   }
 
+  /**
+   * @return the current color
+   */
   public Color getColor() {
     return ((ColorIcon) getIcon()).getColor();
   }
 
+  /**
+   * Sets the color. Cannot be null.
+   * 
+   * @param color the new color
+   */
   public void setColor(Color color) {
     Dimension size = getPreferredSize();
     int w = size.width - 12;
@@ -32,13 +52,24 @@ public class ColorButton extends JButton {
     setIcon(new ColorIcon(new Dimension(w, h), color));
   }
 
+  /**
+   * This class displays the color rectangle icon on the button.
+   *
+   * @author Damien Vergnet
+   */
   private class ColorIcon implements Icon {
     private Dimension size;
     private Color color;
 
+    /**
+     * Creates an icon.
+     * 
+     * @param size the size
+     * @param color the color
+     */
     public ColorIcon(Dimension size, Color color) {
       this.size = size;
-      this.color = color;
+      this.color = Objects.requireNonNull(color);
     }
 
     @Override
@@ -50,6 +81,9 @@ public class ColorButton extends JButton {
       g2d.drawRect(x, y, this.size.width - 1, this.size.height - 1);
     }
 
+    /**
+     * @return the current color
+     */
     public Color getColor() {
       return this.color;
     }

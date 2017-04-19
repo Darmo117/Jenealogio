@@ -16,17 +16,27 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
 import net.darmo_creations.config.GlobalConfig;
-import net.darmo_creations.gui.NamedTreeNode;
 import net.darmo_creations.gui.components.ColorButton;
+import net.darmo_creations.gui.components.NamedTreeNode;
 import net.darmo_creations.gui.dialog.AbstractDialog;
 import net.darmo_creations.util.I18n;
 
+/**
+ * This dialog lets the user change colors of different components.
+ *
+ * @author Damien Vergnet
+ */
 public class EditColorsDialog extends AbstractDialog {
   private static final long serialVersionUID = 3211695244192173657L;
 
   private EditColorController controller;
   private ColorButton colorButton;
 
+  /**
+   * Creates a dialog.
+   * 
+   * @param owner the owner
+   */
   public EditColorsDialog(JFrame owner) {
     super(owner, Mode.VALIDATE_CANCEL_OPTION, true);
     setResizable(false);
@@ -54,6 +64,9 @@ public class EditColorsDialog extends AbstractDialog {
     setLocationRelativeTo(owner);
   }
 
+  /**
+   * @return the options tree
+   */
   private DefaultMutableTreeNode getTree() {
     NamedTreeNode root = new NamedTreeNode("root", I18n.getLocalizedString("node.colors.text"));
 
@@ -76,23 +89,47 @@ public class EditColorsDialog extends AbstractDialog {
     return root;
   }
 
+  /**
+   * Shows a color chooser.
+   * 
+   * @param initialColor color chooser's initial color
+   * @return the selected color or nothing if chooser was dismissed
+   */
   public Optional<Color> showColorChooser(Color initialColor) {
     Color c = JColorChooser.showDialog(this, I18n.getLocalizedString("dialog.color_chooser.title"), initialColor);
     return Optional.ofNullable(c);
   }
 
+  /**
+   * Sets the color of the ColorButton.
+   * 
+   * @param color the new color
+   */
   void setButtonColor(Color color) {
     this.colorButton.setColor(color);
   }
 
+  /**
+   * Enables/disables the ColorButton.
+   * 
+   * @param enabled
+   */
   void setColorButtonEnabled(boolean enabled) {
     this.colorButton.setEnabled(enabled);
   }
 
+  /**
+   * @return the new config or nothing if the dialog was canceled
+   */
   public Optional<GlobalConfig> getConfig() {
     return Optional.ofNullable(isCanceled() ? null : this.controller.getConfig());
   }
 
+  /**
+   * Sets the config.
+   * 
+   * @param config the new config
+   */
   public void setConfig(GlobalConfig config) {
     this.controller.setConfig(config);
   }

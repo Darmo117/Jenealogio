@@ -9,9 +9,14 @@ import javax.swing.event.TreeSelectionListener;
 
 import net.darmo_creations.config.ColorConfigKey;
 import net.darmo_creations.config.GlobalConfig;
-import net.darmo_creations.gui.NamedTreeNode;
+import net.darmo_creations.gui.components.NamedTreeNode;
 import net.darmo_creations.gui.dialog.DefaultDialogController;
 
+/**
+ * This controller handles events from the EditColorsDialog.
+ *
+ * @author Damien Vergnet
+ */
 public class EditColorController extends DefaultDialogController<EditColorsDialog> implements TreeSelectionListener {
   private GlobalConfig config;
   private String selectedNode;
@@ -22,10 +27,18 @@ public class EditColorController extends DefaultDialogController<EditColorsDialo
     this.selectedNode = null;
   }
 
+  /**
+   * @return the current config
+   */
   public GlobalConfig getConfig() {
     return this.config;
   }
 
+  /**
+   * Sets the config. Will also update the dialog.
+   * 
+   * @param config the new config
+   */
   public void setConfig(GlobalConfig config) {
     this.dialog.setCanceled(false);
     this.config = config;
@@ -50,10 +63,18 @@ public class EditColorController extends DefaultDialogController<EditColorsDialo
     }
   }
 
+  /**
+   * @return the color for the selected option
+   */
   private Color getColorForNode() {
     return this.config.getValue(ColorConfigKey.fromName(this.selectedNode));
   }
 
+  /**
+   * Sets the config color for the selected option.
+   * 
+   * @param c the color
+   */
   private void setColorForNode(Color c) {
     this.config.setValue(ColorConfigKey.fromName(this.selectedNode), c);
   }

@@ -6,6 +6,8 @@ import java.awt.image.WritableRaster;
 
 import javax.swing.ImageIcon;
 
+import net.darmo_creations.config.Language;
+
 /**
  * This class holds all images for the app and provides a method to copy images.
  * 
@@ -78,12 +80,20 @@ public final class Images {
     ARROW_DOWN_BIG = new ImageIcon("res/icons/arrow_down_32.png");
   }
 
-  public static ImageIcon getCountryFlag(String langCode) {
+  /**
+   * Returns the flag icon for the given language.
+   * 
+   * @param langCode the language
+   * @return the icon or null if none were found
+   */
+  public static ImageIcon getCountryFlag(Language langCode) {
     switch (langCode) {
-      case "en_US":
+      case ENGLISH:
         return new ImageIcon("res/icons/flag_great_britain.png");
-      case "fr_FR":
+      case FRENCH:
         return new ImageIcon("res/icons/flag_france.png");
+      case ESPERANTO:
+        return null; // TODO
     }
     return null;
   }
