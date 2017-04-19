@@ -118,6 +118,9 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
       case "edit_colors":
         editColors();
         break;
+      case "help":
+        this.frame.showHelpDialog();
+        break;
       case "about":
         this.frame.showAboutDialog();
         break;

@@ -33,6 +33,7 @@ import net.darmo_creations.controllers.MainController;
 import net.darmo_creations.gui.components.DisplayPanel;
 import net.darmo_creations.gui.dialog.CardDetailsDialog;
 import net.darmo_creations.gui.dialog.card.CardDialog;
+import net.darmo_creations.gui.dialog.help.HelpDialog;
 import net.darmo_creations.gui.dialog.link.LinkDialog;
 import net.darmo_creations.gui.dialog.options.EditColorsDialog;
 import net.darmo_creations.gui.dialog.tree_creation.TreeCreationDialog;
@@ -58,6 +59,7 @@ public class MainFrame extends JFrame {
   private CardDetailsDialog detailsDialog;
   private LinkDialog linkDialog;
   private EditColorsDialog editColorsDialog;
+  private HelpDialog helpDialog;
 
   private JMenu editMenu;
   private JMenuItem saveItem, saveAsItem, addCardItem, addLinkItem, editItem, deleteItem;
@@ -83,6 +85,7 @@ public class MainFrame extends JFrame {
     this.detailsDialog.addObserver(controller);
     this.linkDialog = new LinkDialog(this);
     this.editColorsDialog = new EditColorsDialog(this);
+    this.helpDialog = new HelpDialog(this, config);
 
     setJMenuBar(initJMenuBar(controller, config));
 
@@ -476,6 +479,13 @@ public class MainFrame extends JFrame {
     this.editColorsDialog.setConfig(config.clone());
     this.editColorsDialog.setVisible(true);
     return this.editColorsDialog.getConfig();
+  }
+
+  /**
+   * Shows the "help" dialog.
+   */
+  public void showHelpDialog() {
+    this.helpDialog.setVisible(true);
   }
 
   /**

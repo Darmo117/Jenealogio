@@ -46,8 +46,10 @@ public class EditColorsDialog extends AbstractDialog {
 
     JPanel contentPnl = new JPanel(new GridLayout(1, 2));
     JTree tree = new JTree(new DefaultTreeModel(getTree()));
-    JScrollPane scrollPnl = new JScrollPane(tree);
+    tree.setRootVisible(false);
+    tree.setShowsRootHandles(true);
     tree.addTreeSelectionListener(this.controller);
+    JScrollPane scrollPnl = new JScrollPane(tree);
     contentPnl.add(scrollPnl, BorderLayout.CENTER);
     JPanel rightPnl = new JPanel();
     rightPnl.add(new JLabel(I18n.getLocalizedString("label.color.text") + ":"));
@@ -68,7 +70,7 @@ public class EditColorsDialog extends AbstractDialog {
    * @return the options tree
    */
   private DefaultMutableTreeNode getTree() {
-    NamedTreeNode root = new NamedTreeNode("root", I18n.getLocalizedString("node.colors.text"));
+    NamedTreeNode root = new NamedTreeNode("root");
 
     NamedTreeNode genders = new NamedTreeNode("genders", I18n.getLocalizedString("node.colors.genders.text"));
     root.add(genders);
