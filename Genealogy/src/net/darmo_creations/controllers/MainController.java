@@ -216,6 +216,7 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
    * Opens a file. Asks the user if the current file is not saved.
    */
   private void open() {
+    System.out.println(this.fileOpen + " " + this.saved);
     if (this.fileOpen && !this.saved) {
       int choice = this.frame.showConfirmDialog(I18n.getLocalizedString("popup.open_confirm.text"));
       if (choice != JOptionPane.YES_OPTION)
@@ -295,6 +296,7 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
     Optional<FamilyMember> member = this.frame.showAddCardDialog();
 
     if (member.isPresent()) {
+      this.saved = false;
       this.family.addMember(member.get());
       refreshFrame();
     }
@@ -310,6 +312,7 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
     Optional<Wedding> optWedding = this.frame.showAddLinkDialog(spouse1, spouse2, all);
     optWedding.ifPresent(w -> this.family.addWedding(w));
     this.frame.refreshDisplay(this.family, this.config);
+    this.saved = false;
   }
 
   /**
@@ -330,6 +333,7 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
       if (member.isPresent()) {
         this.family.updateMember(member.get());
         refreshFrame();
+        this.saved = false;
       }
     }
     else if (this.selectedLink != null) {
@@ -338,6 +342,7 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
       if (wedding.isPresent()) {
         this.family.updateWedding(wedding.get());
         refreshFrame();
+        this.saved = false;
       }
     }
   }
@@ -352,6 +357,7 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
         this.selectedCard = null;
         updateFrameMenus();
         refreshFrame();
+        this.saved = false;
       }
     }
     else if (this.selectedLink != null) {
@@ -360,6 +366,7 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
         this.selectedLink = null;
         updateFrameMenus();
         refreshFrame();
+        this.saved = false;
       }
     }
   }
