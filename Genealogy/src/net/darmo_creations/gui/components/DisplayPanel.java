@@ -104,7 +104,7 @@ public class DisplayPanel extends JPanel implements Scrollable, Observable, Drag
         panel.setInfo(member, this.config);
         if (positions != null && positions.containsKey(member.getId())) {
           Point p = positions.get(member.getId());
-          panel.setBounds(new Rectangle(p, panel.getPreferredSize()));
+          panel.setBounds(new Rectangle(p, panel.getSize()));
         }
       }
       else {
@@ -113,10 +113,10 @@ public class DisplayPanel extends JPanel implements Scrollable, Observable, Drag
 
         if (positions != null && positions.containsKey(member.getId())) {
           Point p = positions.get(member.getId());
-          panel.setBounds(new Rectangle(p, panel.getPreferredSize()));
+          panel.setBounds(new Rectangle(p, panel.getSize()));
         }
         else
-          panel.setBounds(new Rectangle(panel.getPreferredSize()));
+          panel.setBounds(new Rectangle(panel.getSize()));
         panel.setName("member-" + id);
         panel.addActionListener(this.controller);
         panel.addMouseListener(dragController);
