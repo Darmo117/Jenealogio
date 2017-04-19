@@ -7,6 +7,8 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
@@ -246,22 +248,34 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
   /**
    * Saves the file as another file.
    * 
-   * @return true if and only if save was successful
+   * @return true if and only if save was successful or cancelled
    */
   private boolean saveAs() {
-    Optional<File> opt = this.frame.showSaveFileChooser();
+    boolean ok = false;
 
-    if (opt.isPresent()) {
-      String path = opt.get().getAbsolutePath();
+    while (!ok) {
+      Optional<File> opt = this.frame.showSaveFileChooser();
 
-      if (!path.endsWith(".gtree"))
-        path += ".gtree";
-      this.fileName = path;
+      if (opt.isPresent()) {
+        String path = opt.get().getAbsolutePath();
 
-      return save();
+        if (!path.endsWith(".gtree"))
+          path += ".gtree";
+        this.fileName = path;
+        if (Files.exists(Paths.get(this.fileName))) {
+          int choice = this.frame.showConfirmDialog(I18n.getLocalizedString("popup.file_already_exists.text"));
+
+          if (choice == JOptionPane.YES_OPTION)
+            ok = true;
+          else if (choice != JOptionPane.NO_OPTION)
+            return true;
+        }
+      }
+      else
+        return true;
     }
 
-    return true;
+    return save();
   }
 
   /**
