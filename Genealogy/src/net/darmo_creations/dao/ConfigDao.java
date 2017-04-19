@@ -75,7 +75,7 @@ public class ConfigDao {
       Element root = doc.createElement("Config");
 
       Element locale = doc.createElement("Locale");
-      locale.appendChild(doc.createTextNode(config.getLanguage().toString()));
+      locale.appendChild(doc.createTextNode(config.getLanguage().getCode()));
       root.appendChild(locale);
 
       Element colors = doc.createElement("Colors");
