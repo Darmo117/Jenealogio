@@ -3,7 +3,6 @@ package net.darmo_creations.dao;
 import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -22,6 +21,7 @@ import org.xml.sax.SAXException;
 import net.darmo_creations.config.ColorConfigKey;
 import net.darmo_creations.config.GlobalConfig;
 import net.darmo_creations.config.Language;
+import net.darmo_creations.util.JarUtil;
 
 /**
  * This class handles I/O operations for the {@code GlobalConfig} class.
@@ -46,7 +46,7 @@ public class ConfigDao {
     try {
       GlobalConfig config = new GlobalConfig();
 
-      File fXmlFile = new File(getJarDir() + "config.xml");
+      File fXmlFile = new File(JarUtil.getJarDir() + "config.xml");
       DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
       DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
       Document doc = dBuilder.parse(fXmlFile);
@@ -104,30 +104,11 @@ public class ConfigDao {
       doc.appendChild(root);
 
       Transformer transformer = TransformerFactory.newInstance().newTransformer();
-      StreamResult result = new StreamResult(new File(getJarDir() + "config.xml"));
+      StreamResult result = new StreamResult(new File(JarUtil.getJarDir() + "config.xml"));
 
       transformer.transform(new DOMSource(doc), result);
     }
     catch (ParserConfigurationException | TransformerException __) {}
-  }
-
-  /**
-   * @return the path to the jar
-   */
-  private static String getJarDir() {
-    try {
-      String path = ConfigDao.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
-
-      if (File.separatorChar == '\\') {
-        path = path.replace('/', '\\');
-        path = path.substring(1); // Removes the first /.
-      }
-
-      return path;
-    }
-    catch (URISyntaxException e) {
-      return null;
-    }
   }
 
   private ConfigDao() {}

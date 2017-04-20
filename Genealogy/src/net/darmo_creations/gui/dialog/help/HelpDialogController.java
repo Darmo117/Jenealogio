@@ -10,6 +10,7 @@ import javax.swing.event.TreeSelectionListener;
 import net.darmo_creations.config.GlobalConfig;
 import net.darmo_creations.gui.components.NamedTreeNode;
 import net.darmo_creations.gui.dialog.DefaultDialogController;
+import net.darmo_creations.util.JarUtil;
 
 public class HelpDialogController extends DefaultDialogController<HelpDialog> implements TreeSelectionListener {
   private static final String ERROR_LINE = "<html><body><h1>Error: this page is not available!</h1></body></html>";
@@ -26,7 +27,7 @@ public class HelpDialogController extends DefaultDialogController<HelpDialog> im
   }
 
   private void loadPage(String name) {
-    String path = "/doc/" + this.config.getLanguage().getCode() + "/" + name + ".html";
+    String path = JarUtil.getJarDir() + "help-doc/" + this.config.getLanguage().getCode() + "/" + name + ".html";
 
     try (BufferedReader br = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(path)))) {
       String page = "", line;
