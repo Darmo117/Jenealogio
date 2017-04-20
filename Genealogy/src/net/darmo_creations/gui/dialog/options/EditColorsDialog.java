@@ -2,6 +2,7 @@ package net.darmo_creations.gui.dialog.options;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.util.Optional;
@@ -13,6 +14,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 
 import net.darmo_creations.config.GlobalConfig;
@@ -20,6 +22,7 @@ import net.darmo_creations.gui.components.ColorButton;
 import net.darmo_creations.gui.components.NamedTreeNode;
 import net.darmo_creations.gui.dialog.AbstractDialog;
 import net.darmo_creations.util.I18n;
+import net.darmo_creations.util.Images;
 
 /**
  * This dialog lets the user change colors of different components.
@@ -49,6 +52,37 @@ public class EditColorsDialog extends AbstractDialog {
     tree.setRootVisible(false);
     tree.setShowsRootHandles(true);
     tree.addTreeSelectionListener(this.controller);
+    tree.setCellRenderer(new DefaultTreeCellRenderer() {
+      private static final long serialVersionUID = -489015910861060922L;
+
+      @Override
+      public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row,
+          boolean hasFocus) {
+        Component c = super.getTreeCellRendererComponent(tree, value, selected, expanded, leaf, row, hasFocus);
+        NamedTreeNode node = (NamedTreeNode) value;
+
+        switch (node.getName()) {
+          case "gender_male":
+            setIcon(Images.MALE_SYMBOL);
+            break;
+          case "gender_female":
+            setIcon(Images.FEMALE_SYMBOL);
+            break;
+          case "cards":
+            setIcon(Images.USER);
+            break;
+          case "links":
+            setIcon(Images.LINK);
+            break;
+          default:
+            if (leaf) {
+              setIcon(null);
+            }
+        }
+
+        return c;
+      }
+    });
     JScrollPane scrollPnl = new JScrollPane(tree);
     contentPnl.add(scrollPnl, BorderLayout.CENTER);
     JPanel rightPnl = new JPanel();
@@ -77,7 +111,7 @@ public class EditColorsDialog extends AbstractDialog {
     genders.add(new NamedTreeNode("gender_unknown", I18n.getLocalizedString("node.colors.genders.unknown.text")));
     genders.add(new NamedTreeNode("gender_female", I18n.getLocalizedString("node.colors.genders.female.text")));
     genders.add(new NamedTreeNode("gender_male", I18n.getLocalizedString("node.colors.genders.male.text")));
-    NamedTreeNode cards = new NamedTreeNode("genders", I18n.getLocalizedString("node.colors.cards.text"));
+    NamedTreeNode cards = new NamedTreeNode("cards", I18n.getLocalizedString("node.colors.cards.text"));
     root.add(cards);
     cards.add(new NamedTreeNode("card_border", I18n.getLocalizedString("node.colors.cards.border.text")));
     cards.add(new NamedTreeNode("card_selected_border", I18n.getLocalizedString("node.colors.cards.border.selected.text")));

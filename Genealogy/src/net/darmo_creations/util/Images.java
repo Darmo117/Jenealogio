@@ -32,6 +32,13 @@ public final class Images {
   public static final ImageIcon HEART;
   public static final ImageIcon CROSS;
   public static final ImageIcon COLOR_WHEEL;
+  public static final ImageIcon BOOK;
+  public static final ImageIcon BOOK_OPEN;
+  public static final ImageIcon PAGE;
+  public static final ImageIcon MALE_SYMBOL;
+  public static final ImageIcon FEMALE_SYMBOL;
+  public static final ImageIcon USER;
+  public static final ImageIcon LINK;
 
   public static final ImageIcon NEW_TREE_BIG;
   public static final ImageIcon OPEN_BIG;
@@ -65,6 +72,13 @@ public final class Images {
     HEART = new ImageIcon("res/icons/heart.png");
     CROSS = new ImageIcon("res/icons/cross.png");
     COLOR_WHEEL = new ImageIcon("res/icons/color_wheel.png");
+    BOOK = new ImageIcon("res/icons/book.png");
+    BOOK_OPEN = new ImageIcon("res/icons/book_open.png");
+    PAGE = new ImageIcon("res/icons/page.png");
+    MALE_SYMBOL = new ImageIcon("res/icons/male_symbol.png");
+    FEMALE_SYMBOL = new ImageIcon("res/icons/female_symbol.png");
+    USER = new ImageIcon("res/icons/user.png");
+    LINK = new ImageIcon("res/icons/link.png");
 
     NEW_TREE_BIG = new ImageIcon("res/icons/new_tree_32.png");
     OPEN_BIG = new ImageIcon("res/icons/open_32.png");

@@ -21,7 +21,6 @@ public class HelpDialogController extends DefaultDialogController<HelpDialog> im
     this.config = config;
   }
 
-  // TEMP
   public void init() {
     loadPage("index");
   }
