@@ -39,6 +39,9 @@ public final class Images {
   public static final ImageIcon FEMALE_SYMBOL;
   public static final ImageIcon USER;
   public static final ImageIcon LINK;
+  public static final ImageIcon SYNC;
+  public static final ImageIcon COLLAPSE;
+  public static final ImageIcon HOME;
 
   public static final ImageIcon NEW_TREE_BIG;
   public static final ImageIcon OPEN_BIG;
@@ -79,6 +82,9 @@ public final class Images {
     FEMALE_SYMBOL = new ImageIcon("res/icons/female_symbol.png");
     USER = new ImageIcon("res/icons/user.png");
     LINK = new ImageIcon("res/icons/link.png");
+    SYNC = new ImageIcon("res/icons/sync.png");
+    COLLAPSE = new ImageIcon("res/icons/collapse.png");
+    HOME = new ImageIcon("res/icons/home.png");
 
     NEW_TREE_BIG = new ImageIcon("res/icons/new_tree_32.png");
     OPEN_BIG = new ImageIcon("res/icons/open_32.png");

@@ -8,16 +8,19 @@ import net.darmo_creations.dao.ConfigDao;
 public class JarUtil {
   private static String dir;
 
+  public static String getJarDir() {
+    return getJarDir(File.separatorChar);
+  }
+
   /**
    * @return the path to the jar
    */
-  public static String getJarDir() {
+  public static String getJarDir(char separator) {
     if (dir == null) {
       try {
         String path = ConfigDao.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
 
         if (File.separatorChar == '\\') {
-          path = path.replace('/', '\\');
           path = path.substring(1); // Removes the first /.
         }
 
@@ -26,7 +29,7 @@ public class JarUtil {
       catch (URISyntaxException __) {}
     }
 
-    return dir;
+    return dir.replace('/', separator);
   }
 
   public JarUtil() {}
