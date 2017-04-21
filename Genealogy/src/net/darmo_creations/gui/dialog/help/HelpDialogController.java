@@ -1,7 +1,6 @@
 package net.darmo_creations.gui.dialog.help;
 
 import java.awt.event.ActionEvent;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -42,8 +41,10 @@ public class HelpDialogController extends DefaultDialogController<HelpDialog> im
   private void loadPage(String name) {
     this.currentPage = name;
     String lang = this.config.getLanguage().getCode();
-    String path = JarUtil.getJarDir() + ".." + File.separator + "help-doc" + File.separator + lang + File.separator + name + ".html";
-
+    String path = JarUtil.getJarDir('/') + "help-doc/" + lang + "/" + name + ".html";
+    if (Start.DEBUG)
+      path = path.replace("bin/", "");
+    System.out.println(path);
     try {
       List<String> lines = Files.readAllLines(Paths.get(path));
       for (int i = 0; i < lines.size(); i++) {
