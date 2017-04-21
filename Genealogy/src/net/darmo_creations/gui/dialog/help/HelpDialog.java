@@ -89,8 +89,7 @@ public class HelpDialog extends AbstractDialog {
         return c;
       }
     });
-    JScrollPane scrollPane = new JScrollPane(this.tree);
-    leftPnl.add(scrollPane, BorderLayout.CENTER);
+    leftPnl.add(new JScrollPane(this.tree), BorderLayout.CENTER);
     splitPnl.add(leftPnl, JSplitPane.LEFT);
 
     JPanel rightPnl = new JPanel(new BorderLayout());
@@ -110,7 +109,7 @@ public class HelpDialog extends AbstractDialog {
     this.editorPane.setPreferredSize(new Dimension(600, 400));
     this.editorPane.setDocument(getDocument(this.editorPane));
     this.editorPane.addHyperlinkListener(this.controller);
-    rightPnl.add(this.editorPane, BorderLayout.CENTER);
+    rightPnl.add(new JScrollPane(this.editorPane), BorderLayout.CENTER);
     splitPnl.add(rightPnl, JSplitPane.RIGHT);
 
     add(splitPnl);
@@ -129,8 +128,10 @@ public class HelpDialog extends AbstractDialog {
 
     StyleSheet styleSheet = kit.getStyleSheet();
     styleSheet.addRule("body {font-family: sans serif; margin: 4px;}");
-    styleSheet.addRule(".button, .menu {font-weight: bold;}");
     styleSheet.addRule(".menu {font-style: italic;}");
+    styleSheet.addRule(".button, .menu {font-weight: bold;}");
+    styleSheet.addRule(".key-stroke {text-decoration: underline;}");
+    styleSheet.addRule("h2 {margin-bottom: 0;}");
 
     return kit.createDefaultDocument();
   }
@@ -144,6 +145,7 @@ public class HelpDialog extends AbstractDialog {
     gettingStarted.add(new NamedTreeNode("getting_started.workbench", I18n.getLocalizedString("node.help.getting_started.workbench.text")));
     NamedTreeNode cards = new NamedTreeNode("getting_started.cards", I18n.getLocalizedString("node.help.getting_started.cards.text"));
     gettingStarted.add(cards);
+    cards.add(new NamedTreeNode("getting_started.cards.details", I18n.getLocalizedString("node.help.getting_started.cards.details.text")));
     cards.add(new NamedTreeNode("getting_started.cards.add", I18n.getLocalizedString("node.help.getting_started.cards.add.text")));
     cards.add(new NamedTreeNode("getting_started.cards.update", I18n.getLocalizedString("node.help.getting_started.cards.update.text")));
     cards.add(new NamedTreeNode("getting_started.cards.delete", I18n.getLocalizedString("node.help.getting_started.cards.delete.text")));
@@ -213,5 +215,6 @@ public class HelpDialog extends AbstractDialog {
 
   void loadHtmlPage(String page) {
     this.editorPane.setText(page);
+    this.editorPane.setCaretPosition(0);
   }
 }

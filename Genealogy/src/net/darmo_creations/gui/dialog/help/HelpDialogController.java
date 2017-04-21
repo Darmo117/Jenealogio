@@ -78,9 +78,8 @@ public class HelpDialogController extends DefaultDialogController<HelpDialog> im
       case "sync":
         JToggleButton syncBtn = (JToggleButton) e.getSource();
         this.syncTree = syncBtn.isSelected();
-        if (this.syncTree) {
+        if (this.syncTree)
           this.dialog.selectNode(this.currentPage);
-        }
         break;
       case "collapse":
         this.collapsingTree = true;
