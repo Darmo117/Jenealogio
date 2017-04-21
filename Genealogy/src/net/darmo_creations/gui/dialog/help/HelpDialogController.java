@@ -42,9 +42,10 @@ public class HelpDialogController extends DefaultDialogController<HelpDialog> im
     this.currentPage = name;
     String lang = this.config.getLanguage().getCode();
     String path = JarUtil.getJarDir('/') + "help-doc/" + lang + "/" + name + ".html";
+
     if (Start.DEBUG)
       path = path.replace("bin/", "");
-    System.out.println(path);
+
     try {
       List<String> lines = Files.readAllLines(Paths.get(path));
       for (int i = 0; i < lines.size(); i++) {

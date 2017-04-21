@@ -158,7 +158,6 @@ public class HelpDialog extends AbstractDialog {
     root.add(options);
     options.add(new NamedTreeNode("options.languages", I18n.getLocalizedString("node.help.options.languages.text")));
     options.add(new NamedTreeNode("options.colors", I18n.getLocalizedString("node.help.options.colors.text")));
-    root.add(new NamedTreeNode("legal", I18n.getLocalizedString("node.help.legal.text")));
 
     return root;
   }
