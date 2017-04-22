@@ -95,7 +95,7 @@ public class FamilyDao {
       for (Object o : weddingsObj) {
         JSONObject weddingObj = (JSONObject) o;
         Date date = getDate((String) weddingObj.get("date"));
-        String location = (String) weddingObj.get("location");
+        String location = getNullIfEmpty((String) weddingObj.get("location"));
         FamilyMember spouse1 = members.stream().filter(m -> m.getId() == (Long) weddingObj.get("spouse1")).findFirst().get();
         FamilyMember spouse2 = members.stream().filter(m -> m.getId() == (Long) weddingObj.get("spouse2")).findFirst().get();
         JSONArray childrenObj = (JSONArray) weddingObj.get("children");
