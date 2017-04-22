@@ -69,7 +69,7 @@ import net.darmo_creations.util.Images;
 public class MainFrame extends JFrame {
   private static final long serialVersionUID = 2426665404072947885L;
 
-  public static final String BASE_TITLE = I18n.getLocalizedString("frame.base_title");
+  public static final String BASE_TITLE = "Jenealogio";
 
   private JFileChooser fileChooser;
   private TreeCreationDialog treeCreationDialog;
