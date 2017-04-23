@@ -74,6 +74,7 @@ public final class Images {
   public static final ImageIcon ARROW_UP_BIG;
   public static final ImageIcon ARROW_DOWN_BIG;
 
+  public static final ImageIcon JENEALOGIO;
   public static final ImageIcon GNU_GPL;
 
   static {
@@ -119,6 +120,7 @@ public final class Images {
     ARROW_UP_BIG = new ImageIcon("res/icons/arrow_up_32.png");
     ARROW_DOWN_BIG = new ImageIcon("res/icons/arrow_down_32.png");
 
+    JENEALOGIO = new ImageIcon("res/icons/jenealogio_icon.png");
     GNU_GPL = new ImageIcon("res/icons/gplv3-127x51.png");
   }
 

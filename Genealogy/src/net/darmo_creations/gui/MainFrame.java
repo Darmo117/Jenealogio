@@ -92,6 +92,7 @@ public class MainFrame extends JFrame {
 
     setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
     setMinimumSize(new Dimension(800, 600));
+    setIconImage(Images.JENEALOGIO.getImage());
 
     addWindowListener(controller);
 

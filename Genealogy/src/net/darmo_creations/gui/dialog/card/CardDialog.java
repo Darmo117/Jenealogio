@@ -54,6 +54,7 @@ import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.model.family.Gender;
 import net.darmo_creations.util.CalendarUtil;
 import net.darmo_creations.util.I18n;
+import net.darmo_creations.util.Images;
 
 /**
  * This dialog lets the user add or edit cards.
@@ -83,6 +84,7 @@ public class CardDialog extends AbstractDialog {
     super(owner, Mode.VALIDATE_CANCEL_OPTION, true);
     setPreferredSize(new Dimension(300, 410));
     setResizable(false);
+    setIconImage(Images.JENEALOGIO.getImage());
 
     this.controller = new CardController(this);
 

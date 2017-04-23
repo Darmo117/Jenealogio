@@ -37,6 +37,7 @@ import net.darmo_creations.gui.components.ImageLabel;
 import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.model.family.Wedding;
 import net.darmo_creations.util.I18n;
+import net.darmo_creations.util.Images;
 import net.darmo_creations.util.Observable;
 import net.darmo_creations.util.Observer;
 
@@ -61,6 +62,7 @@ public class CardDetailsDialog extends AbstractDialog implements Observable {
   public CardDetailsDialog(MainFrame owner) {
     super(owner, Mode.CLOSE_OPTION, true);
     setResizable(false);
+    setIconImage(Images.JENEALOGIO.getImage());
 
     this.observers = new ArrayList<>();
 

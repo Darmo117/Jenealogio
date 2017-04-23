@@ -62,6 +62,8 @@ public class EditColorsDialog extends AbstractDialog {
     super(owner, Mode.VALIDATE_CANCEL_OPTION, true);
     setResizable(false);
     setPreferredSize(new Dimension(400, 300));
+    setTitle(I18n.getLocalizedString("dialog.edit_colors.title"));
+    setIconImage(Images.JENEALOGIO.getImage());
 
     this.controller = new EditColorController(this);
 

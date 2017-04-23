@@ -58,6 +58,7 @@ public class HelpDialog extends AbstractDialog {
   public HelpDialog(JFrame owner, GlobalConfig config) {
     super(owner, Mode.CLOSE_OPTION, false);
 
+    setIconImage(Images.JENEALOGIO.getImage());
     setTitle(I18n.getLocalizedString("dialog.help.title"));
 
     this.controller = new HelpDialogController(this, config);

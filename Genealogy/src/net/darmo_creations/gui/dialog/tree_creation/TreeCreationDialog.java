@@ -31,6 +31,7 @@ import javax.swing.JTextField;
 
 import net.darmo_creations.gui.dialog.AbstractDialog;
 import net.darmo_creations.util.I18n;
+import net.darmo_creations.util.Images;
 
 /**
  * This dialog prompts a name for the tree being created.
@@ -50,6 +51,7 @@ public class TreeCreationDialog extends AbstractDialog {
   public TreeCreationDialog(JFrame owner) {
     super(owner, Mode.VALIDATE_CANCEL_OPTION, true);
     setResizable(false);
+    setIconImage(Images.JENEALOGIO.getImage());
 
     setTitle(I18n.getLocalizedString("dialog.new_tree.title"));
 

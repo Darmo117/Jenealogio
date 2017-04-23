@@ -72,6 +72,7 @@ public class LinkDialog extends AbstractDialog {
   public LinkDialog(MainFrame owner) {
     super(owner, Mode.VALIDATE_CANCEL_OPTION, true);
     setResizable(false);
+    setIconImage(Images.JENEALOGIO.getImage());
 
     this.controller = new LinkController(this);
 

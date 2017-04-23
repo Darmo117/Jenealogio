@@ -36,7 +36,7 @@ public class AboutDialog extends AbstractDialog {
     JPanel leftPnl = new JPanel();
     leftPnl.setBorder(new EmptyBorder(5, 5, 5, 5));
     leftPnl.setLayout(new BoxLayout(leftPnl, BoxLayout.Y_AXIS));
-    leftPnl.add(new JLabel("Logo Jenealogio"));
+    leftPnl.add(new JLabel(Images.JENEALOGIO));
     leftPnl.add(new JLabel(Images.GNU_GPL));
     add(leftPnl, BorderLayout.WEST);
 
