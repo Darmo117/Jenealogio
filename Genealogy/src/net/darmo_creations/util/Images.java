@@ -74,6 +74,8 @@ public final class Images {
   public static final ImageIcon ARROW_UP_BIG;
   public static final ImageIcon ARROW_DOWN_BIG;
 
+  public static final ImageIcon GNU_GPL;
+
   static {
     NEW_TREE = new ImageIcon("res/icons/new_tree.png");
     OPEN = new ImageIcon("res/icons/open.png");
@@ -116,6 +118,8 @@ public final class Images {
     DELETE_LINK_BIG = new ImageIcon("res/icons/delete_link_32.png");
     ARROW_UP_BIG = new ImageIcon("res/icons/arrow_up_32.png");
     ARROW_DOWN_BIG = new ImageIcon("res/icons/arrow_down_32.png");
+
+    GNU_GPL = new ImageIcon("res/icons/gplv3-127x51.png");
   }
 
   /**
