@@ -49,6 +49,7 @@ import net.darmo_creations.config.Language;
 import net.darmo_creations.controllers.ExtensionFileFilter;
 import net.darmo_creations.controllers.MainController;
 import net.darmo_creations.gui.components.DisplayPanel;
+import net.darmo_creations.gui.dialog.AboutDialog;
 import net.darmo_creations.gui.dialog.CardDetailsDialog;
 import net.darmo_creations.gui.dialog.card.CardDialog;
 import net.darmo_creations.gui.dialog.help.HelpDialog;
@@ -78,6 +79,7 @@ public class MainFrame extends JFrame {
   private LinkDialog linkDialog;
   private EditColorsDialog editColorsDialog;
   private HelpDialog helpDialog;
+  private AboutDialog aboutDialog;
 
   private JMenu editMenu;
   private JMenuItem saveItem, saveAsItem, addCardItem, addLinkItem, editItem, deleteItem;
@@ -104,6 +106,7 @@ public class MainFrame extends JFrame {
     this.linkDialog = new LinkDialog(this);
     this.editColorsDialog = new EditColorsDialog(this);
     this.helpDialog = new HelpDialog(this, config);
+    this.aboutDialog = new AboutDialog(this);
 
     setJMenuBar(initJMenuBar(controller, config));
 
@@ -510,7 +513,7 @@ public class MainFrame extends JFrame {
    * Shows the "about" dialog.
    */
   public void showAboutDialog() {
-    // TODO
+    this.aboutDialog.setVisible(true);
   }
 
   /**
