@@ -291,6 +291,8 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
           else if (choice != JOptionPane.NO_OPTION)
             return true;
         }
+        else
+          ok = true;
       }
       else
         return true;
@@ -315,6 +317,7 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
       if (!this.alreadySaved)
         this.alreadySaved = true;
       this.saved = true;
+
       return true;
     }
     catch (IOException __) {

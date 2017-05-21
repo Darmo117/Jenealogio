@@ -426,6 +426,7 @@ public class MainFrame extends JFrame {
    * @return the tree name or nothing if the dialog was dismissed/canceled
    */
   public Optional<String> showCreateTreeDialog() {
+    this.treeCreationDialog.setCanceled(false);
     this.treeCreationDialog.setVisible(true);
     return this.treeCreationDialog.getTreeName();
   }
