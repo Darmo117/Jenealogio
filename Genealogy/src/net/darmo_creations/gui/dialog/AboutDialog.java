@@ -65,7 +65,7 @@ public class AboutDialog extends AbstractDialog {
   }
 
   private String getHtml() {
-    try (BufferedReader br = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/about.html")))) {
+    try (BufferedReader br = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/assets/about.html")))) {
       String line;
       StringJoiner sj = new StringJoiner("\n");
 

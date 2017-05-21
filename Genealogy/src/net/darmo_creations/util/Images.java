@@ -78,50 +78,50 @@ public final class Images {
   public static final ImageIcon GNU_GPL;
 
   static {
-    NEW_TREE = new ImageIcon("res/icons/new_tree.png");
-    OPEN = new ImageIcon("res/icons/open.png");
-    SAVE = new ImageIcon("res/icons/save.png");
-    SAVE_AS = new ImageIcon("res/icons/save_as.png");
-    ADD_CARD = new ImageIcon("res/icons/add_card.png");
-    EDIT_CARD = new ImageIcon("res/icons/edit_card.png");
-    DELETE_CARD = new ImageIcon("res/icons/delete_card.png");
-    ADD_LINK = new ImageIcon("res/icons/add_link.png");
-    EDIT_LINK = new ImageIcon("res/icons/edit_link.png");
-    DELETE_LINK = new ImageIcon("res/icons/delete_link.png");
-    EXIT = new ImageIcon("res/icons/exit.png");
-    HELP = new ImageIcon("res/icons/help.png");
-    ARROW_UP = new ImageIcon("res/icons/arrow_up.png");
-    ARROW_DOWN = new ImageIcon("res/icons/arrow_down.png");
-    BABY = new ImageIcon("res/icons/baby.png");
-    HEART = new ImageIcon("res/icons/heart.png");
-    CROSS = new ImageIcon("res/icons/cross.png");
-    COLOR_WHEEL = new ImageIcon("res/icons/color_wheel.png");
-    BOOK = new ImageIcon("res/icons/book.png");
-    BOOK_OPEN = new ImageIcon("res/icons/book_open.png");
-    PAGE = new ImageIcon("res/icons/page.png");
-    MALE_SYMBOL = new ImageIcon("res/icons/male_symbol.png");
-    FEMALE_SYMBOL = new ImageIcon("res/icons/female_symbol.png");
-    USER = new ImageIcon("res/icons/user.png");
-    LINK = new ImageIcon("res/icons/link.png");
-    SYNC = new ImageIcon("res/icons/sync.png");
-    COLLAPSE = new ImageIcon("res/icons/collapse.png");
-    HOME = new ImageIcon("res/icons/home.png");
+    NEW_TREE = getIcon("/assets/icons/new_tree.png");
+    OPEN = getIcon("/assets/icons/open.png");
+    SAVE = getIcon("/assets/icons/save.png");
+    SAVE_AS = getIcon("/assets/icons/save_as.png");
+    ADD_CARD = getIcon("/assets/icons/add_card.png");
+    EDIT_CARD = getIcon("/assets/icons/edit_card.png");
+    DELETE_CARD = getIcon("/assets/icons/delete_card.png");
+    ADD_LINK = getIcon("/assets/icons/add_link.png");
+    EDIT_LINK = getIcon("/assets/icons/edit_link.png");
+    DELETE_LINK = getIcon("/assets/icons/delete_link.png");
+    EXIT = getIcon("/assets/icons/exit.png");
+    HELP = getIcon("/assets/icons/help.png");
+    ARROW_UP = getIcon("/assets/icons/arrow_up.png");
+    ARROW_DOWN = getIcon("/assets/icons/arrow_down.png");
+    BABY = getIcon("/assets/icons/baby.png");
+    HEART = getIcon("/assets/icons/heart.png");
+    CROSS = getIcon("/assets/icons/cross.png");
+    COLOR_WHEEL = getIcon("/assets/icons/color_wheel.png");
+    BOOK = getIcon("/assets/icons/book.png");
+    BOOK_OPEN = getIcon("/assets/icons/book_open.png");
+    PAGE = getIcon("/assets/icons/page.png");
+    MALE_SYMBOL = getIcon("/assets/icons/male_symbol.png");
+    FEMALE_SYMBOL = getIcon("/assets/icons/female_symbol.png");
+    USER = getIcon("/assets/icons/user.png");
+    LINK = getIcon("/assets/icons/link.png");
+    SYNC = getIcon("/assets/icons/sync.png");
+    COLLAPSE = getIcon("/assets/icons/collapse.png");
+    HOME = getIcon("/assets/icons/home.png");
 
-    NEW_TREE_BIG = new ImageIcon("res/icons/new_tree_32.png");
-    OPEN_BIG = new ImageIcon("res/icons/open_32.png");
-    SAVE_BIG = new ImageIcon("res/icons/save_32.png");
-    SAVE_AS_BIG = new ImageIcon("res/icons/save_as_32.png");
-    ADD_CARD_BIG = new ImageIcon("res/icons/add_card_32.png");
-    EDIT_CARD_BIG = new ImageIcon("res/icons/edit_card_32.png");
-    DELETE_CARD_BIG = new ImageIcon("res/icons/delete_card_32.png");
-    ADD_LINK_BIG = new ImageIcon("res/icons/add_link_32.png");
-    EDIT_LINK_BIG = new ImageIcon("res/icons/edit_link_32.png");
-    DELETE_LINK_BIG = new ImageIcon("res/icons/delete_link_32.png");
-    ARROW_UP_BIG = new ImageIcon("res/icons/arrow_up_32.png");
-    ARROW_DOWN_BIG = new ImageIcon("res/icons/arrow_down_32.png");
+    NEW_TREE_BIG = getIcon("/assets/icons/new_tree_32.png");
+    OPEN_BIG = getIcon("/assets/icons/open_32.png");
+    SAVE_BIG = getIcon("/assets/icons/save_32.png");
+    SAVE_AS_BIG = getIcon("/assets/icons/save_as_32.png");
+    ADD_CARD_BIG = getIcon("/assets/icons/add_card_32.png");
+    EDIT_CARD_BIG = getIcon("/assets/icons/edit_card_32.png");
+    DELETE_CARD_BIG = getIcon("/assets/icons/delete_card_32.png");
+    ADD_LINK_BIG = getIcon("/assets/icons/add_link_32.png");
+    EDIT_LINK_BIG = getIcon("/assets/icons/edit_link_32.png");
+    DELETE_LINK_BIG = getIcon("/assets/icons/delete_link_32.png");
+    ARROW_UP_BIG = getIcon("/assets/icons/arrow_up_32.png");
+    ARROW_DOWN_BIG = getIcon("/assets/icons/arrow_down_32.png");
 
-    JENEALOGIO = new ImageIcon("res/icons/jenealogio_icon.png");
-    GNU_GPL = new ImageIcon("res/icons/gplv3-127x51.png");
+    JENEALOGIO = getIcon("/assets/icons/jenealogio_icon.png");
+    GNU_GPL = getIcon("/assets/icons/gplv3-127x51.png");
   }
 
   /**
@@ -133,11 +133,11 @@ public final class Images {
   public static ImageIcon getCountryFlag(Language langCode) {
     switch (langCode) {
       case ENGLISH:
-        return new ImageIcon("res/icons/flag_great_britain.png");
+        return getIcon("/assets/icons/flag_great_britain.png");
       case FRENCH:
-        return new ImageIcon("res/icons/flag_france.png");
+        return getIcon("/assets/icons/flag_france.png");
       case ESPERANTO:
-        return new ImageIcon("res/icons/flag_esperanto.png");
+        return getIcon("/assets/icons/flag_esperanto.png");
     }
     return null;
   }
@@ -154,6 +154,10 @@ public final class Images {
     WritableRaster raster = image.copyData(null);
 
     return new BufferedImage(colorModel, raster, alphaPremultiplied, null);
+  }
+
+  private static ImageIcon getIcon(String path) {
+    return new ImageIcon(Images.class.getResource(path));
   }
 
   private Images() {}

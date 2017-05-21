@@ -39,7 +39,7 @@ public class I18n {
    * <b>This method must be called before any other from this class.</b>
    */
   public static void init(Locale locale) {
-    resource = ResourceBundle.getBundle("langs/lang", locale);
+    resource = ResourceBundle.getBundle("assets/langs/lang", locale);
   }
 
   /**

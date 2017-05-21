@@ -19,9 +19,6 @@
 package net.darmo_creations.util;
 
 import java.io.File;
-import java.net.URISyntaxException;
-
-import net.darmo_creations.dao.ConfigDao;
 
 public class JarUtil {
   private static String dir;
@@ -35,16 +32,13 @@ public class JarUtil {
    */
   public static String getJarDir(char separator) {
     if (dir == null) {
-      try {
-        String path = ConfigDao.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
+      String path = ClassLoader.getSystemClassLoader().getResource(".").getPath();
 
-        if (File.separatorChar == '\\') {
-          path = path.substring(1); // Removes the first /.
-        }
-
-        dir = path;
+      if (File.separatorChar == '\\') {
+        path = path.substring(1); // Removes the first /.
       }
-      catch (URISyntaxException __) {}
+
+      dir = path;
     }
 
     return dir.replace('/', separator);
