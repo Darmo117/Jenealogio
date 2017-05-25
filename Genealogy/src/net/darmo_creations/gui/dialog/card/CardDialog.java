@@ -116,8 +116,9 @@ public class CardDialog extends AbstractDialog {
     this.nameFld.getDocument().addDocumentListener(this.controller);
     this.firstNameFld = new JTextField();
     this.firstNameFld.getDocument().addDocumentListener(this.controller);
-    this.genderCombo = new JComboBox<>(Gender.values()); // TODO utiliser I18n.
+    this.genderCombo = new JComboBox<>(Gender.values());
     this.genderCombo.addItemListener(this.controller);
+    this.genderCombo.setRenderer(new GenderComboRenderer(this.genderCombo.getRenderer()));
     DateFormat dateFormat = new SimpleDateFormat(I18n.getLocalizedString("date.format"));
     this.birthFld = new JFormattedTextField(dateFormat);
     this.birthFld.addKeyListener(this.controller);
