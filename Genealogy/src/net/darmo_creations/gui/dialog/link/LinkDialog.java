@@ -40,6 +40,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
+import net.darmo_creations.controllers.FormattedFieldFocusListener;
 import net.darmo_creations.gui.MainFrame;
 import net.darmo_creations.gui.dialog.AbstractDialog;
 import net.darmo_creations.model.Date;
@@ -86,6 +87,7 @@ public class LinkDialog extends AbstractDialog {
     DateFormat dateFormat = new SimpleDateFormat(I18n.getLocalizedString("date.format"));
     this.dateFld = new JFormattedTextField(dateFormat);
     this.dateFld.addKeyListener(this.controller);
+    this.dateFld.addFocusListener(new FormattedFieldFocusListener(this.dateFld));
     this.locationFld = new JTextField();
     this.spouse1Field = new JTextField();
     this.spouse1Field.setEnabled(false);

@@ -46,6 +46,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
 import net.darmo_creations.controllers.ExtensionFileFilter;
+import net.darmo_creations.controllers.FormattedFieldFocusListener;
 import net.darmo_creations.gui.MainFrame;
 import net.darmo_creations.gui.components.ImageLabel;
 import net.darmo_creations.gui.dialog.AbstractDialog;
@@ -120,11 +121,13 @@ public class CardDialog extends AbstractDialog {
     DateFormat dateFormat = new SimpleDateFormat(I18n.getLocalizedString("date.format"));
     this.birthFld = new JFormattedTextField(dateFormat);
     this.birthFld.addKeyListener(this.controller);
+    this.birthFld.addFocusListener(new FormattedFieldFocusListener(this.birthFld));
     this.birthFld.getDocument().addDocumentListener(this.controller);
     this.birthLocationFld = new JTextField();
     this.birthLocationFld.getDocument().addDocumentListener(this.controller);
     this.deathFld = new JFormattedTextField(dateFormat);
     this.deathFld.addKeyListener(this.controller);
+    this.deathFld.addFocusListener(new FormattedFieldFocusListener(this.deathFld));
     this.deathFld.getDocument().addDocumentListener(this.controller);
     this.deathLocationFld = new JTextField();
     this.deathLocationFld.getDocument().addDocumentListener(this.controller);
