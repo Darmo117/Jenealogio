@@ -46,7 +46,8 @@ public class GenderComboRenderer implements ListCellRenderer<Gender> {
       boolean cellHasFocus) {
     Component component = this.delegate.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
     if (component instanceof JLabel) {
-      ((JLabel) component).setText(I18n.getLocalizedString(value.getUnlocalizedName()));
+      String text = I18n.getLocalizedString(value.getUnlocalizedName());
+      ((JLabel) component).setText(text.substring(0, 1).toUpperCase() + text.substring(1));
     }
     return component;
   }
