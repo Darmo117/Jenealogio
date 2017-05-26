@@ -62,31 +62,38 @@ public class CardController extends DefaultDialogController<CardDialog> implemen
       this.dialog.setTitle(I18n.getLocalizedString("dialog.update_card.title"));
       this.dialog.setId(member.getId());
       this.dialog.setImage(member.getImage());
-      this.dialog.setMemberName(member.getName().orElse(""));
+      this.dialog.setFamilyName(member.getFamilyName().orElse(""));
+      this.dialog.setUseName(member.getUseName().orElse(""));
       this.dialog.setFirstName(member.getFirstName().orElse(""));
+      this.dialog.setOtherNames(member.getOtherNames().orElse(""));
       this.dialog.setGender(member.getGender());
       this.dialog.setBirthDate(member.getBirthDate());
       this.dialog.setBirthLocation(member.getBirthLocation().orElse(""));
       this.dialog.setDeathDate(member.getDeathDate());
       this.dialog.setDeathLocation(member.getDeathLocation().orElse(""));
       this.dialog.setDead(member.isDead());
+
+      this.dialog.setValidateButtonEnabled(this.dialog.atLeastOneFieldCompleted());
     }
     else {
       this.dialog.setTitle(I18n.getLocalizedString("dialog.add_card.title"));
       this.dialog.setId(-1);
       this.dialog.setImage(Optional.empty());
-      this.dialog.setMemberName("");
+      this.dialog.setFamilyName("");
+      this.dialog.setUseName("");
       this.dialog.setFirstName("");
+      this.dialog.setOtherNames("");
       this.dialog.setGender(Gender.UNKNOW);
       this.dialog.setBirthDate(Optional.empty());
       this.dialog.setBirthLocation("");
       this.dialog.setDeathDate(Optional.empty());
       this.dialog.setDeathLocation("");
       this.dialog.setDead(false);
+
+      this.dialog.setValidateButtonEnabled(false);
     }
 
     this.dialog.setCanceled(false);
-    this.dialog.setValidateButtonEnabled(false);
   }
 
   @Override

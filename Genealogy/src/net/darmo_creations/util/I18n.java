@@ -74,11 +74,12 @@ public class I18n {
    * returned. No need to specify "word." at the beginning.
    * 
    * @param unlocalizedWord the unlocalized word
+   * @param feminine if true, the feminine will be returned
    * @param plural if true, the plural will be returned
    * @return the localized word
    */
-  public static String getLocalizedWord(String unlocalizedWord, boolean plural) {
-    return getLocalizedString("word." + unlocalizedWord + (plural ? ".plural" : ""));
+  public static String getLocalizedWord(String unlocalizedWord, boolean feminine, boolean plural) {
+    return getLocalizedString("word." + unlocalizedWord + (feminine ? ".feminine" : "") + (plural ? ".plural" : ""));
   }
 
   /**

@@ -93,8 +93,10 @@ public class FamilyDao {
         JSONObject memberObj = (JSONObject) o;
         long id = (Long) memberObj.get("id");
         BufferedImage image = base64Decode((String) memberObj.get("image"));
-        String name = getNullIfEmpty((String) memberObj.get("name"));
+        String familyName = getNullIfEmpty((String) memberObj.get("name"));
+        String useName = getNullIfEmpty((String) memberObj.get("use_name"));
         String firstName = getNullIfEmpty((String) memberObj.get("first_name"));
+        String otherNames = getNullIfEmpty((String) memberObj.get("other_names"));
         Gender gender = Gender.fromCode((String) memberObj.get("gender"));
         Date birthDate = getDate((String) memberObj.get("birth_date"));
         String birthLocation = getNullIfEmpty((String) memberObj.get("birth_location"));
@@ -108,7 +110,8 @@ public class FamilyDao {
         int y = (int) (long) positionObj.get("y");
 
         locations.put(id, new Point(x, y));
-        members.add(new FamilyMember(id, image, name, firstName, gender, birthDate, birthLocation, deathDate, deathLocation, dead));
+        members.add(new FamilyMember(id, image, familyName, useName, firstName, otherNames, gender, birthDate, birthLocation, deathDate,
+            deathLocation, dead));
       }
 
       // Weddings loading
@@ -197,8 +200,10 @@ public class FamilyDao {
       JSONObject memberObj = new JSONObject();
 
       memberObj.put("id", m.getId());
-      memberObj.put("name", m.getName().orElse(""));
+      memberObj.put("name", m.getFamilyName().orElse(""));
+      memberObj.put("use_name", m.getUseName().orElse(""));
       memberObj.put("first_name", m.getFirstName().orElse(""));
+      memberObj.put("other_names", m.getOtherNames().orElse(""));
       memberObj.put("gender", m.getGender().getCode());
       formatDate(memberObj, "birth_date", m.getBirthDate());
       memberObj.put("birth_location", m.getBirthLocation().orElse(""));

@@ -124,8 +124,10 @@ public class Family {
       FamilyMember m = optional.get();
 
       m.setImage(member.getImage().orElse(null));
-      m.setName(member.getName().orElse(null));
+      m.setFamilyName(member.getFamilyName().orElse(null));
+      m.setUseName(member.getUseName().orElse(null));
       m.setFirstName(member.getFirstName().orElse(null));
+      m.setOtherNames(member.getOtherNames().orElse(null));
       m.setGender(member.getGender());
       m.setBirthDate(member.getBirthDate().orElse(null));
       m.setBirthLocation(member.getBirthLocation().orElse(null));

@@ -52,6 +52,7 @@ public class FamilyMember implements Comparable<FamilyMember> {
   private String familyName;
   private String useName;
   private String firstName;
+  private String otherNames;
   private Gender gender;
   private Date birthDate;
   private String birthLocation;
@@ -64,25 +65,9 @@ public class FamilyMember implements Comparable<FamilyMember> {
    * 
    * @param image the profile image
    * @param familyName the family name
+   * @param useName the use name (e.g.: after marriage)
    * @param firstName the first name
-   * @param gender the gender (can be <code>Gender.UNKNOWN</code>)
-   * @param birthDate the birthday
-   * @param birthLocation the birth location
-   * @param deathDate the death date
-   * @param deathLocation the death location
-   */
-  public FamilyMember(@Nullable BufferedImage image, @Nullable String familyName, @Nullable String firstName, Gender gender,
-      @Nullable Date birthDate, @Nullable String birthLocation, @Nullable Date deathDate, @Nullable String deathLocation, boolean dead) {
-    this(-1, image, familyName, firstName, gender, birthDate, birthLocation, deathDate, deathLocation, dead);
-  }
-
-  /**
-   * Creates a new member with the given ID.
-   * 
-   * @param id internal ID
-   * @param image the profile image
-   * @param familyName the name
-   * @param firstName the first name
+   * @param otherNames other names
    * @param gender the gender (can be <code>Gender.UNKNOWN</code>)
    * @param birthDate the birthday
    * @param birthLocation the birth location
@@ -91,12 +76,38 @@ public class FamilyMember implements Comparable<FamilyMember> {
    * @param dead if both the death date and death location are null, tells that if the person is
    *          dead or not; otherwise, if either the date or location is not null, it is ignored
    */
-  public FamilyMember(long id, @Nullable BufferedImage image, @Nullable String familyName, @Nullable String firstName, Gender gender,
-      @Nullable Date birthDate, @Nullable String birthLocation, @Nullable Date deathDate, @Nullable String deathLocation, boolean dead) {
+  public FamilyMember(@Nullable BufferedImage image, @Nullable String familyName, @Nullable String useName, @Nullable String firstName,
+      @Nullable String otherNames, Gender gender, @Nullable Date birthDate, @Nullable String birthLocation, @Nullable Date deathDate,
+      @Nullable String deathLocation, boolean dead) {
+    this(-1, image, familyName, useName, firstName, otherNames, gender, birthDate, birthLocation, deathDate, deathLocation, dead);
+  }
+
+  /**
+   * Creates a new member with the given ID.
+   * 
+   * @param id internal ID
+   * @param image the profile image
+   * @param familyName the family name
+   * @param useName the use name (e.g.: after marriage)
+   * @param firstName the first name
+   * @param otherNames other names
+   * @param gender the gender (can be <code>Gender.UNKNOWN</code>)
+   * @param birthDate the birthday
+   * @param birthLocation the birth location
+   * @param deathDate the death date
+   * @param deathLocation the death location
+   * @param dead if both the death date and death location are null, tells that if the person is
+   *          dead or not; otherwise, if either the date or location is not null, it is ignored
+   */
+  public FamilyMember(long id, @Nullable BufferedImage image, @Nullable String familyName, @Nullable String useName,
+      @Nullable String firstName, @Nullable String otherNames, Gender gender, @Nullable Date birthDate, @Nullable String birthLocation,
+      @Nullable Date deathDate, @Nullable String deathLocation, boolean dead) {
     this.id = id;
     setImage(image);
-    setName(familyName);
+    setFamilyName(familyName);
+    setUseName(useName);
     setFirstName(firstName);
+    setOtherNames(otherNames);
     setGender(gender);
     setBirthDate(birthDate);
     setBirthLocation(birthLocation);
@@ -130,19 +141,35 @@ public class FamilyMember implements Comparable<FamilyMember> {
   }
 
   /**
-   * @return the name
+   * @return the family name
    */
-  public Optional<String> getName() {
+  public Optional<String> getFamilyName() {
     return Optional.ofNullable(this.familyName);
   }
 
   /**
-   * Sets the name. May be null.
+   * Sets the family name. May be null.
    * 
-   * @param name the new name
+   * @param familyName the new family name
    */
-  void setName(@Nullable String name) {
-    this.familyName = name;
+  void setFamilyName(@Nullable String familyName) {
+    this.familyName = familyName;
+  }
+
+  /**
+   * @return the use name
+   */
+  public Optional<String> getUseName() {
+    return Optional.ofNullable(this.useName);
+  }
+
+  /**
+   * Sets the use name. May be null.
+   * 
+   * @param useName the new use name
+   */
+  public void setUseName(@Nullable String useName) {
+    this.useName = useName;
   }
 
   /**
@@ -159,6 +186,22 @@ public class FamilyMember implements Comparable<FamilyMember> {
    */
   void setFirstName(@Nullable String firstName) {
     this.firstName = firstName;
+  }
+
+  /**
+   * @return the other names
+   */
+  public Optional<String> getOtherNames() {
+    return Optional.ofNullable(this.otherNames);
+  }
+
+  /**
+   * Sets the other names. May be null.
+   * 
+   * @param firstName the new other names
+   */
+  public void setOtherNames(@Nullable String otherNames) {
+    this.otherNames = otherNames;
   }
 
   /**
@@ -323,9 +366,9 @@ public class FamilyMember implements Comparable<FamilyMember> {
 
   @Override
   public String toString() {
-    if (!getName().isPresent() && !getFirstName().isPresent())
+    if (!getFirstName().isPresent() && !getFamilyName().isPresent() && !getUseName().isPresent())
       return "?";
-    return getFirstName().orElse("?") + " " + getName().orElse("?");
+    return getFirstName().orElse("?") + " " + (getUseName().isPresent() ? getUseName().get() : getFamilyName().orElse("?"));
   }
 
   /**
@@ -335,9 +378,9 @@ public class FamilyMember implements Comparable<FamilyMember> {
    * @return the copied person
    */
   FamilyMember copy(long id) {
-    return new FamilyMember(id, getImage().orElse(null), getName().orElse(null), getFirstName().orElse(null), getGender(),
-        getBirthDate().orElse(null), getBirthLocation().orElse(null), getDeathDate().orElse(null), getDeathLocation().orElse(null),
-        isDead());
+    return new FamilyMember(id, getImage().orElse(null), getFamilyName().orElse(null), getUseName().orElse(null),
+        getFirstName().orElse(null), getOtherNames().orElse(null), getGender(), getBirthDate().orElse(null),
+        getBirthLocation().orElse(null), getDeathDate().orElse(null), getDeathLocation().orElse(null), isDead());
   }
 
   @Override

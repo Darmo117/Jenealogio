@@ -82,7 +82,7 @@ public class DetailsPanel extends JPanel {
     infoPnl.add(this.birthLbl = new JLabel(), gbc);
     gbc.gridx = 6;
     gbc.gridwidth = 1;
-    infoPnl.add(new JLabel(I18n.getLocalizedWord("in", false)), gbc);
+    infoPnl.add(new JLabel(I18n.getLocalizedWord("in", false, false)), gbc);
     gbc.gridx = 7;
     gbc.gridwidth = 5;
     infoPnl.add(this.birthPlaceLbl = new JLabel(), gbc);
@@ -95,7 +95,7 @@ public class DetailsPanel extends JPanel {
     infoPnl.add(this.weddingLbl = new JLabel(), gbc);
     gbc.gridx = 6;
     gbc.gridwidth = 1;
-    infoPnl.add(new JLabel(I18n.getLocalizedWord("in", false)), gbc);
+    infoPnl.add(new JLabel(I18n.getLocalizedWord("in", false, false)), gbc);
     gbc.gridx = 7;
     gbc.gridwidth = 5;
     infoPnl.add(this.weddingPlaceLbl = new JLabel(), gbc);
@@ -108,7 +108,7 @@ public class DetailsPanel extends JPanel {
     infoPnl.add(this.deathLbl = new JLabel(), gbc);
     gbc.gridx = 6;
     gbc.gridwidth = 1;
-    infoPnl.add(new JLabel(I18n.getLocalizedWord("in", false)), gbc);
+    infoPnl.add(new JLabel(I18n.getLocalizedWord("in", false, false)), gbc);
     gbc.gridx = 7;
     gbc.gridwidth = 5;
     infoPnl.add(this.deathPlaceLbl = new JLabel(), gbc);
@@ -126,7 +126,9 @@ public class DetailsPanel extends JPanel {
    * @param wedding the wedding it is part of
    */
   public void setInfo(FamilyMember member, Wedding wedding) {
-    this.nameLbl.setText(member.toString());
+    String name = member.toString() + (member.getUseName().isPresent() && member.getFamilyName().isPresent()
+        ? " " + I18n.getLocalizedWord("born", member.isWoman(), false) + " " + member.getFamilyName().get() : "");
+    this.nameLbl.setText(name);
     this.birthLbl.setText(getDate(member.getBirthDate()));
     this.birthPlaceLbl.setText(member.getBirthLocation().orElse(UNKNOWN_DATA));
     this.weddingLbl.setText(wedding != null ? getDate(wedding.getDate()) : UNKNOWN_DATA);
@@ -148,10 +150,10 @@ public class DetailsPanel extends JPanel {
       Period p = period.get();
       int years = p.getYears();
       int months = p.getMonths();
-      String res = years + " " + I18n.getLocalizedWord("year", years > 1);
+      String res = years + " " + I18n.getLocalizedWord("year", false, years > 1);
 
       if (months > 0)
-        res += months + " " + I18n.getLocalizedWord("month", months > 1);
+        res += months + " " + I18n.getLocalizedWord("month", false, months > 1);
 
       return res;
     }

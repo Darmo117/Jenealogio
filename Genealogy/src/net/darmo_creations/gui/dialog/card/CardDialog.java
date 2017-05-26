@@ -73,7 +73,7 @@ public class CardDialog extends AbstractDialog {
   private long id;
   private BufferedImage image;
   private JLabel imageLbl;
-  private JTextField nameFld, firstNameFld, birthLocationFld, deathLocationFld;
+  private JTextField familyNameFld, useNameFld, firstNameFld, otherNamesFld, birthLocationFld, deathLocationFld;
   private JCheckBox deadChkBox;
   private JComboBox<Gender> genderCombo;
   private JFormattedTextField birthFld, deathFld;
@@ -85,7 +85,7 @@ public class CardDialog extends AbstractDialog {
    */
   public CardDialog(MainFrame owner) {
     super(owner, Mode.VALIDATE_CANCEL_OPTION, true);
-    setPreferredSize(new Dimension(300, 430));
+    setPreferredSize(new Dimension(300, 480));
     setResizable(false);
     setIconImage(Images.JENEALOGIO.getImage());
 
@@ -94,7 +94,7 @@ public class CardDialog extends AbstractDialog {
     addWindowListener(new WindowAdapter() {
       @Override
       public void windowOpened(WindowEvent e) {
-        CardDialog.this.nameFld.requestFocus();
+        CardDialog.this.familyNameFld.requestFocus();
       }
     });
 
@@ -114,10 +114,14 @@ public class CardDialog extends AbstractDialog {
     imageBtn.addActionListener(this.controller);
     imageBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
     imageBtn.setFocusPainted(false);
-    this.nameFld = new JTextField();
-    this.nameFld.getDocument().addDocumentListener(this.controller);
+    this.familyNameFld = new JTextField();
+    this.familyNameFld.getDocument().addDocumentListener(this.controller);
+    this.useNameFld = new JTextField();
+    this.useNameFld.getDocument().addDocumentListener(this.controller);
     this.firstNameFld = new JTextField();
     this.firstNameFld.getDocument().addDocumentListener(this.controller);
+    this.otherNamesFld = new JTextField();
+    this.otherNamesFld.getDocument().addDocumentListener(this.controller);
     this.genderCombo = new JComboBox<>(Gender.values());
     this.genderCombo.addItemListener(this.controller);
     this.genderCombo.setRenderer(new GenderComboRenderer(this.genderCombo.getRenderer()));
@@ -149,39 +153,47 @@ public class CardDialog extends AbstractDialog {
     gbc.fill = GridBagConstraints.HORIZONTAL;
 
     gbc.gridy = 0;
-    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.name.text")), gbc);
+    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.family_name.text")), gbc);
     gbc.gridy = 1;
-    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.first_name.text")), gbc);
+    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.use_name.text")), gbc);
     gbc.gridy = 2;
-    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.gender.text")), gbc);
+    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.first_name.text")), gbc);
     gbc.gridy = 3;
-    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.birth_date.text")), gbc);
+    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.other_names.text")), gbc);
     gbc.gridy = 4;
-    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.birth_location.text")), gbc);
+    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.gender.text")), gbc);
     gbc.gridy = 5;
-    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.death_date.text")), gbc);
+    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.birth_date.text")), gbc);
     gbc.gridy = 6;
-    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.death_location.text")), gbc);
+    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.birth_location.text")), gbc);
     gbc.gridy = 7;
+    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.death_date.text")), gbc);
+    gbc.gridy = 8;
+    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.death_location.text")), gbc);
+    gbc.gridy = 9;
     fieldsPnl.add(new JLabel(Images.CROSS), gbc);
     gbc.gridx = 1;
     gbc.gridwidth = 2;
     gbc.weightx = 1;
     gbc.gridy = 0;
-    fieldsPnl.add(this.nameFld, gbc);
+    fieldsPnl.add(this.familyNameFld, gbc);
     gbc.gridy = 1;
-    fieldsPnl.add(this.firstNameFld, gbc);
+    fieldsPnl.add(this.useNameFld, gbc);
     gbc.gridy = 2;
-    fieldsPnl.add(this.genderCombo, gbc);
+    fieldsPnl.add(this.firstNameFld, gbc);
     gbc.gridy = 3;
-    fieldsPnl.add(this.birthFld, gbc);
+    fieldsPnl.add(this.otherNamesFld, gbc);
     gbc.gridy = 4;
-    fieldsPnl.add(this.birthLocationFld, gbc);
+    fieldsPnl.add(this.genderCombo, gbc);
     gbc.gridy = 5;
-    fieldsPnl.add(this.deathFld, gbc);
+    fieldsPnl.add(this.birthFld, gbc);
     gbc.gridy = 6;
-    fieldsPnl.add(this.deathLocationFld, gbc);
+    fieldsPnl.add(this.birthLocationFld, gbc);
     gbc.gridy = 7;
+    fieldsPnl.add(this.deathFld, gbc);
+    gbc.gridy = 8;
+    fieldsPnl.add(this.deathLocationFld, gbc);
+    gbc.gridy = 9;
     fieldsPnl.add(this.deadChkBox, gbc);
 
     add(imagePnl, BorderLayout.NORTH);
@@ -210,23 +222,39 @@ public class CardDialog extends AbstractDialog {
   }
 
   /**
-   * @return member's name
+   * @return the family name
    */
-  public String getMemberName() {
-    return getContent(this.nameFld);
+  public String getFamilyName() {
+    return getContent(this.familyNameFld);
   }
 
   /**
-   * Sets member's name.
+   * Sets the family name.
    * 
-   * @param name the new name
+   * @param familyName the new family name
    */
-  public void setMemberName(String name) {
-    this.nameFld.setText(name);
+  public void setFamilyName(String familyName) {
+    this.familyNameFld.setText(familyName);
   }
 
   /**
-   * @return first name
+   * @return the use name
+   */
+  public String getUseName() {
+    return getContent(this.useNameFld);
+  }
+
+  /**
+   * Sets the use name.
+   * 
+   * @param useName the new use name
+   */
+  public void setUseName(String useName) {
+    this.useNameFld.setText(useName);
+  }
+
+  /**
+   * @return the first name
    */
   public String getFirstName() {
     return getContent(this.firstNameFld);
@@ -239,6 +267,22 @@ public class CardDialog extends AbstractDialog {
    */
   public void setFirstName(String firstName) {
     this.firstNameFld.setText(firstName);
+  }
+
+  /**
+   * @return the other names
+   */
+  public String getOtherNames() {
+    return getContent(this.otherNamesFld);
+  }
+
+  /**
+   * Sets the other names.
+   * 
+   * @param otherNames the new other names
+   */
+  public void setOtherNames(String otherNames) {
+    this.otherNamesFld.setText(otherNames);
   }
 
   /**
@@ -406,8 +450,8 @@ public class CardDialog extends AbstractDialog {
    */
   public Optional<FamilyMember> getCard() {
     if (!isCanceled()) {
-      FamilyMember member = new FamilyMember(getId(), this.image, getMemberName(), getFirstName(), getGender(), getBirthDate(),
-          getBirthLocation(), getDeathDate(), getDeathLocation(), isDead());
+      FamilyMember member = new FamilyMember(getId(), this.image, getFamilyName(), getUseName(), getFirstName(), getOtherNames(),
+          getGender(), getBirthDate(), getBirthLocation(), getDeathDate(), getDeathLocation(), isDead());
 
       return Optional.of(member);
     }
@@ -433,8 +477,10 @@ public class CardDialog extends AbstractDialog {
   boolean atLeastOneFieldCompleted() {
     boolean ok = false;
 
-    ok |= this.nameFld.getText().length() > 0;
+    ok |= this.familyNameFld.getText().length() > 0;
+    ok |= this.useNameFld.getText().length() > 0;
     ok |= this.firstNameFld.getText().length() > 0;
+    ok |= this.otherNamesFld.getText().length() > 0;
     ok |= this.genderCombo.getSelectedItem() != Gender.UNKNOW;
     ok |= this.birthFld.getText().length() > 0;
     ok |= this.deathFld.getText().length() > 0;
