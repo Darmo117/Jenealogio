@@ -128,9 +128,10 @@ public class Family {
       m.setFirstName(member.getFirstName().orElse(null));
       m.setGender(member.getGender());
       m.setBirthDate(member.getBirthDate().orElse(null));
-      m.setBirthPlace(member.getBirthLocation().orElse(null));
+      m.setBirthLocation(member.getBirthLocation().orElse(null));
       m.setDeathDate(member.getDeathDate().orElse(null));
       m.setDeathLocation(member.getDeathLocation().orElse(null));
+      m.setDead(member.isDead());
     }
   }
 

@@ -49,19 +49,21 @@ import net.darmo_creations.util.Nullable;
 public class FamilyMember implements Comparable<FamilyMember> {
   private final long id;
   private BufferedImage image;
-  private String name;
+  private String familyName;
+  private String useName;
   private String firstName;
   private Gender gender;
   private Date birthDate;
   private String birthLocation;
   private Date deathDate;
   private String deathLocation;
+  private boolean dead;
 
   /**
    * Creates a new member with no ID.
    * 
    * @param image the profile image
-   * @param name the name
+   * @param familyName the family name
    * @param firstName the first name
    * @param gender the gender (can be <code>Gender.UNKNOWN</code>)
    * @param birthDate the birthday
@@ -69,9 +71,9 @@ public class FamilyMember implements Comparable<FamilyMember> {
    * @param deathDate the death date
    * @param deathLocation the death location
    */
-  public FamilyMember(@Nullable BufferedImage image, @Nullable String name, @Nullable String firstName, Gender gender,
-      @Nullable Date birthDate, @Nullable String birthLocation, @Nullable Date deathDate, @Nullable String deathLocation) {
-    this(-1, image, name, firstName, gender, birthDate, birthLocation, deathDate, deathLocation);
+  public FamilyMember(@Nullable BufferedImage image, @Nullable String familyName, @Nullable String firstName, Gender gender,
+      @Nullable Date birthDate, @Nullable String birthLocation, @Nullable Date deathDate, @Nullable String deathLocation, boolean dead) {
+    this(-1, image, familyName, firstName, gender, birthDate, birthLocation, deathDate, deathLocation, dead);
   }
 
   /**
@@ -79,25 +81,29 @@ public class FamilyMember implements Comparable<FamilyMember> {
    * 
    * @param id internal ID
    * @param image the profile image
-   * @param name the name
+   * @param familyName the name
    * @param firstName the first name
    * @param gender the gender (can be <code>Gender.UNKNOWN</code>)
    * @param birthDate the birthday
    * @param birthLocation the birth location
    * @param deathDate the death date
    * @param deathLocation the death location
+   * @param dead if both the death date and death location are null, tells that if the person is
+   *          dead or not; otherwise, if either the date or location is not null, it is ignored
    */
-  public FamilyMember(long id, @Nullable BufferedImage image, @Nullable String name, @Nullable String firstName, Gender gender,
-      @Nullable Date birthDate, @Nullable String birthLocation, @Nullable Date deathDate, @Nullable String deathLocation) {
+  public FamilyMember(long id, @Nullable BufferedImage image, @Nullable String familyName, @Nullable String firstName, Gender gender,
+      @Nullable Date birthDate, @Nullable String birthLocation, @Nullable Date deathDate, @Nullable String deathLocation, boolean dead) {
     this.id = id;
-    this.image = image != null ? Images.deepCopy(image) : null;
-    this.name = name;
-    this.firstName = firstName;
-    this.gender = Objects.requireNonNull(gender);
-    this.birthDate = birthDate != null ? birthDate.clone() : null;
-    this.birthLocation = birthLocation;
-    this.deathDate = deathDate != null ? deathDate.clone() : null;
-    this.deathLocation = deathLocation;
+    setImage(image);
+    setName(familyName);
+    setFirstName(firstName);
+    setGender(gender);
+    setBirthDate(birthDate);
+    setBirthLocation(birthLocation);
+    setDeathDate(deathDate);
+    setDeathLocation(deathLocation);
+    if (!isDead())
+      setDead(dead);
   }
 
   /**
@@ -127,7 +133,7 @@ public class FamilyMember implements Comparable<FamilyMember> {
    * @return the name
    */
   public Optional<String> getName() {
-    return Optional.ofNullable(this.name);
+    return Optional.ofNullable(this.familyName);
   }
 
   /**
@@ -136,7 +142,7 @@ public class FamilyMember implements Comparable<FamilyMember> {
    * @param name the new name
    */
   void setName(@Nullable String name) {
-    this.name = name;
+    this.familyName = name;
   }
 
   /**
@@ -240,7 +246,7 @@ public class FamilyMember implements Comparable<FamilyMember> {
    * 
    * @param birthLocation the new birth location
    */
-  void setBirthPlace(@Nullable String birthLocation) {
+  void setBirthLocation(@Nullable String birthLocation) {
     this.birthLocation = birthLocation;
   }
 
@@ -252,12 +258,13 @@ public class FamilyMember implements Comparable<FamilyMember> {
   }
 
   /**
-   * Sets the death date. May be null.
+   * Sets the death date. May be null. Updates the {@code dead} boolean.
    * 
    * @param deathDate the new death date
    */
   void setDeathDate(@Nullable Date deathDate) {
     this.deathDate = deathDate != null ? deathDate.clone() : null;
+    updateDeath();
   }
 
   /**
@@ -268,12 +275,38 @@ public class FamilyMember implements Comparable<FamilyMember> {
   }
 
   /**
-   * Sets the death location. May be null.
+   * Sets the death location. May be null. Updates the {@code dead} boolean.
    * 
    * @param deathLocation the new death location
    */
   void setDeathLocation(@Nullable String deathLocation) {
     this.deathLocation = deathLocation;
+    updateDeath();
+  }
+
+  /**
+   * Updates the {@code dead} boolean.
+   */
+  private void updateDeath() {
+    this.dead = getDeathDate().isPresent() || getDeathLocation().isPresent();
+  }
+
+  /**
+   * @return true if the person is dead
+   */
+  public boolean isDead() {
+    return this.dead;
+  }
+
+  /**
+   * Sets if the person is dead. If either the death location or date is not null, this method will
+   * do nothing.
+   * 
+   * @param dead true if the person is dead; false otherwise
+   */
+  void setDead(boolean dead) {
+    if (!getDeathDate().isPresent() && !getDeathLocation().isPresent())
+      this.dead = dead;
   }
 
   @Override
@@ -303,7 +336,8 @@ public class FamilyMember implements Comparable<FamilyMember> {
    */
   FamilyMember copy(long id) {
     return new FamilyMember(id, getImage().orElse(null), getName().orElse(null), getFirstName().orElse(null), getGender(),
-        getBirthDate().orElse(null), getBirthLocation().orElse(null), getDeathDate().orElse(null), getDeathLocation().orElse(null));
+        getBirthDate().orElse(null), getBirthLocation().orElse(null), getDeathDate().orElse(null), getDeathLocation().orElse(null),
+        isDead());
   }
 
   @Override

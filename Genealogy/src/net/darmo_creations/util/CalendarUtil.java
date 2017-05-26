@@ -72,11 +72,14 @@ public class CalendarUtil {
   /**
    * Returns the date from the given string. It uses localized date pattern.
    * 
-   * @param field the textfield
+   * @param str the date
+   * @param throwException if true, an exception will be thrown when the date is invalid; otherwise
+   *          null is returned
+   * 
    * @return the date
    * @throws DateTimeParseException if the date was in the wrong format
    */
-  public static Date parseDate(String str) throws DateTimeParseException {
+  public static Date parseDate(String str, boolean throwException) throws DateTimeParseException {
     if (str.length() > 0) {
       Matcher matcher = DATE_PATTERN.matcher(str);
       if (matcher.matches()) {
@@ -90,7 +93,8 @@ public class CalendarUtil {
         return new Date(year, month, date);
       }
 
-      throw new DateTimeParseException("wrong date format", str, -1);
+      if (throwException)
+        throw new DateTimeParseException("wrong date format", str, -1);
     }
 
     return null;

@@ -36,6 +36,7 @@ import java.util.Optional;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFormattedTextField;
@@ -73,6 +74,7 @@ public class CardDialog extends AbstractDialog {
   private BufferedImage image;
   private JLabel imageLbl;
   private JTextField nameFld, firstNameFld, birthLocationFld, deathLocationFld;
+  private JCheckBox deadChkBox;
   private JComboBox<Gender> genderCombo;
   private JFormattedTextField birthFld, deathFld;
 
@@ -83,7 +85,7 @@ public class CardDialog extends AbstractDialog {
    */
   public CardDialog(MainFrame owner) {
     super(owner, Mode.VALIDATE_CANCEL_OPTION, true);
-    setPreferredSize(new Dimension(300, 410));
+    setPreferredSize(new Dimension(300, 430));
     setResizable(false);
     setIconImage(Images.JENEALOGIO.getImage());
 
@@ -132,6 +134,7 @@ public class CardDialog extends AbstractDialog {
     this.deathFld.getDocument().addDocumentListener(this.controller);
     this.deathLocationFld = new JTextField();
     this.deathLocationFld.getDocument().addDocumentListener(this.controller);
+    this.deadChkBox = new JCheckBox();
 
     JPanel imagePnl = new JPanel();
     imagePnl.setBorder(new EmptyBorder(5, 5, 0, 5));
@@ -159,6 +162,8 @@ public class CardDialog extends AbstractDialog {
     fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.death_date.text")), gbc);
     gbc.gridy = 6;
     fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.death_location.text")), gbc);
+    gbc.gridy = 7;
+    fieldsPnl.add(new JLabel(Images.CROSS), gbc);
     gbc.gridx = 1;
     gbc.gridwidth = 2;
     gbc.weightx = 1;
@@ -176,6 +181,8 @@ public class CardDialog extends AbstractDialog {
     fieldsPnl.add(this.deathFld, gbc);
     gbc.gridy = 6;
     fieldsPnl.add(this.deathLocationFld, gbc);
+    gbc.gridy = 7;
+    fieldsPnl.add(this.deadChkBox, gbc);
 
     add(imagePnl, BorderLayout.NORTH);
     add(fieldsPnl, BorderLayout.CENTER);
@@ -254,7 +261,7 @@ public class CardDialog extends AbstractDialog {
    * @return the birthday
    */
   public Date getBirthDate() {
-    return CalendarUtil.parseDate(this.birthFld.getText());
+    return CalendarUtil.parseDate(this.birthFld.getText(), false);
   }
 
   /**
@@ -286,7 +293,7 @@ public class CardDialog extends AbstractDialog {
    * @return the death date
    */
   public Date getDeathDate() {
-    return CalendarUtil.parseDate(this.deathFld.getText());
+    return CalendarUtil.parseDate(this.deathFld.getText(), false);
   }
 
   /**
@@ -296,6 +303,7 @@ public class CardDialog extends AbstractDialog {
    */
   public void setDeathDate(Optional<Date> date) {
     this.deathFld.setText(CalendarUtil.formatDate(date).orElse(""));
+    updateDeath();
   }
 
   /**
@@ -312,6 +320,26 @@ public class CardDialog extends AbstractDialog {
    */
   public void setDeathLocation(String location) {
     this.deathLocationFld.setText(location);
+    updateDeath();
+  }
+
+  private void updateDeath() {
+    setDead(getDeathDate() != null || getDeathLocation() != null);
+  }
+
+  public boolean isDead() {
+    return this.deadChkBox.isSelected();
+  }
+
+  public void setDead(boolean dead) {
+    if (getDeathDate() == null && getDeathLocation() == null)
+      this.deadChkBox.setSelected(dead);
+  }
+
+  public void setCheckBoxEnabled(boolean enabled) {
+    this.deadChkBox.setEnabled(enabled);
+    if (!this.deadChkBox.isEnabled())
+      this.deadChkBox.setSelected(true);
   }
 
   @Override
@@ -332,8 +360,8 @@ public class CardDialog extends AbstractDialog {
    * @return true if and only if all dates are well formatted
    */
   private boolean checkDates() {
-    Date birth = CalendarUtil.parseDate(this.birthFld.getText());
-    Date death = CalendarUtil.parseDate(this.deathFld.getText());
+    Date birth = CalendarUtil.parseDate(this.birthFld.getText(), false);
+    Date death = CalendarUtil.parseDate(this.deathFld.getText(), false);
 
     return birth == null || death == null || (birth != null && death != null && birth.before(death));
   }
@@ -379,7 +407,7 @@ public class CardDialog extends AbstractDialog {
   public Optional<FamilyMember> getCard() {
     if (!isCanceled()) {
       FamilyMember member = new FamilyMember(getId(), this.image, getMemberName(), getFirstName(), getGender(), getBirthDate(),
-          getBirthLocation(), getDeathDate(), getDeathLocation());
+          getBirthLocation(), getDeathDate(), getDeathLocation(), isDead());
 
       return Optional.of(member);
     }

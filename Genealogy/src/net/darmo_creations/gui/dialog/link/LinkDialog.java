@@ -235,7 +235,7 @@ public class LinkDialog extends AbstractDialog {
    * @return the date
    */
   Date getDate() {
-    return CalendarUtil.parseDate(this.dateFld.getText());
+    return CalendarUtil.parseDate(this.dateFld.getText(), false);
   }
 
   /**

@@ -18,6 +18,7 @@
  */
 package net.darmo_creations.gui.components;
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -32,6 +33,7 @@ import net.darmo_creations.config.ColorConfigKey;
 import net.darmo_creations.config.GlobalConfig;
 import net.darmo_creations.gui.components.draggable.Draggable;
 import net.darmo_creations.model.family.FamilyMember;
+import net.darmo_creations.util.Images;
 
 /**
  * This panel represents a family member in the tree display. It can be dragged with the mouse and
@@ -53,8 +55,10 @@ public class FamilyMemberPanel extends JPanel implements Draggable {
    * @param member the member to display
    */
   public FamilyMemberPanel(FamilyMember member, GlobalConfig config) {
+    super(new BorderLayout());
     this.model = new PanelModel(member.getId());
     this.nameLbl = new JLabel();
+    this.nameLbl.setHorizontalAlignment(JLabel.CENTER);
     add(this.nameLbl);
     setInfo(member, config);
     setSelected(false);
@@ -82,11 +86,12 @@ public class FamilyMemberPanel extends JPanel implements Draggable {
     }
 
     this.model.setId(member.getId());
+    this.nameLbl.setIcon(member.isDead() ? Images.CROSS : null);
     this.nameLbl.setText(member.toString());
 
     Dimension size = this.nameLbl.getPreferredSize();
     size.width += 20;
-    size.height *= 2;
+    size.height = 30;
     setSize(size);
     revalidate();
   }
