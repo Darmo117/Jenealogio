@@ -260,7 +260,8 @@ public class DisplayPanel extends JPanel implements Scrollable, Observable, Drag
     Point p = this.controller.getMouseLocation();
     double d = Math.abs(a * p.x + b * p.y + c) / Math.hypot(a, b);
 
-    return d <= HOVER_DISTANCE;
+    return d <= HOVER_DISTANCE && (p.getX() >= p1.getX() && p.getX() <= p2.getX() || p.getX() <= p1.getX() && p.getX() >= p2.getX()
+        || p.getY() >= p1.getY() && p.getY() <= p2.getY() || p.getY() <= p1.getY() && p.getY() >= p2.getY());
   }
 
   @Override
