@@ -20,6 +20,7 @@ package net.darmo_creations.gui.components;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -28,6 +29,8 @@ import java.util.Optional;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
 
 import net.darmo_creations.model.Date;
@@ -49,16 +52,14 @@ public class DetailsPanel extends JPanel {
 
   private JLabel nameLbl;
   private JLabel birthLbl;
-  private JLabel birthPlaceLbl;
   private JLabel weddingLbl;
-  private JLabel weddingPlaceLbl;
   private JLabel deathLbl;
-  private JLabel deathPlaceLbl;
   private JLabel ageLbl;
+  private JTextArea commentLbl;
 
   public DetailsPanel() {
     super(new BorderLayout());
-    setPreferredSize(new Dimension(300, 110));
+    setPreferredSize(new Dimension(300, 180));
     setLayout(new BorderLayout());
 
     this.nameLbl = new JLabel();
@@ -67,54 +68,62 @@ public class DetailsPanel extends JPanel {
     add(this.nameLbl, BorderLayout.NORTH);
 
     JPanel infoPnl = new JPanel(new GridBagLayout());
-
     GridBagConstraints gbc = new GridBagConstraints();
-    gbc.fill = GridBagConstraints.BOTH;
-    gbc.insets = new Insets(2, 2, 2, 2);
-    gbc.weightx = gbc.weighty = 1;
 
-    gbc.gridx = 0;
-    gbc.gridy = 0;
-    gbc.gridwidth = 1;
+    gbc.anchor = GridBagConstraints.BASELINE_LEADING;
+    gbc.insets.left = 10;
     infoPnl.add(new JLabel(Images.BABY), gbc);
     gbc.gridx = 1;
-    gbc.gridwidth = 5;
+    gbc.gridwidth = GridBagConstraints.REMAINDER;
+    gbc.anchor = GridBagConstraints.BASELINE;
+    gbc.fill = GridBagConstraints.HORIZONTAL;
+    gbc.insets = new Insets(5, 10, 0, 10);
     infoPnl.add(this.birthLbl = new JLabel(), gbc);
-    gbc.gridx = 6;
-    gbc.gridwidth = 1;
-    infoPnl.add(new JLabel(I18n.getLocalizedWord("in", false, false)), gbc);
-    gbc.gridx = 7;
-    gbc.gridwidth = 5;
-    infoPnl.add(this.birthPlaceLbl = new JLabel(), gbc);
+
     gbc.gridx = 0;
     gbc.gridy = 1;
     gbc.gridwidth = 1;
+    gbc.anchor = GridBagConstraints.BASELINE_LEADING;
+    gbc.fill = GridBagConstraints.NONE;
+    gbc.insets.left = 10;
     infoPnl.add(new JLabel(Images.HEART), gbc);
     gbc.gridx = 1;
-    gbc.gridwidth = 5;
+    gbc.gridwidth = GridBagConstraints.REMAINDER;
+    gbc.anchor = GridBagConstraints.BASELINE;
+    gbc.fill = GridBagConstraints.HORIZONTAL;
+    gbc.insets = new Insets(5, 10, 0, 10);
     infoPnl.add(this.weddingLbl = new JLabel(), gbc);
-    gbc.gridx = 6;
-    gbc.gridwidth = 1;
-    infoPnl.add(new JLabel(I18n.getLocalizedWord("in", false, false)), gbc);
-    gbc.gridx = 7;
-    gbc.gridwidth = 5;
-    infoPnl.add(this.weddingPlaceLbl = new JLabel(), gbc);
+
     gbc.gridx = 0;
     gbc.gridy = 2;
     gbc.gridwidth = 1;
+    gbc.anchor = GridBagConstraints.BASELINE_LEADING;
+    gbc.fill = GridBagConstraints.NONE;
+    gbc.insets.left = 10;
     infoPnl.add(new JLabel(Images.CROSS), gbc);
     gbc.gridx = 1;
-    gbc.gridwidth = 5;
+    gbc.gridwidth = GridBagConstraints.REMAINDER;
+    gbc.anchor = GridBagConstraints.BASELINE;
+    gbc.fill = GridBagConstraints.HORIZONTAL;
+    gbc.insets = new Insets(5, 10, 0, 10);
     infoPnl.add(this.deathLbl = new JLabel(), gbc);
-    gbc.gridx = 6;
-    gbc.gridwidth = 1;
-    infoPnl.add(new JLabel(I18n.getLocalizedWord("in", false, false)), gbc);
-    gbc.gridx = 7;
-    gbc.gridwidth = 5;
-    infoPnl.add(this.deathPlaceLbl = new JLabel(), gbc);
-    gbc.gridx = 1;
+
+    gbc.gridx = 0;
     gbc.gridy = 3;
+    gbc.anchor = GridBagConstraints.CENTER;
+    gbc.fill = GridBagConstraints.NONE;
     infoPnl.add(this.ageLbl = new JLabel(), gbc);
+
+    gbc.gridx = 0;
+    gbc.gridy = 4;
+    gbc.anchor = GridBagConstraints.CENTER;
+    gbc.fill = GridBagConstraints.BOTH;
+    gbc.weightx = gbc.weighty = 1.;
+    JScrollPane scroll = new JScrollPane(this.commentLbl = new JTextArea());
+    this.commentLbl.setFont(Font.getFont("Tahoma"));
+    this.commentLbl.setEditable(false);
+    // scroll.setPreferredSize(new Dimension(-1, 80));
+    infoPnl.add(scroll, gbc);
 
     add(infoPnl, BorderLayout.CENTER);
   }
@@ -128,14 +137,16 @@ public class DetailsPanel extends JPanel {
   public void setInfo(FamilyMember member, Wedding wedding) {
     String name = member.toString() + (member.getUseName().isPresent() && member.getFamilyName().isPresent()
         ? " " + I18n.getLocalizedWord("born", member.isWoman(), false) + " " + member.getFamilyName().get() : "");
+    String birth = formatDateAndLocation(member.getBirthDate(), member.getBirthLocation());
+    String weddingS = wedding != null ? formatDateAndLocation(wedding.getDate(), wedding.getLocation()) : UNKNOWN_DATA;
+    String death = formatDateAndLocation(member.getDeathDate(), member.getDeathLocation());
+
     this.nameLbl.setText(name);
-    this.birthLbl.setText(getDate(member.getBirthDate()));
-    this.birthPlaceLbl.setText(member.getBirthLocation().orElse(UNKNOWN_DATA));
-    this.weddingLbl.setText(wedding != null ? getDate(wedding.getDate()) : UNKNOWN_DATA);
-    this.weddingPlaceLbl.setText(wedding != null ? wedding.getLocation().orElse(UNKNOWN_DATA) : UNKNOWN_DATA);
-    this.deathLbl.setText(getDate(member.getDeathDate()));
-    this.deathPlaceLbl.setText(member.getDeathLocation().orElse(UNKNOWN_DATA));
+    this.birthLbl.setText(birth);
+    this.weddingLbl.setText(weddingS);
+    this.deathLbl.setText(death);
     this.ageLbl.setText(getAge(member.getAge()));
+    this.commentLbl.setText(member.getComment().orElse(""));
     revalidate();
   }
 
@@ -162,12 +173,25 @@ public class DetailsPanel extends JPanel {
   }
 
   /**
-   * Formats the given date.
+   * Formats the given date and location.
    * 
    * @param date the date
-   * @return the formatted date
+   * @param location the location
+   * @return the formatted string
    */
-  private String getDate(Optional<Date> date) {
-    return CalendarUtil.formatDate(date).orElse(UNKNOWN_DATA);
+  private String formatDateAndLocation(Optional<Date> date, Optional<String> location) {
+    String inWord = I18n.getLocalizedWord("in", false, false);
+
+    if (date.isPresent() && location.isPresent()) {
+      return String.format("%s %s %s", CalendarUtil.formatDate(date).get(), inWord, location.get());
+    }
+    if (!date.isPresent() && location.isPresent()) {
+      return String.format("%s %s", inWord, location.get());
+    }
+    if (date.isPresent() && !location.isPresent()) {
+      return CalendarUtil.formatDate(date).get();
+    }
+
+    return UNKNOWN_DATA;
   }
 }

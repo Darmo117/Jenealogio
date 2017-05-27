@@ -134,6 +134,7 @@ public class Family {
       m.setDeathDate(member.getDeathDate().orElse(null));
       m.setDeathLocation(member.getDeathLocation().orElse(null));
       m.setDead(member.isDead());
+      m.setComment(member.getComment().orElse(null));
     }
   }
 

@@ -72,6 +72,7 @@ public class CardController extends DefaultDialogController<CardDialog> implemen
       this.dialog.setDeathDate(member.getDeathDate());
       this.dialog.setDeathLocation(member.getDeathLocation().orElse(""));
       this.dialog.setDead(member.isDead());
+      this.dialog.setComment(member.getComment().orElse(""));
 
       this.dialog.setValidateButtonEnabled(this.dialog.atLeastOneFieldCompleted());
     }
@@ -89,6 +90,7 @@ public class CardController extends DefaultDialogController<CardDialog> implemen
       this.dialog.setDeathDate(Optional.empty());
       this.dialog.setDeathLocation("");
       this.dialog.setDead(false);
+      this.dialog.setComment("");
 
       this.dialog.setValidateButtonEnabled(false);
     }

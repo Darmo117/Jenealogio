@@ -22,6 +22,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -42,6 +43,8 @@ import javax.swing.JFileChooser;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
@@ -77,6 +80,7 @@ public class CardDialog extends AbstractDialog {
   private JCheckBox deadChkBox;
   private JComboBox<Gender> genderCombo;
   private JFormattedTextField birthFld, deathFld;
+  private JTextArea commentFld;
 
   /**
    * Creates a new dialog.
@@ -85,7 +89,7 @@ public class CardDialog extends AbstractDialog {
    */
   public CardDialog(MainFrame owner) {
     super(owner, Mode.VALIDATE_CANCEL_OPTION, true);
-    setPreferredSize(new Dimension(300, 480));
+    setPreferredSize(new Dimension(350, 570));
     setResizable(false);
     setIconImage(Images.JENEALOGIO.getImage());
 
@@ -138,7 +142,9 @@ public class CardDialog extends AbstractDialog {
     this.deathFld.getDocument().addDocumentListener(this.controller);
     this.deathLocationFld = new JTextField();
     this.deathLocationFld.getDocument().addDocumentListener(this.controller);
-    this.deadChkBox = new JCheckBox();
+    this.deadChkBox = new JCheckBox(I18n.getLocalizedString("label.dead.text"));
+    this.commentFld = new JTextArea();
+    this.commentFld.setFont(Font.getFont("Tahoma"));
 
     JPanel imagePnl = new JPanel();
     imagePnl.setBorder(new EmptyBorder(5, 5, 0, 5));
@@ -147,53 +153,147 @@ public class CardDialog extends AbstractDialog {
     imagePnl.add(imageBtn);
 
     JPanel fieldsPnl = new JPanel(new GridBagLayout());
-    fieldsPnl.setBorder(new EmptyBorder(5, 5, 5, 5));
     GridBagConstraints gbc = new GridBagConstraints();
-    gbc.insets = new Insets(2, 2, 2, 2);
-    gbc.fill = GridBagConstraints.HORIZONTAL;
 
-    gbc.gridy = 0;
+    gbc.anchor = GridBagConstraints.BASELINE_LEADING;
+    gbc.insets.left = 10;
     fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.family_name.text")), gbc);
-    gbc.gridy = 1;
-    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.use_name.text")), gbc);
-    gbc.gridy = 2;
-    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.first_name.text")), gbc);
-    gbc.gridy = 3;
-    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.other_names.text")), gbc);
-    gbc.gridy = 4;
-    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.gender.text")), gbc);
-    gbc.gridy = 5;
-    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.birth_date.text")), gbc);
-    gbc.gridy = 6;
-    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.birth_location.text")), gbc);
-    gbc.gridy = 7;
-    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.death_date.text")), gbc);
-    gbc.gridy = 8;
-    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.death_location.text")), gbc);
-    gbc.gridy = 9;
-    fieldsPnl.add(new JLabel(Images.CROSS), gbc);
+
     gbc.gridx = 1;
-    gbc.gridwidth = 2;
-    gbc.weightx = 1;
-    gbc.gridy = 0;
+    gbc.gridwidth = GridBagConstraints.REMAINDER;
+    gbc.anchor = GridBagConstraints.BASELINE;
+    gbc.fill = GridBagConstraints.HORIZONTAL;
+    gbc.insets = new Insets(5, 10, 0, 10);
     fieldsPnl.add(this.familyNameFld, gbc);
+
+    gbc.gridx = 0;
     gbc.gridy = 1;
+    gbc.gridwidth = 1;
+    gbc.anchor = GridBagConstraints.BASELINE_LEADING;
+    gbc.insets.left = 10;
+    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.use_name.text")), gbc);
+
+    gbc.gridx = 1;
+    gbc.gridwidth = GridBagConstraints.REMAINDER;
+    gbc.anchor = GridBagConstraints.BASELINE;
+    gbc.insets = new Insets(5, 10, 0, 10);
     fieldsPnl.add(this.useNameFld, gbc);
+
+    gbc.gridx = 0;
     gbc.gridy = 2;
+    gbc.gridwidth = 1;
+    gbc.anchor = GridBagConstraints.BASELINE_LEADING;
+    gbc.insets.left = 10;
+    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.first_name.text")), gbc);
+
+    gbc.gridx = 1;
+    gbc.gridwidth = GridBagConstraints.REMAINDER;
+    gbc.anchor = GridBagConstraints.BASELINE;
+    gbc.insets = new Insets(5, 10, 0, 10);
     fieldsPnl.add(this.firstNameFld, gbc);
+
+    gbc.gridx = 0;
     gbc.gridy = 3;
+    gbc.gridwidth = 1;
+    gbc.anchor = GridBagConstraints.BASELINE_LEADING;
+    gbc.insets.left = 10;
+    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.other_names.text")), gbc);
+
+    gbc.gridx = 1;
+    gbc.gridwidth = GridBagConstraints.REMAINDER;
+    gbc.anchor = GridBagConstraints.BASELINE;
+    gbc.insets = new Insets(5, 10, 0, 10);
     fieldsPnl.add(this.otherNamesFld, gbc);
+
+    gbc.gridx = 0;
     gbc.gridy = 4;
+    gbc.gridwidth = 1;
+    gbc.anchor = GridBagConstraints.BASELINE_LEADING;
+    gbc.insets.left = 10;
+    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.gender.text")), gbc);
+
+    gbc.gridx = 1;
+    gbc.gridwidth = GridBagConstraints.REMAINDER;
+    gbc.anchor = GridBagConstraints.BASELINE;
+    gbc.insets = new Insets(5, 10, 0, 10);
     fieldsPnl.add(this.genderCombo, gbc);
+
+    gbc.gridx = 0;
     gbc.gridy = 5;
+    gbc.gridwidth = 1;
+    gbc.anchor = GridBagConstraints.BASELINE_LEADING;
+    gbc.insets.left = 10;
+    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.birth_date.text")), gbc);
+
+    gbc.gridx = 1;
+    gbc.gridwidth = GridBagConstraints.REMAINDER;
+    gbc.anchor = GridBagConstraints.BASELINE;
+    gbc.insets = new Insets(5, 10, 0, 10);
     fieldsPnl.add(this.birthFld, gbc);
+
+    gbc.gridx = 0;
     gbc.gridy = 6;
+    gbc.gridwidth = 1;
+    gbc.anchor = GridBagConstraints.BASELINE_LEADING;
+    gbc.insets.left = 10;
+    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.birth_location.text")), gbc);
+
+    gbc.gridx = 1;
+    gbc.gridwidth = GridBagConstraints.REMAINDER;
+    gbc.anchor = GridBagConstraints.BASELINE;
+    gbc.insets = new Insets(5, 10, 0, 10);
     fieldsPnl.add(this.birthLocationFld, gbc);
+
+    gbc.gridx = 0;
     gbc.gridy = 7;
+    gbc.gridwidth = 1;
+    gbc.anchor = GridBagConstraints.BASELINE_LEADING;
+    gbc.insets.left = 10;
+    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.death_date.text")), gbc);
+
+    gbc.gridx = 1;
+    gbc.gridwidth = GridBagConstraints.REMAINDER;
+    gbc.anchor = GridBagConstraints.BASELINE;
+    gbc.insets = new Insets(5, 10, 0, 10);
     fieldsPnl.add(this.deathFld, gbc);
+
+    gbc.gridx = 0;
     gbc.gridy = 8;
+    gbc.gridwidth = 1;
+    gbc.anchor = GridBagConstraints.BASELINE_LEADING;
+    gbc.insets.left = 10;
+    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.death_location.text")), gbc);
+
+    gbc.gridx = 1;
+    gbc.gridwidth = GridBagConstraints.REMAINDER;
+    gbc.anchor = GridBagConstraints.BASELINE;
+    gbc.insets = new Insets(5, 10, 0, 10);
     fieldsPnl.add(this.deathLocationFld, gbc);
+
+    gbc.gridx = 0;
     gbc.gridy = 9;
+    gbc.gridwidth = 1;
+    gbc.anchor = GridBagConstraints.FIRST_LINE_START;
+    gbc.insets = new Insets(5, 10, 0, 0);
+    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.comment.text")), gbc);
+
+    gbc.gridx = 1;
+    gbc.gridwidth = GridBagConstraints.REMAINDER;
+    gbc.anchor = GridBagConstraints.CENTER;
+    gbc.fill = GridBagConstraints.BOTH;
+    gbc.weightx = gbc.weighty = 1.;
+    gbc.insets = new Insets(5, 10, 0, 10);
+    JScrollPane scroll = new JScrollPane(this.commentFld);
+    scroll.setPreferredSize(new Dimension(-1, 80));
+    fieldsPnl.add(scroll, gbc);
+
+    gbc.gridx = 0;
+    gbc.gridy = 10;
+    gbc.weightx = gbc.weighty = 0.;
+    gbc.fill = GridBagConstraints.NONE;
+    gbc.gridwidth = GridBagConstraints.REMAINDER;
+    gbc.anchor = GridBagConstraints.BASELINE_LEADING;
+    gbc.insets = new Insets(5, 10, 0, 0);
     fieldsPnl.add(this.deadChkBox, gbc);
 
     add(imagePnl, BorderLayout.NORTH);
@@ -367,23 +467,56 @@ public class CardDialog extends AbstractDialog {
     updateDeath();
   }
 
+  /**
+   * Updates the death boolean.
+   */
   private void updateDeath() {
     setDead(getDeathDate() != null || getDeathLocation() != null);
   }
 
+  /**
+   * @return true if the person is dead
+   */
   public boolean isDead() {
     return this.deadChkBox.isSelected();
   }
 
+  /**
+   * Sets the dead boolean.
+   * 
+   * @param dead
+   */
   public void setDead(boolean dead) {
     if (getDeathDate() == null && getDeathLocation() == null)
       this.deadChkBox.setSelected(dead);
   }
 
+  /**
+   * Enables or disables the checkbox.
+   * 
+   * @param enabled true to enable the button, otherwise false
+   */
   public void setCheckBoxEnabled(boolean enabled) {
     this.deadChkBox.setEnabled(enabled);
     if (!this.deadChkBox.isEnabled())
       this.deadChkBox.setSelected(true);
+  }
+
+  /**
+   * @return the comment
+   */
+  public String getComment() {
+    String text = this.commentFld.getText();
+    return text.length() > 0 ? text : null;
+  }
+
+  /**
+   * Sets the comment.
+   * 
+   * @param comment the new comment
+   */
+  public void setComment(String comment) {
+    this.commentFld.setText(comment);
   }
 
   @Override
@@ -451,7 +584,7 @@ public class CardDialog extends AbstractDialog {
   public Optional<FamilyMember> getCard() {
     if (!isCanceled()) {
       FamilyMember member = new FamilyMember(getId(), this.image, getFamilyName(), getUseName(), getFirstName(), getOtherNames(),
-          getGender(), getBirthDate(), getBirthLocation(), getDeathDate(), getDeathLocation(), isDead());
+          getGender(), getBirthDate(), getBirthLocation(), getDeathDate(), getDeathLocation(), isDead(), getComment());
 
       return Optional.of(member);
     }
@@ -484,6 +617,7 @@ public class CardDialog extends AbstractDialog {
     ok |= this.genderCombo.getSelectedItem() != Gender.UNKNOW;
     ok |= this.birthFld.getText().length() > 0;
     ok |= this.deathFld.getText().length() > 0;
+    ok |= this.commentFld.getText().length() > 0;
 
     return ok;
   }

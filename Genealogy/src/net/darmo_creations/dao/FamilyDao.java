@@ -105,13 +105,14 @@ public class FamilyDao {
         Boolean dead = (Boolean) memberObj.get("dead");
         // This boolean may not be present in older save versions.
         dead = dead == null ? false : dead;
+        String comment = getNullIfEmpty((String) memberObj.get("comment"));
         JSONObject positionObj = (JSONObject) memberObj.get("position");
         int x = (int) (long) positionObj.get("x");
         int y = (int) (long) positionObj.get("y");
 
         locations.put(id, new Point(x, y));
         members.add(new FamilyMember(id, image, familyName, useName, firstName, otherNames, gender, birthDate, birthLocation, deathDate,
-            deathLocation, dead));
+            deathLocation, dead, comment));
       }
 
       // Weddings loading
@@ -210,6 +211,7 @@ public class FamilyDao {
       formatDate(memberObj, "death_date", m.getDeathDate());
       memberObj.put("death_location", m.getDeathLocation().orElse(""));
       memberObj.put("dead", m.isDead());
+      memberObj.put("comment", m.getComment().orElse(""));
       memberObj.put("image", base64Encode(m.getImage()));
       JSONObject posObj = new JSONObject();
       posObj.put("x", positions.get(m.getId()).x);
