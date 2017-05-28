@@ -190,13 +190,11 @@ public class DetailsPanel extends JPanel {
    * @return the formatted string
    */
   private String formatDateAndLocation(Optional<Date> date, Optional<String> location) {
-    String inWord = I18n.getLocalizedWord("in", false, false);
-
     if (date.isPresent() && location.isPresent()) {
-      return String.format("%s %s %s", CalendarUtil.formatDate(date).get(), inWord, location.get());
+      return String.format("%s (%s)", CalendarUtil.formatDate(date).get(), location.get());
     }
     if (!date.isPresent() && location.isPresent()) {
-      return String.format("%s %s", inWord, location.get());
+      return location.get();
     }
     if (date.isPresent() && !location.isPresent()) {
       return CalendarUtil.formatDate(date).get();
