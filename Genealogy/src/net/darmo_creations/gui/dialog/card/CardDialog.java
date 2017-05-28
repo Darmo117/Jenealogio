@@ -544,8 +544,7 @@ public class CardDialog extends AbstractDialog {
     Optional<Date> birth = this.birthFld.getDate();
     Optional<Date> death = this.deathFld.getDate();
 
-    // TEMP
-    return true || !birth.isPresent() || !death.isPresent() || (birth.isPresent() && death.isPresent() && birth.get().before(death.get()));
+    return !birth.isPresent() || !death.isPresent() || (birth.isPresent() && death.isPresent() && birth.get().compareTo(death.get()) <= 0);
   }
 
   /**

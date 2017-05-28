@@ -322,8 +322,7 @@ public class FamilyMember implements Comparable<FamilyMember> {
 
       return Optional.of(Period.of(years, months, 0));
     }
-    else if (birthDate.isYearSet() && !birthDate.isMonthSet() && currentDate.isYearSet()
-        || birthDate.isYearSet() && currentDate.isYearSet() && !currentDate.isMonthSet()) {
+    else if (birthDate.isYearSet() && currentDate.isYearSet()) {
       return Optional.of(Period.ofYears(currentDate.getYear() - birthDate.getYear()));
     }
 

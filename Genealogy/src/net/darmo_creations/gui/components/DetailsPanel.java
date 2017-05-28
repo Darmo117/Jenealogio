@@ -146,11 +146,11 @@ public class DetailsPanel extends JPanel {
     String death = formatDateAndLocation(member.getDeathDate(), member.getDeathLocation());
 
     this.nameLbl.setText(name);
+    this.nameLbl.setIcon(member.isDead() ? Images.CROSS : null);
     this.birthLbl.setText(birth);
     this.weddingLbl.setText(weddingS);
     this.deathLbl.setText(death);
     this.ageLbl.setText(getAge(member.getAge()));
-    this.ageLbl.setIcon(member.isDead() ? Images.CROSS : null);
     this.commentLbl.setText(member.getComment().orElse(""));
     revalidate();
   }
@@ -169,15 +169,14 @@ public class DetailsPanel extends JPanel {
       int days = p.getDays();
       StringJoiner res = new StringJoiner(" ");
 
-      if (years > 0)
+      if (years > 0 || years == 0 && months == 0 && days == 0)
         res.add(years + " " + I18n.getLocalizedWord("year", false, years > 1));
       if (months > 0)
         res.add(months + " " + I18n.getLocalizedWord("month", false, months > 1));
       if (days > 0)
         res.add(days + " " + I18n.getLocalizedWord("day", false, days > 1));
 
-      if (res.length() > 0)
-        return res.toString();
+      return res.toString();
     }
 
     return UNKNOWN_DATA;

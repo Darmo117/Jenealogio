@@ -112,37 +112,46 @@ public final class Date implements Comparable<Date>, Cloneable {
   /**
    * Returns whether this date represents a time before the time represented by the specified date.
    * 
-   * @param date the date to be compared
+   * @param other the date to be compared
    * @return true if the time of this date is before the time represented by {@code date}; false
    *         otherwise
    */
-  public boolean before(Date date) {
-    // TODO adapter
-    if (!isIncomplete() && !date.isIncomplete())
-      return this.calendar.before(date.calendar);
-    return false;
+  public boolean before(Date other) {
+    return compareTo(other) < 0;
   }
 
   /**
    * Returns whether this date represents a time after the time represented by the specified date.
    * 
-   * @param date the date to be compared
+   * @param other the date to be compared
    * @return true if the time of this date is after the time represented by {@code date}; false
    *         otherwise
    */
-  public boolean after(Date date) {
-    // TODO adapter
-    if (!isIncomplete() && !date.isIncomplete())
-      return this.calendar.after(date.calendar);
-    return false;
+  public boolean after(Date other) {
+    return compareTo(other) > 0;
   }
 
   @Override
-  public int compareTo(Date date) {
-    // TODO adapter
-    if (!isIncomplete() && !date.isIncomplete())
-      return this.calendar.compareTo(date.calendar);
-    return 0;
+  public int compareTo(Date other) {
+    if (isYearSet() && isMonthSet() && other.isYearSet() && other.isMonthSet() && (!isDateSet() || !other.isDateSet())) {
+      if (getYear() < other.getYear() || getYear() == other.getYear() && getMonth() < other.getMonth())
+        return -1;
+      if (getYear() > other.getYear() || getYear() == other.getYear() && getMonth() > other.getMonth())
+        return 1;
+      if (getYear() == other.getYear() && getMonth() == other.getMonth() && !isDateSet() && !other.isDateSet())
+        return 0;
+    }
+
+    if (isYearSet() && other.isYearSet() && (!isMonthSet() || !other.isMonthSet())) {
+      if (getYear() < other.getYear())
+        return -1;
+      if (getYear() > other.getYear())
+        return 1;
+      if (getYear() == other.getYear() && !isMonthSet() && !other.isMonthSet() && !isDateSet() && !other.isDateSet())
+        return 0;
+    }
+
+    return this.calendar.compareTo(other.calendar);
   }
 
   @Override
