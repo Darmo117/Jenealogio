@@ -22,6 +22,7 @@ import javax.swing.text.Document;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.StyleSheet;
 
+import net.darmo_creations.gui.components.ImageLabel;
 import net.darmo_creations.util.I18n;
 import net.darmo_creations.util.Images;
 
@@ -36,7 +37,9 @@ public class AboutDialog extends AbstractDialog {
     JPanel leftPnl = new JPanel();
     leftPnl.setBorder(new EmptyBorder(5, 5, 5, 5));
     leftPnl.setLayout(new BoxLayout(leftPnl, BoxLayout.Y_AXIS));
-    leftPnl.add(new JLabel(Images.JENEALOGIO));
+    ImageLabel icon = new ImageLabel(Images.JENEALOGIO);
+    icon.setPreferredSize(new Dimension(100, 100));
+    leftPnl.add(icon);
     leftPnl.add(new JLabel(Images.GNU_GPL));
     add(leftPnl, BorderLayout.WEST);
 
