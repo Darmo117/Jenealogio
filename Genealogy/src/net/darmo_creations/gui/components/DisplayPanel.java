@@ -252,16 +252,27 @@ public class DisplayPanel extends JPanel implements Scrollable, Observable, Drag
    * @param p2 the other end
    * @return true if and only if the cursor is within a distance of {@link #HOVER_DISTANCE} pixels
    *         from the link
+   * @see <a href=
+   *      "https://stackoverflow.com/questions/17581738/check-if-a-point-projected-on-a-line-segment-is-not-outside-it">detect
+   *      if point is in segment range</a>
+   * @see <a href=
+   *      "https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line#Line_defined_by_two_points">distance
+   *      between a point and a line</a>
    */
   private boolean isMouseOnLink(Point p1, Point p2) {
-    int a = p2.y - p1.y;
-    int b = -(p2.x - p1.x);
-    int c = -a * p1.x - b * p1.y;
-    Point p = this.controller.getMouseLocation();
-    double d = Math.abs(a * p.x + b * p.y + c) / Math.hypot(a, b);
+    Point m = this.controller.getMouseLocation();
+    double dx = p2.getX() - p1.getX();
+    double dy = p2.getY() - p1.getY();
+    double innerProduct = (m.getX() - p1.getX()) * dx + (m.getY() - p1.getY()) * dy;
+    boolean mouseInSegmentRange = 0 <= innerProduct && innerProduct <= dx * dx + dy * dy;
 
-    return d <= HOVER_DISTANCE && (p.getX() >= p1.getX() && p.getX() <= p2.getX() || p.getX() <= p1.getX() && p.getX() >= p2.getX()
-        || p.getY() >= p1.getY() && p.getY() <= p2.getY() || p.getY() <= p1.getY() && p.getY() >= p2.getY());
+    double a = p2.getY() - p1.getY();
+    double b = -(p2.getX() - p1.getX());
+    double c = -a * p1.getX() - b * p1.getY();
+    Point p = this.controller.getMouseLocation();
+    double d = Math.abs(a * p.getX() + b * p.getY() + c) / Math.hypot(a, b);
+
+    return mouseInSegmentRange && d <= HOVER_DISTANCE;
   }
 
   @Override
