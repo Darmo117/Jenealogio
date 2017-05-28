@@ -117,21 +117,4 @@ public class FamilyMemberTest {
 
     return builder.getDate();
   }
-
-  private static Date getDate(int year, int month) {
-    DateBuilder builder = new DateBuilder();
-
-    builder.setYear(year);
-    builder.setMonth(month);
-
-    return builder.getDate();
-  }
-
-  private static Date getDate(int year) {
-    DateBuilder builder = new DateBuilder();
-
-    builder.setYear(year);
-
-    return builder.getDate();
-  }
 }
