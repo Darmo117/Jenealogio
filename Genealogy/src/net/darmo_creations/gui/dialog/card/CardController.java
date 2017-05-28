@@ -21,8 +21,6 @@ package net.darmo_creations.gui.dialog.card;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -42,7 +40,7 @@ import net.darmo_creations.util.I18n;
  *
  * @author Damien Vergnet
  */
-public class CardController extends DefaultDialogController<CardDialog> implements KeyListener, DocumentListener, ItemListener {
+public class CardController extends DefaultDialogController<CardDialog> implements DocumentListener, ItemListener {
   /**
    * Creates a controller.
    * 
@@ -108,14 +106,6 @@ public class CardController extends DefaultDialogController<CardDialog> implemen
   }
 
   @Override
-  public void keyTyped(KeyEvent e) {
-    char c = e.getKeyChar();
-
-    if (!(c >= '0' && c <= '9' || c == KeyEvent.VK_BACK_SPACE || c == KeyEvent.VK_DELETE || c == KeyEvent.VK_SLASH))
-      e.consume();
-  }
-
-  @Override
   public void itemStateChanged(ItemEvent e) {
     update();
   }
@@ -152,12 +142,6 @@ public class CardController extends DefaultDialogController<CardDialog> implemen
       this.dialog.setImage(image);
     }
   }
-
-  @Override
-  public void keyPressed(KeyEvent e) {}
-
-  @Override
-  public void keyReleased(KeyEvent e) {}
 
   @Override
   public void changedUpdate(DocumentEvent e) {}

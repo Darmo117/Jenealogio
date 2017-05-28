@@ -26,8 +26,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.ParseException;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -46,6 +44,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
 import net.darmo_creations.model.Date;
+import net.darmo_creations.model.DateBuilder;
 import net.darmo_creations.model.family.Family;
 import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.model.family.Gender;
@@ -152,12 +151,12 @@ public class FamilyDao {
   }
 
   /**
-   * The pattern for dates formatted as YYYY-MM-dd
+   * The pattern for dates formatted as YYYY-MM-DD
    */
-  private static final Pattern DATE_PATTERN = Pattern.compile("(\\d{4})-(\\d{2})-(\\d{2})");
+  private static final Pattern DATE_PATTERN = Pattern.compile("(\\d{4}|\\?{4})-(\\d{2}|\\?{2})-(\\d{2}|\\?{2})");
 
   /**
-   * Returns the date object corresponding to the given string (YYYY-MM-dd format).
+   * Returns the date object corresponding to the given string (YYYY-MM-DD format).
    * 
    * @param s the string
    * @return the date object or null if the string is empty
@@ -168,11 +167,19 @@ public class FamilyDao {
       Matcher matcher = DATE_PATTERN.matcher(s);
 
       if (matcher.matches()) {
-        int year = Integer.parseInt(matcher.group(1));
-        int month = Integer.parseInt(matcher.group(2));
-        int date = Integer.parseInt(matcher.group(3));
+        DateBuilder builder = new DateBuilder();
+        String year = matcher.group(1);
+        String month = matcher.group(2);
+        String date = matcher.group(3);
 
-        return new Date(year, month, date);
+        if (year.matches("\\d{4}"))
+          builder.setYear(Integer.parseInt(year));
+        if (month.matches("\\d{2}"))
+          builder.setMonth(Integer.parseInt(month));
+        if (date.matches("\\d{2}"))
+          builder.setDate(Integer.parseInt(date));
+
+        return builder.getDate();
       }
 
       throw new DateTimeParseException("wrong date format", s, -1);
@@ -254,8 +261,10 @@ public class FamilyDao {
 
     if (optDate.isPresent()) {
       Date d = optDate.get();
-      DateTimeFormatter f = DateTimeFormatter.ofPattern("YYYY-MM-dd");
-      date = f.format(LocalDate.of(d.getYear(), d.getMonth(), d.getDate()));
+
+      date += d.isYearSet() ? String.format("%04d", d.getYear()) : "????";
+      date += "-" + (d.isMonthSet() ? String.format("%02d", d.getMonth()) : "??");
+      date += "-" + (d.isDateSet() ? String.format("%02d", d.getDate()) : "??");
     }
     obj.put(key, date);
   }

@@ -182,7 +182,6 @@ public class Family {
    * @param wedding the new wedding
    */
   public void addWedding(Wedding wedding) {
-    // TODO vérifier que les époux ne soient pas déjà mariés.
     if (!this.weddings.contains(wedding) && !isMarried(wedding.getSpouse1()) && !isMarried(wedding.getSpouse2())) {
       // #f:0
       FamilyMember[] children = wedding.getChildren().stream()

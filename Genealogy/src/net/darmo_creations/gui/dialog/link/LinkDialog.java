@@ -19,20 +19,18 @@
 package net.darmo_creations.gui.dialog.link;
 
 import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
-import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -40,13 +38,12 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
-import net.darmo_creations.controllers.FormattedFieldFocusListener;
 import net.darmo_creations.gui.MainFrame;
+import net.darmo_creations.gui.components.DateField;
 import net.darmo_creations.gui.dialog.AbstractDialog;
 import net.darmo_creations.model.Date;
 import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.model.family.Wedding;
-import net.darmo_creations.util.CalendarUtil;
 import net.darmo_creations.util.I18n;
 import net.darmo_creations.util.Images;
 
@@ -59,7 +56,7 @@ public class LinkDialog extends AbstractDialog {
   private static final long serialVersionUID = -6591620133064467367L;
 
   private LinkController controller;
-  private JFormattedTextField dateFld;
+  private DateField dateFld;
   private JTextField locationFld;
   private JTextField spouse1Field, spouse2Field;
   private JList<FamilyMember> childrenList, availChildrenList;
@@ -84,10 +81,7 @@ public class LinkDialog extends AbstractDialog {
       }
     });
 
-    DateFormat dateFormat = new SimpleDateFormat(I18n.getLocalizedString("date.format"));
-    this.dateFld = new JFormattedTextField(dateFormat);
-    this.dateFld.addKeyListener(this.controller);
-    this.dateFld.addFocusListener(new FormattedFieldFocusListener(this.dateFld));
+    this.dateFld = new DateField(I18n.getLocalizedString("date.format"), FlowLayout.LEFT);
     this.locationFld = new JTextField();
     this.spouse1Field = new JTextField();
     this.spouse1Field.setEnabled(false);
@@ -235,7 +229,7 @@ public class LinkDialog extends AbstractDialog {
    * @return the date
    */
   Date getDate() {
-    return CalendarUtil.parseDate(this.dateFld.getText(), false);
+    return this.dateFld.getDate().orElse(null);
   }
 
   /**
@@ -244,7 +238,7 @@ public class LinkDialog extends AbstractDialog {
    * @param date the new date
    */
   void setDate(Optional<Date> date) {
-    this.dateFld.setText(CalendarUtil.formatDate(date).orElse(""));
+    this.dateFld.setDate(date.orElse(null));
   }
 
   /**

@@ -18,15 +18,13 @@
  */
 package net.darmo_creations.util;
 
-import java.time.format.DateTimeParseException;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.TimeZone;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import net.darmo_creations.model.Date;
+import net.darmo_creations.model.DateBuilder;
 
 /**
  * Useful functions to handle dates.
@@ -52,7 +50,12 @@ public class CalendarUtil {
     }
     Calendar c = Calendar.getInstance(TimeZone.getTimeZone(id), Locale.FRENCH);
 
-    return new Date(c.get(Calendar.YEAR), c.get(Calendar.MONTH) + 1, c.get(Calendar.DAY_OF_MONTH));
+    DateBuilder builder = new DateBuilder();
+    builder.setYear(c.get(Calendar.YEAR));
+    builder.setMonth(c.get(Calendar.MONTH) + 1);
+    builder.setDate(c.get(Calendar.DAY_OF_MONTH));
+
+    return builder.getDate();
   }
 
   /**
@@ -65,39 +68,6 @@ public class CalendarUtil {
     if (date.isPresent())
       return Optional.of(I18n.getFormattedDate(date.get()));
     return Optional.empty();
-  }
-
-  private static final Pattern DATE_PATTERN = Pattern.compile("(\\d+{1,2})/(\\d+{2})/(\\d+{4})");
-
-  /**
-   * Returns the date from the given string. It uses localized date pattern.
-   * 
-   * @param str the date
-   * @param throwException if true, an exception will be thrown when the date is invalid; otherwise
-   *          null is returned
-   * 
-   * @return the date
-   * @throws DateTimeParseException if the date was in the wrong format
-   */
-  public static Date parseDate(String str, boolean throwException) throws DateTimeParseException {
-    if (str.length() > 0) {
-      Matcher matcher = DATE_PATTERN.matcher(str);
-      if (matcher.matches()) {
-        String format = I18n.getLocalizedString("date.format");
-        boolean monthFirst = format.startsWith("M");
-
-        int year = Integer.parseInt(matcher.group(3));
-        int month = Integer.parseInt(matcher.group(monthFirst ? 1 : 2));
-        int date = Integer.parseInt(matcher.group(monthFirst ? 2 : 1));
-
-        return new Date(year, month, date);
-      }
-
-      if (throwException)
-        throw new DateTimeParseException("wrong date format", str, -1);
-    }
-
-    return null;
   }
 
   private CalendarUtil() {}

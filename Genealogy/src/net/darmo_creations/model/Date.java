@@ -21,45 +21,92 @@ package net.darmo_creations.model;
 import java.util.Calendar;
 
 /**
- * This class represents a date. It uses an instance of {@link java.util.Calendar} to handle data.
- * <b>N.B.</b>: unlike the Calendar class, January is 1 not 0, and so on.
+ * This class represents a date that can be incomplete. It uses an instance of
+ * {@link java.util.Calendar} to handle data. <b>N.B.</b>: unlike the Calendar class, January is 1
+ * not 0, and so on.
  * 
  * @author Damien Vergnet
  */
 public final class Date implements Comparable<Date>, Cloneable {
-  private final Calendar calendar;
+  private Calendar calendar;
+  private boolean yearSet, monthSet, dateSet;
 
   /**
-   * Creates a date from a year, a month and a date (day in the month).
+   * Creates a date from a builder.
    * 
-   * @param year the year
-   * @param month the month (1 for January)
-   * @param date the day in the month (1 for the first day)
+   * @param builder the builder
    */
-  public Date(int year, int month, int date) {
-    this.calendar = Calendar.getInstance();
-    this.calendar.set(year, month - 1, date);
+  Date(DateBuilder builder) {
+    this.calendar = (Calendar) builder.getCalendar().clone();
+    this.yearSet = builder.isYearSet();
+    this.monthSet = builder.isMonthSet();
+    this.dateSet = builder.isDateSet();
+    if (!this.yearSet && !this.monthSet && !this.dateSet)
+      throw new IllegalStateException("empty date");
+  }
+
+  /**
+   * @return true if and only if the year, month and date are known
+   */
+  public boolean isIncomplete() {
+    return !this.yearSet || !this.monthSet || !this.dateSet;
+  }
+
+  /**
+   * @return true if the year is set
+   */
+  public boolean isYearSet() {
+    return this.yearSet;
   }
 
   /**
    * @return the year
    */
   public int getYear() {
-    return this.calendar.get(Calendar.YEAR);
+    if (isYearSet())
+      return this.calendar.get(Calendar.YEAR);
+    throw new NullPointerException("year not set");
+  }
+
+  /**
+   * @return true if the month is set
+   */
+  public boolean isMonthSet() {
+    return this.monthSet;
   }
 
   /**
    * @return the month (1 for January)
    */
   public int getMonth() {
-    return this.calendar.get(Calendar.MONTH) + 1;
+    if (isMonthSet())
+      return this.calendar.get(Calendar.MONTH) + 1;
+    throw new NullPointerException("month not set");
+  }
+
+  /**
+   * @return the number of days in the current month
+   */
+  public int getDaysNbInMonth() {
+    if (isMonthSet())
+      return this.calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+    throw new NullPointerException("month not set");
+  }
+
+  /**
+   * @return true if the date is set
+   */
+  public boolean isDateSet() {
+    return this.dateSet;
   }
 
   /**
    * @return the day in the month (1 for the first day)
    */
   public int getDate() {
-    return this.calendar.get(Calendar.DAY_OF_MONTH);
+    if (isDateSet())
+      return this.calendar.get(Calendar.DAY_OF_MONTH);
+    throw new NullPointerException("date not set");
   }
 
   /**
@@ -70,7 +117,10 @@ public final class Date implements Comparable<Date>, Cloneable {
    *         otherwise
    */
   public boolean before(Date date) {
-    return this.calendar.before(date.calendar);
+    // TODO adapter
+    if (!isIncomplete() && !date.isIncomplete())
+      return this.calendar.before(date.calendar);
+    return false;
   }
 
   /**
@@ -81,16 +131,37 @@ public final class Date implements Comparable<Date>, Cloneable {
    *         otherwise
    */
   public boolean after(Date date) {
-    return this.calendar.after(date.calendar);
+    // TODO adapter
+    if (!isIncomplete() && !date.isIncomplete())
+      return this.calendar.after(date.calendar);
+    return false;
   }
 
   @Override
   public int compareTo(Date date) {
-    return this.calendar.compareTo(date.calendar);
+    // TODO adapter
+    if (!isIncomplete() && !date.isIncomplete())
+      return this.calendar.compareTo(date.calendar);
+    return 0;
   }
 
   @Override
   public Date clone() {
-    return new Date(getYear(), getMonth(), getDate());
+    try {
+      Date date = (Date) super.clone();
+
+      date.calendar = Calendar.getInstance();
+      if (isYearSet())
+        date.calendar.set(Calendar.YEAR, getYear());
+      if (isMonthSet())
+        date.calendar.set(Calendar.MONTH, getMonth() - 1);
+      if (isDateSet())
+        date.calendar.set(Calendar.DAY_OF_MONTH, getDate());
+
+      return date;
+    }
+    catch (CloneNotSupportedException e) {
+      throw new Error(e);
+    }
   }
 }

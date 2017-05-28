@@ -22,6 +22,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -30,8 +31,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Optional;
 
 import javax.swing.BoxLayout;
@@ -40,7 +39,6 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
-import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -50,14 +48,13 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
 import net.darmo_creations.controllers.ExtensionFileFilter;
-import net.darmo_creations.controllers.FormattedFieldFocusListener;
 import net.darmo_creations.gui.MainFrame;
+import net.darmo_creations.gui.components.DateField;
 import net.darmo_creations.gui.components.ImageLabel;
 import net.darmo_creations.gui.dialog.AbstractDialog;
 import net.darmo_creations.model.Date;
 import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.model.family.Gender;
-import net.darmo_creations.util.CalendarUtil;
 import net.darmo_creations.util.I18n;
 import net.darmo_creations.util.Images;
 
@@ -79,7 +76,7 @@ public class CardDialog extends AbstractDialog {
   private JTextField familyNameFld, useNameFld, firstNameFld, otherNamesFld, birthLocationFld, deathLocationFld;
   private JCheckBox deadChkBox;
   private JComboBox<Gender> genderCombo;
-  private JFormattedTextField birthFld, deathFld;
+  private DateField birthFld, deathFld;
   private JTextArea commentFld;
 
   /**
@@ -113,36 +110,43 @@ public class CardDialog extends AbstractDialog {
     this.imageLbl.setMaximumSize(this.imageLbl.getPreferredSize());
     this.imageLbl.setAlignmentX(Component.CENTER_ALIGNMENT);
     this.imageLbl.setBorder(new LineBorder(Color.GRAY));
+
     JButton imageBtn = new JButton(I18n.getLocalizedString("button.choose_image.text"));
     imageBtn.setActionCommand("choose-image");
     imageBtn.addActionListener(this.controller);
     imageBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
     imageBtn.setFocusPainted(false);
+
     this.familyNameFld = new JTextField();
     this.familyNameFld.getDocument().addDocumentListener(this.controller);
+
     this.useNameFld = new JTextField();
     this.useNameFld.getDocument().addDocumentListener(this.controller);
+
     this.firstNameFld = new JTextField();
     this.firstNameFld.getDocument().addDocumentListener(this.controller);
+
     this.otherNamesFld = new JTextField();
     this.otherNamesFld.getDocument().addDocumentListener(this.controller);
+
     this.genderCombo = new JComboBox<>(Gender.values());
     this.genderCombo.addItemListener(this.controller);
     this.genderCombo.setRenderer(new GenderComboRenderer(this.genderCombo.getRenderer()));
-    DateFormat dateFormat = new SimpleDateFormat(I18n.getLocalizedString("date.format"));
-    this.birthFld = new JFormattedTextField(dateFormat);
-    this.birthFld.addKeyListener(this.controller);
-    this.birthFld.addFocusListener(new FormattedFieldFocusListener(this.birthFld));
-    this.birthFld.getDocument().addDocumentListener(this.controller);
+
+    this.birthFld = new DateField(I18n.getLocalizedString("date.format"), FlowLayout.LEFT);
+    this.birthFld.addDocumentListener(this.controller);
+
     this.birthLocationFld = new JTextField();
     this.birthLocationFld.getDocument().addDocumentListener(this.controller);
-    this.deathFld = new JFormattedTextField(dateFormat);
-    this.deathFld.addKeyListener(this.controller);
-    this.deathFld.addFocusListener(new FormattedFieldFocusListener(this.deathFld));
-    this.deathFld.getDocument().addDocumentListener(this.controller);
+
+    this.deathFld = new DateField(I18n.getLocalizedString("date.format"), FlowLayout.LEFT);
+    this.deathFld.addDocumentListener(this.controller);
+
     this.deathLocationFld = new JTextField();
     this.deathLocationFld.getDocument().addDocumentListener(this.controller);
+
     this.deadChkBox = new JCheckBox(I18n.getLocalizedString("label.dead.text"));
+
     this.commentFld = new JTextArea();
     this.commentFld.setFont(Font.getFont("Tahoma"));
 
@@ -405,7 +409,7 @@ public class CardDialog extends AbstractDialog {
    * @return the birthday
    */
   public Date getBirthDate() {
-    return CalendarUtil.parseDate(this.birthFld.getText(), false);
+    return this.birthFld.getDate().orElse(null);
   }
 
   /**
@@ -414,7 +418,7 @@ public class CardDialog extends AbstractDialog {
    * @param date the new date
    */
   public void setBirthDate(Optional<Date> date) {
-    this.birthFld.setText(CalendarUtil.formatDate(date).orElse(""));
+    this.birthFld.setDate(date.orElse(null));
   }
 
   /**
@@ -437,7 +441,7 @@ public class CardDialog extends AbstractDialog {
    * @return the death date
    */
   public Date getDeathDate() {
-    return CalendarUtil.parseDate(this.deathFld.getText(), false);
+    return this.deathFld.getDate().orElse(null);
   }
 
   /**
@@ -446,7 +450,7 @@ public class CardDialog extends AbstractDialog {
    * @param date the date
    */
   public void setDeathDate(Optional<Date> date) {
-    this.deathFld.setText(CalendarUtil.formatDate(date).orElse(""));
+    this.deathFld.setDate(date.orElse(null));
     updateDeath();
   }
 
@@ -537,10 +541,11 @@ public class CardDialog extends AbstractDialog {
    * @return true if and only if all dates are well formatted
    */
   private boolean checkDates() {
-    Date birth = CalendarUtil.parseDate(this.birthFld.getText(), false);
-    Date death = CalendarUtil.parseDate(this.deathFld.getText(), false);
+    Optional<Date> birth = this.birthFld.getDate();
+    Optional<Date> death = this.deathFld.getDate();
 
-    return birth == null || death == null || (birth != null && death != null && birth.before(death));
+    // TEMP
+    return true || !birth.isPresent() || !death.isPresent() || (birth.isPresent() && death.isPresent() && birth.get().before(death.get()));
   }
 
   /**
@@ -615,8 +620,8 @@ public class CardDialog extends AbstractDialog {
     ok |= this.firstNameFld.getText().length() > 0;
     ok |= this.otherNamesFld.getText().length() > 0;
     ok |= this.genderCombo.getSelectedItem() != Gender.UNKNOW;
-    ok |= this.birthFld.getText().length() > 0;
-    ok |= this.deathFld.getText().length() > 0;
+    ok |= this.birthFld.getDate().isPresent();
+    ok |= this.deathFld.getDate().isPresent();
     ok |= this.commentFld.getText().length() > 0;
 
     return ok;

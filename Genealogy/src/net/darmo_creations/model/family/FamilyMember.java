@@ -256,30 +256,78 @@ public class FamilyMember implements Comparable<FamilyMember> {
   }
 
   /**
-   * Returns the member's age.<br/>
-   * <i>Special cases</i>: if the birthday is not available, the age will be empty; if the death
-   * date is not available, age will be calculated based on the current date.
+   * Returns this person's age:
+   * <ul>
+   * <li>if the birth date is not available or the death date is not avaiblable and the user is
+   * dead, the age will be empty;</li>
+   * <li>if the user is not dead and their birth date is known, the age will be calculated based on
+   * the current date</li>
+   * </ul>
    * 
-   * @return the member's current age
+   * @return this person's age
    */
   public Optional<Period> getAge() {
     if (!getBirthDate().isPresent() || !getDeathDate().isPresent() && isDead())
       return Optional.empty();
 
-    Optional<Date> deathDate = getDeathDate();
-    Date currentDate = deathDate.isPresent() ? deathDate.get() : CalendarUtil.getCurrentDate();
+    Date currentDate = isDead() ? getDeathDate().get() : CalendarUtil.getCurrentDate();
     Date birthDate = getBirthDate().get();
-    int currentMonth = currentDate.getMonth();
-    int birthMonth = birthDate.getMonth();
-    int currentDay = currentDate.getDate();
-    int birthDay = birthDate.getDate();
-    int years = currentDate.getYear() - birthDate.getYear();
 
-    // If the date is not yet behind, remove.
-    if (birthMonth > currentMonth || birthMonth == currentMonth && birthDay > currentDay)
-      years = years == 0 ? 0 : years - 1;
+    if (!birthDate.isIncomplete() && !currentDate.isIncomplete()) {
+      int currentMonth = currentDate.getMonth();
+      int birthMonth = birthDate.getMonth();
+      int currentDay = currentDate.getDate();
+      int birthDay = birthDate.getDate();
+      int years = currentDate.getYear() - birthDate.getYear();
+      int months = 0;
+      int days = 0;
 
-    return Optional.of(Period.ofYears(years));
+      if (birthMonth > currentMonth || birthMonth == currentMonth && birthDay > currentDay) {
+        years = years == 0 ? 0 : years - 1;
+        months = 12 - (birthMonth - currentMonth);
+        if (birthDay > currentDay) {
+          if (months > 0)
+            months--;
+          days = birthDate.getDaysNbInMonth() - (birthDay - currentDay);
+        }
+        else {
+          days = currentDay - birthDay;
+        }
+      }
+      else {
+        months = currentMonth - birthMonth;
+        if (birthDay > currentDay) {
+          if (months > 0)
+            months--;
+          days = birthDate.getDaysNbInMonth() - (birthDay - currentDay);
+        }
+        else
+          days = currentDay - birthDay;
+      }
+
+      return Optional.of(Period.of(years, months, days));
+    }
+    else if (birthDate.isYearSet() && birthDate.isMonthSet() && currentDate.isYearSet() && currentDate.isMonthSet()) {
+      int currentMonth = currentDate.getMonth();
+      int birthMonth = birthDate.getMonth();
+      int years = currentDate.getYear() - birthDate.getYear();
+      int months = 0;
+
+      if (birthMonth > currentMonth) {
+        years = years == 0 ? 0 : years - 1;
+        months = 12 - (birthMonth - currentMonth);
+      }
+      else
+        months = currentMonth - birthMonth;
+
+      return Optional.of(Period.of(years, months, 0));
+    }
+    else if (birthDate.isYearSet() && !birthDate.isMonthSet() && currentDate.isYearSet()
+        || birthDate.isYearSet() && currentDate.isYearSet() && !currentDate.isMonthSet()) {
+      return Optional.of(Period.ofYears(currentDate.getYear() - birthDate.getYear()));
+    }
+
+    return Optional.empty();
   }
 
   /**

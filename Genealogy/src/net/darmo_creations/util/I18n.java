@@ -18,8 +18,6 @@
  */
 package net.darmo_creations.util;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
@@ -49,8 +47,20 @@ public class I18n {
    * @return the formatted date
    */
   public static String getFormattedDate(Date date) {
-    DateTimeFormatter f = DateTimeFormatter.ofPattern(I18n.getLocalizedString("date.format"));
-    return f.format(LocalDate.of(date.getYear(), date.getMonth(), date.getDate()));
+    String year = date.isYearSet() ? "" + date.getYear() : "????";
+    String month = date.isMonthSet() ? "" + date.getMonth() : "??";
+    String day = date.isDateSet() ? "" + date.getDate() : "??";
+
+    switch (I18n.getLocalizedString("date.format")) {
+      case "D/M/Y":
+        return String.format("%2s/%2s/%4s", day, month, year).replace(' ', '0');
+      case "M/D/Y":
+        return String.format("%2s/%2s/%4s", month, day, year).replace(' ', '0');
+      case "Y/M/D":
+        return String.format("%4s/%2s/%2s", year, month, day).replace(' ', '0');
+    }
+
+    return "format error";
   }
 
   /**
@@ -64,7 +74,7 @@ public class I18n {
     try {
       return resource.getString(unlocalizedString);
     }
-    catch (MissingResourceException e) {
+    catch (MissingResourceException __) {
       return unlocalizedString;
     }
   }

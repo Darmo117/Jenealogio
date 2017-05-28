@@ -26,6 +26,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.time.Period;
 import java.util.Optional;
+import java.util.StringJoiner;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -57,6 +58,9 @@ public class DetailsPanel extends JPanel {
   private JLabel ageLbl;
   private JTextArea commentLbl;
 
+  /**
+   * Creates an empty panel.
+   */
   public DetailsPanel() {
     super(new BorderLayout());
     setPreferredSize(new Dimension(300, 180));
@@ -146,6 +150,7 @@ public class DetailsPanel extends JPanel {
     this.weddingLbl.setText(weddingS);
     this.deathLbl.setText(death);
     this.ageLbl.setText(getAge(member.getAge()));
+    this.ageLbl.setIcon(member.isDead() ? Images.CROSS : null);
     this.commentLbl.setText(member.getComment().orElse(""));
     revalidate();
   }
@@ -161,12 +166,18 @@ public class DetailsPanel extends JPanel {
       Period p = period.get();
       int years = p.getYears();
       int months = p.getMonths();
-      String res = years + " " + I18n.getLocalizedWord("year", false, years > 1);
+      int days = p.getDays();
+      StringJoiner res = new StringJoiner(" ");
 
+      if (years > 0)
+        res.add(years + " " + I18n.getLocalizedWord("year", false, years > 1));
       if (months > 0)
-        res += months + " " + I18n.getLocalizedWord("month", false, months > 1);
+        res.add(months + " " + I18n.getLocalizedWord("month", false, months > 1));
+      if (days > 0)
+        res.add(days + " " + I18n.getLocalizedWord("day", false, days > 1));
 
-      return res;
+      if (res.length() > 0)
+        return res.toString();
     }
 
     return UNKNOWN_DATA;
