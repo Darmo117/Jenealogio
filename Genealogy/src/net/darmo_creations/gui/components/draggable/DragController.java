@@ -68,6 +68,7 @@ public class DragController<T extends Draggable> extends MouseAdapter {
         Math.min(containerBounds.height - bounds.height, e.getYOnScreen() - getYOffset() - this.grabPoint.y));
 
     this.dragable.setLocation(new Point((newX / GRID_STEP) * GRID_STEP, (newY / GRID_STEP) * GRID_STEP));
+    this.handler.componentDragged(e, this.dragable);
   }
 
   /**

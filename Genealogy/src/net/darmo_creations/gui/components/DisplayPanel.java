@@ -25,6 +25,7 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -335,6 +336,11 @@ public class DisplayPanel extends JPanel implements Scrollable, Observable, Drag
   @Override
   public Point getScrollOffset() {
     return getLocationOnScreen();
+  }
+
+  @Override
+  public void componentDragged(MouseEvent e, FamilyMemberPanel component) {
+    notifyObservers(component);
   }
 
   @Override

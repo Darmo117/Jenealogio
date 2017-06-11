@@ -42,6 +42,7 @@ import net.darmo_creations.config.Language;
 import net.darmo_creations.dao.ConfigDao;
 import net.darmo_creations.dao.FamilyDao;
 import net.darmo_creations.gui.MainFrame;
+import net.darmo_creations.gui.components.FamilyMemberPanel;
 import net.darmo_creations.model.family.Family;
 import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.model.family.Wedding;
@@ -95,7 +96,7 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
   public void init() {
     this.fileOpen = false;
     this.alreadySaved = false;
-    this.saved = false;
+    this.saved = true;
     updateFrameMenus();
   }
 
@@ -208,6 +209,10 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
       else if (s.equals("edit"))
         edit();
     }
+    else if (o instanceof FamilyMemberPanel) {
+      this.saved = false;
+      updateFrameMenus();
+    }
   }
 
   /**
@@ -317,6 +322,7 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
       if (!this.alreadySaved)
         this.alreadySaved = true;
       this.saved = true;
+      this.frame.updateSaveMenus(this.saved);
 
       return true;
     }
@@ -335,6 +341,7 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
     if (member.isPresent()) {
       this.saved = false;
       this.family.addMember(member.get());
+      updateFrameMenus();
       refreshFrame();
     }
   }
@@ -347,9 +354,12 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
     all.remove(spouse1);
     all.remove(spouse2);
     Optional<Wedding> optWedding = this.frame.showAddLinkDialog(spouse1, spouse2, all);
-    optWedding.ifPresent(w -> this.family.addWedding(w));
-    this.frame.refreshDisplay(this.family, this.config);
-    this.saved = false;
+    if (optWedding.isPresent()) {
+      this.family.addWedding(optWedding.get());
+      this.frame.refreshDisplay(this.family, this.config);
+      this.saved = false;
+      updateFrameMenus();
+    }
   }
 
   /**
@@ -369,8 +379,9 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
 
       if (member.isPresent()) {
         this.family.updateMember(member.get());
-        refreshFrame();
         this.saved = false;
+        updateFrameMenus();
+        refreshFrame();
       }
     }
     else if (this.selectedLink != null) {
@@ -378,8 +389,9 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
 
       if (wedding.isPresent()) {
         this.family.updateWedding(wedding.get());
-        refreshFrame();
         this.saved = false;
+        updateFrameMenus();
+        refreshFrame();
       }
     }
   }
@@ -392,18 +404,18 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
       if (this.frame.showConfirmDialog(I18n.getLocalizedString("popup.delete_card_confirm.text")) == JOptionPane.OK_OPTION) {
         this.family.removeMember(this.selectedCard);
         this.selectedCard = null;
+        this.saved = false;
         updateFrameMenus();
         refreshFrame();
-        this.saved = false;
       }
     }
     else if (this.selectedLink != null) {
       if (this.frame.showConfirmDialog(I18n.getLocalizedString("popup.delete_link_confirm.text")) == JOptionPane.OK_OPTION) {
         this.family.removeWedding(this.selectedLink);
         this.selectedLink = null;
+        this.saved = false;
         updateFrameMenus();
         refreshFrame();
-        this.saved = false;
       }
     }
   }
@@ -451,6 +463,7 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
   private void updateFrameMenus() {
     this.frame.setTitle(MainFrame.BASE_TITLE + (this.family != null ? " - " + this.family.getName() : ""));
     this.frame.updateMenus(this.fileOpen, this.selectedCard != null, this.selectedLink != null);
+    this.frame.updateSaveMenus(this.saved);
   }
 
   /**

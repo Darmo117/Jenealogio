@@ -317,7 +317,6 @@ public class MainFrame extends JFrame {
    * @param linkSelected is a link selected?
    */
   public void updateMenus(boolean fileOpen, boolean cardSelected, boolean linkSelected) {
-    this.saveItem.setEnabled(fileOpen);
     this.saveAsItem.setEnabled(fileOpen);
     this.editMenu.setEnabled(fileOpen);
     this.addCardItem.setEnabled(fileOpen);
@@ -325,7 +324,6 @@ public class MainFrame extends JFrame {
     this.editItem.setEnabled(fileOpen && (cardSelected || linkSelected));
     this.deleteItem.setEnabled(fileOpen && (cardSelected || linkSelected));
 
-    this.saveBtn.setEnabled(fileOpen);
     this.saveAsBtn.setEnabled(fileOpen);
     this.addCardBtn.setEnabled(fileOpen);
     this.addLinkBtn.setEnabled(fileOpen);
@@ -356,6 +354,16 @@ public class MainFrame extends JFrame {
         this.deleteItem.setIcon(null);
       }
     }
+  }
+
+  /**
+   * Updates the save buttons.
+   * 
+   * @param saved is the file saved?
+   */
+  public void updateSaveMenus(boolean saved) {
+    this.saveItem.setEnabled(!saved);
+    this.saveBtn.setEnabled(!saved);
   }
 
   /**

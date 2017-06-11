@@ -20,6 +20,7 @@ package net.darmo_creations.gui.components.draggable;
 
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.MouseEvent;
 
 /**
  * A component implementing this interface can hold draggable components.
@@ -38,4 +39,12 @@ public interface DraggableComponentContainer<T extends Draggable> {
    * @return this component's onscreen offset
    */
   Point getScrollOffset();
+
+  /**
+   * This method is called when a component has been dragged.
+   * 
+   * @param e the mouse event
+   * @param component the dragged component
+   */
+  void componentDragged(MouseEvent e, T component);
 }
