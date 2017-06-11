@@ -139,8 +139,7 @@ public class DetailsPanel extends JPanel {
    * @param wedding the wedding it is part of
    */
   public void setInfo(FamilyMember member, Wedding wedding) {
-    String name = member.toString() + (member.getUseName().isPresent() && member.getFamilyName().isPresent()
-        ? " " + I18n.getLocalizedWord("born", member.isWoman(), false) + " " + member.getFamilyName().get() : "");
+    String name = member.toString() + (member.getUseName().isPresent() ? " (" + member.getUseName().get() + ")" : "");
     String birth = formatDateAndLocation(member.getBirthDate(), member.getBirthLocation());
     String weddingS = wedding != null ? formatDateAndLocation(wedding.getDate(), wedding.getLocation()) : UNKNOWN_DATA;
     String death = formatDateAndLocation(member.getDeathDate(), member.getDeathLocation());

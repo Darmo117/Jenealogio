@@ -434,9 +434,9 @@ public class FamilyMember implements Comparable<FamilyMember> {
 
   @Override
   public String toString() {
-    if (!getFirstName().isPresent() && !getFamilyName().isPresent() && !getUseName().isPresent())
+    if (!getFirstName().isPresent() && !getFamilyName().isPresent())
       return "?";
-    return getFirstName().orElse("?") + " " + (getUseName().isPresent() ? getUseName().get() : getFamilyName().orElse("?"));
+    return getFirstName().orElse("?") + " " + getFamilyName().orElse("?");
   }
 
   /**
