@@ -602,7 +602,7 @@ public class CardDialog extends AbstractDialog {
    * @return text field's content
    */
   private String getContent(JTextField field) {
-    String text = field.getText();
+    String text = field.getText().trim().replaceAll("\\s+", " ");
     return text.length() > 0 ? text : null;
   }
 

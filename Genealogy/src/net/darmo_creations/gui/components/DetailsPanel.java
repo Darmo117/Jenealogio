@@ -23,6 +23,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Insets;
 import java.time.Period;
 import java.util.Optional;
@@ -52,6 +53,7 @@ public class DetailsPanel extends JPanel {
   public static final String UNKNOWN_DATA = "?";
 
   private JLabel nameLbl;
+  private JLabel otherNamesLbl;
   private JLabel birthLbl;
   private JLabel weddingLbl;
   private JLabel deathLbl;
@@ -66,10 +68,16 @@ public class DetailsPanel extends JPanel {
     setPreferredSize(new Dimension(300, 180));
     setLayout(new BorderLayout());
 
+    JPanel namesPnl = new JPanel(new GridLayout(2, 1));
     this.nameLbl = new JLabel();
     this.nameLbl.setHorizontalAlignment(JLabel.CENTER);
     this.nameLbl.setBorder(new EmptyBorder(0, 10, 0, 10));
-    add(this.nameLbl, BorderLayout.NORTH);
+    namesPnl.add(this.nameLbl);
+    this.otherNamesLbl = new JLabel();
+    this.otherNamesLbl.setHorizontalAlignment(JLabel.CENTER);
+    this.otherNamesLbl.setFont(this.otherNamesLbl.getFont().deriveFont(Font.ITALIC));
+    namesPnl.add(this.otherNamesLbl);
+    add(namesPnl, BorderLayout.NORTH);
 
     JPanel infoPnl = new JPanel(new GridBagLayout());
     GridBagConstraints gbc = new GridBagConstraints();
@@ -126,7 +134,6 @@ public class DetailsPanel extends JPanel {
     JScrollPane scroll = new JScrollPane(this.commentLbl = new JTextArea());
     this.commentLbl.setFont(Font.getFont("Tahoma"));
     this.commentLbl.setEditable(false);
-    // scroll.setPreferredSize(new Dimension(-1, 80));
     infoPnl.add(scroll, gbc);
 
     add(infoPnl, BorderLayout.CENTER);
@@ -146,6 +153,7 @@ public class DetailsPanel extends JPanel {
 
     this.nameLbl.setText(name);
     this.nameLbl.setIcon(member.isDead() ? Images.CROSS : null);
+    this.otherNamesLbl.setText(member.getOtherNames().orElse(""));
     this.birthLbl.setText(birth);
     this.weddingLbl.setText(weddingS);
     this.deathLbl.setText(death);
