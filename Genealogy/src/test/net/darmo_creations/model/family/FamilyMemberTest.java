@@ -3,6 +3,7 @@ package net.darmo_creations.model.family;
 import static org.junit.Assert.*;
 
 import java.time.Period;
+import java.util.Optional;
 
 import org.junit.After;
 import org.junit.Before;
@@ -106,6 +107,46 @@ public class FamilyMemberTest {
     this.p.setBirthDate(getDate(2000, 4, 2));
     this.p.setDeathDate(getDate(2001, 3, 1));
     assertEquals(Period.of(0, 10, 29), this.p.getAge().get());
+  }
+
+  @Test
+  public void testYoungerThan() {
+    this.p.setBirthDate(getDate(2000, 1, 2));
+    FamilyMember p1 = new FamilyMember(null, null, null, null, null, Gender.UNKNOW, getDate(2000, 1, 1), null, null, null, false, null);
+    Optional<Integer> opt = this.p.compareBirthdays(p1);
+    if (opt.isPresent())
+      assertEquals(1, (int) opt.get());
+    else
+      fail("empty result");
+  }
+
+  @Test
+  public void testOlderThan() {
+    this.p.setBirthDate(getDate(2000, 1, 1));
+    FamilyMember p1 = new FamilyMember(null, null, null, null, null, Gender.UNKNOW, getDate(2000, 1, 2), null, null, null, false, null);
+    Optional<Integer> opt = this.p.compareBirthdays(p1);
+    if (opt.isPresent())
+      assertEquals(-1, (int) opt.get());
+    else
+      fail("empty result");
+  }
+
+  @Test
+  public void testSameAge() {
+    this.p.setBirthDate(getDate(2000, 1, 1));
+    FamilyMember p1 = new FamilyMember(null, null, null, null, null, Gender.UNKNOW, getDate(2000, 1, 1), null, null, null, false, null);
+    Optional<Integer> opt = this.p.compareBirthdays(p1);
+    if (opt.isPresent())
+      assertEquals(0, (int) opt.get());
+    else
+      fail("empty result");
+  }
+
+  @Test
+  public void testNotYoungerThan() {
+    this.p.setBirthDate(getDate(2000, 1, 1));
+    FamilyMember p1 = new FamilyMember(null, null, null, null, null, Gender.UNKNOW, null, null, null, null, false, null);
+    assertFalse(this.p.compareBirthdays(p1).isPresent());
   }
 
   private static Date getDate(int year, int month, int day) {

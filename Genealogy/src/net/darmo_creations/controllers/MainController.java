@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.ParseException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -350,10 +351,9 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
    * Opens up the "add link" dialog then adds the new link to the model.
    */
   private void addLink(FamilyMember spouse1, FamilyMember spouse2) {
-    Set<FamilyMember> all = this.family.getAllMembers();
-    all.remove(spouse1);
-    all.remove(spouse2);
+    Set<FamilyMember> all = this.family.getPotentialChildren(spouse1, spouse2, Collections.emptySet());
     Optional<Wedding> optWedding = this.frame.showAddLinkDialog(spouse1, spouse2, all);
+
     if (optWedding.isPresent()) {
       this.family.addWedding(optWedding.get());
       this.frame.refreshDisplay(this.family, this.config);

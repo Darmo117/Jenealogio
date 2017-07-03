@@ -23,7 +23,6 @@ import java.util.Iterator;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * A family has members and each member can be married. The update methods do not use directly the
@@ -234,6 +233,16 @@ public class Family {
   }
 
   /**
+   * Tells if a member has known parents.
+   * 
+   * @param member the member
+   * @return true if and only if the member has known parents
+   */
+  public boolean hasParents(FamilyMember member) {
+    return this.weddings.stream().anyMatch(w -> w.getChildren().contains(member));
+  }
+
+  /**
    * Returns all members that can be children of the given couple. If the argument is null, all
    * members are returned.
    * 
@@ -243,11 +252,44 @@ public class Family {
   public Set<FamilyMember> getPotentialChildren(Wedding wedding) {
     if (wedding == null)
       return getAllMembers();
-    // #f:0
-    return getAllMembers().stream()
-        .filter(m -> !m.equals(wedding.getSpouse1()) && !m.equals(wedding.getSpouse2()) && !wedding.isChild(m))
-        .collect(Collectors.toCollection(HashSet::new));
-    // #f:1
+    return getPotentialChildren(wedding.getSpouse1(), wedding.getSpouse2(), wedding.getChildren());
+  }
+
+  /**
+   * Returns all members that can be children of the given couple. If the argument is null, all
+   * members are returned.
+   * 
+   * @param spouse1 the first spouse
+   * @param spouse2 the second spouse
+   * @param chidren the children
+   * @return a list of potential children
+   */
+  public Set<FamilyMember> getPotentialChildren(FamilyMember spouse1, FamilyMember spouse2, Set<FamilyMember> chidren) {
+    Set<FamilyMember> all = getAllMembers();
+
+    all.remove(spouse1);
+    all.remove(spouse2);
+
+    if (spouse1.getBirthDate().isPresent() || spouse2.getBirthDate().isPresent()) {
+      // Filter out all members that are older than the youngest spouse.
+      FamilyMember youngest = null;
+
+      if (spouse1.getBirthDate().isPresent() && spouse2.getBirthDate().isPresent()) {
+        youngest = spouse1.compareBirthdays(spouse2).get() > 0 ? spouse1 : spouse2;
+      }
+      else if (spouse1.getBirthDate().isPresent()) {
+        youngest = spouse1;
+      }
+      else {
+        youngest = spouse2;
+      }
+      final FamilyMember y = youngest;
+      all.removeIf(m -> m.compareBirthdays(y).orElse(1) <= 0);
+    }
+
+    all.removeIf(m -> chidren.contains(m) || hasParents(m));
+
+    return all;
   }
 
   /**

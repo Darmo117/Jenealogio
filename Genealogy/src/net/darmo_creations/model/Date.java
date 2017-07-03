@@ -138,8 +138,7 @@ public final class Date implements Comparable<Date>, Cloneable {
         return -1;
       if (getYear() > other.getYear() || getYear() == other.getYear() && getMonth() > other.getMonth())
         return 1;
-      if (getYear() == other.getYear() && getMonth() == other.getMonth() && !isDateSet() && !other.isDateSet())
-        return 0;
+      return 0;
     }
 
     if (isYearSet() && other.isYearSet() && (!isMonthSet() || !other.isMonthSet())) {
@@ -147,8 +146,7 @@ public final class Date implements Comparable<Date>, Cloneable {
         return -1;
       if (getYear() > other.getYear())
         return 1;
-      if (getYear() == other.getYear() && !isMonthSet() && !other.isMonthSet() && !isDateSet() && !other.isDateSet())
-        return 0;
+      return 0;
     }
 
     return this.calendar.compareTo(other.calendar);

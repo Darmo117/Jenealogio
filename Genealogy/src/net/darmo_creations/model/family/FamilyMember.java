@@ -330,6 +330,24 @@ public class FamilyMember implements Comparable<FamilyMember> {
   }
 
   /**
+   * Compares this person against another based on their birthdays.
+   * 
+   * @param member the other person
+   * @return 0 if both have the same birthdate; 1 if this person is younger; -1 if the other person
+   *         is younger; nothing if one of the dates is empty
+   */
+  public Optional<Integer> compareBirthdays(FamilyMember member) {
+    Optional<Date> thisBirth = getBirthDate();
+    Optional<Date> otherBirth = member.getBirthDate();
+
+    if (thisBirth.isPresent() && otherBirth.isPresent()) {
+      return Optional.of(thisBirth.get().compareTo(otherBirth.get()));
+    }
+
+    return Optional.empty();
+  }
+
+  /**
    * @return the birth location
    */
   public Optional<String> getBirthLocation() {
