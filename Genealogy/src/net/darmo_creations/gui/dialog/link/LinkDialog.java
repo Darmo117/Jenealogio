@@ -23,6 +23,8 @@ import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.List;
@@ -37,6 +39,9 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.text.BadLocationException;
 
 import net.darmo_creations.gui.MainFrame;
 import net.darmo_creations.gui.components.DateField;
@@ -61,6 +66,7 @@ public class LinkDialog extends AbstractDialog {
   private JTextField spouse1Field, spouse2Field;
   private JList<FamilyMember> childrenList, availChildrenList;
   private JButton addBtn, removeBtn;
+  private JTextField searchFld;
 
   /**
    * Creates a new dialog.
@@ -99,6 +105,46 @@ public class LinkDialog extends AbstractDialog {
     this.removeBtn = new JButton(Images.ARROW_DOWN);
     this.removeBtn.setActionCommand("remove");
     this.removeBtn.addActionListener(this.controller);
+    this.searchFld = new JTextField();
+    this.searchFld.getDocument().addDocumentListener(new DocumentListener() {
+      @Override
+      public void changedUpdate(DocumentEvent e) {
+        update(e);
+      }
+
+      @Override
+      public void insertUpdate(DocumentEvent e) {
+        update(e);
+      }
+
+      @Override
+      public void removeUpdate(DocumentEvent e) {
+        update(e);
+      }
+
+      private void update(DocumentEvent e) {
+        try {
+          String text = e.getDocument().getText(0, e.getDocument().getLength()).toLowerCase();
+          DefaultListModel<FamilyMember> model = (DefaultListModel<FamilyMember>) LinkDialog.this.availChildrenList.getModel();
+
+          for (int i = 0; i < model.size(); i++) {
+            FamilyMember m = model.getElementAt(i);
+
+            if (m.toString().toLowerCase().contains(text)) {
+              model.remove(i);
+              model.insertElementAt(m, 0);
+            }
+          }
+        }
+        catch (BadLocationException __) {}
+      }
+    });
+    this.searchFld.addKeyListener(new KeyAdapter() {
+      @Override
+      public void keyTyped(KeyEvent e) {
+        // System.out.println(e.getKeyChar());
+      }
+    });
 
     JPanel fieldsPnl = new JPanel(new GridBagLayout());
     fieldsPnl.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -119,6 +165,9 @@ public class LinkDialog extends AbstractDialog {
     gbc.gridwidth = 3;
     gbc.gridy = 7;
     fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.available_children.text")), gbc);
+    gbc.gridwidth = 2;
+    gbc.gridy = 11;
+    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.search.text")), gbc);
     gbc.gridwidth = 5;
     gbc.weightx = 1;
     gbc.gridx = 2;
@@ -148,6 +197,10 @@ public class LinkDialog extends AbstractDialog {
     gbc.fill = GridBagConstraints.BOTH;
     gbc.gridheight = 3;
     fieldsPnl.add(new JScrollPane(this.availChildrenList), gbc);
+    gbc.gridy = 11;
+    gbc.fill = GridBagConstraints.HORIZONTAL;
+    gbc.gridheight = 1;
+    fieldsPnl.add(this.searchFld, gbc);
 
     add(fieldsPnl, BorderLayout.CENTER);
 
@@ -291,6 +344,7 @@ public class LinkDialog extends AbstractDialog {
     DefaultListModel<FamilyMember> model = (DefaultListModel<FamilyMember>) this.availChildrenList.getModel();
     model.removeAllElements();
     children.forEach(child -> model.addElement(child));
+    this.searchFld.setText(null);
   }
 
   /**
