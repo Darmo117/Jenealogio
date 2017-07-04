@@ -48,7 +48,7 @@ import net.darmo_creations.gui.components.DateField;
 import net.darmo_creations.gui.dialog.AbstractDialog;
 import net.darmo_creations.model.Date;
 import net.darmo_creations.model.family.FamilyMember;
-import net.darmo_creations.model.family.Wedding;
+import net.darmo_creations.model.family.Relationship;
 import net.darmo_creations.util.I18n;
 import net.darmo_creations.util.Images;
 
@@ -228,7 +228,7 @@ public class LinkDialog extends AbstractDialog {
    * @param wedding the link
    * @param children the potential children
    */
-  public void updateLink(Wedding wedding, Set<FamilyMember> children) {
+  public void updateLink(Relationship wedding, Set<FamilyMember> children) {
     setTitle(I18n.getLocalizedString("dialog.update_link.title"));
     this.controller.reset(wedding, children);
   }
@@ -236,7 +236,7 @@ public class LinkDialog extends AbstractDialog {
   /**
    * @return the created/updated link or nothing if the dialog was canceled
    */
-  public Optional<Wedding> getLink() {
+  public Optional<Relationship> getLink() {
     if (!isCanceled())
       return Optional.of(this.controller.getLink());
     return Optional.empty();

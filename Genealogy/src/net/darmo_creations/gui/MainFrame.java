@@ -58,9 +58,10 @@ import net.darmo_creations.gui.dialog.options.EditColorsDialog;
 import net.darmo_creations.gui.dialog.tree_creation.TreeCreationDialog;
 import net.darmo_creations.model.family.Family;
 import net.darmo_creations.model.family.FamilyMember;
-import net.darmo_creations.model.family.Wedding;
+import net.darmo_creations.model.family.Relationship;
 import net.darmo_creations.util.I18n;
 import net.darmo_creations.util.Images;
+import net.darmo_creations.util.VersionUtils;
 
 /**
  * The main frame of the application.
@@ -70,7 +71,7 @@ import net.darmo_creations.util.Images;
 public class MainFrame extends JFrame {
   private static final long serialVersionUID = 2426665404072947885L;
 
-  public static final String BASE_TITLE = "Jenealogio 1.2";
+  public static final String BASE_TITLE = "Jenealogio " + VersionUtils.CURRENT_VERSION_STR;
 
   private JFileChooser fileChooser;
   private TreeCreationDialog treeCreationDialog;
@@ -458,7 +459,7 @@ public class MainFrame extends JFrame {
    * @param children the potential children
    * @return the new link or nothing if the dialog was dismissed/canceled
    */
-  public Optional<Wedding> showAddLinkDialog(FamilyMember spouse1, FamilyMember spouse2, Set<FamilyMember> children) {
+  public Optional<Relationship> showAddLinkDialog(FamilyMember spouse1, FamilyMember spouse2, Set<FamilyMember> children) {
     this.linkDialog.addLink(spouse1, spouse2, children);
     this.linkDialog.setVisible(true);
     return this.linkDialog.getLink();
@@ -483,7 +484,7 @@ public class MainFrame extends JFrame {
    * @param children the potential children
    * @return the updated link or nothing if the dialog was dismissed/canceled
    */
-  public Optional<Wedding> showUpdateLinkDialog(Wedding wedding, Set<FamilyMember> children) {
+  public Optional<Relationship> showUpdateLinkDialog(Relationship wedding, Set<FamilyMember> children) {
     this.linkDialog.updateLink(wedding, children);
     this.linkDialog.setVisible(true);
     return this.linkDialog.getLink();
@@ -495,7 +496,7 @@ public class MainFrame extends JFrame {
    * @param member the member to display
    * @param wedding the wedding it is part of or nothing if the dialog was dismissed/canceled
    */
-  public void showDetailsDialog(FamilyMember member, Wedding wedding) {
+  public void showDetailsDialog(FamilyMember member, Relationship wedding) {
     this.detailsDialog.setInfo(member, wedding);
     this.detailsDialog.setVisible(true);
   }

@@ -27,7 +27,7 @@ import javax.swing.event.ListSelectionListener;
 
 import net.darmo_creations.gui.dialog.DefaultDialogController;
 import net.darmo_creations.model.family.FamilyMember;
-import net.darmo_creations.model.family.Wedding;
+import net.darmo_creations.model.family.Relationship;
 
 /**
  * This controller handles actions of the LinkDialog class.
@@ -54,7 +54,7 @@ public class LinkController extends DefaultDialogController<LinkDialog> implemen
    * @param children the children
    */
   public void reset(FamilyMember spouse1, FamilyMember spouse2, Set<FamilyMember> children) {
-    reset(new Wedding(null, null, spouse1, spouse2), children);
+    reset(new Relationship(null, null, true/* TEMP */, spouse1, spouse2), children);
   }
 
   /**
@@ -63,12 +63,12 @@ public class LinkController extends DefaultDialogController<LinkDialog> implemen
    * @param wedding the link
    * @param children the children
    */
-  public void reset(Wedding wedding, Set<FamilyMember> children) {
-    this.spouse1 = wedding.getSpouse1();
-    this.spouse2 = wedding.getSpouse2();
+  public void reset(Relationship wedding, Set<FamilyMember> children) {
+    this.spouse1 = wedding.getPartner1();
+    this.spouse2 = wedding.getPartner2();
 
-    this.dialog.setSpouse1(wedding.getSpouse1().toString());
-    this.dialog.setSpouse2(wedding.getSpouse2().toString());
+    this.dialog.setSpouse1(wedding.getPartner1().toString());
+    this.dialog.setSpouse2(wedding.getPartner2().toString());
     this.dialog.setDate(wedding.getDate());
     this.dialog.setWeddingLocation(wedding.getLocation());
     this.dialog.setAvailableChildren(children);
@@ -82,8 +82,9 @@ public class LinkController extends DefaultDialogController<LinkDialog> implemen
   /**
    * @return the link
    */
-  public Wedding getLink() {
-    return new Wedding(this.dialog.getDate(), this.dialog.getWeddingLocation(), this.spouse1, this.spouse2, this.dialog.getChildren());
+  public Relationship getLink() {
+    return new Relationship(this.dialog.getDate(), this.dialog.getWeddingLocation(), true/* TEMP */, this.spouse1, this.spouse2,
+        this.dialog.getChildren());
   }
 
   @Override

@@ -48,7 +48,8 @@ import net.darmo_creations.model.DateBuilder;
 import net.darmo_creations.model.family.Family;
 import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.model.family.Gender;
-import net.darmo_creations.model.family.Wedding;
+import net.darmo_creations.model.family.Relationship;
+import net.darmo_creations.util.VersionUtils;
 
 /**
  * This class handles I/O operations for the {@code Family} class.
@@ -83,8 +84,10 @@ public class FamilyDao {
       JSONParser p = new JSONParser();
       JSONObject obj = (JSONObject) p.parse(jsonString);
       Set<FamilyMember> members = new HashSet<>();
-      Set<Wedding> weddings = new HashSet<>();
+      Set<Relationship> weddings = new HashSet<>();
       Family family = new Family((Long) obj.get("global_id"), (String) obj.get("name"), members, weddings);
+      String v = getNullIfEmpty((String) obj.get("version"));
+      int version = v != null ? Integer.parseInt(v) : 0;
 
       // Members loading
       JSONArray membersObj = (JSONArray) obj.get("members");
@@ -114,12 +117,21 @@ public class FamilyDao {
             deathLocation, dead, comment));
       }
 
-      // Weddings loading
-      JSONArray weddingsObj = (JSONArray) obj.get("weddings");
-      for (Object o : weddingsObj) {
+      // Relations loading
+      JSONArray relationsObj;
+      if (version < VersionUtils.V1_3) {
+        relationsObj = (JSONArray) obj.get("weddings");
+      }
+      else {
+        relationsObj = (JSONArray) obj.get("relations");
+      }
+
+      for (Object o : relationsObj) {
         JSONObject weddingObj = (JSONObject) o;
         Date date = getDate((String) weddingObj.get("date"));
         String location = getNullIfEmpty((String) weddingObj.get("location"));
+        String type = getNullIfEmpty((String) weddingObj.get("type"));
+        boolean isWedding = "wedding".equalsIgnoreCase(type);
         FamilyMember spouse1 = members.stream().filter(m -> m.getId() == (Long) weddingObj.get("spouse1")).findFirst().get();
         FamilyMember spouse2 = members.stream().filter(m -> m.getId() == (Long) weddingObj.get("spouse2")).findFirst().get();
         JSONArray childrenObj = (JSONArray) weddingObj.get("children");
@@ -130,7 +142,7 @@ public class FamilyDao {
           children[i] = members.stream().filter(m -> m.getId() == (Long) childrenObj.get((Integer) j)).findFirst().get();
         }
 
-        weddings.add(new Wedding(date, location, spouse1, spouse2, children));
+        weddings.add(new Relationship(date, location, isWedding, spouse1, spouse2, children));
       }
 
       return family;
@@ -230,11 +242,11 @@ public class FamilyDao {
     obj.put("members", membersObj);
 
     JSONArray weddingsObj = new JSONArray();
-    for (Wedding w : family.getAllWeddings()) {
+    for (Relationship w : family.getAllRelations()) {
       JSONObject weddingObj = new JSONObject();
 
-      weddingObj.put("spouse1", w.getSpouse1().getId());
-      weddingObj.put("spouse2", w.getSpouse2().getId());
+      weddingObj.put("spouse1", w.getPartner1().getId());
+      weddingObj.put("spouse2", w.getPartner2().getId());
       formatDate(weddingObj, "date", w.getDate());
       weddingObj.put("location", w.getLocation().orElse(""));
       JSONArray childrenObj = new JSONArray();
@@ -243,7 +255,7 @@ public class FamilyDao {
 
       weddingsObj.add(weddingObj);
     }
-    obj.put("weddings", weddingsObj);
+    obj.put("relations", weddingsObj);
 
     Files.write(Paths.get(file), Arrays.asList(obj.toJSONString()));
   }

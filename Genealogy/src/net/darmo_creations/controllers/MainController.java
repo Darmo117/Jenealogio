@@ -46,7 +46,7 @@ import net.darmo_creations.gui.MainFrame;
 import net.darmo_creations.gui.components.FamilyMemberPanel;
 import net.darmo_creations.model.family.Family;
 import net.darmo_creations.model.family.FamilyMember;
-import net.darmo_creations.model.family.Wedding;
+import net.darmo_creations.model.family.Relationship;
 import net.darmo_creations.util.I18n;
 import net.darmo_creations.util.Observable;
 import net.darmo_creations.util.Observer;
@@ -81,7 +81,7 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
   /** The currently selected card. */
   private FamilyMember selectedCard;
   /** The currently selected link. */
-  private Wedding selectedLink;
+  private Relationship selectedLink;
   /** Are we adding a link? */
   private boolean addingLink;
 
@@ -171,12 +171,12 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
       if (id >= 0) {
         FamilyMember prev = null;
 
-        if (this.addingLink && this.selectedCard != null && !this.family.isMarried(this.selectedCard))
+        if (this.addingLink && this.selectedCard != null && !this.family.isInRelationship(this.selectedCard))
           prev = this.selectedCard;
 
         this.selectedCard = this.family.getMember(id).orElseThrow(IllegalStateException::new);
 
-        if (prev != null && !prev.equals(this.selectedCard) && !this.family.isMarried(this.selectedCard)) {
+        if (prev != null && !prev.equals(this.selectedCard) && !this.family.isInRelationship(this.selectedCard)) {
           addLink(prev, this.selectedCard);
           toggleAddLink();
         }
@@ -201,7 +201,7 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
       else if (m2.matches()) {
         Optional<FamilyMember> optM = this.family.getMember(Long.parseLong(m2.group(1)));
         if (optM.isPresent()) {
-          Optional<Wedding> w = this.family.getWedding(optM.get());
+          Optional<Relationship> w = this.family.getWedding(optM.get());
           if (w.isPresent())
             this.selectedLink = w.get();
         }
@@ -352,7 +352,7 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
    */
   private void addLink(FamilyMember spouse1, FamilyMember spouse2) {
     Set<FamilyMember> all = this.family.getPotentialChildren(spouse1, spouse2, Collections.emptySet());
-    Optional<Wedding> optWedding = this.frame.showAddLinkDialog(spouse1, spouse2, all);
+    Optional<Relationship> optWedding = this.frame.showAddLinkDialog(spouse1, spouse2, all);
 
     if (optWedding.isPresent()) {
       this.family.addWedding(optWedding.get());
@@ -385,7 +385,7 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
       }
     }
     else if (this.selectedLink != null) {
-      Optional<Wedding> wedding = this.frame.showUpdateLinkDialog(this.selectedLink, this.family.getPotentialChildren(this.selectedLink));
+      Optional<Relationship> wedding = this.frame.showUpdateLinkDialog(this.selectedLink, this.family.getPotentialChildren(this.selectedLink));
 
       if (wedding.isPresent()) {
         this.family.updateWedding(wedding.get());
@@ -411,7 +411,7 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
     }
     else if (this.selectedLink != null) {
       if (this.frame.showConfirmDialog(I18n.getLocalizedString("popup.delete_link_confirm.text")) == JOptionPane.OK_OPTION) {
-        this.family.removeWedding(this.selectedLink);
+        this.family.removeRelationship(this.selectedLink);
         this.selectedLink = null;
         this.saved = false;
         updateFrameMenus();

@@ -35,7 +35,7 @@ import net.darmo_creations.gui.MainFrame;
 import net.darmo_creations.gui.components.DetailsPanel;
 import net.darmo_creations.gui.components.ImageLabel;
 import net.darmo_creations.model.family.FamilyMember;
-import net.darmo_creations.model.family.Wedding;
+import net.darmo_creations.model.family.Relationship;
 import net.darmo_creations.util.I18n;
 import net.darmo_creations.util.Images;
 import net.darmo_creations.util.Observable;
@@ -99,7 +99,7 @@ public class CardDetailsDialog extends AbstractDialog implements Observable {
    * @param member the person
    * @param wedding the wedding it is part of
    */
-  public void setInfo(FamilyMember member, Wedding wedding) {
+  public void setInfo(FamilyMember member, Relationship wedding) {
     setTitle(member.toString());
     member.getImage().ifPresent(img -> this.imageLbl.setIcon(new ImageIcon(img)));
     this.infoPnl.setInfo(member, wedding);

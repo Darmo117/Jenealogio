@@ -38,10 +38,10 @@ public class Family {
   /** Members */
   private Set<FamilyMember> members;
   /** Weddings */
-  private Set<Wedding> weddings;
+  private Set<Relationship> relations;
 
   /**
-   * Creates a family with no members and no weddings.
+   * Creates a family with no members and no relations.
    * 
    * @param name family's name
    */
@@ -50,18 +50,18 @@ public class Family {
   }
 
   /**
-   * Creates a family with the given members and weddings.
+   * Creates a family with the given members and relations.
    * 
    * @param globalId global ID's initial value
    * @param name family's name
    * @param members the members
-   * @param weddings the weddings
+   * @param relations the relations
    */
-  public Family(long globalId, String name, Set<FamilyMember> members, Set<Wedding> weddings) {
+  public Family(long globalId, String name, Set<FamilyMember> members, Set<Relationship> relations) {
     this.globalId = globalId;
     setName(name);
     this.members = Objects.requireNonNull(members);
-    this.weddings = Objects.requireNonNull(weddings);
+    this.relations = Objects.requireNonNull(relations);
   }
 
   /**
@@ -138,88 +138,84 @@ public class Family {
   }
 
   /**
-   * Deletes a member from the family. Also removes associated wedding. If the member does not exist
-   * in this family, nothing will happen.
+   * Deletes a member from the family. Also removes associated relation. If the member does not
+   * exist in this family, nothing will happen.
    * 
    * @param member the member to remove
    */
   public void removeMember(FamilyMember member) {
-    for (Iterator<Wedding> it = this.weddings.iterator(); it.hasNext();) {
-      Wedding wedding = it.next();
-      if (wedding.isMarried(member))
+    for (Iterator<Relationship> it = this.relations.iterator(); it.hasNext();) {
+      Relationship relation = it.next();
+      if (relation.isInRelationship(member))
         it.remove();
-      else if (wedding.isChild(member))
-        wedding.removeChild(member);
+      else if (relation.isChild(member))
+        relation.removeChild(member);
     }
     this.members.remove(member);
   }
 
   /**
-   * Returns all the weddings. The set returned is a copy of the internal one.
+   * Returns all the relations. The set returned is a copy of the internal one.
    * 
-   * @return all the weddings
+   * @return all the relations
    */
-  public Set<Wedding> getAllWeddings() {
-    return new HashSet<>(this.weddings);
+  public Set<Relationship> getAllRelations() {
+    return new HashSet<>(this.relations);
   }
 
   /**
-   * Gets the wedding for the given member. This method checks for every wedding if one of the two
+   * Gets the relation for the given member. This method checks for every relation if one of the two
    * spouses is the given member.
    * 
    * @param member the member
-   * @return the wedding or nothing if none were found
+   * @return the relation or nothing if none were found
    */
-  public Optional<Wedding> getWedding(FamilyMember member) {
-    return this.weddings.stream().filter(wedding -> wedding.getSpouse1().equals(member) || wedding.getSpouse2().equals(member)).findAny();
+  public Optional<Relationship> getWedding(FamilyMember member) {
+    return this.relations.stream().filter(
+        relation -> relation.getPartner1().equals(member) || relation.getPartner2().equals(member)).findAny();
   }
 
   /**
-   * Adds a wedding. If one of the two spouses is already married or the wedding already exists,
+   * Adds a relation. If one of the two spouses is already married or the relation already exists,
    * nothing will happen.
    * 
-   * @param wedding the new wedding
+   * @param relation the new relation
    */
-  public void addWedding(Wedding wedding) {
-    if (!this.weddings.contains(wedding) && !isMarried(wedding.getSpouse1()) && !isMarried(wedding.getSpouse2())) {
-      // #f:0
-      FamilyMember[] children = wedding.getChildren().stream()
-          .map(child -> getMember(child.getId()).get())
-          .toArray(FamilyMember[]::new);
+  public void addWedding(Relationship relation) {
+    if (!this.relations.contains(relation) && !isInRelationship(relation.getPartner1()) && !isInRelationship(relation.getPartner2())) {
+      FamilyMember[] children = relation.getChildren().stream().map(child -> getMember(child.getId()).get()).toArray(FamilyMember[]::new);
 
-      this.weddings.add(new Wedding(wedding.getDate().orElse(null), wedding.getLocation().orElse(null),
-          getMember(wedding.getSpouse1().getId()).get(), getMember(wedding.getSpouse2().getId()).get(),
-          children));
-      // #f:1
+      this.relations.add(new Relationship(relation.getDate().orElse(null), relation.getLocation().orElse(null), relation.isWedding(),
+          getMember(relation.getPartner1().getId()).get(), getMember(relation.getPartner2().getId()).get(), children));
     }
   }
 
   /**
-   * Updates the given wedding. If the wedding does not exist in this family, nothing will happen.
+   * Updates the given relation. If the relation does not exist in this family, nothing will happen.
    * 
-   * @param wedding the wedding's new data
+   * @param relation the relation's new data
    */
-  public void updateWedding(Wedding wedding) {
-    Optional<Wedding> optional = getWedding(wedding.getSpouse1());
+  public void updateWedding(Relationship relation) {
+    Optional<Relationship> optional = getWedding(relation.getPartner1());
 
     if (optional.isPresent()) {
-      Wedding w = optional.get();
+      Relationship w = optional.get();
 
-      w.setDate(wedding.getDate().orElse(null));
-      w.setLocation(wedding.getLocation().orElse(null));
+      w.setDate(relation.getDate().orElse(null));
+      w.setLocation(relation.getLocation().orElse(null));
       Set<FamilyMember> children = w.getChildren();
       children.forEach(child -> w.removeChild(child));
-      wedding.getChildren().forEach(child -> w.addChild(Family.this.getMember(child.getId()).orElseThrow(IllegalStateException::new)));
+      relation.getChildren().forEach(child -> w.addChild(Family.this.getMember(child.getId()).orElseThrow(IllegalStateException::new)));
     }
   }
 
   /**
-   * Deletes a wedding. If the wedding does not exist in this family, nothing will happen.
+   * Deletes a relation. If the relation does not exist in this family, nothing will happen.
    * 
-   * @param wedding the wedding to delete
+   * @param relation the relation to delete
    */
-  public void removeWedding(Wedding wedding) {
-    this.weddings.remove(wedding);
+  public void removeRelationship(Relationship relation) {
+    this.relations.remove(relation);
   }
 
   /**
@@ -228,8 +224,8 @@ public class Family {
    * @param member the member
    * @return true if and only if the member is married
    */
-  public boolean isMarried(FamilyMember member) {
-    return this.weddings.stream().anyMatch(wedding -> wedding.isMarried(member));
+  public boolean isInRelationship(FamilyMember member) {
+    return this.relations.stream().anyMatch(relation -> relation.isInRelationship(member));
   }
 
   /**
@@ -239,49 +235,52 @@ public class Family {
    * @return true if and only if the member has known parents
    */
   public boolean hasParents(FamilyMember member) {
-    return this.weddings.stream().anyMatch(w -> w.getChildren().contains(member));
+    return this.relations.stream().anyMatch(w -> w.getChildren().contains(member));
   }
 
   /**
    * Returns all members that can be children of the given couple. If the argument is null, all
    * members are returned.
    * 
-   * @param wedding the couple
+   * @param relation the couple
    * @return a list of all potential children
    */
-  public Set<FamilyMember> getPotentialChildren(Wedding wedding) {
-    if (wedding == null)
+  public Set<FamilyMember> getPotentialChildren(Relationship relation) {
+    if (relation == null)
       return getAllMembers();
-    return getPotentialChildren(wedding.getSpouse1(), wedding.getSpouse2(), wedding.getChildren());
+    return getPotentialChildren(relation.getPartner1(), relation.getPartner2(), relation.getChildren());
   }
 
   /**
-   * Returns all members that can be children of the given couple. If the argument is null, all
-   * members are returned.
+   * Returns all members that can be children of the given couple. If one of the partners is null,
+   * all members are returned.
    * 
-   * @param spouse1 the first spouse
-   * @param spouse2 the second spouse
+   * @param partner1 the first partner
+   * @param partner2 the second partner
    * @param chidren the children
    * @return a list of potential children
    */
-  public Set<FamilyMember> getPotentialChildren(FamilyMember spouse1, FamilyMember spouse2, Set<FamilyMember> chidren) {
+  public Set<FamilyMember> getPotentialChildren(FamilyMember partner1, FamilyMember partner2, Set<FamilyMember> chidren) {
     Set<FamilyMember> all = getAllMembers();
 
-    all.remove(spouse1);
-    all.remove(spouse2);
+    if (partner1 == null || partner2 == null)
+      return all;
 
-    if (spouse1.getBirthDate().isPresent() || spouse2.getBirthDate().isPresent()) {
+    all.remove(partner1);
+    all.remove(partner2);
+
+    if (partner1.getBirthDate().isPresent() || partner2.getBirthDate().isPresent()) {
       // Filter out all members that are older than the youngest spouse.
       FamilyMember youngest = null;
 
-      if (spouse1.getBirthDate().isPresent() && spouse2.getBirthDate().isPresent()) {
-        youngest = spouse1.compareBirthdays(spouse2).get() > 0 ? spouse1 : spouse2;
+      if (partner1.getBirthDate().isPresent() && partner2.getBirthDate().isPresent()) {
+        youngest = partner1.compareBirthdays(partner2).get() > 0 ? partner1 : partner2;
       }
-      else if (spouse1.getBirthDate().isPresent()) {
-        youngest = spouse1;
+      else if (partner1.getBirthDate().isPresent()) {
+        youngest = partner1;
       }
       else {
-        youngest = spouse2;
+        youngest = partner2;
       }
       final FamilyMember y = youngest;
       all.removeIf(m -> m.compareBirthdays(y).orElse(1) <= 0);
@@ -308,6 +307,6 @@ public class Family {
 
   @Override
   public String toString() {
-    return getName() + this.members + "," + this.weddings;
+    return getName() + this.members + "," + this.relations;
   }
 }

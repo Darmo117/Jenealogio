@@ -28,16 +28,16 @@ import net.darmo_creations.model.Date;
 import net.darmo_creations.util.Nullable;
 
 /**
- * This class represents a wedding between two persons. It holds the date, location and children of
- * the marriage.
+ * This class represents a relationship between two people.
  * 
  * @author Damien Vergnet
  */
-public final class Wedding {
+public final class Relationship {
   private Date date;
   private String location;
-  private FamilyMember spouse1, spouse2;
+  private FamilyMember partner1, partner2;
   private Set<FamilyMember> children;
+  private boolean isWedding;
 
   /**
    * Creates a new wedding. The two spouses must be different or else an IllegalArgumentException
@@ -45,17 +45,18 @@ public final class Wedding {
    * 
    * @param date the date
    * @param location the location
-   * @param spouse1 one spouse
-   * @param spouse2 the other spouse
+   * @param partner1 one partner
+   * @param partner2 the other partner
    * @param children the children
    */
-  public Wedding(@Nullable Date date, @Nullable String location, FamilyMember spouse1, FamilyMember spouse2, FamilyMember... children) {
-    if (spouse1.equals(spouse2))
-      throw new IllegalArgumentException("husband and wife must be different");
+  public Relationship(@Nullable Date date, @Nullable String location, boolean isWedding, FamilyMember partner1, FamilyMember partner2,
+      FamilyMember... children) {
+    if (partner1.equals(partner2))
+      throw new IllegalArgumentException("partners must be different");
     setDate(date != null ? date.clone() : null);
     setLocation(location);
-    setSpouse1(spouse1);
-    setSpouse2(spouse2);
+    setPartner1(partner1);
+    setPartner2(partner2);
     this.children = new HashSet<>();
     for (FamilyMember child : children)
       addChild(child);
@@ -94,35 +95,51 @@ public final class Wedding {
   }
 
   /**
-   * @return the first spouse
+   * @return true if the relationship is a marriage
    */
-  public FamilyMember getSpouse1() {
-    return this.spouse1;
+  public boolean isWedding() {
+    return this.isWedding;
   }
 
   /**
-   * Sets the first spouse.
+   * Sets the relationship's type.
    * 
-   * @param spouse1 the new spouse
+   * @param isWedding true if it is a wedding
    */
-  void setSpouse1(FamilyMember spouse1) {
-    this.spouse1 = spouse1;
+  public void setWedding(boolean isWedding) {
+    this.isWedding = isWedding;
   }
 
   /**
-   * @return the second spouse
+   * @return the first partner
    */
-  public FamilyMember getSpouse2() {
-    return this.spouse2;
+  public FamilyMember getPartner1() {
+    return this.partner1;
   }
 
   /**
-   * Sets the second spouse.
+   * Sets the first partner.
    * 
-   * @param spouse2 the second spouse
+   * @param partner1 the new partner
    */
-  void setSpouse2(FamilyMember spouse2) {
-    this.spouse2 = spouse2;
+  void setPartner1(FamilyMember partner1) {
+    this.partner1 = partner1;
+  }
+
+  /**
+   * @return the second partner
+   */
+  public FamilyMember getPartner2() {
+    return this.partner2;
+  }
+
+  /**
+   * Sets the second partner.
+   * 
+   * @param partner2 the second partner
+   */
+  void setPartner2(FamilyMember partner2) {
+    this.partner2 = partner2;
   }
 
   /**
@@ -150,7 +167,7 @@ public final class Wedding {
    */
   public void addChild(FamilyMember child) {
     Objects.requireNonNull(child);
-    if (child.equals(getSpouse1()) || child.equals(getSpouse2()))
+    if (child.equals(getPartner1()) || child.equals(getPartner2()))
       throw new IllegalArgumentException("can't be their own child");
     if (this.children.contains(child.getId()))
       throw new IllegalArgumentException("child already present");
@@ -167,13 +184,13 @@ public final class Wedding {
   }
 
   /**
-   * Tells if the given person is one of the two spouses from this wedding.
+   * Tells if the given person is one of the two partners from this relationship.
    * 
    * @param member the person
-   * @return true if and only if the person is one of the spouses
+   * @return true if and only if the person is one of the partners
    */
-  public boolean isMarried(FamilyMember member) {
-    return getSpouse1().equals(member) || getSpouse2().equals(member);
+  public boolean isInRelationship(FamilyMember member) {
+    return getPartner1().equals(member) || getPartner2().equals(member);
   }
 
   @Override
@@ -181,23 +198,23 @@ public final class Wedding {
     final int prime = 31;
     int result = 1;
 
-    result = prime * result + getSpouse1().hashCode();
-    result = prime * result + getSpouse2().hashCode();
+    result = prime * result + getPartner1().hashCode();
+    result = prime * result + getPartner2().hashCode();
 
     return result;
   }
 
   @Override
   public boolean equals(Object o) {
-    if (o instanceof Wedding) {
-      Wedding wedding = (Wedding) o;
-      return getSpouse1() == wedding.getSpouse1() && getSpouse2() == wedding.getSpouse2();
+    if (o instanceof Relationship) {
+      Relationship relation = (Relationship) o;
+      return getPartner1() == relation.getPartner1() && getPartner2() == relation.getPartner2();
     }
     return false;
   }
 
   @Override
   public String toString() {
-    return getSpouse1() + "<->" + getSpouse2();
+    return getPartner1() + " <-> " + getPartner2();
   }
 }

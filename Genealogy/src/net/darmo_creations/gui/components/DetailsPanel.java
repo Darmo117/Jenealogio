@@ -37,7 +37,7 @@ import javax.swing.border.EmptyBorder;
 
 import net.darmo_creations.model.Date;
 import net.darmo_creations.model.family.FamilyMember;
-import net.darmo_creations.model.family.Wedding;
+import net.darmo_creations.model.family.Relationship;
 import net.darmo_creations.util.CalendarUtil;
 import net.darmo_creations.util.I18n;
 import net.darmo_creations.util.Images;
@@ -145,7 +145,7 @@ public class DetailsPanel extends JPanel {
    * @param member the person
    * @param wedding the wedding it is part of
    */
-  public void setInfo(FamilyMember member, Wedding wedding) {
+  public void setInfo(FamilyMember member, Relationship wedding) {
     String name = member.toString() + (member.getUseName().isPresent() ? " (" + member.getUseName().get() + ")" : "");
     String birth = formatDateAndLocation(member.getBirthDate(), member.getBirthLocation());
     String weddingS = wedding != null ? formatDateAndLocation(wedding.getDate(), wedding.getLocation()) : UNKNOWN_DATA;
