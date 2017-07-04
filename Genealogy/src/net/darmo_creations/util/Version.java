@@ -18,6 +18,22 @@
  */
 package net.darmo_creations.util;
 
+/**
+ * This class represents a version number of the following format:
+ * 
+ * <pre>
+ * $MAJOR.$MINOR[.$PATCH][d]
+ * </pre>
+ * <ul>
+ * <li>{@code $MAJOR}: major version</li>
+ * <li>{@code $MINOR}: minor version</li>
+ * <li>{@code $PATCH}: patch version (only displayed if not 0)</li>
+ * <li>{@code d}: indicates that this is a development version</li>
+ * </ul>
+ * E.g.: {@code 1.2}, {@code 2.0.6d}, {@code 3.4d}, {@code 1.0.6}…
+ *
+ * @author Damien Vergnet
+ */
 public final class Version implements Comparable<Version> {
   /** Current version */
   public static final Version CURRENT_VERSION;
@@ -32,6 +48,14 @@ public final class Version implements Comparable<Version> {
   private final int major, minor, patch;
   private final boolean indev;
 
+  /**
+   * Creates a version.
+   * 
+   * @param major major version
+   * @param minor minor version
+   * @param patch patch version
+   * @param indev is it in development?
+   */
   public Version(int major, int minor, int patch, boolean indev) {
     this.major = major;
     this.minor = minor;
@@ -39,6 +63,11 @@ public final class Version implements Comparable<Version> {
     this.indev = indev;
   }
 
+  /**
+   * Creates a version from an integer value.
+   * 
+   * @param version the value
+   */
   public Version(int version) {
     this((version >> 16) & 0xff, (version >> 8) & 0xff, version & 0xff, ((version >> 31) & 1) == 1);
   }
@@ -73,10 +102,22 @@ public final class Version implements Comparable<Version> {
     return (this.major & 0xff) << 16 | (this.minor & 0xff) << 8 | (this.patch & 0xff);
   }
 
+  /**
+   * Tells if this version is before the given one.
+   * 
+   * @param v another version
+   * @return true if this version is strictly before the argument
+   */
   public boolean before(Version v) {
     return compareTo(v) < 0;
   }
 
+  /**
+   * Tells if this version is after the given one.
+   * 
+   * @param v another version
+   * @return true if this version is strictly after the argument
+   */
   public boolean after(Version v) {
     return compareTo(v) > 0;
   }
@@ -117,6 +158,7 @@ public final class Version implements Comparable<Version> {
    * The "d" indicates if the version is in development.
    * 
    * @return the formatted version
+   * @see Version
    */
   @Override
   public String toString() {
