@@ -49,7 +49,7 @@ import net.darmo_creations.model.family.Family;
 import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.model.family.Gender;
 import net.darmo_creations.model.family.Relationship;
-import net.darmo_creations.util.VersionUtils;
+import net.darmo_creations.util.Version;
 
 /**
  * This class handles I/O operations for the {@code Family} class.
@@ -87,7 +87,7 @@ public class FamilyDao {
       Set<Relationship> weddings = new HashSet<>();
       Family family = new Family((Long) obj.get("global_id"), (String) obj.get("name"), members, weddings);
       String v = getNullIfEmpty((String) obj.get("version"));
-      int version = v != null ? Integer.parseInt(v) : 0;
+      Version version = new Version(v != null ? Integer.parseInt(v) : 0);
 
       // Members loading
       JSONArray membersObj = (JSONArray) obj.get("members");
@@ -119,7 +119,7 @@ public class FamilyDao {
 
       // Relations loading
       JSONArray relationsObj;
-      if (version < VersionUtils.V1_3) {
+      if (version.compareTo(Version.V1_3) < 0) {
         relationsObj = (JSONArray) obj.get("weddings");
       }
       else {
@@ -212,6 +212,7 @@ public class FamilyDao {
   public void save(String file, Family family, Map<Long, Point> positions) throws IOException {
     JSONObject obj = new JSONObject();
 
+    obj.put("version", Version.CURRENT_VERSION);
     obj.put("global_id", family.getGlobalId());
     obj.put("name", family.getName());
 

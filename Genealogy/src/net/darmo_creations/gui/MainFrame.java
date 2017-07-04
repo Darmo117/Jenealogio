@@ -61,7 +61,7 @@ import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.model.family.Relationship;
 import net.darmo_creations.util.I18n;
 import net.darmo_creations.util.Images;
-import net.darmo_creations.util.VersionUtils;
+import net.darmo_creations.util.Version;
 
 /**
  * The main frame of the application.
@@ -71,7 +71,7 @@ import net.darmo_creations.util.VersionUtils;
 public class MainFrame extends JFrame {
   private static final long serialVersionUID = 2426665404072947885L;
 
-  public static final String BASE_TITLE = "Jenealogio " + VersionUtils.CURRENT_VERSION_STR;
+  public static final String BASE_TITLE = "Jenealogio " + Version.CURRENT_VERSION;
 
   private JFileChooser fileChooser;
   private TreeCreationDialog treeCreationDialog;
