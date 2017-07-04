@@ -23,8 +23,6 @@ import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.List;
@@ -63,7 +61,7 @@ public class LinkDialog extends AbstractDialog {
   private LinkController controller;
   private DateField dateFld;
   private JTextField locationFld;
-  private JTextField spouse1Field, spouse2Field;
+  private JTextField partner1Field, partner2Field;
   private JList<FamilyMember> childrenList, availChildrenList;
   private JButton addBtn, removeBtn;
   private JTextField searchFld;
@@ -89,10 +87,10 @@ public class LinkDialog extends AbstractDialog {
 
     this.dateFld = new DateField(I18n.getLocalizedString("date.format"), FlowLayout.LEFT);
     this.locationFld = new JTextField();
-    this.spouse1Field = new JTextField();
-    this.spouse1Field.setEnabled(false);
-    this.spouse2Field = new JTextField();
-    this.spouse2Field.setEnabled(false);
+    this.partner1Field = new JTextField();
+    this.partner1Field.setEnabled(false);
+    this.partner2Field = new JTextField();
+    this.partner2Field.setEnabled(false);
     this.childrenList = new JList<>(new DefaultListModel<>());
     this.childrenList.addListSelectionListener(this.controller);
     this.childrenList.setName("children");
@@ -139,12 +137,6 @@ public class LinkDialog extends AbstractDialog {
         catch (BadLocationException __) {}
       }
     });
-    this.searchFld.addKeyListener(new KeyAdapter() {
-      @Override
-      public void keyTyped(KeyEvent e) {
-        // System.out.println(e.getKeyChar());
-      }
-    });
 
     JPanel fieldsPnl = new JPanel(new GridBagLayout());
     fieldsPnl.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -153,13 +145,13 @@ public class LinkDialog extends AbstractDialog {
 
     gbc.fill = GridBagConstraints.HORIZONTAL;
     gbc.gridwidth = 2;
-    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.wedding_date.text")), gbc);
+    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.relationship_date.text")), gbc);
     gbc.gridy = 1;
-    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.wedding_location.text")), gbc);
+    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.relationship_location.text")), gbc);
     gbc.gridy = 2;
-    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.spouse1.text")), gbc);
+    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.partner1.text")), gbc);
     gbc.gridy = 3;
-    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.spouse2.text")), gbc);
+    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.partner2.text")), gbc);
     gbc.gridy = 4;
     fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.children.text")), gbc);
     gbc.gridwidth = 3;
@@ -176,9 +168,9 @@ public class LinkDialog extends AbstractDialog {
     gbc.gridy = 1;
     fieldsPnl.add(this.locationFld, gbc);
     gbc.gridy = 2;
-    fieldsPnl.add(this.spouse1Field, gbc);
+    fieldsPnl.add(this.partner1Field, gbc);
     gbc.gridy = 3;
-    fieldsPnl.add(this.spouse2Field, gbc);
+    fieldsPnl.add(this.partner2Field, gbc);
     gbc.gridy = 4;
     gbc.fill = GridBagConstraints.BOTH;
     gbc.gridheight = 3;
@@ -213,24 +205,24 @@ public class LinkDialog extends AbstractDialog {
   /**
    * Sets the dialog to "add link" mode. The two spouses must be different
    * 
-   * @param spouse1 one spouse
-   * @param spouse2 the other spouse
+   * @param partner1 one partner
+   * @param partner2 the other partner
    * @param children the potential children
    */
-  public void addLink(FamilyMember spouse1, FamilyMember spouse2, Set<FamilyMember> children) {
+  public void addLink(FamilyMember partner1, FamilyMember partner2, Set<FamilyMember> children) {
     setTitle(I18n.getLocalizedString("dialog.add_link.title"));
-    this.controller.reset(spouse1, spouse2, children);
+    this.controller.reset(partner1, partner2, children);
   }
 
   /**
    * Sets the dialog to "update link" mode.
    * 
-   * @param wedding the link
+   * @param relation the link
    * @param children the potential children
    */
-  public void updateLink(Relationship wedding, Set<FamilyMember> children) {
+  public void updateLink(Relationship relation, Set<FamilyMember> children) {
     setTitle(I18n.getLocalizedString("dialog.update_link.title"));
-    this.controller.reset(wedding, children);
+    this.controller.reset(relation, children);
   }
 
   /**
@@ -261,21 +253,21 @@ public class LinkDialog extends AbstractDialog {
   }
 
   /**
-   * Sets the first spouse.
+   * Sets the first partner.
    * 
    * @param name the name
    */
-  void setSpouse1(String name) {
-    this.spouse1Field.setText(name);
+  void setPartner1(String name) {
+    this.partner1Field.setText(name);
   }
 
   /**
-   * Sets the second spouse.
+   * Sets the second partner.
    * 
    * @param name the name
    */
-  void setSpouse2(String name) {
-    this.spouse2Field.setText(name);
+  void setPartner2(String name) {
+    this.partner2Field.setText(name);
   }
 
   /**
@@ -295,18 +287,18 @@ public class LinkDialog extends AbstractDialog {
   }
 
   /**
-   * @return the wedding location
+   * @return the relationship location
    */
-  String getWeddingLocation() {
+  String getRelationshipLocation() {
     return this.locationFld.getText();
   }
 
   /**
-   * Sets the weding location.
+   * Sets the relationship location.
    * 
    * @param location the new location
    */
-  void setWeddingLocation(Optional<String> location) {
+  void setRelationshipLocation(Optional<String> location) {
     this.locationFld.setText(location.orElse(""));
   }
 

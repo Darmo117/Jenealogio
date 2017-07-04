@@ -35,7 +35,7 @@ import net.darmo_creations.model.family.Relationship;
  * @author Damien Vergnet
  */
 public class LinkController extends DefaultDialogController<LinkDialog> implements ListSelectionListener {
-  private FamilyMember spouse1, spouse2;
+  private FamilyMember partner1, partner2;
 
   /**
    * Creates a controller.
@@ -60,19 +60,19 @@ public class LinkController extends DefaultDialogController<LinkDialog> implemen
   /**
    * Resets the dialog.
    * 
-   * @param wedding the link
+   * @param relation the link
    * @param children the children
    */
-  public void reset(Relationship wedding, Set<FamilyMember> children) {
-    this.spouse1 = wedding.getPartner1();
-    this.spouse2 = wedding.getPartner2();
+  public void reset(Relationship relation, Set<FamilyMember> children) {
+    this.partner1 = relation.getPartner1();
+    this.partner2 = relation.getPartner2();
 
-    this.dialog.setSpouse1(wedding.getPartner1().toString());
-    this.dialog.setSpouse2(wedding.getPartner2().toString());
-    this.dialog.setDate(wedding.getDate());
-    this.dialog.setWeddingLocation(wedding.getLocation());
+    this.dialog.setPartner1(relation.getPartner1().toString());
+    this.dialog.setPartner2(relation.getPartner2().toString());
+    this.dialog.setDate(relation.getDate());
+    this.dialog.setRelationshipLocation(relation.getLocation());
     this.dialog.setAvailableChildren(children);
-    this.dialog.setChildren(wedding.getChildren());
+    this.dialog.setChildren(relation.getChildren());
 
     this.dialog.setCanceled(false);
     this.dialog.setAddButtonEnabled(false);
@@ -83,7 +83,7 @@ public class LinkController extends DefaultDialogController<LinkDialog> implemen
    * @return the link
    */
   public Relationship getLink() {
-    return new Relationship(this.dialog.getDate(), this.dialog.getWeddingLocation(), true/* TEMP */, this.spouse1, this.spouse2,
+    return new Relationship(this.dialog.getDate(), this.dialog.getRelationshipLocation(), true/* TEMP */, this.partner1, this.partner2,
         this.dialog.getChildren());
   }
 
