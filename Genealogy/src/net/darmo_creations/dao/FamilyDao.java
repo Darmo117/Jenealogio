@@ -154,7 +154,6 @@ public class FamilyDao {
       return family;
     }
     catch (ClassCastException | NoSuchElementException | DateTimeParseException | org.json.simple.parser.ParseException __) {
-      __.printStackTrace();
       throw new ParseException("corrupted file", -1);
     }
   }

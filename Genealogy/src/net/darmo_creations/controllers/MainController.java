@@ -385,7 +385,8 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
       }
     }
     else if (this.selectedLink != null) {
-      Optional<Relationship> wedding = this.frame.showUpdateLinkDialog(this.selectedLink, this.family.getPotentialChildren(this.selectedLink));
+      Optional<Relationship> wedding = this.frame.showUpdateLinkDialog(this.selectedLink,
+          this.family.getPotentialChildren(this.selectedLink));
 
       if (wedding.isPresent()) {
         this.family.updateRelation(wedding.get());
