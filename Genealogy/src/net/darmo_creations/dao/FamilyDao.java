@@ -86,8 +86,8 @@ public class FamilyDao {
       Set<FamilyMember> members = new HashSet<>();
       Set<Relationship> weddings = new HashSet<>();
       Family family = new Family((Long) obj.get("global_id"), (String) obj.get("name"), members, weddings);
-      String v = getNullIfEmpty((String) obj.get("version"));
-      Version version = new Version(v != null ? Integer.parseInt(v) : 0);
+      Long rawVersion = (Long) obj.get("version");
+      Version version = new Version(rawVersion != null ? (int) (long) rawVersion : 0);
 
       // Members loading
       JSONArray membersObj = (JSONArray) obj.get("members");
@@ -154,6 +154,7 @@ public class FamilyDao {
       return family;
     }
     catch (ClassCastException | NoSuchElementException | DateTimeParseException | org.json.simple.parser.ParseException __) {
+      __.printStackTrace();
       throw new ParseException("corrupted file", -1);
     }
   }
