@@ -55,6 +55,7 @@ public final class Relationship {
       throw new IllegalArgumentException("partners must be different");
     setDate(date != null ? date.clone() : null);
     setLocation(location);
+    setWedding(isWedding);
     setPartner1(partner1);
     setPartner2(partner2);
     this.children = new HashSet<>();
@@ -106,7 +107,7 @@ public final class Relationship {
    * 
    * @param isWedding true if it is a wedding
    */
-  public void setWedding(boolean isWedding) {
+  void setWedding(boolean isWedding) {
     this.isWedding = isWedding;
   }
 

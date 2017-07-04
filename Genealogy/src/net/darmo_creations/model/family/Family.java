@@ -170,7 +170,7 @@ public class Family {
    * @param member the member
    * @return the relation or nothing if none were found
    */
-  public Optional<Relationship> getWedding(FamilyMember member) {
+  public Optional<Relationship> getRelation(FamilyMember member) {
     return this.relations.stream().filter(
         relation -> relation.getPartner1().equals(member) || relation.getPartner2().equals(member)).findAny();
   }
@@ -181,7 +181,7 @@ public class Family {
    * 
    * @param relation the new relation
    */
-  public void addWedding(Relationship relation) {
+  public void addRelation(Relationship relation) {
     if (!this.relations.contains(relation) && !isInRelationship(relation.getPartner1()) && !isInRelationship(relation.getPartner2())) {
       FamilyMember[] children = relation.getChildren().stream().map(child -> getMember(child.getId()).get()).toArray(FamilyMember[]::new);
 
@@ -195,17 +195,18 @@ public class Family {
    * 
    * @param relation the relation's new data
    */
-  public void updateWedding(Relationship relation) {
-    Optional<Relationship> optional = getWedding(relation.getPartner1());
+  public void updateRelation(Relationship relation) {
+    Optional<Relationship> optional = getRelation(relation.getPartner1());
 
     if (optional.isPresent()) {
-      Relationship w = optional.get();
+      Relationship r = optional.get();
 
-      w.setDate(relation.getDate().orElse(null));
-      w.setLocation(relation.getLocation().orElse(null));
-      Set<FamilyMember> children = w.getChildren();
-      children.forEach(child -> w.removeChild(child));
-      relation.getChildren().forEach(child -> w.addChild(Family.this.getMember(child.getId()).orElseThrow(IllegalStateException::new)));
+      r.setDate(relation.getDate().orElse(null));
+      r.setLocation(relation.getLocation().orElse(null));
+      r.setWedding(relation.isWedding());
+      Set<FamilyMember> children = r.getChildren();
+      children.forEach(child -> r.removeChild(child));
+      relation.getChildren().forEach(child -> r.addChild(Family.this.getMember(child.getId()).orElseThrow(IllegalStateException::new)));
     }
   }
 

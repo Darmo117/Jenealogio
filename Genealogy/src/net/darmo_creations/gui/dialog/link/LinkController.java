@@ -49,12 +49,12 @@ public class LinkController extends DefaultDialogController<LinkDialog> implemen
   /**
    * Resets the dialog.
    * 
-   * @param spouse1 one spouse
-   * @param spouse2 the other spouse
+   * @param partner1 one partner
+   * @param partner2 the other partner
    * @param children the children
    */
-  public void reset(FamilyMember spouse1, FamilyMember spouse2, Set<FamilyMember> children) {
-    reset(new Relationship(null, null, true/* TEMP */, spouse1, spouse2), children);
+  public void reset(FamilyMember partner1, FamilyMember partner2, Set<FamilyMember> children) {
+    reset(new Relationship(null, null, true, partner1, partner2), children);
   }
 
   /**
@@ -67,6 +67,7 @@ public class LinkController extends DefaultDialogController<LinkDialog> implemen
     this.partner1 = relation.getPartner1();
     this.partner2 = relation.getPartner2();
 
+    this.dialog.setWeddingChecked(relation.isWedding());
     this.dialog.setPartner1(relation.getPartner1().toString());
     this.dialog.setPartner2(relation.getPartner2().toString());
     this.dialog.setDate(relation.getDate());
@@ -83,8 +84,8 @@ public class LinkController extends DefaultDialogController<LinkDialog> implemen
    * @return the link
    */
   public Relationship getLink() {
-    return new Relationship(this.dialog.getDate(), this.dialog.getRelationshipLocation(), true/* TEMP */, this.partner1, this.partner2,
-        this.dialog.getChildren());
+    return new Relationship(this.dialog.getDate(), this.dialog.getRelationshipLocation(), this.dialog.isWeddingChecked(), this.partner1,
+        this.partner2, this.dialog.getChildren());
   }
 
   @Override

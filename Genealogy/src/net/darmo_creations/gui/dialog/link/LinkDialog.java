@@ -31,6 +31,7 @@ import java.util.Set;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -59,6 +60,7 @@ public class LinkDialog extends AbstractDialog {
   private static final long serialVersionUID = -6591620133064467367L;
 
   private LinkController controller;
+  private JCheckBox weddingChk;
   private DateField dateFld;
   private JTextField locationFld;
   private JTextField partner1Field, partner2Field;
@@ -85,6 +87,7 @@ public class LinkDialog extends AbstractDialog {
       }
     });
 
+    this.weddingChk = new JCheckBox(I18n.getLocalizedString("label.wedding.text"));
     this.dateFld = new DateField(I18n.getLocalizedString("date.format"), FlowLayout.LEFT);
     this.locationFld = new JTextField();
     this.partner1Field = new JTextField();
@@ -144,38 +147,43 @@ public class LinkDialog extends AbstractDialog {
     gbc.insets = new Insets(2, 2, 2, 2);
 
     gbc.fill = GridBagConstraints.HORIZONTAL;
+    gbc.gridwidth = 4;
+    gbc.gridx = 2;
+    fieldsPnl.add(this.weddingChk, gbc);
     gbc.gridwidth = 2;
-    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.relationship_date.text")), gbc);
+    gbc.gridx = 0;
     gbc.gridy = 1;
-    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.relationship_location.text")), gbc);
+    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.relationship_date.text")), gbc);
     gbc.gridy = 2;
-    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.partner1.text")), gbc);
+    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.relationship_location.text")), gbc);
     gbc.gridy = 3;
-    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.partner2.text")), gbc);
+    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.partner1.text")), gbc);
     gbc.gridy = 4;
+    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.partner2.text")), gbc);
+    gbc.gridy = 5;
     fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.children.text")), gbc);
     gbc.gridwidth = 3;
-    gbc.gridy = 7;
+    gbc.gridy = 8;
     fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.available_children.text")), gbc);
     gbc.gridwidth = 2;
-    gbc.gridy = 11;
+    gbc.gridy = 12;
     fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.search.text")), gbc);
     gbc.gridwidth = 5;
     gbc.weightx = 1;
     gbc.gridx = 2;
-    gbc.gridy = 0;
-    fieldsPnl.add(this.dateFld, gbc);
     gbc.gridy = 1;
-    fieldsPnl.add(this.locationFld, gbc);
+    fieldsPnl.add(this.dateFld, gbc);
     gbc.gridy = 2;
-    fieldsPnl.add(this.partner1Field, gbc);
+    fieldsPnl.add(this.locationFld, gbc);
     gbc.gridy = 3;
-    fieldsPnl.add(this.partner2Field, gbc);
+    fieldsPnl.add(this.partner1Field, gbc);
     gbc.gridy = 4;
+    fieldsPnl.add(this.partner2Field, gbc);
+    gbc.gridy = 5;
     gbc.fill = GridBagConstraints.BOTH;
     gbc.gridheight = 3;
     fieldsPnl.add(new JScrollPane(this.childrenList), gbc);
-    gbc.gridy = 7;
+    gbc.gridy = 8;
     gbc.gridheight = 1;
     gbc.fill = GridBagConstraints.HORIZONTAL;
     JPanel p = new JPanel();
@@ -185,11 +193,11 @@ public class LinkDialog extends AbstractDialog {
     gbc.gridwidth = 5;
     gbc.weightx = 1;
     gbc.gridx = 2;
-    gbc.gridy = 8;
+    gbc.gridy = 9;
     gbc.fill = GridBagConstraints.BOTH;
     gbc.gridheight = 3;
     fieldsPnl.add(new JScrollPane(this.availChildrenList), gbc);
-    gbc.gridy = 11;
+    gbc.gridy = 12;
     gbc.fill = GridBagConstraints.HORIZONTAL;
     gbc.gridheight = 1;
     fieldsPnl.add(this.searchFld, gbc);
@@ -268,6 +276,20 @@ public class LinkDialog extends AbstractDialog {
    */
   void setPartner2(String name) {
     this.partner2Field.setText(name);
+  }
+
+  /**
+   * @return true if wedding checkbox is checked
+   */
+  boolean isWeddingChecked() {
+    return this.weddingChk.isSelected();
+  }
+
+  /**
+   * Sets the wedding checkbox selection.
+   */
+  void setWeddingChecked(boolean checked) {
+    this.weddingChk.setSelected(checked);
   }
 
   /**
