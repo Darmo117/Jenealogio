@@ -119,7 +119,9 @@ public class FamilyDao {
 
       // Relations loading
       JSONArray relationsObj;
-      if (version.compareTo(Version.V1_3) < 0) {
+      boolean before1_3d = version.before(Version.V1_3D);
+
+      if (before1_3d) {
         relationsObj = (JSONArray) obj.get("weddings");
       }
       else {
@@ -127,14 +129,18 @@ public class FamilyDao {
       }
 
       for (Object o : relationsObj) {
-        JSONObject weddingObj = (JSONObject) o;
-        Date date = getDate((String) weddingObj.get("date"));
-        String location = getNullIfEmpty((String) weddingObj.get("location"));
-        String type = getNullIfEmpty((String) weddingObj.get("type"));
-        boolean isWedding = "wedding".equalsIgnoreCase(type);
-        FamilyMember spouse1 = members.stream().filter(m -> m.getId() == (Long) weddingObj.get("spouse1")).findFirst().get();
-        FamilyMember spouse2 = members.stream().filter(m -> m.getId() == (Long) weddingObj.get("spouse2")).findFirst().get();
-        JSONArray childrenObj = (JSONArray) weddingObj.get("children");
+        JSONObject relationObj = (JSONObject) o;
+        Date date = getDate((String) relationObj.get("date"));
+        String location = getNullIfEmpty((String) relationObj.get("location"));
+        boolean isWedding = true;
+        if (!before1_3d) {
+          String type = getNullIfEmpty((String) relationObj.get("type"));
+          isWedding = "wedding".equalsIgnoreCase(type);
+        }
+        String partnerKey = before1_3d ? "spouse" : "partner";
+        FamilyMember partner1 = members.stream().filter(m -> m.getId() == (Long) relationObj.get(partnerKey + 1)).findFirst().get();
+        FamilyMember partner2 = members.stream().filter(m -> m.getId() == (Long) relationObj.get(partnerKey + 2)).findFirst().get();
+        JSONArray childrenObj = (JSONArray) relationObj.get("children");
         FamilyMember[] children = new FamilyMember[childrenObj.size()];
 
         for (int i = 0; i < children.length; i++) {
@@ -142,7 +148,7 @@ public class FamilyDao {
           children[i] = members.stream().filter(m -> m.getId() == (Long) childrenObj.get((Integer) j)).findFirst().get();
         }
 
-        weddings.add(new Relationship(date, location, isWedding, spouse1, spouse2, children));
+        weddings.add(new Relationship(date, location, isWedding, partner1, partner2, children));
       }
 
       return family;
@@ -212,7 +218,7 @@ public class FamilyDao {
   public void save(String file, Family family, Map<Long, Point> positions) throws IOException {
     JSONObject obj = new JSONObject();
 
-    obj.put("version", Version.CURRENT_VERSION);
+    obj.put("version", Version.CURRENT_VERSION.getFullValue());
     obj.put("global_id", family.getGlobalId());
     obj.put("name", family.getName());
 
@@ -242,21 +248,22 @@ public class FamilyDao {
     }
     obj.put("members", membersObj);
 
-    JSONArray weddingsObj = new JSONArray();
-    for (Relationship w : family.getAllRelations()) {
-      JSONObject weddingObj = new JSONObject();
+    JSONArray relationsObj = new JSONArray();
+    for (Relationship r : family.getAllRelations()) {
+      JSONObject relationObj = new JSONObject();
 
-      weddingObj.put("spouse1", w.getPartner1().getId());
-      weddingObj.put("spouse2", w.getPartner2().getId());
-      formatDate(weddingObj, "date", w.getDate());
-      weddingObj.put("location", w.getLocation().orElse(""));
+      relationObj.put("partner1", r.getPartner1().getId());
+      relationObj.put("partner2", r.getPartner2().getId());
+      relationObj.put("type", r.isWedding() ? "wedding" : "");
+      formatDate(relationObj, "date", r.getDate());
+      relationObj.put("location", r.getLocation().orElse(""));
       JSONArray childrenObj = new JSONArray();
-      w.getChildren().forEach(c -> childrenObj.add(c.getId()));
-      weddingObj.put("children", childrenObj);
+      r.getChildren().forEach(c -> childrenObj.add(c.getId()));
+      relationObj.put("children", childrenObj);
 
-      weddingsObj.add(weddingObj);
+      relationsObj.add(relationObj);
     }
-    obj.put("relations", weddingsObj);
+    obj.put("relations", relationsObj);
 
     Files.write(Paths.get(file), Arrays.asList(obj.toJSONString()));
   }

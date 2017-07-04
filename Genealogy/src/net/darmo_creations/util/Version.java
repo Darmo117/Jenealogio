@@ -4,11 +4,11 @@ public final class Version implements Comparable<Version> {
   /** Current version */
   public static final Version CURRENT_VERSION;
 
-  /** Version 1.3 */
-  public static final Version V1_3 = new Version(1, 3, 0, false);
+  /** Version 1.3d */
+  public static final Version V1_3D = new Version(1, 3, 0, true);
 
   static {
-    CURRENT_VERSION = new Version(1, 3, 0, true);
+    CURRENT_VERSION = V1_3D;
   }
 
   private final int major, minor, patch;
@@ -55,6 +55,14 @@ public final class Version implements Comparable<Version> {
     return (this.major & 0xff) << 16 | (this.minor & 0xff) << 8 | (this.patch & 0xff);
   }
 
+  public boolean before(Version v) {
+    return compareTo(v) < 0;
+  }
+
+  public boolean after(Version v) {
+    return compareTo(v) > 0;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (o instanceof Version)
@@ -66,10 +74,12 @@ public final class Version implements Comparable<Version> {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
+
     result = prime * result + (this.indev ? 1231 : 1237);
     result = prime * result + this.major;
     result = prime * result + this.minor;
     result = prime * result + this.patch;
+
     return result;
   }
 
