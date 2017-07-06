@@ -72,10 +72,12 @@ public class LinkController extends DefaultDialogController<LinkDialog> implemen
     this.partner2 = family.getMember(relation.getPartner2()).get();
 
     this.dialog.setWeddingChecked(relation.isWedding());
+    this.dialog.setDate(relation.getDate().orElse(null));
+    this.dialog.setRelationshipLocation(relation.getLocation());
+    this.dialog.setEndedChecked(relation.hasEnded());
+    this.dialog.setEndDate(relation.getEndDate().orElse(null));
     this.dialog.setPartner1(family.getMember(relation.getPartner1()).get().toString());
     this.dialog.setPartner2(family.getMember(relation.getPartner2()).get().toString());
-    this.dialog.setDate(relation.getDate());
-    this.dialog.setRelationshipLocation(relation.getLocation());
     this.dialog.setAvailableChildren(availableChildren);
     this.dialog.setChildren(relation.getChildren().stream().map(id -> family.getMember(id).get()).collect(Collectors.toSet()));
 
@@ -88,8 +90,8 @@ public class LinkController extends DefaultDialogController<LinkDialog> implemen
    * @return the link
    */
   public Relationship getLink() {
-    return new Relationship(this.dialog.getDate(), this.dialog.getRelationshipLocation(), this.dialog.isWeddingChecked(), false/* TEMP */,
-        null/* TEMP */, this.partner1.getId(), this.partner2.getId(), this.dialog.getChildren());
+    return new Relationship(this.dialog.getDate(), this.dialog.getRelationshipLocation(), this.dialog.isWeddingChecked(),
+        this.dialog.isEndedChecked(), this.dialog.getEndDate(), this.partner1.getId(), this.partner2.getId(), this.dialog.getChildren());
   }
 
   @Override

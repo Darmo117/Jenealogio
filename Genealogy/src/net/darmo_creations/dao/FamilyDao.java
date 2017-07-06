@@ -273,7 +273,7 @@ public class FamilyDao {
       r.getChildren().forEach(c -> childrenObj.add(c));
       relationObj.put("children", childrenObj);
       if (r.getEndDate().isPresent()) {
-        relationObj.put("end_date", r.getEndDate().get());
+        formatDate(relationObj, "end_date", r.getEndDate());
       }
       else {
         relationObj.put("has_ended", r.hasEnded());

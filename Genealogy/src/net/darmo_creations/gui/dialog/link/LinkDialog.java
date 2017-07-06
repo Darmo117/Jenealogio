@@ -64,6 +64,8 @@ public class LinkDialog extends AbstractDialog {
   private JCheckBox weddingChk;
   private DateField dateFld;
   private JTextField locationFld;
+  private JCheckBox endedChk;
+  private DateField endDateFld;
   private JTextField partner1Field, partner2Field;
   private JList<FamilyMember> childrenList, availChildrenList;
   private JButton addBtn, removeBtn;
@@ -91,6 +93,10 @@ public class LinkDialog extends AbstractDialog {
     this.weddingChk = new JCheckBox(I18n.getLocalizedString("label.wedding.text"));
     this.dateFld = new DateField(I18n.getLocalizedString("date.format"), FlowLayout.LEFT);
     this.locationFld = new JTextField();
+    this.endedChk = new JCheckBox(I18n.getLocalizedString("label.relationship_ended.text"));
+    this.endedChk.setActionCommand("ended");
+    this.endedChk.addActionListener(e -> this.endDateFld.setEnabled(this.endedChk.isSelected()));
+    this.endDateFld = new DateField(I18n.getLocalizedString("date.format"), FlowLayout.LEFT);
     this.partner1Field = new JTextField();
     this.partner1Field.setEnabled(false);
     this.partner2Field = new JTextField();
@@ -148,43 +154,48 @@ public class LinkDialog extends AbstractDialog {
     gbc.insets = new Insets(2, 2, 2, 2);
 
     gbc.fill = GridBagConstraints.HORIZONTAL;
-    gbc.gridwidth = 4;
-    gbc.gridx = 2;
-    fieldsPnl.add(this.weddingChk, gbc);
     gbc.gridwidth = 2;
-    gbc.gridx = 0;
     gbc.gridy = 1;
     fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.relationship_date.text")), gbc);
     gbc.gridy = 2;
     fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.relationship_location.text")), gbc);
-    gbc.gridy = 3;
-    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.partner1.text")), gbc);
     gbc.gridy = 4;
-    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.partner2.text")), gbc);
+    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.relationship_end_date.text")), gbc);
     gbc.gridy = 5;
+    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.partner1.text")), gbc);
+    gbc.gridy = 6;
+    fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.partner2.text")), gbc);
+    gbc.gridy = 7;
     fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.children.text")), gbc);
     gbc.gridwidth = 3;
-    gbc.gridy = 8;
+    gbc.gridy = 10;
     fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.available_children.text")), gbc);
     gbc.gridwidth = 2;
-    gbc.gridy = 12;
+    gbc.gridy = 14;
     fieldsPnl.add(new JLabel(I18n.getLocalizedString("label.search.text")), gbc);
+
     gbc.gridwidth = 5;
     gbc.weightx = 1;
     gbc.gridx = 2;
+    gbc.gridy = 0;
+    fieldsPnl.add(this.weddingChk, gbc);
     gbc.gridy = 1;
     fieldsPnl.add(this.dateFld, gbc);
     gbc.gridy = 2;
     fieldsPnl.add(this.locationFld, gbc);
     gbc.gridy = 3;
-    fieldsPnl.add(this.partner1Field, gbc);
+    fieldsPnl.add(this.endedChk, gbc);
     gbc.gridy = 4;
-    fieldsPnl.add(this.partner2Field, gbc);
+    fieldsPnl.add(this.endDateFld, gbc);
     gbc.gridy = 5;
+    fieldsPnl.add(this.partner1Field, gbc);
+    gbc.gridy = 6;
+    fieldsPnl.add(this.partner2Field, gbc);
+    gbc.gridy = 7;
     gbc.fill = GridBagConstraints.BOTH;
     gbc.gridheight = 3;
     fieldsPnl.add(new JScrollPane(this.childrenList), gbc);
-    gbc.gridy = 8;
+    gbc.gridy = 10;
     gbc.gridheight = 1;
     gbc.fill = GridBagConstraints.HORIZONTAL;
     JPanel p = new JPanel();
@@ -194,11 +205,11 @@ public class LinkDialog extends AbstractDialog {
     gbc.gridwidth = 5;
     gbc.weightx = 1;
     gbc.gridx = 2;
-    gbc.gridy = 9;
+    gbc.gridy = 11;
     gbc.fill = GridBagConstraints.BOTH;
     gbc.gridheight = 3;
     fieldsPnl.add(new JScrollPane(this.availChildrenList), gbc);
-    gbc.gridy = 12;
+    gbc.gridy = 14;
     gbc.fill = GridBagConstraints.HORIZONTAL;
     gbc.gridheight = 1;
     fieldsPnl.add(this.searchFld, gbc);
@@ -262,24 +273,6 @@ public class LinkDialog extends AbstractDialog {
   }
 
   /**
-   * Sets the first partner.
-   * 
-   * @param name the name
-   */
-  void setPartner1(String name) {
-    this.partner1Field.setText(name);
-  }
-
-  /**
-   * Sets the second partner.
-   * 
-   * @param name the name
-   */
-  void setPartner2(String name) {
-    this.partner2Field.setText(name);
-  }
-
-  /**
    * @return true if wedding checkbox is checked
    */
   boolean isWeddingChecked() {
@@ -305,8 +298,8 @@ public class LinkDialog extends AbstractDialog {
    * 
    * @param date the new date
    */
-  void setDate(Optional<Date> date) {
-    this.dateFld.setDate(date.orElse(null));
+  void setDate(Date date) {
+    this.dateFld.setDate(date);
   }
 
   /**
@@ -323,6 +316,55 @@ public class LinkDialog extends AbstractDialog {
    */
   void setRelationshipLocation(Optional<String> location) {
     this.locationFld.setText(location.orElse(""));
+  }
+
+  /**
+   * @return true if "ended" checkboc is selected
+   */
+  boolean isEndedChecked() {
+    return this.endedChk.isSelected();
+  }
+
+  /**
+   * Sets the "ended" checkbox selection.
+   */
+  void setEndedChecked(boolean checked) {
+    this.endedChk.setSelected(checked);
+    this.endDateFld.setEnabled(checked);
+  }
+
+  /**
+   * @return the end date
+   */
+  Date getEndDate() {
+    return isEndedChecked() ? this.endDateFld.getDate().orElse(null) : null;
+  }
+
+  /**
+   * Sets the end date.
+   * 
+   * @param date the new date
+   */
+  void setEndDate(Date date) {
+    this.endDateFld.setDate(date);
+  }
+
+  /**
+   * Sets the first partner.
+   * 
+   * @param name the name
+   */
+  void setPartner1(String name) {
+    this.partner1Field.setText(name);
+  }
+
+  /**
+   * Sets the second partner.
+   * 
+   * @param name the name
+   */
+  void setPartner2(String name) {
+    this.partner2Field.setText(name);
   }
 
   /**
