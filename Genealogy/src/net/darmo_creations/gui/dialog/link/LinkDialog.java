@@ -45,7 +45,7 @@ import javax.swing.text.BadLocationException;
 import net.darmo_creations.gui.MainFrame;
 import net.darmo_creations.gui.components.DateField;
 import net.darmo_creations.gui.dialog.AbstractDialog;
-import net.darmo_creations.model.Date;
+import net.darmo_creations.model.date.Date;
 import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.model.family.Relationship;
 import net.darmo_creations.util.I18n;

@@ -43,8 +43,8 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
-import net.darmo_creations.model.Date;
-import net.darmo_creations.model.DateBuilder;
+import net.darmo_creations.model.date.Date;
+import net.darmo_creations.model.date.DateBuilder;
 import net.darmo_creations.model.family.Family;
 import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.model.family.Gender;
@@ -133,10 +133,21 @@ public class FamilyDao {
         Date date = getDate((String) relationObj.get("date"));
         String location = getNullIfEmpty((String) relationObj.get("location"));
         boolean isWedding = true;
+        boolean hasEnded = false;
+        Date endDate = null;
+
         if (!before1_3d) {
           String type = getNullIfEmpty((String) relationObj.get("type"));
           isWedding = "wedding".equalsIgnoreCase(type);
+          String s = (String) relationObj.get("end_date");
+          if (s != null)
+            endDate = getDate(s);
+          if (endDate == null)
+            hasEnded = (Boolean) relationObj.get("has_ended");
+          else
+            hasEnded = true;
         }
+
         String partnerKey = before1_3d ? "spouse" : "partner";
         FamilyMember partner1 = members.stream().filter(m -> m.getId() == (Long) relationObj.get(partnerKey + 1)).findFirst().get();
         FamilyMember partner2 = members.stream().filter(m -> m.getId() == (Long) relationObj.get(partnerKey + 2)).findFirst().get();
@@ -148,12 +159,14 @@ public class FamilyDao {
           children[i] = members.stream().filter(m -> m.getId() == (Long) childrenObj.get((Integer) j)).findFirst().get();
         }
 
-        weddings.add(new Relationship(date, location, isWedding, partner1, partner2, children));
+        weddings.add(new Relationship(date, location, isWedding, hasEnded, endDate, partner1, partner2, children));
       }
 
       return family;
     }
-    catch (ClassCastException | NoSuchElementException | DateTimeParseException | org.json.simple.parser.ParseException __) {
+    catch (NullPointerException | ClassCastException | NoSuchElementException | DateTimeParseException
+        | org.json.simple.parser.ParseException __) {
+      __.printStackTrace();
       throw new ParseException("corrupted file", -1);
     }
   }
@@ -260,6 +273,12 @@ public class FamilyDao {
       JSONArray childrenObj = new JSONArray();
       r.getChildren().forEach(c -> childrenObj.add(c.getId()));
       relationObj.put("children", childrenObj);
+      if (r.getEndDate().isPresent()) {
+        relationObj.put("end_date", r.getEndDate().get());
+      }
+      else {
+        relationObj.put("has_ended", r.hasEnded());
+      }
 
       relationsObj.add(relationObj);
     }

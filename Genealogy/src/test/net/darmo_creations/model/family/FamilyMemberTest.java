@@ -9,8 +9,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import net.darmo_creations.model.Date;
-import net.darmo_creations.model.DateBuilder;
+import net.darmo_creations.model.date.Date;
+import net.darmo_creations.model.date.DateBuilder;
 
 public class FamilyMemberTest {
   private FamilyMember p;

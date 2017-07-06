@@ -22,7 +22,7 @@ import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
-import net.darmo_creations.model.Date;
+import net.darmo_creations.model.date.Date;
 
 /**
  * This class handles internationalization for the whole application.

@@ -24,7 +24,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 
-import net.darmo_creations.model.Date;
+import net.darmo_creations.model.date.Date;
 import net.darmo_creations.util.Nullable;
 
 /**
@@ -38,6 +38,8 @@ public final class Relationship {
   private FamilyMember partner1, partner2;
   private Set<FamilyMember> children;
   private boolean isWedding;
+  private boolean hasEnded;
+  private Date endDate;
 
   /**
    * Creates a new relation. The two partners must be different or else an IllegalArgumentException
@@ -45,12 +47,15 @@ public final class Relationship {
    * 
    * @param date the start date
    * @param location the location when it started
+   * @param isWedding is it a wedding?
+   * @param hasEnded has it ended?
+   * @param endDate the date when it ended
    * @param partner1 one partner
    * @param partner2 the other partner
    * @param children the children
    */
-  public Relationship(@Nullable Date date, @Nullable String location, boolean isWedding, FamilyMember partner1, FamilyMember partner2,
-      FamilyMember... children) {
+  public Relationship(@Nullable Date date, @Nullable String location, boolean isWedding, boolean hasEnded, @Nullable Date endDate,
+      FamilyMember partner1, FamilyMember partner2, FamilyMember... children) {
     if (partner1.equals(partner2))
       throw new IllegalArgumentException("partners must be different");
     setDate(date != null ? date.clone() : null);
@@ -58,6 +63,8 @@ public final class Relationship {
     setWedding(isWedding);
     setPartner1(partner1);
     setPartner2(partner2);
+    setEndDate(endDate != null ? endDate.clone() : null);
+    setHasEnded(hasEnded);
     this.children = new HashSet<>();
     for (FamilyMember child : children)
       addChild(child);
@@ -109,6 +116,40 @@ public final class Relationship {
    */
   void setWedding(boolean isWedding) {
     this.isWedding = isWedding;
+  }
+
+  /**
+   * @return true if the relation has ended
+   */
+  public boolean hasEnded() {
+    return this.hasEnded;
+  }
+
+  /**
+   * Sets if the relation has ended. If an end date is already set, this will do nothing.
+   * 
+   * @param hasEnded the new value
+   */
+  void setHasEnded(boolean hasEnded) {
+    if (this.endDate == null)
+      this.hasEnded = hasEnded;
+  }
+
+  /**
+   * @return the end date
+   */
+  public Optional<Date> getEndDate() {
+    return Optional.ofNullable(this.endDate);
+  }
+
+  /**
+   * Sets the end date. It will also update the hasEnded property.
+   * 
+   * @param endDate the new date
+   */
+  void setEndDate(@Nullable Date endDate) {
+    this.hasEnded = endDate != null;
+    this.endDate = endDate;
   }
 
   /**

@@ -13,8 +13,8 @@ import javax.swing.event.DocumentListener;
 import javax.swing.text.NumberFormatter;
 
 import net.darmo_creations.controllers.FormattedFieldFocusListener;
-import net.darmo_creations.model.Date;
-import net.darmo_creations.model.DateBuilder;
+import net.darmo_creations.model.date.Date;
+import net.darmo_creations.model.date.DateBuilder;
 import net.darmo_creations.util.Nullable;
 
 /**

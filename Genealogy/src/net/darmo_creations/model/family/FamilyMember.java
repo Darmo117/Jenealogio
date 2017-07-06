@@ -23,7 +23,7 @@ import java.time.Period;
 import java.util.Objects;
 import java.util.Optional;
 
-import net.darmo_creations.model.Date;
+import net.darmo_creations.model.date.Date;
 import net.darmo_creations.util.CalendarUtil;
 import net.darmo_creations.util.Images;
 import net.darmo_creations.util.Nullable;

@@ -116,6 +116,7 @@ public class Family {
    * 
    * @param member the member's updated data
    */
+  // TODO to refactor
   public void updateMember(FamilyMember member) {
     Optional<FamilyMember> optional = getMember(member.getId());
 
@@ -181,12 +182,15 @@ public class Family {
    * 
    * @param relation the new relation
    */
+  // TODO to refactor
   public void addRelation(Relationship relation) {
+    // TODO : accepter les remariages.
     if (!this.relations.contains(relation) && !isInRelationship(relation.getPartner1()) && !isInRelationship(relation.getPartner2())) {
       FamilyMember[] children = relation.getChildren().stream().map(child -> getMember(child.getId()).get()).toArray(FamilyMember[]::new);
 
       this.relations.add(new Relationship(relation.getDate().orElse(null), relation.getLocation().orElse(null), relation.isWedding(),
-          getMember(relation.getPartner1().getId()).get(), getMember(relation.getPartner2().getId()).get(), children));
+          relation.hasEnded(), relation.getEndDate().orElse(null), getMember(relation.getPartner1().getId()).get(),
+          getMember(relation.getPartner2().getId()).get(), children));
     }
   }
 
@@ -195,6 +199,7 @@ public class Family {
    * 
    * @param relation the relation's new data
    */
+  // TODO to refactor
   public void updateRelation(Relationship relation) {
     Optional<Relationship> optional = getRelation(relation.getPartner1());
 
@@ -204,6 +209,8 @@ public class Family {
       r.setDate(relation.getDate().orElse(null));
       r.setLocation(relation.getLocation().orElse(null));
       r.setWedding(relation.isWedding());
+      r.setEndDate(relation.getEndDate().orElse(null));
+      r.setHasEnded(relation.hasEnded());
       Set<FamilyMember> children = r.getChildren();
       children.forEach(child -> r.removeChild(child));
       relation.getChildren().forEach(child -> r.addChild(Family.this.getMember(child.getId()).orElseThrow(IllegalStateException::new)));

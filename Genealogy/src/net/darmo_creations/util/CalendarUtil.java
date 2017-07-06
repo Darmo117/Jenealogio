@@ -23,8 +23,8 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.TimeZone;
 
-import net.darmo_creations.model.Date;
-import net.darmo_creations.model.DateBuilder;
+import net.darmo_creations.model.date.Date;
+import net.darmo_creations.model.date.DateBuilder;
 
 /**
  * Useful functions to handle dates.
