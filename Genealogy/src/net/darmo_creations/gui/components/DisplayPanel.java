@@ -160,12 +160,13 @@ public class DisplayPanel extends JPanel implements Scrollable, Observable, Drag
       long id1 = relation.getPartner1();
       long id2 = relation.getPartner2();
       Set<Long> children = relation.getChildren().stream().collect(Collectors.toSet());
-      Link link = new Link(id1, id2, children, relation.isWedding());
+      Link link = new Link(id1, id2, children, relation.isWedding(), relation.hasEnded());
 
       if (this.links.contains(link)) {
         Link l = this.links.get(this.links.indexOf(link));
 
         l.setWedding(link.isWedding());
+        l.setEnded(relation.hasEnded());
         l.setChildren(link.getChildren());
       }
       else {
@@ -287,7 +288,10 @@ public class DisplayPanel extends JPanel implements Scrollable, Observable, Drag
     g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
     this.links.forEach(link -> {
       final int width = link.isWedding() ? 2 : 1;
-      g2d.setStroke(new BasicStroke(width));
+      if (link.hasEnded())
+        g2d.setStroke(new BasicStroke(width, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[]{9}, 0));
+      else
+        g2d.setStroke(new BasicStroke(width));
 
       // Link between parents
       Rectangle r1 = this.panels.get(link.getParent1()).getBounds();
@@ -302,6 +306,7 @@ public class DisplayPanel extends JPanel implements Scrollable, Observable, Drag
         g2d.setColor(link.isSelected() ? this.config.getValue(ColorConfigKey.LINK_SELECTED) : this.config.getValue(ColorConfigKey.LINK));
       g2d.drawLine(p1.x, p1.y, p2.x, p2.y);
 
+      g2d.setStroke(new BasicStroke(width));
       g2d.setColor(this.config.getValue(ColorConfigKey.LINK_CHILD));
       // Links to children
       link.getChildren().forEach(child -> {
@@ -372,6 +377,7 @@ public class DisplayPanel extends JPanel implements Scrollable, Observable, Drag
   private class Link {
     private final long parent1, parent2;
     private boolean wedding;
+    private boolean ended;
     private Set<Long> children;
     private boolean selected;
 
@@ -382,11 +388,12 @@ public class DisplayPanel extends JPanel implements Scrollable, Observable, Drag
      * @param parent2 the other parent
      * @param children the children
      */
-    public Link(long parent1, long parent2, Set<Long> children, boolean wedding) {
+    public Link(long parent1, long parent2, Set<Long> children, boolean wedding, boolean ended) {
       this.parent1 = parent1;
       this.parent2 = parent2;
       this.children = new HashSet<>(children);
       this.wedding = wedding;
+      this.ended = ended;
       this.selected = false;
     }
 
@@ -412,6 +419,14 @@ public class DisplayPanel extends JPanel implements Scrollable, Observable, Drag
 
     public void setWedding(boolean wedding) {
       this.wedding = wedding;
+    }
+
+    public boolean hasEnded() {
+      return this.ended;
+    }
+
+    public void setEnded(boolean ended) {
+      this.ended = ended;
     }
 
     public boolean isSelected() {
