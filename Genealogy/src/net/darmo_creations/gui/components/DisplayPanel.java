@@ -157,9 +157,9 @@ public class DisplayPanel extends JPanel implements Scrollable, Observable, Drag
     List<Link> updatedOrAddedLinks = new ArrayList<>();
     // Add/update links
     family.getAllRelations().forEach(relation -> {
-      long id1 = relation.getPartner1().getId();
-      long id2 = relation.getPartner2().getId();
-      Set<Long> children = relation.getChildren().stream().map(member -> member.getId()).collect(Collectors.toSet());
+      long id1 = relation.getPartner1();
+      long id2 = relation.getPartner2();
+      Set<Long> children = relation.getChildren().stream().collect(Collectors.toSet());
       Link link = new Link(id1, id2, children, relation.isWedding());
 
       if (this.links.contains(link)) {

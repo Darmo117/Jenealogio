@@ -454,13 +454,14 @@ public class MainFrame extends JFrame {
   /**
    * Shows the "add link" dialog.
    * 
-   * @param spouse1 one spouse
-   * @param spouse2 the other spouse
-   * @param children the potential children
+   * @param partner1 one partner
+   * @param partner2 the other partner
+   * @param availableChildren the potential children
+   * @param family the family
    * @return the new link or nothing if the dialog was dismissed/canceled
    */
-  public Optional<Relationship> showAddLinkDialog(FamilyMember spouse1, FamilyMember spouse2, Set<FamilyMember> children) {
-    this.linkDialog.addLink(spouse1, spouse2, children);
+  public Optional<Relationship> showAddLinkDialog(long partner1, long partner2, Set<FamilyMember> availableChildren, Family family) {
+    this.linkDialog.addLink(partner1, partner2, availableChildren, family);
     this.linkDialog.setVisible(true);
     return this.linkDialog.getLink();
   }
@@ -480,12 +481,13 @@ public class MainFrame extends JFrame {
   /**
    * Shows the "update link" dialog.
    * 
-   * @param wedding the link to update
-   * @param children the potential children
+   * @param relation the link to update
+   * @param availableChildren the potential children
+   * @param family the family
    * @return the updated link or nothing if the dialog was dismissed/canceled
    */
-  public Optional<Relationship> showUpdateLinkDialog(Relationship wedding, Set<FamilyMember> children) {
-    this.linkDialog.updateLink(wedding, children);
+  public Optional<Relationship> showUpdateLinkDialog(Relationship relation, Set<FamilyMember> availableChildren, Family family) {
+    this.linkDialog.updateLink(relation, availableChildren, family);
     this.linkDialog.setVisible(true);
     return this.linkDialog.getLink();
   }

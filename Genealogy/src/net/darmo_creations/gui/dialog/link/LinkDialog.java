@@ -46,6 +46,7 @@ import net.darmo_creations.gui.MainFrame;
 import net.darmo_creations.gui.components.DateField;
 import net.darmo_creations.gui.dialog.AbstractDialog;
 import net.darmo_creations.model.date.Date;
+import net.darmo_creations.model.family.Family;
 import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.model.family.Relationship;
 import net.darmo_creations.util.I18n;
@@ -215,22 +216,24 @@ public class LinkDialog extends AbstractDialog {
    * 
    * @param partner1 one partner
    * @param partner2 the other partner
-   * @param children the potential children
+   * @param availableChildren the potential children
+   * @param family the family
    */
-  public void addLink(FamilyMember partner1, FamilyMember partner2, Set<FamilyMember> children) {
+  public void addLink(long partner1, long partner2, Set<FamilyMember> availableChildren, Family family) {
     setTitle(I18n.getLocalizedString("dialog.add_link.title"));
-    this.controller.reset(partner1, partner2, children);
+    this.controller.reset(partner1, partner2, availableChildren, family);
   }
 
   /**
    * Sets the dialog to "update link" mode.
    * 
    * @param relation the link
-   * @param children the potential children
+   * @param availableChildren the potential children
+   * @param family the family
    */
-  public void updateLink(Relationship relation, Set<FamilyMember> children) {
+  public void updateLink(Relationship relation, Set<FamilyMember> availableChildren, Family family) {
     setTitle(I18n.getLocalizedString("dialog.update_link.title"));
-    this.controller.reset(relation, children);
+    this.controller.reset(relation, availableChildren, family);
   }
 
   /**
@@ -327,12 +330,12 @@ public class LinkDialog extends AbstractDialog {
   /**
    * @return the children
    */
-  FamilyMember[] getChildren() {
+  long[] getChildren() {
     DefaultListModel<FamilyMember> model = (DefaultListModel<FamilyMember>) this.childrenList.getModel();
-    FamilyMember[] children = new FamilyMember[model.size()];
+    long[] children = new long[model.size()];
 
     for (int i = 0; i < model.size(); i++) {
-      children[i] = model.getElementAt(i);
+      children[i] = model.getElementAt(i).getId();
     }
 
     return children;

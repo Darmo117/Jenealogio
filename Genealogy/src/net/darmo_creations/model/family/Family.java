@@ -30,7 +30,7 @@ import java.util.Set;
  * 
  * @author Damien Vergnet
  */
-public class Family {
+public class Family implements Cloneable {
   /** The global ID */
   private long globalId;
   /** This family's name */
@@ -86,7 +86,9 @@ public class Family {
    * @return all the members
    */
   public Set<FamilyMember> getAllMembers() {
-    return new HashSet<>(this.members);
+    Set<FamilyMember> members = new HashSet<>();
+    this.members.forEach(m -> members.add(m.clone()));
+    return members;
   }
 
   /**
@@ -107,7 +109,7 @@ public class Family {
    */
   public void addMember(FamilyMember member) {
     if (!this.members.contains(member)) {
-      this.members.add(member.copy(getNextMemberId()));
+      this.members.add(member.clone(getNextMemberId()));
     }
   }
 
@@ -116,25 +118,10 @@ public class Family {
    * 
    * @param member the member's updated data
    */
-  // TODO to refactor
   public void updateMember(FamilyMember member) {
-    Optional<FamilyMember> optional = getMember(member.getId());
-
-    if (optional.isPresent()) {
-      FamilyMember m = optional.get();
-
-      m.setImage(member.getImage().orElse(null));
-      m.setFamilyName(member.getFamilyName().orElse(null));
-      m.setUseName(member.getUseName().orElse(null));
-      m.setFirstName(member.getFirstName().orElse(null));
-      m.setOtherNames(member.getOtherNames().orElse(null));
-      m.setGender(member.getGender());
-      m.setBirthDate(member.getBirthDate().orElse(null));
-      m.setBirthLocation(member.getBirthLocation().orElse(null));
-      m.setDeathDate(member.getDeathDate().orElse(null));
-      m.setDeathLocation(member.getDeathLocation().orElse(null));
-      m.setDead(member.isDead());
-      m.setComment(member.getComment().orElse(null));
+    if (this.members.contains(member)) {
+      this.members.remove(member);
+      this.members.add(member.clone());
     }
   }
 
@@ -142,17 +129,17 @@ public class Family {
    * Deletes a member from the family. Also removes associated relation. If the member does not
    * exist in this family, nothing will happen.
    * 
-   * @param member the member to remove
+   * @param id the ID of the member to remove
    */
-  public void removeMember(FamilyMember member) {
+  public void removeMember(long id) {
     for (Iterator<Relationship> it = this.relations.iterator(); it.hasNext();) {
       Relationship relation = it.next();
-      if (relation.isInRelationship(member))
+      if (relation.isInRelationship(id))
         it.remove();
-      else if (relation.isChild(member))
-        relation.removeChild(member);
+      else if (relation.isChild(id))
+        relation.removeChild(id);
     }
-    this.members.remove(member);
+    this.members.removeIf(m -> m.getId() == id);
   }
 
   /**
@@ -161,19 +148,20 @@ public class Family {
    * @return all the relations
    */
   public Set<Relationship> getAllRelations() {
-    return new HashSet<>(this.relations);
+    Set<Relationship> relations = new HashSet<>();
+    this.relations.forEach(r -> relations.add(r.clone()));
+    return relations;
   }
 
   /**
    * Gets the relation for the given member. This method checks for every relation if one of the two
    * spouses is the given member.
    * 
-   * @param member the member
+   * @param memberId the member' ID
    * @return the relation or nothing if none were found
    */
-  public Optional<Relationship> getRelation(FamilyMember member) {
-    return this.relations.stream().filter(
-        relation -> relation.getPartner1().equals(member) || relation.getPartner2().equals(member)).findAny();
+  public Optional<Relationship> getRelation(long memberId) {
+    return this.relations.stream().filter(relation -> relation.getPartner1() == memberId || relation.getPartner2() == memberId).findAny();
   }
 
   /**
@@ -182,15 +170,10 @@ public class Family {
    * 
    * @param relation the new relation
    */
-  // TODO to refactor
   public void addRelation(Relationship relation) {
     // TODO : accepter les remariages.
     if (!this.relations.contains(relation) && !isInRelationship(relation.getPartner1()) && !isInRelationship(relation.getPartner2())) {
-      FamilyMember[] children = relation.getChildren().stream().map(child -> getMember(child.getId()).get()).toArray(FamilyMember[]::new);
-
-      this.relations.add(new Relationship(relation.getDate().orElse(null), relation.getLocation().orElse(null), relation.isWedding(),
-          relation.hasEnded(), relation.getEndDate().orElse(null), getMember(relation.getPartner1().getId()).get(),
-          getMember(relation.getPartner2().getId()).get(), children));
+      this.relations.add(relation.clone());
     }
   }
 
@@ -199,21 +182,14 @@ public class Family {
    * 
    * @param relation the relation's new data
    */
-  // TODO to refactor
   public void updateRelation(Relationship relation) {
-    Optional<Relationship> optional = getRelation(relation.getPartner1());
-
-    if (optional.isPresent()) {
-      Relationship r = optional.get();
-
-      r.setDate(relation.getDate().orElse(null));
-      r.setLocation(relation.getLocation().orElse(null));
-      r.setWedding(relation.isWedding());
-      r.setEndDate(relation.getEndDate().orElse(null));
-      r.setHasEnded(relation.hasEnded());
-      Set<FamilyMember> children = r.getChildren();
-      children.forEach(child -> r.removeChild(child));
-      relation.getChildren().forEach(child -> r.addChild(Family.this.getMember(child.getId()).orElseThrow(IllegalStateException::new)));
+    if (this.relations.contains(relation)) {
+      relation.getChildren().forEach(id -> {
+        if (!getMember(id).isPresent())
+          throw new IllegalStateException("member ID '" + id + "' does not exist");
+      });
+      this.relations.remove(relation);
+      this.relations.add(relation.clone());
     }
   }
 
@@ -227,23 +203,23 @@ public class Family {
   }
 
   /**
-   * Tells if a member is married.
+   * Tells if a member is in a relationship.
    * 
-   * @param member the member
+   * @param memberId member's ID
    * @return true if and only if the member is married
    */
-  public boolean isInRelationship(FamilyMember member) {
-    return this.relations.stream().anyMatch(relation -> relation.isInRelationship(member));
+  public boolean isInRelationship(long memberId) {
+    return this.relations.stream().anyMatch(relation -> relation.isInRelationship(memberId));
   }
 
   /**
-   * Tells if a member has known parents.
+   * Tells if a member has any known parent.
    * 
-   * @param member the member
+   * @param memberId member's ID
    * @return true if and only if the member has known parents
    */
-  public boolean hasParents(FamilyMember member) {
-    return this.relations.stream().anyMatch(w -> w.getChildren().contains(member));
+  public boolean hasParents(long memberId) {
+    return this.relations.stream().anyMatch(w -> w.getChildren().contains(memberId));
   }
 
   /**
@@ -256,7 +232,7 @@ public class Family {
   public Set<FamilyMember> getPotentialChildren(Relationship relation) {
     if (relation == null)
       return getAllMembers();
-    return getPotentialChildren(relation.getPartner1(), relation.getPartner2(), relation.getChildren());
+    return getPotentialChildren(getMember(relation.getPartner1()).get(), getMember(relation.getPartner2()).get(), relation.getChildren());
   }
 
   /**
@@ -268,7 +244,7 @@ public class Family {
    * @param chidren the children
    * @return a list of potential children
    */
-  public Set<FamilyMember> getPotentialChildren(FamilyMember partner1, FamilyMember partner2, Set<FamilyMember> chidren) {
+  public Set<FamilyMember> getPotentialChildren(FamilyMember partner1, FamilyMember partner2, Set<Long> chidren) {
     Set<FamilyMember> all = getAllMembers();
 
     if (partner1 == null || partner2 == null)
@@ -294,7 +270,7 @@ public class Family {
       all.removeIf(m -> m.compareBirthdays(y).orElse(1) <= 0);
     }
 
-    all.removeIf(m -> chidren.contains(m) || hasParents(m));
+    all.removeIf(m -> chidren.contains(m.getId()) || hasParents(m.getId()));
 
     return all;
   }
@@ -316,5 +292,10 @@ public class Family {
   @Override
   public String toString() {
     return getName() + this.members + "," + this.relations;
+  }
+
+  @Override
+  public Family clone() {
+    return new Family(this.globalId, this.name, getAllMembers(), getAllRelations());
   }
 }

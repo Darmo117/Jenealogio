@@ -19,7 +19,6 @@
 package net.darmo_creations.model.family;
 
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
@@ -32,11 +31,11 @@ import net.darmo_creations.util.Nullable;
  * 
  * @author Damien Vergnet
  */
-public final class Relationship {
+public final class Relationship implements Cloneable {
   private Date date;
   private String location;
-  private FamilyMember partner1, partner2;
-  private Set<FamilyMember> children;
+  private long partner1, partner2;
+  private Set<Long> children;
   private boolean isWedding;
   private boolean hasEnded;
   private Date endDate;
@@ -55,8 +54,8 @@ public final class Relationship {
    * @param children the children
    */
   public Relationship(@Nullable Date date, @Nullable String location, boolean isWedding, boolean hasEnded, @Nullable Date endDate,
-      FamilyMember partner1, FamilyMember partner2, FamilyMember... children) {
-    if (partner1.equals(partner2))
+      long partner1, long partner2, long... children) {
+    if (partner1 == partner2)
       throw new IllegalArgumentException("partners must be different");
     setDate(date != null ? date.clone() : null);
     setLocation(location);
@@ -66,7 +65,7 @@ public final class Relationship {
     setEndDate(endDate != null ? endDate.clone() : null);
     setHasEnded(hasEnded);
     this.children = new HashSet<>();
-    for (FamilyMember child : children)
+    for (long child : children)
       addChild(child);
   }
 
@@ -153,86 +152,85 @@ public final class Relationship {
   }
 
   /**
-   * @return the first partner
+   * @return the first partner's ID
    */
-  public FamilyMember getPartner1() {
+  public long getPartner1() {
     return this.partner1;
   }
 
   /**
    * Sets the first partner.
    * 
-   * @param partner1 the new partner
+   * @param id the new partner
    */
-  void setPartner1(FamilyMember partner1) {
-    this.partner1 = partner1;
+  void setPartner1(long id) {
+    this.partner1 = id;
   }
 
   /**
-   * @return the second partner
+   * @return the second partner's ID
    */
-  public FamilyMember getPartner2() {
+  public long getPartner2() {
     return this.partner2;
   }
 
   /**
    * Sets the second partner.
    * 
-   * @param partner2 the second partner
+   * @param id the second partner
    */
-  void setPartner2(FamilyMember partner2) {
-    this.partner2 = partner2;
+  void setPartner2(long id) {
+    this.partner2 = id;
   }
 
   /**
    * Tells if the given person is a child from this wedding.
    * 
-   * @param member the person
+   * @param id the person's ID
    * @return true if and only if the person is a child from this wedding
    */
-  public boolean isChild(FamilyMember member) {
-    return this.children.contains(member);
+  public boolean isChild(long id) {
+    return this.children.contains(id);
   }
 
   /**
-   * @return a set of all the children
+   * @return a set of all the children's IDs
    */
-  public Set<FamilyMember> getChildren() {
+  public Set<Long> getChildren() {
     return new TreeSet<>(this.children);
   }
 
   /**
-   * Adds a child to this relation. The child must be different from the two spouses and not already
-   * present in the children list.
+   * Adds a child to this relation. The child must be different from the two partners and not
+   * already present in the children list.
    * 
-   * @param child the child to add
+   * @param id the child ID to add
    */
-  public void addChild(FamilyMember child) {
-    Objects.requireNonNull(child);
-    if (child.equals(getPartner1()) || child.equals(getPartner2()))
+  public void addChild(long id) {
+    if (id == getPartner1() || id == getPartner2())
       throw new IllegalArgumentException("can't be their own child");
-    if (this.children.contains(child.getId()))
+    if (this.children.contains(id))
       throw new IllegalArgumentException("child already present");
-    this.children.add(child);
+    this.children.add(id);
   }
 
   /**
    * Deletes the given child.
    * 
-   * @param child the child to delete
+   * @param id the child ID to delete
    */
-  public void removeChild(FamilyMember child) {
-    this.children.remove(child);
+  public void removeChild(long id) {
+    this.children.remove(id);
   }
 
   /**
    * Tells if the given person is one of the two partners from this relationship.
    * 
-   * @param member the person
+   * @param id the person's ID
    * @return true if and only if the person is one of the partners
    */
-  public boolean isInRelationship(FamilyMember member) {
-    return getPartner1().equals(member) || getPartner2().equals(member);
+  public boolean isInRelationship(long id) {
+    return getPartner1() == id || getPartner2() == id;
   }
 
   @Override
@@ -240,8 +238,8 @@ public final class Relationship {
     final int prime = 31;
     int result = 1;
 
-    result = prime * result + getPartner1().hashCode();
-    result = prime * result + getPartner2().hashCode();
+    result = prime * result + Long.hashCode(getPartner1());
+    result = prime * result + Long.hashCode(getPartner2());
 
     return result;
   }
@@ -258,5 +256,11 @@ public final class Relationship {
   @Override
   public String toString() {
     return getPartner1() + " <-> " + getPartner2();
+  }
+
+  @Override
+  public Relationship clone() {
+    return new Relationship(getDate().orElse(null), this.location, this.isWedding, this.hasEnded, getEndDate().orElse(null), this.partner1,
+        this.partner2, this.children.stream().mapToLong(id -> id).toArray());
   }
 }

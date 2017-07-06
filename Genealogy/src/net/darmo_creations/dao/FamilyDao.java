@@ -149,14 +149,13 @@ public class FamilyDao {
         }
 
         String partnerKey = before1_3d ? "spouse" : "partner";
-        FamilyMember partner1 = members.stream().filter(m -> m.getId() == (Long) relationObj.get(partnerKey + 1)).findFirst().get();
-        FamilyMember partner2 = members.stream().filter(m -> m.getId() == (Long) relationObj.get(partnerKey + 2)).findFirst().get();
+        long partner1 = (Long) relationObj.get(partnerKey + 1);
+        long partner2 = (Long) relationObj.get(partnerKey + 2);
         JSONArray childrenObj = (JSONArray) relationObj.get("children");
-        FamilyMember[] children = new FamilyMember[childrenObj.size()];
+        long[] children = new long[childrenObj.size()];
 
         for (int i = 0; i < children.length; i++) {
-          final int j = i;
-          children[i] = members.stream().filter(m -> m.getId() == (Long) childrenObj.get((Integer) j)).findFirst().get();
+          children[i] = (Long) childrenObj.get((Integer) i);
         }
 
         weddings.add(new Relationship(date, location, isWedding, hasEnded, endDate, partner1, partner2, children));
@@ -265,13 +264,13 @@ public class FamilyDao {
     for (Relationship r : family.getAllRelations()) {
       JSONObject relationObj = new JSONObject();
 
-      relationObj.put("partner1", r.getPartner1().getId());
-      relationObj.put("partner2", r.getPartner2().getId());
+      relationObj.put("partner1", r.getPartner1());
+      relationObj.put("partner2", r.getPartner2());
       relationObj.put("type", r.isWedding() ? "wedding" : "");
       formatDate(relationObj, "date", r.getDate());
       relationObj.put("location", r.getLocation().orElse(""));
       JSONArray childrenObj = new JSONArray();
-      r.getChildren().forEach(c -> childrenObj.add(c.getId()));
+      r.getChildren().forEach(c -> childrenObj.add(c));
       relationObj.put("children", childrenObj);
       if (r.getEndDate().isPresent()) {
         relationObj.put("end_date", r.getEndDate().get());

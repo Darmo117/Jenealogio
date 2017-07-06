@@ -47,7 +47,7 @@ import net.darmo_creations.util.Nullable;
  * 
  * @author Damien Vergnet
  */
-public class FamilyMember implements Comparable<FamilyMember> {
+public class FamilyMember implements Comparable<FamilyMember>, Cloneable {
   private final long id;
   private BufferedImage image;
   private String familyName;
@@ -463,14 +463,18 @@ public class FamilyMember implements Comparable<FamilyMember> {
    * @param id the copy's ID
    * @return the copied person
    */
-  FamilyMember copy(long id) {
-    return new FamilyMember(id, getImage().orElse(null), getFamilyName().orElse(null), getUseName().orElse(null),
-        getFirstName().orElse(null), getOtherNames().orElse(null), getGender(), getBirthDate().orElse(null),
-        getBirthLocation().orElse(null), getDeathDate().orElse(null), getDeathLocation().orElse(null), isDead(), null);
+  FamilyMember clone(long id) {
+    return new FamilyMember(id, getImage().orElse(null), this.familyName, this.useName, this.firstName, this.otherNames, this.gender,
+        getBirthDate().orElse(null), this.birthLocation, getDeathDate().orElse(null), this.deathLocation, this.dead, this.comment);
   }
 
   @Override
   public int compareTo(FamilyMember f) {
     return Long.compare(getId(), f.getId());
+  }
+
+  @Override
+  public FamilyMember clone() {
+    return clone(getId());
   }
 }

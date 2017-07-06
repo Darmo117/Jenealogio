@@ -171,12 +171,12 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
       if (id >= 0) {
         FamilyMember prev = null;
 
-        if (this.addingLink && this.selectedCard != null && !this.family.isInRelationship(this.selectedCard))
+        if (this.addingLink && this.selectedCard != null && !this.family.isInRelationship(this.selectedCard.getId()))
           prev = this.selectedCard;
 
         this.selectedCard = this.family.getMember(id).orElseThrow(IllegalStateException::new);
 
-        if (prev != null && !prev.equals(this.selectedCard) && !this.family.isInRelationship(this.selectedCard)) {
+        if (prev != null && !prev.equals(this.selectedCard) && !this.family.isInRelationship(this.selectedCard.getId())) {
           addLink(prev, this.selectedCard);
           toggleAddLink();
         }
@@ -201,7 +201,7 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
       else if (m2.matches()) {
         Optional<FamilyMember> optM = this.family.getMember(Long.parseLong(m2.group(1)));
         if (optM.isPresent()) {
-          Optional<Relationship> w = this.family.getRelation(optM.get());
+          Optional<Relationship> w = this.family.getRelation(optM.get().getId());
           if (w.isPresent())
             this.selectedLink = w.get();
         }
@@ -350,13 +350,13 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
   /**
    * Opens up the "add link" dialog then adds the new link to the model.
    */
-  private void addLink(FamilyMember spouse1, FamilyMember spouse2) {
-    Set<FamilyMember> all = this.family.getPotentialChildren(spouse1, spouse2, Collections.emptySet());
-    Optional<Relationship> optWedding = this.frame.showAddLinkDialog(spouse1, spouse2, all);
+  private void addLink(FamilyMember partner1, FamilyMember partner2) {
+    Set<FamilyMember> all = this.family.getPotentialChildren(partner1, partner2, Collections.emptySet());
+    Optional<Relationship> optWedding = this.frame.showAddLinkDialog(partner1.getId(), partner2.getId(), all, this.family);
 
     if (optWedding.isPresent()) {
       this.family.addRelation(optWedding.get());
-      this.frame.refreshDisplay(this.family, this.config);
+      refreshFrame();
       this.saved = false;
       updateFrameMenus();
     }
@@ -386,7 +386,7 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
     }
     else if (this.selectedLink != null) {
       Optional<Relationship> wedding = this.frame.showUpdateLinkDialog(this.selectedLink,
-          this.family.getPotentialChildren(this.selectedLink));
+          this.family.getPotentialChildren(this.selectedLink), this.family);
 
       if (wedding.isPresent()) {
         this.family.updateRelation(wedding.get());
@@ -403,7 +403,7 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
   private void delete() {
     if (this.selectedCard != null) {
       if (this.frame.showConfirmDialog(I18n.getLocalizedString("popup.delete_card_confirm.text")) == JOptionPane.OK_OPTION) {
-        this.family.removeMember(this.selectedCard);
+        this.family.removeMember(this.selectedCard.getId());
         this.selectedCard = null;
         this.saved = false;
         updateFrameMenus();
@@ -427,7 +427,7 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
     if (opt.isPresent()) {
       this.config = opt.get();
       if (this.fileOpen)
-        this.frame.refreshDisplay(this.family, this.config);
+        refreshFrame();
     }
   }
 
@@ -480,6 +480,6 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
    * @param id the member ID
    */
   private void showDetails(long id) {
-    this.family.getMember(id).ifPresent(m -> this.frame.showDetailsDialog(m, this.family.getRelation(m).orElse(null)));
+    this.family.getMember(id).ifPresent(m -> this.frame.showDetailsDialog(m, this.family.getRelation(m.getId()).orElse(null)));
   }
 }

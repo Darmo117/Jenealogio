@@ -20,12 +20,14 @@ package net.darmo_creations.gui.dialog.link;
 
 import java.awt.event.ActionEvent;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.swing.JList;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import net.darmo_creations.gui.dialog.DefaultDialogController;
+import net.darmo_creations.model.family.Family;
 import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.model.family.Relationship;
 
@@ -51,29 +53,31 @@ public class LinkController extends DefaultDialogController<LinkDialog> implemen
    * 
    * @param partner1 one partner
    * @param partner2 the other partner
-   * @param children the children
+   * @param availableChildren the available children
+   * @param family the family
    */
-  public void reset(FamilyMember partner1, FamilyMember partner2, Set<FamilyMember> children) {
-    reset(new Relationship(null, null, true, false, null, partner1, partner2), children);
+  public void reset(long partner1, long partner2, Set<FamilyMember> availableChildren, Family family) {
+    reset(new Relationship(null, null, true, false, null, partner1, partner2), availableChildren, family);
   }
 
   /**
    * Resets the dialog.
    * 
    * @param relation the link
-   * @param children the children
+   * @param availableChildren the available children
+   * @param family the family
    */
-  public void reset(Relationship relation, Set<FamilyMember> children) {
-    this.partner1 = relation.getPartner1();
-    this.partner2 = relation.getPartner2();
+  public void reset(Relationship relation, Set<FamilyMember> availableChildren, Family family) {
+    this.partner1 = family.getMember(relation.getPartner1()).get();
+    this.partner2 = family.getMember(relation.getPartner2()).get();
 
     this.dialog.setWeddingChecked(relation.isWedding());
-    this.dialog.setPartner1(relation.getPartner1().toString());
-    this.dialog.setPartner2(relation.getPartner2().toString());
+    this.dialog.setPartner1(family.getMember(relation.getPartner1()).get().toString());
+    this.dialog.setPartner2(family.getMember(relation.getPartner2()).get().toString());
     this.dialog.setDate(relation.getDate());
     this.dialog.setRelationshipLocation(relation.getLocation());
-    this.dialog.setAvailableChildren(children);
-    this.dialog.setChildren(relation.getChildren());
+    this.dialog.setAvailableChildren(availableChildren);
+    this.dialog.setChildren(relation.getChildren().stream().map(id -> family.getMember(id).get()).collect(Collectors.toSet()));
 
     this.dialog.setCanceled(false);
     this.dialog.setAddButtonEnabled(false);
@@ -85,7 +89,7 @@ public class LinkController extends DefaultDialogController<LinkDialog> implemen
    */
   public Relationship getLink() {
     return new Relationship(this.dialog.getDate(), this.dialog.getRelationshipLocation(), this.dialog.isWeddingChecked(), false/* TEMP */,
-        null/* TEMP */, this.partner1, this.partner2, this.dialog.getChildren());
+        null/* TEMP */, this.partner1.getId(), this.partner2.getId(), this.dialog.getChildren());
   }
 
   @Override
