@@ -135,6 +135,14 @@ public class DateField extends JPanel {
     return Optional.ofNullable(builder.getDate());
   }
 
+  @Override
+  public void setEnabled(boolean enabled) {
+    this.yearFld.setEnabled(enabled);
+    this.monthFld.setEnabled(enabled);
+    this.dateFld.setEnabled(enabled);
+    super.setEnabled(enabled);
+  }
+
   /**
    * This listener empties the associated field if the input is not a valid positive integer.
    *
