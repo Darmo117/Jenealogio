@@ -36,6 +36,7 @@ public class DateField extends JPanel {
   public DateField(String format, int alignment) {
     ((FlowLayout) getLayout()).setAlignment(alignment);
     ((FlowLayout) getLayout()).setVgap(0);
+    ((FlowLayout) getLayout()).setHgap(0);
 
     DecimalFormat f = new DecimalFormat("0000");
     this.yearFld = new JFormattedTextField(new NumberFormatter(f));
@@ -55,26 +56,27 @@ public class DateField extends JPanel {
     this.dateFld.addFocusListener(new FormattedFieldFocusListener(this.dateFld));
     this.dateFld.addFocusListener(new FormattedDatesFocusListener(this.dateFld, 2));
 
+    String sep = " / ";
     switch (format) {
       case "D/M/Y":
         add(this.dateFld);
-        add(new JLabel("/"));
+        add(new JLabel(sep));
         add(this.monthFld);
-        add(new JLabel("/"));
+        add(new JLabel(sep));
         add(this.yearFld);
         break;
       case "M/D/Y":
         add(this.monthFld);
-        add(new JLabel("/"));
+        add(new JLabel(sep));
         add(this.dateFld);
-        add(new JLabel("/"));
+        add(new JLabel(sep));
         add(this.yearFld);
         break;
       case "Y/M/D":
         add(this.yearFld);
-        add(new JLabel("/"));
+        add(new JLabel(sep));
         add(this.monthFld);
-        add(new JLabel("/"));
+        add(new JLabel(sep));
         add(this.dateFld);
         break;
       default:
