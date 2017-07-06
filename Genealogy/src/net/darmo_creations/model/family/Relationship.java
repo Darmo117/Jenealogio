@@ -40,11 +40,11 @@ public final class Relationship {
   private boolean isWedding;
 
   /**
-   * Creates a new wedding. The two spouses must be different or else an IllegalArgumentException
+   * Creates a new relation. The two partners must be different or else an IllegalArgumentException
    * will be thrown.
    * 
-   * @param date the date
-   * @param location the location
+   * @param date the start date
+   * @param location the location when it started
    * @param partner1 one partner
    * @param partner2 the other partner
    * @param children the children
@@ -64,14 +64,14 @@ public final class Relationship {
   }
 
   /**
-   * @return the wedding's date
+   * @return the relation's start date
    */
   public Optional<Date> getDate() {
     return Optional.ofNullable(this.date);
   }
 
   /**
-   * Sets the wedding's date. May be null.
+   * Sets the relation's start date. May be null.
    * 
    * @param date the new date
    */
@@ -80,14 +80,14 @@ public final class Relationship {
   }
 
   /**
-   * @return the wedding's location
+   * @return the relation's location when it started
    */
   public Optional<String> getLocation() {
     return Optional.ofNullable(this.location);
   }
 
   /**
-   * Sets the wedding's location. May be null.
+   * Sets the relation's location when it started. May be null.
    * 
    * @param location the new location
    */
@@ -161,7 +161,7 @@ public final class Relationship {
   }
 
   /**
-   * Adds a child to this wedding. The child must be different from the two spouses and not already
+   * Adds a child to this relation. The child must be different from the two spouses and not already
    * present in the children list.
    * 
    * @param child the child to add
