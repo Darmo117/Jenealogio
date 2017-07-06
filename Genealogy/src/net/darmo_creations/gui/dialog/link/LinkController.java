@@ -53,21 +53,21 @@ public class LinkController extends DefaultDialogController<LinkDialog> implemen
    * 
    * @param partner1 one partner
    * @param partner2 the other partner
-   * @param availableChildren the available children
    * @param family the family
    */
-  public void reset(long partner1, long partner2, Set<FamilyMember> availableChildren, Family family) {
-    reset(new Relationship(null, null, true, false, null, partner1, partner2), availableChildren, family);
+  public void reset(long partner1, long partner2, Family family) {
+    reset(new Relationship(null, null, true, false, null, partner1, partner2), family);
   }
 
   /**
    * Resets the dialog.
    * 
    * @param relation the link
-   * @param availableChildren the available children
    * @param family the family
    */
-  public void reset(Relationship relation, Set<FamilyMember> availableChildren, Family family) {
+  public void reset(Relationship relation, Family family) {
+    Set<FamilyMember> availableChildren = family.getPotentialChildren(relation);
+
     this.partner1 = family.getMember(relation.getPartner1()).get();
     this.partner2 = family.getMember(relation.getPartner2()).get();
 

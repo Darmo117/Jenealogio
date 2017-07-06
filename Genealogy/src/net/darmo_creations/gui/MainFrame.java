@@ -27,7 +27,6 @@ import java.awt.event.KeyEvent;
 import java.io.File;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -456,12 +455,11 @@ public class MainFrame extends JFrame {
    * 
    * @param partner1 one partner
    * @param partner2 the other partner
-   * @param availableChildren the potential children
    * @param family the family
    * @return the new link or nothing if the dialog was dismissed/canceled
    */
-  public Optional<Relationship> showAddLinkDialog(long partner1, long partner2, Set<FamilyMember> availableChildren, Family family) {
-    this.linkDialog.addLink(partner1, partner2, availableChildren, family);
+  public Optional<Relationship> showAddLinkDialog(long partner1, long partner2, Family family) {
+    this.linkDialog.addLink(partner1, partner2, family);
     this.linkDialog.setVisible(true);
     return this.linkDialog.getLink();
   }
@@ -482,12 +480,11 @@ public class MainFrame extends JFrame {
    * Shows the "update link" dialog.
    * 
    * @param relation the link to update
-   * @param availableChildren the potential children
    * @param family the family
    * @return the updated link or nothing if the dialog was dismissed/canceled
    */
-  public Optional<Relationship> showUpdateLinkDialog(Relationship relation, Set<FamilyMember> availableChildren, Family family) {
-    this.linkDialog.updateLink(relation, availableChildren, family);
+  public Optional<Relationship> showUpdateLinkDialog(Relationship relation, Family family) {
+    this.linkDialog.updateLink(relation, family);
     this.linkDialog.setVisible(true);
     return this.linkDialog.getLink();
   }

@@ -28,11 +28,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.ParseException;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -177,7 +175,7 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
         this.selectedCard = this.family.getMember(id).orElseThrow(IllegalStateException::new);
 
         if (prev != null && !prev.equals(this.selectedCard) && !this.family.isInRelationship(this.selectedCard.getId())) {
-          addLink(prev, this.selectedCard);
+          addLink(prev.getId(), this.selectedCard.getId());
           toggleAddLink();
         }
       }
@@ -350,9 +348,8 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
   /**
    * Opens up the "add link" dialog then adds the new link to the model.
    */
-  private void addLink(FamilyMember partner1, FamilyMember partner2) {
-    Set<FamilyMember> all = this.family.getPotentialChildren(partner1, partner2, Collections.emptySet());
-    Optional<Relationship> optWedding = this.frame.showAddLinkDialog(partner1.getId(), partner2.getId(), all, this.family);
+  private void addLink(long partner1, long partner2) {
+    Optional<Relationship> optWedding = this.frame.showAddLinkDialog(partner1, partner2, this.family);
 
     if (optWedding.isPresent()) {
       this.family.addRelation(optWedding.get());
@@ -385,8 +382,7 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
       }
     }
     else if (this.selectedLink != null) {
-      Optional<Relationship> wedding = this.frame.showUpdateLinkDialog(this.selectedLink,
-          this.family.getPotentialChildren(this.selectedLink), this.family);
+      Optional<Relationship> wedding = this.frame.showUpdateLinkDialog(this.selectedLink, this.family);
 
       if (wedding.isPresent()) {
         this.family.updateRelation(wedding.get());

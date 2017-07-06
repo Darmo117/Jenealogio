@@ -216,24 +216,22 @@ public class LinkDialog extends AbstractDialog {
    * 
    * @param partner1 one partner
    * @param partner2 the other partner
-   * @param availableChildren the potential children
    * @param family the family
    */
-  public void addLink(long partner1, long partner2, Set<FamilyMember> availableChildren, Family family) {
+  public void addLink(long partner1, long partner2, Family family) {
     setTitle(I18n.getLocalizedString("dialog.add_link.title"));
-    this.controller.reset(partner1, partner2, availableChildren, family);
+    this.controller.reset(partner1, partner2, family);
   }
 
   /**
    * Sets the dialog to "update link" mode.
    * 
    * @param relation the link
-   * @param availableChildren the potential children
    * @param family the family
    */
-  public void updateLink(Relationship relation, Set<FamilyMember> availableChildren, Family family) {
+  public void updateLink(Relationship relation, Family family) {
     setTitle(I18n.getLocalizedString("dialog.update_link.title"));
-    this.controller.reset(relation, availableChildren, family);
+    this.controller.reset(relation, family);
   }
 
   /**

@@ -241,10 +241,10 @@ public class Family implements Cloneable {
    * 
    * @param partner1 the first partner
    * @param partner2 the second partner
-   * @param chidren the children
+   * @param children the children
    * @return a list of potential children
    */
-  public Set<FamilyMember> getPotentialChildren(FamilyMember partner1, FamilyMember partner2, Set<Long> chidren) {
+  public Set<FamilyMember> getPotentialChildren(FamilyMember partner1, FamilyMember partner2, Set<Long> children) {
     Set<FamilyMember> all = getAllMembers();
 
     if (partner1 == null || partner2 == null)
@@ -270,7 +270,7 @@ public class Family implements Cloneable {
       all.removeIf(m -> m.compareBirthdays(y).orElse(1) <= 0);
     }
 
-    all.removeIf(m -> chidren.contains(m.getId()) || hasParents(m.getId()));
+    all.removeIf(m -> children.contains(m.getId()) || hasParents(m.getId()));
 
     return all;
   }
