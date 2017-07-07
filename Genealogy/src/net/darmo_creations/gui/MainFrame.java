@@ -51,6 +51,7 @@ import net.darmo_creations.controllers.MainController;
 import net.darmo_creations.gui.components.DisplayPanel;
 import net.darmo_creations.gui.dialog.AboutDialog;
 import net.darmo_creations.gui.dialog.CardDetailsDialog;
+import net.darmo_creations.gui.dialog.LinkDetailsDialog;
 import net.darmo_creations.gui.dialog.card.CardDialog;
 import net.darmo_creations.gui.dialog.help.HelpDialog;
 import net.darmo_creations.gui.dialog.link.LinkDialog;
@@ -76,8 +77,9 @@ public class MainFrame extends JFrame {
   private JFileChooser fileChooser;
   private TreeCreationDialog treeCreationDialog;
   private CardDialog cardDialog;
-  private CardDetailsDialog detailsDialog;
+  private CardDetailsDialog cardDetailsDialog;
   private LinkDialog linkDialog;
+  private LinkDetailsDialog linkDetailsDialog;
   private EditColorsDialog editColorsDialog;
   private HelpDialog helpDialog;
   private AboutDialog aboutDialog;
@@ -103,9 +105,11 @@ public class MainFrame extends JFrame {
     this.fileChooser.setFileFilter(new ExtensionFileFilter(I18n.getLocalizedString("file_type.tree.desc"), "gtree"));
     this.treeCreationDialog = new TreeCreationDialog(this);
     this.cardDialog = new CardDialog(this);
-    this.detailsDialog = new CardDetailsDialog(this);
-    this.detailsDialog.addObserver(controller);
+    this.cardDetailsDialog = new CardDetailsDialog(this);
+    this.cardDetailsDialog.addObserver(controller);
     this.linkDialog = new LinkDialog(this);
+    this.linkDetailsDialog = new LinkDetailsDialog(this);
+    this.linkDetailsDialog.addObserver(controller);
     this.editColorsDialog = new EditColorsDialog(this);
     this.helpDialog = new HelpDialog(this, config);
     this.aboutDialog = new AboutDialog(this);
@@ -507,8 +511,19 @@ public class MainFrame extends JFrame {
    * @param relations the relations it is part of
    */
   public void showDetailsDialog(FamilyMember member, Set<Relationship> relations) {
-    this.detailsDialog.setInfo(member, relations);
-    this.detailsDialog.setVisible(true);
+    this.cardDetailsDialog.setInfo(member, relations);
+    this.cardDetailsDialog.setVisible(true);
+  }
+
+  /**
+   * Shows the "link details" dialog.
+   * 
+   * @param member the member to display
+   * @param relations the relations it is part of
+   */
+  public void showDetailsDialog(Relationship relation, Family family) {
+    this.linkDetailsDialog.setInfo(relation, family);
+    this.linkDetailsDialog.setVisible(true);
   }
 
   /**

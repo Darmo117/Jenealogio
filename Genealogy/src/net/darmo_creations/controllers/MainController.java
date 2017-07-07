@@ -194,12 +194,18 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
       Matcher m1 = DOUBLE_CLICK_RELATION_PATTERN.matcher(s);
       Matcher m2 = CLICK_RELATION_PATTERN.matcher(s);
 
-      // Show details
+      // Show card details
       if (m.matches()) {
         showDetails(Long.parseLong(m.group(1)));
       }
+      // Show link details
+      else if (m1.matches()) {
+        long id1 = Long.parseLong(m1.group(1));
+        long id2 = Long.parseLong(m1.group(2));
+        showDetails(id1, id2);
+      }
       // Edit relation/card
-      else if (m1.matches() || s.equals("edit")) {
+      else if (s.equals("edit")) {
         edit();
       }
       // Select link
@@ -486,5 +492,15 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
    */
   private void showDetails(long id) {
     this.family.getMember(id).ifPresent(m -> this.frame.showDetailsDialog(m, this.family.getRelations(m.getId())));
+  }
+
+  /**
+   * Opens up the "link details" dialog.
+   * 
+   * @param id1 the first ID
+   * @param id2 the second ID
+   */
+  private void showDetails(long id1, long id2) {
+    this.family.getRelation(id1, id2).ifPresent(r -> this.frame.showDetailsDialog(r, this.family));
   }
 }
