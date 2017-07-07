@@ -31,7 +31,7 @@ import net.darmo_creations.util.Nullable;
  * 
  * @author Damien Vergnet
  */
-public final class Relationship implements Cloneable {
+public final class Relationship implements Comparable<Relationship>, Cloneable {
   private Date date;
   private String location;
   private long partner1, partner2;
@@ -263,5 +263,16 @@ public final class Relationship implements Cloneable {
   public Relationship clone() {
     return new Relationship(getDate().orElse(null), this.location, this.isWedding, this.hasEnded, getEndDate().orElse(null), this.partner1,
         this.partner2, this.children.stream().mapToLong(id -> id).toArray());
+  }
+
+  @Override
+  public int compareTo(Relationship r) {
+    if (getDate().isPresent() && r.getDate().isPresent()) {
+      return getDate().get().compareTo(r.getDate().get());
+    }
+    else if ((!getDate().isPresent() || !r.getDate().isPresent()) && getEndDate().isPresent() && r.getEndDate().isPresent()) {
+      return getEndDate().get().compareTo(r.getEndDate().get());
+    }
+    return 0;
   }
 }

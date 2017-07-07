@@ -48,6 +48,7 @@ public final class Images {
   public static final ImageIcon ARROW_DOWN;
   public static final ImageIcon BABY;
   public static final ImageIcon HEART;
+  public static final ImageIcon HEART_BROKEN;
   public static final ImageIcon CROSS;
   public static final ImageIcon COLOR_WHEEL;
   public static final ImageIcon BOOK;
@@ -94,6 +95,7 @@ public final class Images {
     ARROW_DOWN = getIcon("/assets/icons/arrow_down.png");
     BABY = getIcon("/assets/icons/baby.png");
     HEART = getIcon("/assets/icons/heart.png");
+    HEART_BROKEN = getIcon("/assets/icons/heart_broken.png");
     CROSS = getIcon("/assets/icons/cross.png");
     COLOR_WHEEL = getIcon("/assets/icons/color_wheel.png");
     BOOK = getIcon("/assets/icons/book.png");

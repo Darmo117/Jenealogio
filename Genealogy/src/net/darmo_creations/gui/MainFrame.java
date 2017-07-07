@@ -27,6 +27,7 @@ import java.awt.event.KeyEvent;
 import java.io.File;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -503,10 +504,10 @@ public class MainFrame extends JFrame {
    * Shows the "card details" dialog.
    * 
    * @param member the member to display
-   * @param wedding the wedding it is part of or nothing if the dialog was dismissed/canceled
+   * @param relations the relations it is part of
    */
-  public void showDetailsDialog(FamilyMember member, Relationship wedding) {
-    this.detailsDialog.setInfo(member, wedding);
+  public void showDetailsDialog(FamilyMember member, Set<Relationship> relations) {
+    this.detailsDialog.setInfo(member, relations);
     this.detailsDialog.setVisible(true);
   }
 

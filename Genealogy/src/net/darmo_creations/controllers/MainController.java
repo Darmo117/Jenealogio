@@ -56,8 +56,8 @@ import net.darmo_creations.util.Observer;
  */
 public class MainController extends WindowAdapter implements ActionListener, Observer {
   private static final Pattern DOUBLE_CLICK_MEMBER_PATTERN = Pattern.compile("double-click:member-(\\d+)");
-  private static final Pattern DOUBLE_CLICK_WEDDING_PATTERN = Pattern.compile("double-click:link-(\\d+)-(\\d+)");
-  private static final Pattern CLICK_WEDDING_PATTERN = Pattern.compile("click:link-(\\d+)-(\\d+)");
+  private static final Pattern DOUBLE_CLICK_RELATION_PATTERN = Pattern.compile("double-click:link-(\\d+)-(\\d+)");
+  private static final Pattern CLICK_RELATION_PATTERN = Pattern.compile("click:link-(\\d+)-(\\d+)");
   private static final Pattern CHANGE_LANG_PATTERN = Pattern.compile("lang-(\\w+)");
 
   /** Frame being monitored. */
@@ -163,6 +163,7 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
 
   @Override
   public void update(Observable obs, Object o) {
+    // Card selection.
     if (o instanceof Long) {
       long id = (Long) o;
 
@@ -190,13 +191,18 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
     else if (o instanceof String) {
       String s = (String) o;
       Matcher m = DOUBLE_CLICK_MEMBER_PATTERN.matcher(s);
-      Matcher m1 = DOUBLE_CLICK_WEDDING_PATTERN.matcher(s);
-      Matcher m2 = CLICK_WEDDING_PATTERN.matcher(s);
+      Matcher m1 = DOUBLE_CLICK_RELATION_PATTERN.matcher(s);
+      Matcher m2 = CLICK_RELATION_PATTERN.matcher(s);
 
-      if (m.matches())
+      // Show details
+      if (m.matches()) {
         showDetails(Long.parseLong(m.group(1)));
-      else if (m1.matches())
+      }
+      // Edit relation/card
+      else if (m1.matches() || s.equals("edit")) {
         edit();
+      }
+      // Select link
       else if (m2.matches()) {
         Optional<FamilyMember> optM1 = this.family.getMember(Long.parseLong(m2.group(1)));
         Optional<FamilyMember> optM2 = this.family.getMember(Long.parseLong(m2.group(2)));
@@ -209,9 +215,8 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
         }
         this.frame.updateMenus(this.fileOpen, false, this.selectedLink != null);
       }
-      else if (s.equals("edit"))
-        edit();
     }
+    // Component dragged
     else if (o instanceof FamilyMemberPanel) {
       this.saved = false;
       updateFrameMenus();
@@ -480,8 +485,6 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
    * @param id the member ID
    */
   private void showDetails(long id) {
-    // FIXME
-    // this.family.getMember(id).ifPresent(m -> this.frame.showDetailsDialog(m,
-    // this.family.getRelations(m.getId())));
+    this.family.getMember(id).ifPresent(m -> this.frame.showDetailsDialog(m, this.family.getRelations(m.getId())));
   }
 }

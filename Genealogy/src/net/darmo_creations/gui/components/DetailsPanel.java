@@ -27,7 +27,9 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.time.Period;
 import java.util.Optional;
+import java.util.Set;
 import java.util.StringJoiner;
+import java.util.TreeSet;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -55,7 +57,7 @@ public class DetailsPanel extends JPanel {
   private JLabel nameLbl;
   private JLabel otherNamesLbl;
   private JLabel birthLbl;
-  private JLabel weddingLbl;
+  private RelationsPanel relationsPnl;
   private JLabel deathLbl;
   private JLabel ageLbl;
   private JTextArea commentLbl;
@@ -65,7 +67,7 @@ public class DetailsPanel extends JPanel {
    */
   public DetailsPanel() {
     super(new BorderLayout());
-    setPreferredSize(new Dimension(300, 180));
+    setPreferredSize(new Dimension(300, 200));
     setLayout(new BorderLayout());
 
     JPanel namesPnl = new JPanel(new GridLayout(2, 1));
@@ -83,41 +85,29 @@ public class DetailsPanel extends JPanel {
     GridBagConstraints gbc = new GridBagConstraints();
 
     gbc.anchor = GridBagConstraints.BASELINE_LEADING;
-    gbc.insets.left = 10;
+    gbc.insets = new Insets(5, 10, 0, 10);
     infoPnl.add(new JLabel(Images.BABY), gbc);
     gbc.gridx = 1;
     gbc.gridwidth = GridBagConstraints.REMAINDER;
     gbc.anchor = GridBagConstraints.BASELINE;
     gbc.fill = GridBagConstraints.HORIZONTAL;
-    gbc.insets = new Insets(5, 10, 0, 10);
     infoPnl.add(this.birthLbl = new JLabel(), gbc);
 
     gbc.gridx = 0;
     gbc.gridy = 1;
-    gbc.gridwidth = 1;
-    gbc.anchor = GridBagConstraints.BASELINE_LEADING;
-    gbc.fill = GridBagConstraints.NONE;
-    gbc.insets.left = 10;
-    infoPnl.add(new JLabel(Images.HEART), gbc);
-    gbc.gridx = 1;
-    gbc.gridwidth = GridBagConstraints.REMAINDER;
-    gbc.anchor = GridBagConstraints.BASELINE;
-    gbc.fill = GridBagConstraints.HORIZONTAL;
-    gbc.insets = new Insets(5, 10, 0, 10);
-    infoPnl.add(this.weddingLbl = new JLabel(), gbc);
+    JScrollPane scroll = new JScrollPane(this.relationsPnl = new RelationsPanel());
+    scroll.setBorder(null);
+    infoPnl.add(scroll, gbc);
 
-    gbc.gridx = 0;
     gbc.gridy = 2;
     gbc.gridwidth = 1;
     gbc.anchor = GridBagConstraints.BASELINE_LEADING;
     gbc.fill = GridBagConstraints.NONE;
-    gbc.insets.left = 10;
     infoPnl.add(new JLabel(Images.CROSS), gbc);
     gbc.gridx = 1;
     gbc.gridwidth = GridBagConstraints.REMAINDER;
     gbc.anchor = GridBagConstraints.BASELINE;
     gbc.fill = GridBagConstraints.HORIZONTAL;
-    gbc.insets = new Insets(5, 10, 0, 10);
     infoPnl.add(this.deathLbl = new JLabel(), gbc);
 
     gbc.gridx = 0;
@@ -131,7 +121,7 @@ public class DetailsPanel extends JPanel {
     gbc.anchor = GridBagConstraints.CENTER;
     gbc.fill = GridBagConstraints.BOTH;
     gbc.weightx = gbc.weighty = 1.;
-    JScrollPane scroll = new JScrollPane(this.commentLbl = new JTextArea());
+    scroll = new JScrollPane(this.commentLbl = new JTextArea());
     this.commentLbl.setFont(Font.getFont("Tahoma"));
     this.commentLbl.setEditable(false);
     infoPnl.add(scroll, gbc);
@@ -143,19 +133,18 @@ public class DetailsPanel extends JPanel {
    * Sets displayed data.
    * 
    * @param member the person
-   * @param wedding the wedding it is part of
+   * @param relation the relations it is part of
    */
-  public void setInfo(FamilyMember member, Relationship wedding) {
+  public void setInfo(FamilyMember member, Set<Relationship> relations) {
     String name = member.toString() + (member.getUseName().isPresent() ? " (" + member.getUseName().get() + ")" : "");
     String birth = formatDateAndLocation(member.getBirthDate(), member.getBirthLocation());
-    String weddingS = wedding != null ? formatDateAndLocation(wedding.getDate(), wedding.getLocation()) : UNKNOWN_DATA;
     String death = formatDateAndLocation(member.getDeathDate(), member.getDeathLocation());
 
     this.nameLbl.setText(name);
     this.nameLbl.setIcon(member.isDead() ? Images.CROSS : null);
     this.otherNamesLbl.setText(member.getOtherNames().orElse(""));
     this.birthLbl.setText(birth);
-    this.weddingLbl.setText(weddingS);
+    this.relationsPnl.setRelations(relations);
     this.deathLbl.setText(death);
     this.ageLbl.setText(getAge(member.getAge()));
     this.commentLbl.setText(member.getComment().orElse(""));
@@ -208,5 +197,47 @@ public class DetailsPanel extends JPanel {
     }
 
     return UNKNOWN_DATA;
+  }
+
+  private class RelationsPanel extends JPanel {
+    private static final long serialVersionUID = 5243823817553503487L;
+
+    public RelationsPanel() {
+      super(new GridBagLayout());
+    }
+
+    public void setRelations(Set<Relationship> relations) {
+      Set<Relationship> rel = new TreeSet<>(relations);
+
+      removeAll();
+      GridBagConstraints gbc = new GridBagConstraints();
+      gbc.insets = new Insets(5, 10, 0, 10);
+
+      int i = 0;
+      for (Relationship r : rel) {
+        gbc.gridy = i;
+        gbc.gridx = 0;
+        gbc.gridwidth = 1;
+        gbc.anchor = GridBagConstraints.BASELINE_LEADING;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.weightx = 0;
+        gbc.insets.left = 0;
+        add(new JLabel(r.hasEnded() ? Images.HEART_BROKEN : Images.HEART), gbc);
+
+        gbc.gridx = 1;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.anchor = GridBagConstraints.BASELINE;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1;
+        gbc.insets.left = 10;
+        String relationStr = formatDateAndLocation(r.getDate(), r.getLocation());
+        if (r.hasEnded())
+          relationStr += " - " + CalendarUtil.formatDate(r.getEndDate()).orElse(UNKNOWN_DATA);
+        add(new JLabel(relationStr), gbc);
+        i++;
+      }
+
+      revalidate();
+    }
   }
 }

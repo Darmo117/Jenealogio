@@ -25,6 +25,7 @@ import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -61,7 +62,6 @@ public class CardDetailsDialog extends AbstractDialog implements Observable {
    */
   public CardDetailsDialog(MainFrame owner) {
     super(owner, Mode.CLOSE_OPTION, true);
-    setResizable(false);
     setIconImage(Images.JENEALOGIO.getImage());
 
     this.observers = new ArrayList<>();
@@ -97,12 +97,19 @@ public class CardDetailsDialog extends AbstractDialog implements Observable {
    * Sets displayed information.
    * 
    * @param member the person
-   * @param wedding the wedding it is part of
+   * @param relations the relations it is part of
    */
-  public void setInfo(FamilyMember member, Relationship wedding) {
+  public void setInfo(FamilyMember member, Set<Relationship> relations) {
     setTitle(member.toString());
-    member.getImage().ifPresent(img -> this.imageLbl.setIcon(new ImageIcon(img)));
-    this.infoPnl.setInfo(member, wedding);
+    if (member.getImage().isPresent()) {
+      this.imageLbl.setIcon(new ImageIcon(member.getImage().get()));
+    }
+    else {
+      this.imageLbl.setIcon(null);
+    }
+    this.infoPnl.setInfo(member, relations);
+    pack();
+    setMinimumSize(getSize());
   }
 
   @Override
