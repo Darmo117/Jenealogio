@@ -23,10 +23,11 @@ import java.util.Iterator;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
- * A family has members and each member can be married. The update methods do not use directly the
- * provided arguments but rather copy their fields to keep the family consistent.
+ * A family has members and each member can be in relationships. The update methods do not use
+ * directly the provided arguments but rather copy their fields to keep the family consistent.
  * 
  * @author Damien Vergnet
  */
@@ -37,7 +38,7 @@ public class Family implements Cloneable {
   private String name;
   /** Members */
   private Set<FamilyMember> members;
-  /** Weddings */
+  /** Relationships */
   private Set<Relationship> relations;
 
   /**
@@ -154,14 +155,25 @@ public class Family implements Cloneable {
   }
 
   /**
-   * Gets the relation for the given member. This method checks for every relation if one of the two
-   * spouses is the given member.
+   * Gets the relation for the given members.
    * 
-   * @param memberId the member' ID
-   * @return the relation or nothing if none were found
+   * @param id1 the first ID
+   * @param id2 the second ID
+   * @return the relationship between the two IDs
    */
-  public Optional<Relationship> getRelation(long memberId) {
-    return this.relations.stream().filter(relation -> relation.getPartner1() == memberId || relation.getPartner2() == memberId).findAny();
+  public Optional<Relationship> getRelation(long id1, long id2) {
+    return this.relations.stream().filter(r -> r.isInRelationship(id1) && r.isInRelationship(id2)).findAny();
+  }
+
+  /**
+   * Gets the relations for the given member. This method checks for every relation if one of the
+   * two partners is the given member.
+   * 
+   * @param memberId the member's ID
+   * @return the relations
+   */
+  public Set<Relationship> getRelations(long memberId) {
+    return this.relations.stream().filter(relation -> relation.isInRelationship(memberId)).collect(Collectors.toSet());
   }
 
   /**
@@ -171,8 +183,7 @@ public class Family implements Cloneable {
    * @param relation the new relation
    */
   public void addRelation(Relationship relation) {
-    // TODO : accepter les remariages.
-    if (!this.relations.contains(relation) && !isInRelationship(relation.getPartner1()) && !isInRelationship(relation.getPartner2())) {
+    if (!this.relations.contains(relation) && !areInRelationship(relation.getPartner1(), relation.getPartner2())) {
       this.relations.add(relation.clone());
     }
   }
@@ -203,13 +214,14 @@ public class Family implements Cloneable {
   }
 
   /**
-   * Tells if a member is in a relationship.
+   * Tells if two members are in a relationship.
    * 
-   * @param memberId member's ID
-   * @return true if and only if the member is married
+   * @param id1 first member ID
+   * @param id2 second member ID
+   * @return true if and only if they are in a relationship
    */
-  public boolean isInRelationship(long memberId) {
-    return this.relations.stream().anyMatch(relation -> relation.isInRelationship(memberId));
+  public boolean areInRelationship(long id1, long id2) {
+    return this.relations.stream().anyMatch(relation -> relation.isInRelationship(id1) && relation.isInRelationship(id2));
   }
 
   /**

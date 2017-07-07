@@ -248,7 +248,8 @@ public final class Relationship implements Cloneable {
   public boolean equals(Object o) {
     if (o instanceof Relationship) {
       Relationship relation = (Relationship) o;
-      return getPartner1() == relation.getPartner1() && getPartner2() == relation.getPartner2();
+      return getPartner1() == relation.getPartner1() && getPartner2() == relation.getPartner2()
+          || getPartner1() == relation.getPartner2() && getPartner2() == relation.getPartner1();
     }
     return false;
   }

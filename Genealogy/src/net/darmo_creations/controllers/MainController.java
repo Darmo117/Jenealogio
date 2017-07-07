@@ -125,6 +125,7 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
         addMember();
         break;
       case "add-link":
+        this.frame.selectPanel(-1);
         toggleAddLink();
         break;
       case "edit":
@@ -169,12 +170,12 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
       if (id >= 0) {
         FamilyMember prev = null;
 
-        if (this.addingLink && this.selectedCard != null && !this.family.isInRelationship(this.selectedCard.getId()))
+        if (this.addingLink && this.selectedCard != null && !this.family.areInRelationship(this.selectedCard.getId(), id))
           prev = this.selectedCard;
 
         this.selectedCard = this.family.getMember(id).orElseThrow(IllegalStateException::new);
 
-        if (prev != null && !prev.equals(this.selectedCard) && !this.family.isInRelationship(this.selectedCard.getId())) {
+        if (this.addingLink && prev != null) {
           addLink(prev.getId(), this.selectedCard.getId());
           toggleAddLink();
         }
@@ -197,11 +198,14 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
       else if (m1.matches())
         edit();
       else if (m2.matches()) {
-        Optional<FamilyMember> optM = this.family.getMember(Long.parseLong(m2.group(1)));
-        if (optM.isPresent()) {
-          Optional<Relationship> w = this.family.getRelation(optM.get().getId());
-          if (w.isPresent())
-            this.selectedLink = w.get();
+        Optional<FamilyMember> optM1 = this.family.getMember(Long.parseLong(m2.group(1)));
+        Optional<FamilyMember> optM2 = this.family.getMember(Long.parseLong(m2.group(2)));
+
+        if (optM1.isPresent() && optM2.isPresent()) {
+          Optional<Relationship> r = this.family.getRelation(optM1.get().getId(), optM2.get().getId());
+
+          if (r.isPresent())
+            this.selectedLink = r.get();
         }
         this.frame.updateMenus(this.fileOpen, false, this.selectedLink != null);
       }
@@ -476,6 +480,8 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
    * @param id the member ID
    */
   private void showDetails(long id) {
-    this.family.getMember(id).ifPresent(m -> this.frame.showDetailsDialog(m, this.family.getRelation(m.getId()).orElse(null)));
+    // FIXME
+    // this.family.getMember(id).ifPresent(m -> this.frame.showDetailsDialog(m,
+    // this.family.getRelations(m.getId())));
   }
 }

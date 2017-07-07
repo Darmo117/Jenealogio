@@ -357,6 +357,16 @@ public class MainFrame extends JFrame {
   }
 
   /**
+   * Selects the given panel. All observers will be notified of the event. Giving -1 will deselect
+   * all panels.
+   * 
+   * @param id panel's ID (member's ID)
+   */
+  public void selectPanel(long id) {
+    this.displayPnl.selectPanel(id);
+  }
+
+  /**
    * Updates the save buttons.
    * 
    * @param saved is the file saved?
