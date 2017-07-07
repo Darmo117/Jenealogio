@@ -170,6 +170,7 @@ public class HelpDialog extends AbstractDialog {
     cards.add(new NamedTreeNode("getting_started.cards.delete", I18n.getLocalizedString("node.help.getting_started.cards.delete.text")));
     NamedTreeNode links = new NamedTreeNode("getting_started.links", I18n.getLocalizedString("node.help.getting_started.links.text"));
     gettingStarted.add(links);
+    links.add(new NamedTreeNode("getting_started.links.details", I18n.getLocalizedString("node.help.getting_started.links.details.text")));
     links.add(new NamedTreeNode("getting_started.links.add", I18n.getLocalizedString("node.help.getting_started.links.add.text")));
     links.add(new NamedTreeNode("getting_started.links.update", I18n.getLocalizedString("node.help.getting_started.links.update.text")));
     links.add(new NamedTreeNode("getting_started.links.delete", I18n.getLocalizedString("node.help.getting_started.links.delete.text")));
