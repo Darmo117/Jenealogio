@@ -42,7 +42,7 @@ public final class Version implements Comparable<Version> {
   public static final Version V1_3D = new Version(1, 3, 0, true);
 
   static {
-    CURRENT_VERSION = V1_3D;
+    CURRENT_VERSION = new Version(1, 3, 0, false);
   }
 
   private final int major, minor, patch;
