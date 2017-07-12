@@ -386,7 +386,9 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
       this.saved = false;
       this.family.addMember(member.get());
       updateFrameMenus();
-      refreshFrame();
+      Map<Long, Point> points = this.frame.getCardsPositions();
+      points.put(this.family.getGlobalId() - 1, this.frame.getDisplayMiddlePoint());
+      this.frame.refreshDisplay(this.family, points, this.config);
     }
   }
 

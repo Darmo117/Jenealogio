@@ -41,6 +41,7 @@ import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
+import javax.swing.JViewport;
 import javax.swing.KeyStroke;
 import javax.swing.border.MatteBorder;
 
@@ -422,6 +423,19 @@ public class MainFrame extends JFrame {
    */
   public Map<Long, Point> getCardsPositions() {
     return this.displayPnl.getCardsPositions();
+  }
+
+  /**
+   * @return the display's current middle coordinate
+   */
+  public Point getDisplayMiddlePoint() {
+    JViewport viewport = (JViewport) this.displayPnl.getParent();
+    Point pos = viewport.getViewPosition();
+    Dimension size = viewport.getExtentSize();
+    int x = pos.x + size.width / 2;
+    int y = pos.y + size.height / 2;
+
+    return new Point(x, y);
   }
 
   /**
