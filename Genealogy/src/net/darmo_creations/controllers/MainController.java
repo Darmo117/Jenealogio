@@ -18,6 +18,7 @@
  */
 package net.darmo_creations.controllers;
 
+import java.awt.Component;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -29,6 +30,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -40,7 +42,9 @@ import net.darmo_creations.config.GlobalConfig;
 import net.darmo_creations.config.Language;
 import net.darmo_creations.dao.ConfigDao;
 import net.darmo_creations.dao.FamilyDao;
+import net.darmo_creations.drag_and_drop.DropHandler;
 import net.darmo_creations.gui.MainFrame;
+import net.darmo_creations.gui.components.DisplayPanel;
 import net.darmo_creations.gui.components.FamilyMemberPanel;
 import net.darmo_creations.model.family.Family;
 import net.darmo_creations.model.family.FamilyMember;
@@ -54,7 +58,7 @@ import net.darmo_creations.util.Observer;
  * 
  * @author Damien Vergnet
  */
-public class MainController extends WindowAdapter implements ActionListener, Observer {
+public class MainController extends WindowAdapter implements ActionListener, Observer, DropHandler {
   private static final Pattern DOUBLE_CLICK_MEMBER_PATTERN = Pattern.compile("double-click:member-(\\d+)");
   private static final Pattern DOUBLE_CLICK_RELATION_PATTERN = Pattern.compile("double-click:link-(\\d+)-(\\d+)");
   private static final Pattern CLICK_RELATION_PATTERN = Pattern.compile("click:link-(\\d+)-(\\d+)");
@@ -106,7 +110,7 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
         newFile();
         break;
       case "open":
-        open();
+        open(null);
         break;
       case "save":
         boolean ok;
@@ -229,6 +233,22 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
     }
   }
 
+  @Override
+  public boolean acceptFiles(List<File> files, Component c) {
+    if (!(c instanceof DisplayPanel) && files.size() != 1)
+      return false;
+
+    String name = files.get(0).getName();
+    String ext = name.substring(name.lastIndexOf('.') + 1);
+
+    return "gtree".equalsIgnoreCase(ext);
+  }
+
+  @Override
+  public void importFiles(List<File> files) {
+    open(files.get(0));
+  }
+
   /**
    * Creates a new file. Asks the user if the current file is not saved.
    */
@@ -256,15 +276,25 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
 
   /**
    * Opens a file. Asks the user if the current file is not saved.
+   * 
+   * @param file if not null, this method will attempt to open this file instead of asking the user;
+   *          save state is still checked
    */
-  private void open() {
+  private void open(File file) {
     if (this.fileOpen && !this.saved) {
       int choice = this.frame.showConfirmDialog(I18n.getLocalizedString("popup.open_confirm.text"));
       if (choice != JOptionPane.YES_OPTION)
         return;
     }
 
-    Optional<File> opt = this.frame.showOpenFileChooser();
+    Optional<File> opt;
+
+    if (file == null) {
+      opt = this.frame.showOpenFileChooser();
+    }
+    else {
+      opt = Optional.of(file);
+    }
 
     if (opt.isPresent()) {
       this.fileName = opt.get().getAbsolutePath();

@@ -25,6 +25,8 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DropTarget;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,6 +36,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TooManyListenersException;
 import java.util.stream.Collectors;
 
 import javax.swing.JPanel;
@@ -43,6 +46,8 @@ import net.darmo_creations.config.ColorConfigKey;
 import net.darmo_creations.config.GlobalConfig;
 import net.darmo_creations.controllers.DisplayController;
 import net.darmo_creations.controllers.DoubleClickController;
+import net.darmo_creations.drag_and_drop.DropHandler;
+import net.darmo_creations.drag_and_drop.DropTargetHandler;
 import net.darmo_creations.gui.components.draggable.DragController;
 import net.darmo_creations.gui.components.draggable.DraggableComponentContainer;
 import net.darmo_creations.model.family.Family;
@@ -64,6 +69,7 @@ public class DisplayPanel extends JPanel implements Scrollable, Observable, Drag
   private List<Observer> observers;
 
   private GlobalConfig config;
+  private DropTarget dropTarget;
   private DisplayController controller;
   private DoubleClickController doubleClickController;
   private Map<Long, FamilyMemberPanel> panels;
@@ -81,6 +87,22 @@ public class DisplayPanel extends JPanel implements Scrollable, Observable, Drag
 
     this.panels = new HashMap<>();
     this.links = new ArrayList<>();
+
+    this.dropTarget = new DropTarget(this, DnDConstants.ACTION_COPY_OR_MOVE, null);
+  }
+
+  /**
+   * Adds a DropHandler.
+   * 
+   * @param handler the new handler
+   */
+  public void addDropHandler(DropHandler handler) {
+    try {
+      this.dropTarget.addDropTargetListener(new DropTargetHandler(handler, this));
+    }
+    catch (TooManyListenersException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   /**

@@ -119,6 +119,7 @@ public class MainFrame extends JFrame {
     add(getJToolBar(controller), BorderLayout.NORTH);
     this.displayPnl = new DisplayPanel();
     this.displayPnl.addObserver(controller);
+    this.displayPnl.addDropHandler(controller);
     add(new JScrollPane(this.displayPnl), BorderLayout.CENTER);
 
     controller.init();
