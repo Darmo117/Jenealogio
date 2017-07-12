@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.darmo_creations.drag_and_drop;
+package net.darmo_creations.gui.drag_and_drop;
 
 import java.awt.Component;
 import java.awt.datatransfer.DataFlavor;
