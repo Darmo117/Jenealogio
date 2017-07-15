@@ -52,7 +52,7 @@ public class DragController<T extends Draggable> extends MouseAdapter {
 
   @Override
   public void mousePressed(MouseEvent e) {
-    this.dragable.doClick();
+    this.dragable.doClick(e);
     this.grabPoint = new Point(e.getX(), e.getY());
   }
 

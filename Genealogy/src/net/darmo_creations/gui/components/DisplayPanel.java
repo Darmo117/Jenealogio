@@ -224,11 +224,23 @@ public class DisplayPanel extends JPanel implements Scrollable, Observable, Drag
    * all panels.
    * 
    * @param id panel's ID (member's ID)
+   * @param keepSelection if true, the previous selection will be kept
    */
-  public void selectPanel(long id) {
+  public void selectPanel(long id, boolean keepSelection) {
     this.panels.forEach((pId, panel) -> panel.setSelected(pId == id));
     this.links.forEach(l -> l.setSelected(false));
-    notifyObservers(id);
+    notifyObservers("click:member-" + id + (keepSelection ? ":keep" : ""));
+    revalidate();
+    repaint();
+  }
+
+  /**
+   * Selects the given panels as background.
+   * 
+   * @param ids panels' IDs
+   */
+  public void selectPanelsAsBackground(List<Long> ids) {
+    this.panels.entrySet().stream().filter(e -> ids.contains(e.getKey())).forEach(e -> e.getValue().setSelectedBackground(true));
     revalidate();
     repaint();
   }

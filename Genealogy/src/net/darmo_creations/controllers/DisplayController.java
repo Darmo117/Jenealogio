@@ -34,7 +34,7 @@ import net.darmo_creations.gui.components.DisplayPanel;
  * @author Damien Vergnet
  */
 public class DisplayController extends MouseAdapter implements ActionListener {
-  private static final Pattern SELECT_PATTERN = Pattern.compile("^select:(\\d+)$");
+  private static final Pattern SELECT_PATTERN = Pattern.compile("^select(-ctrl)?:(\\d+)$");
 
   private DisplayPanel panel;
   private Point mouseLocation;
@@ -60,7 +60,7 @@ public class DisplayController extends MouseAdapter implements ActionListener {
     Matcher m = SELECT_PATTERN.matcher(cmd);
 
     if (m.matches()) {
-      this.panel.selectPanel(Integer.parseInt(m.group(1)));
+      this.panel.selectPanel(Integer.parseInt(m.group(2)), m.group(1) != null);
     }
   }
 
@@ -70,7 +70,7 @@ public class DisplayController extends MouseAdapter implements ActionListener {
    */
   @Override
   public void mouseClicked(MouseEvent e) {
-    this.panel.selectPanel(-1);
+    this.panel.selectPanel(-1, false);
     this.panel.selectLinkIfHovered();
     if (e.getClickCount() == 2)
       this.panel.editLinkIfHovered();

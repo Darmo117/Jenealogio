@@ -135,6 +135,8 @@ public class EditColorsDialog extends AbstractDialog {
     root.add(cards);
     cards.add(new NamedTreeNode("card_border", I18n.getLocalizedString("node.colors.cards.border.text")));
     cards.add(new NamedTreeNode("card_selected_border", I18n.getLocalizedString("node.colors.cards.border.selected.text")));
+    cards.add(
+        new NamedTreeNode("card_selected_background_border", I18n.getLocalizedString("node.colors.cards.border.selected_background.text")));
     NamedTreeNode links = new NamedTreeNode("links", I18n.getLocalizedString("node.colors.links.text"));
     root.add(links);
     links.add(new NamedTreeNode("link", I18n.getLocalizedString("node.colors.links.link.text")));

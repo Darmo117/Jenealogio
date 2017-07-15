@@ -23,6 +23,7 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -46,7 +47,7 @@ public class FamilyMemberPanel extends JPanel implements Draggable {
 
   private PanelModel model;
 
-  private Border selectedBorder, unselectedBorder;
+  private Border selectedBorder, backgroundBorder, unselectedBorder;
   private JLabel nameLbl;
 
   /**
@@ -71,6 +72,7 @@ public class FamilyMemberPanel extends JPanel implements Draggable {
    */
   public void setInfo(FamilyMember member, GlobalConfig config) {
     this.selectedBorder = new LineBorder(config.getValue(ColorConfigKey.CARD_SELECTED_BORDER), 2);
+    this.backgroundBorder = new LineBorder(config.getValue(ColorConfigKey.CARD_SELECTED_BACKGROUND_BORDER), 2);
     this.unselectedBorder = new LineBorder(config.getValue(ColorConfigKey.CARD_BORDER), 2);
 
     switch (member.getGender()) {
@@ -119,9 +121,30 @@ public class FamilyMemberPanel extends JPanel implements Draggable {
     setBorder(selected ? this.selectedBorder : this.unselectedBorder);
   }
 
+  /**
+   * @return true if this panel is selected in the background; false otherwise
+   */
+  public boolean isSelectedBackground() {
+    return this.model.isSelectedBackground();
+  }
+
+  /**
+   * Sets the background selection.
+   * 
+   * @param selected
+   */
+  public void setSelectedBackground(boolean selected) {
+    this.model.setSelectedBackground(selected);
+    setBorder(selected ? this.backgroundBorder : this.unselectedBorder);
+  }
+
   @Override
-  public void doClick() {
-    fireActionPerformed("select:" + this.model.getId());
+  public void doClick(MouseEvent e) {
+    int modifiers = e.getModifiers();
+    boolean isCtrlDown = (modifiers & MouseEvent.CTRL_MASK) != 0;
+    String cmd = "select" + (isCtrlDown ? "-ctrl" : "");
+
+    fireActionPerformed(cmd + ":" + this.model.getId());
   }
 
   /**
@@ -162,11 +185,12 @@ public class FamilyMemberPanel extends JPanel implements Draggable {
    * @author Damien Vergnet
    */
   private class PanelModel {
-    private boolean selected;
+    private boolean selected, background;
     private long id;
 
     public PanelModel(long id) {
       this.selected = false;
+      this.background = false;
       this.id = id;
     }
 
@@ -176,6 +200,16 @@ public class FamilyMemberPanel extends JPanel implements Draggable {
 
     public void setSelected(boolean selected) {
       this.selected = selected;
+      this.background = false;
+    }
+
+    public boolean isSelectedBackground() {
+      return this.background;
+    }
+
+    public void setSelectedBackground(boolean background) {
+      this.background = background;
+      this.selected = false;
     }
 
     public long getId() {

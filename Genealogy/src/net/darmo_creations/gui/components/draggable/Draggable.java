@@ -20,6 +20,7 @@ package net.darmo_creations.gui.components.draggable;
 
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.MouseEvent;
 
 /**
  * A component can implement this interface to become draggable.
@@ -42,5 +43,5 @@ public interface Draggable {
   /**
    * Performs a click action.
    */
-  void doClick();
+  void doClick(MouseEvent e);
 }
