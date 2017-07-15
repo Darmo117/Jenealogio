@@ -50,6 +50,7 @@ import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.model.family.Gender;
 import net.darmo_creations.model.family.Relationship;
 import net.darmo_creations.util.Version;
+import net.darmo_creations.util.VersionException;
 
 /**
  * This class handles I/O operations for the {@code Family} class.
@@ -73,11 +74,13 @@ public class FamilyDao {
    * 
    * @param file the file to load
    * @param locations <i>[output parameter]</i> this map will hold the location of all the cards
+   * @param ignoreVersion if true, any version mismatch will be ignored
    * @return the loaded family object
    * @throws IOException if an I/O error occured
    * @throws ParseException if the file is corrupted/wrongly formatted
+   * @throws VersionException if file's version is more recent than the current version
    */
-  public Family load(String file, Map<Long, Point> locations) throws IOException, ParseException {
+  public Family load(String file, Map<Long, Point> locations, boolean ignoreVersion) throws IOException, ParseException, VersionException {
     String jsonString = String.join("", Files.readAllLines(Paths.get(file)));
 
     try {
@@ -88,6 +91,10 @@ public class FamilyDao {
       Family family = new Family((Long) obj.get("global_id"), (String) obj.get("name"), members, weddings);
       Long rawVersion = (Long) obj.get("version");
       Version version = new Version(rawVersion != null ? (int) (long) rawVersion : 0);
+
+      if (!ignoreVersion && version.after(Version.CURRENT_VERSION)) {
+        throw new VersionException(Version.CURRENT_VERSION, version);
+      }
 
       // Members loading
       JSONArray membersObj = (JSONArray) obj.get("members");

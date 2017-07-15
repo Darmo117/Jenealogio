@@ -584,7 +584,20 @@ public class MainFrame extends JFrame {
    *         CANCEL_OPTION or CLOSED_OPTION)
    */
   public int showConfirmDialog(String message) {
-    return JOptionPane.showConfirmDialog(this, message, I18n.getLocalizedString("popup.confirm.title"), JOptionPane.YES_NO_CANCEL_OPTION,
+    return showConfirmDialog(message, JOptionPane.YES_NO_CANCEL_OPTION);
+  }
+
+  /**
+   * Shows a confirm dialog.
+   * 
+   * @param message the message
+   * @param optionType an integer designating the options available on the dialog: YES_NO_OPTION,
+   *          YES_NO_CANCEL_OPTION, or OK_CANCEL_OPTION
+   * @return an integer indicating the option selected by the user (either YES_OPTION, NO_OPTION,
+   *         CANCEL_OPTION or CLOSED_OPTION)
+   */
+  public int showConfirmDialog(String message, int optionType) {
+    return JOptionPane.showConfirmDialog(this, message, I18n.getLocalizedString("popup.confirm.title"), optionType,
         JOptionPane.QUESTION_MESSAGE);
   }
 

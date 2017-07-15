@@ -52,6 +52,7 @@ import net.darmo_creations.model.family.Relationship;
 import net.darmo_creations.util.I18n;
 import net.darmo_creations.util.Observable;
 import net.darmo_creations.util.Observer;
+import net.darmo_creations.util.VersionException;
 
 /**
  * This is controller handles events from the MainFrame class.
@@ -280,7 +281,7 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
    * @param file if not null, this method will attempt to open this file instead of asking the user;
    *          save state is still checked
    */
-  private void open(File file) {
+  private void open(final File file) {
     if (this.fileOpen && !this.saved) {
       int choice = this.frame.showConfirmDialog(I18n.getLocalizedString("popup.open_confirm.text"));
       if (choice != JOptionPane.YES_OPTION)
@@ -297,22 +298,33 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
     }
 
     if (opt.isPresent()) {
-      this.fileName = opt.get().getAbsolutePath();
-      try {
-        Map<Long, Point> positions = new HashMap<>();
-
-        this.family = this.familyDao.load(this.fileName, positions);
-        this.fileOpen = true;
-        this.alreadySaved = true;
-        this.saved = true;
-        this.frame.resetDisplay();
-        this.frame.refreshDisplay(this.family, positions, this.config);
-      }
-      catch (IOException | ParseException __) {
-        this.frame.showErrorDialog(I18n.getLocalizedString("popup.open_file_error.text"));
-      }
-      updateFrameMenus();
+      loadFile(opt.get().getAbsolutePath(), false);
     }
+  }
+
+  private void loadFile(String fileName, boolean ignoreVersion) {
+    try {
+      Map<Long, Point> positions = new HashMap<>();
+
+      this.family = this.familyDao.load(fileName, positions, ignoreVersion);
+      this.fileName = fileName;
+      this.fileOpen = true;
+      this.alreadySaved = true;
+      this.saved = true;
+      this.frame.resetDisplay();
+      this.frame.refreshDisplay(this.family, positions, this.config);
+    }
+    catch (VersionException ex) {
+      int choice = this.frame.showConfirmDialog(I18n.getLocalizedString("popup.version_warning.text"), JOptionPane.YES_NO_OPTION);
+
+      if (choice == JOptionPane.YES_OPTION) {
+        loadFile(fileName, true);
+      }
+    }
+    catch (IOException | ParseException __) {
+      this.frame.showErrorDialog(I18n.getLocalizedString("popup.open_file_error.text"));
+    }
+    updateFrameMenus();
   }
 
   /**
