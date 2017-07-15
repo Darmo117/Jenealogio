@@ -302,6 +302,13 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
     }
   }
 
+  /**
+   * Loads the file with the given name.
+   * 
+   * @param fileName file's name
+   * @param ignoreVersion if true, any version mismatch will be ignored
+   * @see FamilyDao#load(String, Map, boolean)
+   */
   private void loadFile(String fileName, boolean ignoreVersion) {
     try {
       Map<Long, Point> positions = new HashMap<>();
