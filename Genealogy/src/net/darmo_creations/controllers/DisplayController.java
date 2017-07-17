@@ -19,10 +19,12 @@
 package net.darmo_creations.controllers;
 
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -34,14 +36,18 @@ import net.darmo_creations.gui.components.DisplayPanel;
  * @author Damien Vergnet
  */
 public class DisplayController extends MouseAdapter implements ActionListener {
-  private static final Pattern SELECT_PATTERN = Pattern.compile("^select:(\\d+)$");
+  private static final Pattern SELECT_PATTERN = Pattern.compile("^select(-ctrl)?:(\\d+)$");
 
   private DisplayPanel panel;
   private Point mouseLocation;
+  private Point selectionStart;
+  private Rectangle selection;
 
   public DisplayController(DisplayPanel panel) {
     this.panel = panel;
     this.mouseLocation = new Point();
+    this.selectionStart = null;
+    this.selection = null;
   }
 
   /**
@@ -49,6 +55,13 @@ public class DisplayController extends MouseAdapter implements ActionListener {
    */
   public Point getMouseLocation() {
     return (Point) this.mouseLocation.clone();
+  }
+
+  /**
+   * @return selection's starting position
+   */
+  public Optional<Rectangle> getSelection() {
+    return Optional.ofNullable(this.selection);
   }
 
   /**
@@ -60,8 +73,24 @@ public class DisplayController extends MouseAdapter implements ActionListener {
     Matcher m = SELECT_PATTERN.matcher(cmd);
 
     if (m.matches()) {
-      this.panel.selectPanel(Integer.parseInt(m.group(1)));
+      this.panel.selectPanel(Integer.parseInt(m.group(2)), m.group(1) != null);
     }
+  }
+
+  @Override
+  public void mousePressed(MouseEvent e) {
+    if (e.getButton() == MouseEvent.BUTTON1) {
+      this.selectionStart = e.getPoint();
+      this.selection = new Rectangle(this.selectionStart);
+    }
+    this.panel.selectPanel(-1, false);
+  }
+
+  @Override
+  public void mouseReleased(MouseEvent e) {
+    this.panel.notifyObservers(this.panel.getPanelsInsideRectangle(this.selection));
+    this.selection = null;
+    repaint();
   }
 
   /**
@@ -70,7 +99,6 @@ public class DisplayController extends MouseAdapter implements ActionListener {
    */
   @Override
   public void mouseClicked(MouseEvent e) {
-    this.panel.selectPanel(-1);
     this.panel.selectLinkIfHovered();
     if (e.getClickCount() == 2)
       this.panel.editLinkIfHovered();
@@ -81,7 +109,42 @@ public class DisplayController extends MouseAdapter implements ActionListener {
    */
   @Override
   public void mouseMoved(MouseEvent e) {
+    updateMouseLocation(e);
+  }
+
+  @Override
+  public void mouseDragged(MouseEvent e) {
+    updateMouseLocation(e);
+  }
+
+  private void updateMouseLocation(MouseEvent e) {
     this.mouseLocation = e.getPoint();
+    // Selection computation
+    if (this.selection != null) {
+      int width = this.mouseLocation.x - this.selectionStart.x;
+      int height = this.mouseLocation.y - this.selectionStart.y;
+
+      if (width < 0) {
+        width = -width;
+        this.selection.x = this.selectionStart.x - width;
+        this.selection.width = width;
+      }
+      else {
+        this.selection.width = width;
+      }
+      if (height < 0) {
+        height = -height;
+        this.selection.y = this.selectionStart.y - height;
+        this.selection.height = height;
+      }
+      else {
+        this.selection.height = height;
+      }
+    }
+    repaint();
+  }
+
+  private void repaint() {
     this.panel.repaint();
   }
 }

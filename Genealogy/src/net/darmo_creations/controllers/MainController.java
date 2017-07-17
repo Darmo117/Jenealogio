@@ -29,12 +29,14 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.swing.JOptionPane;
 
@@ -60,6 +62,7 @@ import net.darmo_creations.util.VersionException;
  * @author Damien Vergnet
  */
 public class MainController extends WindowAdapter implements ActionListener, Observer, DropHandler {
+  private static final Pattern CLICK_MEMBER_PATTERN = Pattern.compile("click:member-(-?\\d+)(:keep)?");
   private static final Pattern DOUBLE_CLICK_MEMBER_PATTERN = Pattern.compile("double-click:member-(\\d+)");
   private static final Pattern DOUBLE_CLICK_RELATION_PATTERN = Pattern.compile("double-click:link-(\\d+)-(\\d+)");
   private static final Pattern CLICK_RELATION_PATTERN = Pattern.compile("click:link-(\\d+)-(\\d+)");
@@ -82,7 +85,9 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
   /** The name of the last saved file. */
   private String fileName;
   /** The currently selected card. */
-  private FamilyMember selectedCard;
+  private FamilyMember lastSelectedCard;
+  /** All currently selected cards. */
+  private List<FamilyMember> selectedCards;
   /** The currently selected link. */
   private Relationship selectedLink;
   /** Are we adding a link? */
@@ -92,6 +97,7 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
     this.frame = frame;
     this.config = config;
     this.familyDao = FamilyDao.instance();
+    this.selectedCards = new ArrayList<>();
   }
 
   /**
@@ -168,36 +174,12 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
 
   @Override
   public void update(Observable obs, Object o) {
-    // Card selection.
-    if (o instanceof Long) {
-      long id = (Long) o;
-
-      this.frame.updateMenus(this.fileOpen, id >= 0, false);
-      if (id >= 0) {
-        FamilyMember prev = null;
-
-        if (this.addingLink && this.selectedCard != null && !this.family.areInRelationship(this.selectedCard.getId(), id))
-          prev = this.selectedCard;
-
-        this.selectedCard = this.family.getMember(id).orElseThrow(IllegalStateException::new);
-
-        if (this.addingLink && prev != null) {
-          addLink(prev.getId(), this.selectedCard.getId());
-          toggleAddLink();
-        }
-      }
-      else {
-        if (this.addingLink)
-          toggleAddLink();
-        this.selectedCard = null;
-      }
-      this.selectedLink = null;
-    }
-    else if (o instanceof String) {
+    if (o instanceof String) {
       String s = (String) o;
       Matcher m = DOUBLE_CLICK_MEMBER_PATTERN.matcher(s);
       Matcher m1 = DOUBLE_CLICK_RELATION_PATTERN.matcher(s);
       Matcher m2 = CLICK_RELATION_PATTERN.matcher(s);
+      Matcher m3 = CLICK_MEMBER_PATTERN.matcher(s);
 
       // Show card details
       if (m.matches()) {
@@ -212,6 +194,44 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
       // Edit relation/card
       else if (s.equals("edit")) {
         edit();
+      }
+      // Select card
+      else if (m3.matches()) {
+        long id = Long.parseLong(m3.group(1));
+        boolean keepSelection = m3.group(2) != null;
+
+        this.frame.updateMenus(this.fileOpen, id >= 0, false);
+        if (id >= 0) {
+          FamilyMember prev = null;
+
+          if (!this.addingLink
+              || (this.addingLink && this.lastSelectedCard != null && !this.family.areInRelationship(this.lastSelectedCard.getId(), id)))
+            prev = this.lastSelectedCard;
+
+          this.lastSelectedCard = this.family.getMember(id).orElseThrow(IllegalStateException::new);
+
+          if (this.addingLink && prev != null) {
+            addLink(prev.getId(), this.lastSelectedCard.getId());
+            toggleAddLink();
+          }
+
+          if (keepSelection) {
+            this.selectedCards.remove(this.lastSelectedCard);
+            if (prev != null && !prev.equals(this.lastSelectedCard))
+              this.selectedCards.add(prev);
+          }
+          else {
+            this.selectedCards.clear();
+          }
+        }
+        else {
+          if (this.addingLink)
+            toggleAddLink();
+          this.lastSelectedCard = null;
+          this.selectedCards.clear();
+        }
+        this.selectedLink = null;
+        this.frame.setPanelsSelectedAsBackground(this.selectedCards.stream().map(f -> f.getId()).collect(Collectors.toList()));
       }
       // Select link
       else if (m2.matches()) {
@@ -231,6 +251,13 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
     else if (o instanceof FamilyMemberPanel) {
       this.saved = false;
       updateFrameMenus();
+    }
+    else if (o instanceof long[]) {
+      long[] a = (long[]) o;
+      List<Long> ids = new ArrayList<>();
+      for (long l : a)
+        ids.add(l);
+      this.frame.setPanelsSelectedAsBackground(ids);
     }
   }
 
@@ -437,8 +464,8 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
    * Opens up "edit card" or "edit link" dialog then updates the model.
    */
   private void edit() {
-    if (this.selectedCard != null) {
-      Optional<FamilyMember> member = this.frame.showUpdateCardDialog(this.selectedCard);
+    if (this.lastSelectedCard != null) {
+      Optional<FamilyMember> member = this.frame.showUpdateCardDialog(this.lastSelectedCard);
 
       if (member.isPresent()) {
         this.family.updateMember(member.get());
@@ -460,20 +487,27 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
   }
 
   /**
-   * Deletes the selected card or link. Asks the user to confirm the action.
+   * Deletes the selected card(s) or link. Asks the user to confirm the action.
    */
   private void delete() {
-    if (this.selectedCard != null) {
-      if (this.frame.showConfirmDialog(I18n.getLocalizedString("popup.delete_card_confirm.text")) == JOptionPane.OK_OPTION) {
-        this.family.removeMember(this.selectedCard.getId());
-        this.selectedCard = null;
+    if (this.lastSelectedCard != null) {
+      String key = !this.selectedCards.isEmpty() ? "popup.delete_cards_confirm.text" : "popup.delete_card_confirm.text";
+      int choice = this.frame.showConfirmDialog(I18n.getLocalizedString(key));
+
+      if (choice == JOptionPane.OK_OPTION) {
+        this.family.removeMember(this.lastSelectedCard.getId());
+        this.selectedCards.forEach(m -> this.family.removeMember(m.getId()));
+        this.lastSelectedCard = null;
+        this.selectedCards.clear();
         this.saved = false;
         updateFrameMenus();
         refreshFrame();
       }
     }
     else if (this.selectedLink != null) {
-      if (this.frame.showConfirmDialog(I18n.getLocalizedString("popup.delete_link_confirm.text")) == JOptionPane.OK_OPTION) {
+      int choice = this.frame.showConfirmDialog(I18n.getLocalizedString("popup.delete_link_confirm.text"));
+
+      if (choice == JOptionPane.OK_OPTION) {
         this.family.removeRelationship(this.selectedLink);
         this.selectedLink = null;
         this.saved = false;
@@ -525,7 +559,7 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
    */
   private void updateFrameMenus() {
     this.frame.setTitle(MainFrame.BASE_TITLE + (this.family != null ? " - " + this.family.getName() : ""));
-    this.frame.updateMenus(this.fileOpen, this.selectedCard != null, this.selectedLink != null);
+    this.frame.updateMenus(this.fileOpen, this.lastSelectedCard != null, this.selectedLink != null);
     this.frame.updateSaveMenus(this.saved);
   }
 

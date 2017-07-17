@@ -19,6 +19,7 @@
 package net.darmo_creations.gui.components;
 
 import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -219,16 +220,32 @@ public class DisplayPanel extends JPanel implements Scrollable, Observable, Drag
     return points;
   }
 
+  public long[] getPanelsInsideRectangle(Rectangle r) {
+    return this.panels.entrySet().stream().filter(e -> r.contains(e.getValue().getBounds())).mapToLong(e -> e.getKey()).toArray();
+  }
+
   /**
    * Selects the given panel. All observers will be notified of the event. Giving -1 will deselect
    * all panels.
    * 
    * @param id panel's ID (member's ID)
+   * @param keepSelection if true, the previous selection will be kept
    */
-  public void selectPanel(long id) {
+  public void selectPanel(long id, boolean keepSelection) {
     this.panels.forEach((pId, panel) -> panel.setSelected(pId == id));
     this.links.forEach(l -> l.setSelected(false));
-    notifyObservers(id);
+    notifyObservers("click:member-" + id + (keepSelection ? ":keep" : ""));
+    revalidate();
+    repaint();
+  }
+
+  /**
+   * Selects the given panels as background.
+   * 
+   * @param ids panels' IDs
+   */
+  public void selectPanelsAsBackground(List<Long> ids) {
+    this.panels.entrySet().stream().filter(e -> ids.contains(e.getKey())).forEach(e -> e.getValue().setSelectedBackground(true));
     revalidate();
     repaint();
   }
@@ -306,8 +323,20 @@ public class DisplayPanel extends JPanel implements Scrollable, Observable, Drag
   protected void paintComponent(Graphics g) {
     super.paintComponent(g);
     Graphics2D g2d = (Graphics2D) g;
-
     g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+    // Selection
+    Optional<Rectangle> optStart = this.controller.getSelection();
+    if (optStart.isPresent()) {
+      Rectangle r = optStart.get();
+
+      g2d.setColor(new Color(185, 213, 241, 128));
+      g2d.fillRect(r.x, r.y, r.width, r.height);
+      g2d.setColor(new Color(0, 120, 215, 128));
+      g2d.drawRect(r.x, r.y, r.width, r.height);
+    }
+
+    // Links
     this.links.forEach(link -> {
       final int width = link.isWedding() ? 2 : 1;
       if (link.hasEnded())
@@ -371,8 +400,10 @@ public class DisplayPanel extends JPanel implements Scrollable, Observable, Drag
   }
 
   @Override
-  public void componentDragged(MouseEvent e, FamilyMemberPanel component) {
+  public void componentDragged(MouseEvent e, FamilyMemberPanel component, Point translation) {
     notifyObservers(component);
+    this.panels.values().stream().filter(p -> p != component && (p.isSelectedBackground() || p.isSelected())).forEach(
+        p -> p.setLocation(p.getLocation().x + translation.x, p.getLocation().y + translation.y));
   }
 
   @Override

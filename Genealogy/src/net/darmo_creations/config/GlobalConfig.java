@@ -40,6 +40,7 @@ public class GlobalConfig implements Cloneable {
     this.map = new HashMap<>();
     setValue(ColorConfigKey.CARD_BORDER, Color.GRAY);
     setValue(ColorConfigKey.CARD_SELECTED_BORDER, Color.BLUE);
+    setValue(ColorConfigKey.CARD_SELECTED_BACKGROUND_BORDER, Color.BLACK);
     setValue(ColorConfigKey.GENDER_UNKNOWN, Color.GRAY);
     setValue(ColorConfigKey.GENDER_MALE, new Color(117, 191, 255));
     setValue(ColorConfigKey.GENDER_FEMALE, new Color(37, 177, 19));

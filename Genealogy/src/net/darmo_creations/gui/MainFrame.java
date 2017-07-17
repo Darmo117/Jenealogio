@@ -25,6 +25,7 @@ import java.awt.Point;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -370,7 +371,16 @@ public class MainFrame extends JFrame {
    * @param id panel's ID (member's ID)
    */
   public void selectPanel(long id) {
-    this.displayPnl.selectPanel(id);
+    this.displayPnl.selectPanel(id, false);
+  }
+
+  /**
+   * Selects the given panels as background.
+   * 
+   * @param ids panels' IDs
+   */
+  public void setPanelsSelectedAsBackground(List<Long> ids) {
+    this.displayPnl.selectPanelsAsBackground(ids);
   }
 
   /**

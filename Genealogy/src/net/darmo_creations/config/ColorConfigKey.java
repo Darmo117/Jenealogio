@@ -28,6 +28,7 @@ import java.awt.Color;
 public enum ColorConfigKey implements ConfigKey<Color> {
   CARD_BORDER("card_border"),
   CARD_SELECTED_BORDER("card_selected_border"),
+  CARD_SELECTED_BACKGROUND_BORDER("card_selected_background_border"),
   GENDER_UNKNOWN("gender_unknown"),
   GENDER_MALE("gender_male"),
   GENDER_FEMALE("gender_female"),
