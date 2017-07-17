@@ -102,7 +102,7 @@ public class MainController implements DropHandler {
   }
 
   @SubsribeEvent
-  public void onMenuEvent(UserEvent e) {
+  public void onUserEvent(UserEvent e) {
     switch (e.getType()) {
       case NEW:
         newFile();
