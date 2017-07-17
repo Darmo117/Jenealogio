@@ -16,36 +16,56 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.darmo_creations.gui.components.draggable;
-
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.event.MouseEvent;
+package net.darmo_creations.events;
 
 /**
- * A component implementing this interface can hold draggable components.
+ * This event is fired when a menu item/button is clicked.
  * 
  * @author Damien Vergnet
- *
- * @param <T> type of the inner components
  */
-public interface DraggableComponentContainer<T extends Draggable> {
-  /**
-   * @return the bounds of this container
-   */
-  Rectangle getBounds();
+public final class UserEvent extends AbstractEvent {
+  private final Type type;
 
   /**
-   * @return this component's onscreen offset
-   */
-  Point getScrollOffset();
-
-  /**
-   * This method is called when a component has been dragged.
+   * Creates an event.
    * 
-   * @param e the mouse event
-   * @param component the dragged component
-   * @param translation distance traveled by the mouse
+   * @param type the type
    */
-  void componentDragged(MouseEvent e, T component, Point translation);
+  public UserEvent(Type type) {
+    this.type = type;
+  }
+
+  @Override
+  public boolean isCancelable() {
+    return false;
+  }
+
+  /**
+   * @return the type
+   */
+  public Type getType() {
+    return this.type;
+  }
+
+  /**
+   * Event type.
+   *
+   * @author Damien Vergnet
+   */
+  public static enum Type {
+    NEW,
+    OPEN,
+    SAVE,
+    SAVE_AS,
+    ADD_CARD,
+    ADD_LINK,
+    EDIT_CARD,
+    EDIT_LINK,
+    DELETE_CARD,
+    DELETE_LINK,
+    EDIT_COLORS,
+    HELP,
+    ABOUT,
+    EXIT;
+  }
 }

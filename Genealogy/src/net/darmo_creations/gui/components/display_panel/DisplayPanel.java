@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.darmo_creations.gui.components;
+package net.darmo_creations.gui.components.display_panel;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -28,13 +28,13 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DropTarget;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TooManyListenersException;
@@ -45,15 +45,14 @@ import javax.swing.Scrollable;
 
 import net.darmo_creations.config.ColorConfigKey;
 import net.darmo_creations.config.GlobalConfig;
-import net.darmo_creations.controllers.DisplayController;
-import net.darmo_creations.controllers.DoubleClickController;
-import net.darmo_creations.gui.components.draggable.DragController;
-import net.darmo_creations.gui.components.draggable.DraggableComponentContainer;
+import net.darmo_creations.events.CardEvent;
+import net.darmo_creations.events.EventsDispatcher;
+import net.darmo_creations.events.LinkEvent;
+import net.darmo_creations.events.SubsribeEvent;
+import net.darmo_creations.gui.components.FamilyMemberPanel;
 import net.darmo_creations.gui.drag_and_drop.DropHandler;
 import net.darmo_creations.gui.drag_and_drop.DropTargetHandler;
 import net.darmo_creations.model.family.Family;
-import net.darmo_creations.util.Observable;
-import net.darmo_creations.util.Observer;
 
 /**
  * This panel displays the family tree and handles click events. It can notify observers of any
@@ -61,18 +60,16 @@ import net.darmo_creations.util.Observer;
  *
  * @author Damien Vergnet
  */
-public class DisplayPanel extends JPanel implements Scrollable, Observable, DraggableComponentContainer<FamilyMemberPanel> {
+public class DisplayPanel extends JPanel implements Scrollable {
   private static final long serialVersionUID = 8747904983365363275L;
 
   /** The maximum distance away from a link the mouse must be to count as a hover. */
   private static final int HOVER_DISTANCE = 5;
 
-  private List<Observer> observers;
-
   private GlobalConfig config;
   private DropTarget dropTarget;
   private DisplayController controller;
-  private DoubleClickController doubleClickController;
+  private MouseAdapter doubleClickController;
   private Map<Long, FamilyMemberPanel> panels;
   private List<Link> links;
 
@@ -80,9 +77,16 @@ public class DisplayPanel extends JPanel implements Scrollable, Observable, Drag
     setPreferredSize(new Dimension(4000, 4000));
     setLayout(null);
 
-    this.observers = new ArrayList<>();
     this.controller = new DisplayController(this);
-    this.doubleClickController = new DoubleClickController(this.observers);
+    this.doubleClickController = new MouseAdapter() {
+      @Override
+      public void mouseClicked(MouseEvent e) {
+        if (e.getClickCount() == 2 && e.getComponent() instanceof FamilyMemberPanel) {
+          FamilyMemberPanel p = (FamilyMemberPanel) e.getComponent();
+          EventsDispatcher.EVENT_BUS.dispatchEvent(new CardEvent.DoubleClicked(p.getMemberId()));
+        }
+      }
+    };
     addMouseListener(this.controller);
     addMouseMotionListener(this.controller);
 
@@ -151,7 +155,7 @@ public class DisplayPanel extends JPanel implements Scrollable, Observable, Drag
       }
       else {
         FamilyMemberPanel panel = new FamilyMemberPanel(member, this.config);
-        DragController<FamilyMemberPanel> dragController = new DragController<>(this, panel);
+        DragController dragController = new DragController(this, panel);
 
         if (positions != null && positions.containsKey(member.getId())) {
           Point p = positions.get(member.getId());
@@ -160,7 +164,6 @@ public class DisplayPanel extends JPanel implements Scrollable, Observable, Drag
         else
           panel.setBounds(new Rectangle(panel.getSize()));
         panel.setName("member-" + id);
-        panel.addActionListener(this.controller);
         panel.addMouseListener(dragController);
         panel.addMouseListener(this.doubleClickController);
         panel.addMouseMotionListener(dragController);
@@ -220,23 +223,17 @@ public class DisplayPanel extends JPanel implements Scrollable, Observable, Drag
     return points;
   }
 
-  public long[] getPanelsInsideRectangle(Rectangle r) {
-    return this.panels.entrySet().stream().filter(e -> r.contains(e.getValue().getBounds())).mapToLong(e -> e.getKey()).toArray();
-  }
-
   /**
-   * Selects the given panel. All observers will be notified of the event. Giving -1 will deselect
-   * all panels.
+   * Returns all panels that are fully inside the given zone.
    * 
-   * @param id panel's ID (member's ID)
-   * @param keepSelection if true, the previous selection will be kept
+   * @param r the zone
+   * @return all panels inside the zone
    */
-  public void selectPanel(long id, boolean keepSelection) {
-    this.panels.forEach((pId, panel) -> panel.setSelected(pId == id));
-    this.links.forEach(l -> l.setSelected(false));
-    notifyObservers("click:member-" + id + (keepSelection ? ":keep" : ""));
-    revalidate();
-    repaint();
+  public Optional<long[]> getPanelsInsideRectangle(Rectangle r) {
+    if (r != null)
+      return Optional.of(
+          this.panels.entrySet().stream().filter(e -> r.contains(e.getValue().getBounds())).mapToLong(e -> e.getKey()).toArray());
+    return Optional.empty();
   }
 
   /**
@@ -251,41 +248,75 @@ public class DisplayPanel extends JPanel implements Scrollable, Observable, Drag
   }
 
   /**
-   * If a link is hovered by the mouse, all observes are notified that it was double-clicked.
+   * Called when a card is dragged.
+   * 
+   * @param evt the event
    */
-  public void editLinkIfHovered() {
-    getHoveredLink().ifPresent(l -> notifyObservers("double-click:link-" + l.getParent1() + "-" + l.getParent2()));
+  @SubsribeEvent
+  public void onCardDragged(CardEvent.Dragged evt) {
+    final Point trans = evt.getTranslation();
+    this.panels.entrySet().stream().filter(
+        e -> e.getKey() != evt.getMemberId() && (e.getValue().isSelectedBackground() || e.getValue().isSelected())).forEach(
+            e -> e.getValue().setLocation(e.getValue().getLocation().x + trans.x, e.getValue().getLocation().y + trans.y));
   }
 
   /**
-   * If a link is hovered by the mouse, all observers are notified that it was selected.
+   * Called when a card is clicked.
+   * 
+   * @param e the event
    */
-  public void selectLinkIfHovered() {
-    Optional<Link> optL = getHoveredLink();
+  @SubsribeEvent
+  public void onCardClicked(CardEvent.Clicked e) {
+    this.panels.forEach((pId, panel) -> {
+      if (e.getMemberId() < 0) {
+        panel.setSelected(false);
+      }
+      else {
+        if (pId == e.getMemberId())
+          panel.setSelected(true);
+        else if (e.keepPreviousSelection() && panel.isSelected())
+          panel.setSelectedBackground(true);
+        else if (!e.keepPreviousSelection())
+          panel.setSelected(false);
+      }
+    });
+    this.links.forEach(l -> l.setSelected(false));
+    revalidate();
+    repaint();
+  }
+
+  /**
+   * Called when a link is clicked.
+   * 
+   * @param e the event
+   */
+  @SubsribeEvent
+  public void onLinkClicked(LinkEvent.Clicked e) {
+    Optional<Link> optL = this.links.stream().filter(
+        l -> l.getParent1() == e.getPartner1Id() && l.getParent2() == e.getPartner2Id()).findAny();
 
     if (optL.isPresent()) {
       Link link = optL.get();
 
       this.links.forEach(l -> l.setSelected(false));
       link.setSelected(true);
-      notifyObservers("click:link-" + link.getParent1() + "-" + link.getParent2());
     }
   }
 
   /**
-   * @return the link hovered by the mouse
+   * @return an array containing the two partners' IDs from the currently hovered link
    */
-  private Optional<Link> getHoveredLink() {
+  public Optional<long[]> getHoveredLinkPartners() {
     for (Link link : this.links) {
       Rectangle r1 = this.panels.get(link.getParent1()).getBounds();
       Rectangle r2 = this.panels.get(link.getParent2()).getBounds();
       Point p1 = new Point(r1.x + r1.width / 2, r1.y + r1.height / 2);
       Point p2 = new Point(r2.x + r2.width / 2, r2.y + r2.height / 2);
 
-      if (isMouseOnLink(p1, p2))
-        return Optional.of(link);
+      if (isMouseOnLink(p1, p2)) {
+        return Optional.of(new long[]{link.getParent1(), link.getParent2()});
+      }
     }
-
     return Optional.empty();
   }
 
@@ -392,34 +423,6 @@ public class DisplayPanel extends JPanel implements Scrollable, Observable, Drag
   @Override
   public boolean getScrollableTracksViewportHeight() {
     return false;
-  }
-
-  @Override
-  public Point getScrollOffset() {
-    return getLocationOnScreen();
-  }
-
-  @Override
-  public void componentDragged(MouseEvent e, FamilyMemberPanel component, Point translation) {
-    notifyObservers(component);
-    this.panels.values().stream().filter(p -> p != component && (p.isSelectedBackground() || p.isSelected())).forEach(
-        p -> p.setLocation(p.getLocation().x + translation.x, p.getLocation().y + translation.y));
-  }
-
-  @Override
-  public void addObserver(Observer observer) {
-    this.observers.add(Objects.requireNonNull(observer));
-  }
-
-  @Override
-  public void removeObserver(Observer observer) {
-    if (observer != null)
-      this.observers.remove(observer);
-  }
-
-  @Override
-  public void notifyObservers(Object o) {
-    this.observers.forEach(obs -> obs.update(this, o));
   }
 
   /**

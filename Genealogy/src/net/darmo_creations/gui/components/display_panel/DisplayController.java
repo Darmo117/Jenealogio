@@ -16,34 +16,31 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.darmo_creations.controllers;
+package net.darmo_creations.gui.components.display_panel;
 
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import net.darmo_creations.gui.components.DisplayPanel;
+import net.darmo_creations.events.CardEvent;
+import net.darmo_creations.events.CardsSelectionEvent;
+import net.darmo_creations.events.EventsDispatcher;
+import net.darmo_creations.events.LinkEvent;
 
 /**
  * This controller handles cards and links selection and notifies the DisplayPanel.
  * 
  * @author Damien Vergnet
  */
-public class DisplayController extends MouseAdapter implements ActionListener {
-  private static final Pattern SELECT_PATTERN = Pattern.compile("^select(-ctrl)?:(\\d+)$");
-
+class DisplayController extends MouseAdapter {
   private DisplayPanel panel;
   private Point mouseLocation;
   private Point selectionStart;
   private Rectangle selection;
 
-  public DisplayController(DisplayPanel panel) {
+  DisplayController(DisplayPanel panel) {
     this.panel = panel;
     this.mouseLocation = new Point();
     this.selectionStart = null;
@@ -53,28 +50,15 @@ public class DisplayController extends MouseAdapter implements ActionListener {
   /**
    * @return the last location of the mouse
    */
-  public Point getMouseLocation() {
+  Point getMouseLocation() {
     return (Point) this.mouseLocation.clone();
   }
 
   /**
    * @return selection's starting position
    */
-  public Optional<Rectangle> getSelection() {
+  Optional<Rectangle> getSelection() {
     return Optional.ofNullable(this.selection);
-  }
-
-  /**
-   * Called when a card panel is selected. Tells the DisplayPanel what card was selected.
-   */
-  @Override
-  public void actionPerformed(ActionEvent e) {
-    String cmd = e.getActionCommand();
-    Matcher m = SELECT_PATTERN.matcher(cmd);
-
-    if (m.matches()) {
-      this.panel.selectPanel(Integer.parseInt(m.group(2)), m.group(1) != null);
-    }
   }
 
   @Override
@@ -83,12 +67,15 @@ public class DisplayController extends MouseAdapter implements ActionListener {
       this.selectionStart = e.getPoint();
       this.selection = new Rectangle(this.selectionStart);
     }
-    this.panel.selectPanel(-1, false);
+    EventsDispatcher.EVENT_BUS.dispatchEvent(new CardEvent.Clicked(-1, false));
   }
 
   @Override
   public void mouseReleased(MouseEvent e) {
-    this.panel.notifyObservers(this.panel.getPanelsInsideRectangle(this.selection));
+    Optional<long[]> opt = this.panel.getPanelsInsideRectangle(this.selection);
+    if (opt.isPresent()) {
+      EventsDispatcher.EVENT_BUS.dispatchEvent(new CardsSelectionEvent(opt.get()));
+    }
     this.selection = null;
     repaint();
   }
@@ -99,9 +86,14 @@ public class DisplayController extends MouseAdapter implements ActionListener {
    */
   @Override
   public void mouseClicked(MouseEvent e) {
-    this.panel.selectLinkIfHovered();
-    if (e.getClickCount() == 2)
-      this.panel.editLinkIfHovered();
+    Optional<long[]> l = this.panel.getHoveredLinkPartners();
+
+    if (l.isPresent()) {
+      long[] ids = l.get();
+      EventsDispatcher.EVENT_BUS.dispatchEvent(new LinkEvent.Clicked(ids[0], ids[1]));
+      if (e.getClickCount() == 2)
+        EventsDispatcher.EVENT_BUS.dispatchEvent(new LinkEvent.DoubleClicked(ids[0], ids[1]));
+    }
   }
 
   /**

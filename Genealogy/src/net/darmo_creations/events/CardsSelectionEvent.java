@@ -16,36 +16,31 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.darmo_creations.controllers;
+package net.darmo_creations.events;
 
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.util.Collection;
-
-import net.darmo_creations.util.Observer;
+import java.util.Arrays;
 
 /**
- * This controller handles double-click events.
- * 
+ * This event is fired when cards have been selected.
+ *
  * @author Damien Vergnet
  */
-public class DoubleClickController extends MouseAdapter {
-  private Collection<Observer> observers;
+public final class CardsSelectionEvent extends AbstractEvent {
+  private final long[] ids;
 
   /**
-   * Creates a controller that will notify the given observers. The list an me modified afterwards
-   * as it is not copied.
+   * Creates an event.
    * 
-   * @param observers the observers
+   * @param ids IDs of all selected cards
    */
-  public DoubleClickController(Collection<Observer> observers) {
-    this.observers = observers;
+  public CardsSelectionEvent(long... ids) {
+    this.ids = Arrays.copyOf(ids, ids.length);
   }
 
-  @Override
-  public void mouseClicked(MouseEvent e) {
-    if (e.getClickCount() == 2) {
-      this.observers.forEach(obs -> obs.update(null, "double-click:" + e.getComponent().getName()));
-    }
+  /**
+   * @return IDs of all selected cards
+   */
+  public long[] getSelectedPanelsIds() {
+    return Arrays.copyOf(this.ids, this.ids.length);
   }
 }

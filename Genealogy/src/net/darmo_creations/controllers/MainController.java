@@ -20,10 +20,6 @@ package net.darmo_creations.controllers;
 
 import java.awt.Component;
 import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -34,26 +30,27 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.swing.JOptionPane;
 
 import net.darmo_creations.config.GlobalConfig;
-import net.darmo_creations.config.Language;
 import net.darmo_creations.dao.ConfigDao;
 import net.darmo_creations.dao.FamilyDao;
+import net.darmo_creations.events.CardEvent;
+import net.darmo_creations.events.CardsSelectionEvent;
+import net.darmo_creations.events.ChangeLanguageEvent;
+import net.darmo_creations.events.EventsDispatcher;
+import net.darmo_creations.events.LinkEvent;
+import net.darmo_creations.events.SubsribeEvent;
+import net.darmo_creations.events.UserEvent;
 import net.darmo_creations.gui.MainFrame;
-import net.darmo_creations.gui.components.DisplayPanel;
-import net.darmo_creations.gui.components.FamilyMemberPanel;
+import net.darmo_creations.gui.components.display_panel.DisplayPanel;
 import net.darmo_creations.gui.drag_and_drop.DropHandler;
 import net.darmo_creations.model.family.Family;
 import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.model.family.Relationship;
 import net.darmo_creations.util.I18n;
-import net.darmo_creations.util.Observable;
-import net.darmo_creations.util.Observer;
 import net.darmo_creations.util.VersionException;
 
 /**
@@ -61,13 +58,7 @@ import net.darmo_creations.util.VersionException;
  * 
  * @author Damien Vergnet
  */
-public class MainController extends WindowAdapter implements ActionListener, Observer, DropHandler {
-  private static final Pattern CLICK_MEMBER_PATTERN = Pattern.compile("click:member-(-?\\d+)(:keep)?");
-  private static final Pattern DOUBLE_CLICK_MEMBER_PATTERN = Pattern.compile("double-click:member-(\\d+)");
-  private static final Pattern DOUBLE_CLICK_RELATION_PATTERN = Pattern.compile("double-click:link-(\\d+)-(\\d+)");
-  private static final Pattern CLICK_RELATION_PATTERN = Pattern.compile("click:link-(\\d+)-(\\d+)");
-  private static final Pattern CHANGE_LANG_PATTERN = Pattern.compile("lang-(\\w+)");
-
+public class MainController implements DropHandler {
   /** Frame being monitored. */
   private final MainFrame frame;
   /** Main DAO. */
@@ -110,16 +101,21 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
     updateFrameMenus();
   }
 
-  @Override
-  public void actionPerformed(ActionEvent e) {
-    switch (e.getActionCommand()) {
-      case "new":
+  /**
+   * Called when a UserEvent is fired.
+   * 
+   * @param e the event
+   */
+  @SubsribeEvent
+  public void onUserEvent(UserEvent e) {
+    switch (e.getType()) {
+      case NEW:
         newFile();
         break;
-      case "open":
+      case OPEN:
         open(null);
         break;
-      case "save":
+      case SAVE:
         boolean ok;
         if (this.alreadySaved)
           ok = save();
@@ -128,137 +124,160 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
         if (!ok)
           this.frame.showErrorDialog(I18n.getLocalizedString("popup.save_file_error.text"));
         break;
-      case "save-as":
+      case SAVE_AS:
         if (!saveAs())
           this.frame.showErrorDialog(I18n.getLocalizedString("popup.save_file_error.text"));
         break;
-      case "add-card":
+      case ADD_CARD:
         addMember();
         break;
-      case "add-link":
-        this.frame.selectPanel(-1);
+      case ADD_LINK:
+        EventsDispatcher.EVENT_BUS.dispatchEvent(new CardEvent.Clicked(-1, false));
         toggleAddLink();
         break;
-      case "edit":
-        edit();
+      case EDIT_CARD:
+        editCard();
         break;
-      case "delete":
-        delete();
+      case EDIT_LINK:
+        editLink();
         break;
-      case "edit_colors":
+      case DELETE_CARD:
+        deleteCard();
+        break;
+      case DELETE_LINK:
+        deleteLink();
+        break;
+      case EDIT_COLORS:
         editColors();
         break;
-      case "help":
+      case HELP:
         this.frame.showHelpDialog();
         break;
-      case "about":
+      case ABOUT:
         this.frame.showAboutDialog();
         break;
-      case "exit":
+      case EXIT:
         exit();
         break;
     }
-
-    Matcher m = CHANGE_LANG_PATTERN.matcher(e.getActionCommand());
-
-    if (m.matches()) {
-      this.config.setLanguage(Language.fromCode(m.group(1)));
-      this.frame.showWarningDialog(I18n.getLocalizedString("popup.change_language_warning.text"));
-    }
   }
 
-  @Override
-  public void windowClosing(WindowEvent e) {
-    exit();
+  /**
+   * Called when a ChangeLanguageEvenet is fired.
+   * 
+   * @param e the event
+   */
+  @SubsribeEvent
+  public void onChangeLanguage(ChangeLanguageEvent e) {
+    this.config.setLanguage(e.getLanguage());
+    this.frame.showWarningDialog(I18n.getLocalizedString("popup.change_language_warning.text"));
   }
 
-  @Override
-  public void update(Observable obs, Object o) {
-    if (o instanceof String) {
-      String s = (String) o;
-      Matcher m = DOUBLE_CLICK_MEMBER_PATTERN.matcher(s);
-      Matcher m1 = DOUBLE_CLICK_RELATION_PATTERN.matcher(s);
-      Matcher m2 = CLICK_RELATION_PATTERN.matcher(s);
-      Matcher m3 = CLICK_MEMBER_PATTERN.matcher(s);
+  /**
+   * Called when a card is clicked.
+   * 
+   * @param e the event
+   */
+  @SubsribeEvent
+  public void onCardClicked(CardEvent.Clicked e) {
+    long id = e.getMemberId();
+    boolean keepSelection = ((CardEvent.Clicked) e).keepPreviousSelection();
 
-      // Show card details
-      if (m.matches()) {
-        showDetails(Long.parseLong(m.group(1)));
+    this.selectedLink = null;
+    this.frame.updateMenus(this.fileOpen, id >= 0, false);
+    if (id >= 0) {
+      FamilyMember prev = null;
+
+      if (!this.addingLink
+          || (this.addingLink && this.lastSelectedCard != null && !this.family.areInRelationship(this.lastSelectedCard.getId(), id)))
+        prev = this.lastSelectedCard;
+
+      this.lastSelectedCard = this.family.getMember(id).orElseThrow(IllegalStateException::new);
+
+      if (this.addingLink && prev != null) {
+        addLink(prev.getId(), this.lastSelectedCard.getId());
+        toggleAddLink();
       }
-      // Show link details
-      else if (m1.matches()) {
-        long id1 = Long.parseLong(m1.group(1));
-        long id2 = Long.parseLong(m1.group(2));
-        showDetails(id1, id2);
+
+      if (keepSelection) {
+        this.selectedCards.remove(this.lastSelectedCard);
+        if (prev != null && !prev.equals(this.lastSelectedCard))
+          this.selectedCards.add(prev);
       }
-      // Edit relation/card
-      else if (s.equals("edit")) {
-        edit();
-      }
-      // Select card
-      else if (m3.matches()) {
-        long id = Long.parseLong(m3.group(1));
-        boolean keepSelection = m3.group(2) != null;
-
-        this.frame.updateMenus(this.fileOpen, id >= 0, false);
-        if (id >= 0) {
-          FamilyMember prev = null;
-
-          if (!this.addingLink
-              || (this.addingLink && this.lastSelectedCard != null && !this.family.areInRelationship(this.lastSelectedCard.getId(), id)))
-            prev = this.lastSelectedCard;
-
-          this.lastSelectedCard = this.family.getMember(id).orElseThrow(IllegalStateException::new);
-
-          if (this.addingLink && prev != null) {
-            addLink(prev.getId(), this.lastSelectedCard.getId());
-            toggleAddLink();
-          }
-
-          if (keepSelection) {
-            this.selectedCards.remove(this.lastSelectedCard);
-            if (prev != null && !prev.equals(this.lastSelectedCard))
-              this.selectedCards.add(prev);
-          }
-          else {
-            this.selectedCards.clear();
-          }
-        }
-        else {
-          if (this.addingLink)
-            toggleAddLink();
-          this.lastSelectedCard = null;
-          this.selectedCards.clear();
-        }
-        this.selectedLink = null;
-        this.frame.setPanelsSelectedAsBackground(this.selectedCards.stream().map(f -> f.getId()).collect(Collectors.toList()));
-      }
-      // Select link
-      else if (m2.matches()) {
-        Optional<FamilyMember> optM1 = this.family.getMember(Long.parseLong(m2.group(1)));
-        Optional<FamilyMember> optM2 = this.family.getMember(Long.parseLong(m2.group(2)));
-
-        if (optM1.isPresent() && optM2.isPresent()) {
-          Optional<Relationship> r = this.family.getRelation(optM1.get().getId(), optM2.get().getId());
-
-          if (r.isPresent())
-            this.selectedLink = r.get();
-        }
-        this.frame.updateMenus(this.fileOpen, false, this.selectedLink != null);
+      else {
+        this.selectedCards.clear();
       }
     }
-    // Component dragged
-    else if (o instanceof FamilyMemberPanel) {
-      this.saved = false;
-      updateFrameMenus();
+    else {
+      if (this.addingLink)
+        toggleAddLink();
+      this.lastSelectedCard = null;
+      this.selectedCards.clear();
     }
-    else if (o instanceof long[]) {
-      long[] a = (long[]) o;
-      List<Long> ids = new ArrayList<>();
-      for (long l : a)
-        ids.add(l);
-      this.frame.setPanelsSelectedAsBackground(ids);
+    this.frame.setPanelsSelectedAsBackground(this.selectedCards.stream().map(f -> f.getId()).collect(Collectors.toList()));
+  }
+
+  /**
+   * Called when a card is double-clicked.
+   * 
+   * @param e the event
+   */
+  @SubsribeEvent
+  public void onCardDoubleClicked(CardEvent.DoubleClicked e) {
+    this.family.getMember(e.getMemberId()).ifPresent(m -> this.frame.showDetailsDialog(m, this.family.getRelations(m.getId())));
+  }
+
+  /**
+   * Called when a link is clicked.
+   * 
+   * @param e the event
+   */
+  @SubsribeEvent
+  public void onLinkClicked(LinkEvent.Clicked e) {
+    Optional<FamilyMember> optM1 = this.family.getMember(e.getPartner1Id());
+    Optional<FamilyMember> optM2 = this.family.getMember(e.getPartner2Id());
+
+    if (optM1.isPresent() && optM2.isPresent()) {
+      Optional<Relationship> r = this.family.getRelation(optM1.get().getId(), optM2.get().getId());
+
+      if (r.isPresent())
+        this.selectedLink = r.get();
     }
+    this.frame.updateMenus(this.fileOpen, false, this.selectedLink != null);
+  }
+
+  /**
+   * Called when a link is double-clicked.
+   * 
+   * @param e the event
+   */
+  @SubsribeEvent
+  public void onLinkDoubleClicked(LinkEvent.DoubleClicked e) {
+    showDetails(e.getPartner1Id(), e.getPartner2Id());
+  }
+
+  /**
+   * Called when several cards are selected.
+   * 
+   * @param e the event
+   */
+  @SubsribeEvent
+  public void onCardsSelected(CardsSelectionEvent e) {
+    List<Long> ids = new ArrayList<>();
+    for (long l : e.getSelectedPanelsIds())
+      ids.add(l);
+    this.frame.setPanelsSelectedAsBackground(ids);
+  }
+
+  /**
+   * Called when a card is dragged.
+   * 
+   * @param e the event
+   */
+  @SubsribeEvent
+  public void onCardDragged(CardEvent.Dragged e) {
+    this.saved = false;
+    updateFrameMenus();
   }
 
   @Override
@@ -461,9 +480,9 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
   }
 
   /**
-   * Opens up "edit card" or "edit link" dialog then updates the model.
+   * Opens up "edit card" dialog then updates the model.
    */
-  private void edit() {
+  private void editCard() {
     if (this.lastSelectedCard != null) {
       Optional<FamilyMember> member = this.frame.showUpdateCardDialog(this.lastSelectedCard);
 
@@ -474,7 +493,13 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
         refreshFrame();
       }
     }
-    else if (this.selectedLink != null) {
+  }
+
+  /**
+   * Opens up "edit link" dialog then updates the model.
+   */
+  private void editLink() {
+    if (this.selectedLink != null) {
       Optional<Relationship> wedding = this.frame.showUpdateLinkDialog(this.selectedLink, this.family);
 
       if (wedding.isPresent()) {
@@ -487,10 +512,10 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
   }
 
   /**
-   * Deletes the selected card(s) or link. Asks the user to confirm the action.
+   * Deletes the selected card(s). Asks the user to confirm the action.
    */
-  private void delete() {
-    if (this.lastSelectedCard != null) {
+  private void deleteCard() {
+    if (this.lastSelectedCard != null || !this.selectedCards.isEmpty()) {
       String key = !this.selectedCards.isEmpty() ? "popup.delete_cards_confirm.text" : "popup.delete_card_confirm.text";
       int choice = this.frame.showConfirmDialog(I18n.getLocalizedString(key));
 
@@ -504,7 +529,13 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
         refreshFrame();
       }
     }
-    else if (this.selectedLink != null) {
+  }
+
+  /**
+   * Deletes the selected link. Asks the user to confirm the action.
+   */
+  private void deleteLink() {
+    if (this.selectedLink != null) {
       int choice = this.frame.showConfirmDialog(I18n.getLocalizedString("popup.delete_link_confirm.text"));
 
       if (choice == JOptionPane.OK_OPTION) {
@@ -568,15 +599,6 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
    */
   private void refreshFrame() {
     this.frame.refreshDisplay(this.family, this.config);
-  }
-
-  /**
-   * Opens up the "card details" dialog.
-   * 
-   * @param id the member ID
-   */
-  private void showDetails(long id) {
-    this.family.getMember(id).ifPresent(m -> this.frame.showDetailsDialog(m, this.family.getRelations(m.getId())));
   }
 
   /**

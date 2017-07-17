@@ -24,7 +24,10 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -50,7 +53,10 @@ import net.darmo_creations.config.GlobalConfig;
 import net.darmo_creations.config.Language;
 import net.darmo_creations.controllers.ExtensionFileFilter;
 import net.darmo_creations.controllers.MainController;
-import net.darmo_creations.gui.components.DisplayPanel;
+import net.darmo_creations.events.ChangeLanguageEvent;
+import net.darmo_creations.events.EventsDispatcher;
+import net.darmo_creations.events.UserEvent;
+import net.darmo_creations.gui.components.display_panel.DisplayPanel;
 import net.darmo_creations.gui.dialog.AboutDialog;
 import net.darmo_creations.gui.dialog.CardDetailsDialog;
 import net.darmo_creations.gui.dialog.LinkDetailsDialog;
@@ -92,6 +98,8 @@ public class MainFrame extends JFrame {
   private JToggleButton addLinkBtn;
   private DisplayPanel displayPnl;
 
+  private Map<UserEvent.Type, ActionListener> listeners;
+
   public MainFrame(GlobalConfig config) {
     MainController controller = new MainController(this, config);
 
@@ -99,7 +107,12 @@ public class MainFrame extends JFrame {
     setMinimumSize(new Dimension(800, 600));
     setIconImage(Images.JENEALOGIO.getImage());
 
-    addWindowListener(controller);
+    addWindowListener(new WindowAdapter() {
+      @Override
+      public void windowClosing(WindowEvent e) {
+        EventsDispatcher.EVENT_BUS.dispatchEvent(new UserEvent(UserEvent.Type.EXIT));
+      }
+    });
 
     this.fileChooser = new JFileChooser();
     this.fileChooser.setAcceptAllFileFilterUsed(false);
@@ -108,21 +121,24 @@ public class MainFrame extends JFrame {
     this.treeCreationDialog = new TreeCreationDialog(this);
     this.cardDialog = new CardDialog(this);
     this.cardDetailsDialog = new CardDetailsDialog(this);
-    this.cardDetailsDialog.addObserver(controller);
     this.linkDialog = new LinkDialog(this);
     this.linkDetailsDialog = new LinkDetailsDialog(this);
-    this.linkDetailsDialog.addObserver(controller);
     this.editColorsDialog = new EditColorsDialog(this);
     this.helpDialog = new HelpDialog(this, config);
     this.aboutDialog = new AboutDialog(this);
 
-    setJMenuBar(initJMenuBar(controller, config));
+    this.listeners = new HashMap<>();
+    for (UserEvent.Type type : UserEvent.Type.values())
+      this.listeners.put(type, e -> EventsDispatcher.EVENT_BUS.dispatchEvent(new UserEvent(type)));
 
-    add(getJToolBar(controller), BorderLayout.NORTH);
+    setJMenuBar(initJMenuBar(this.listeners, config));
+    add(getJToolBar(this.listeners), BorderLayout.NORTH);
     this.displayPnl = new DisplayPanel();
-    this.displayPnl.addObserver(controller);
     this.displayPnl.addDropHandler(controller);
     add(new JScrollPane(this.displayPnl), BorderLayout.CENTER);
+
+    EventsDispatcher.EVENT_BUS.register(controller);
+    EventsDispatcher.EVENT_BUS.register(this.displayPnl);
 
     controller.init();
 
@@ -134,10 +150,10 @@ public class MainFrame extends JFrame {
   /**
    * Initializes the menu bar.
    * 
-   * @param listener the action listener
+   * @param listeners the action listeners
    * @return the menu bar
    */
-  private JMenuBar initJMenuBar(ActionListener listener, GlobalConfig config) {
+  private JMenuBar initJMenuBar(Map<UserEvent.Type, ActionListener> listeners, GlobalConfig config) {
     JMenuBar menuBar = new JMenuBar();
     JMenuItem i;
 
@@ -150,31 +166,31 @@ public class MainFrame extends JFrame {
       i.setActionCommand("new");
       i.setMnemonic(I18n.getLocalizedMnemonic("item.new_tree"));
       i.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.CTRL_DOWN_MASK));
-      i.addActionListener(listener);
+      i.addActionListener(listeners.get(UserEvent.Type.NEW));
       fileMenu.add(i = new JMenuItem(I18n.getLocalizedString("item.open.text")));
       i.setIcon(Images.OPEN);
       i.setActionCommand("open");
       i.setMnemonic(I18n.getLocalizedMnemonic("item.open"));
       i.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK));
-      i.addActionListener(listener);
+      i.addActionListener(listeners.get(UserEvent.Type.OPEN));
       fileMenu.add(this.saveItem = new JMenuItem(I18n.getLocalizedString("item.save.text")));
       this.saveItem.setIcon(Images.SAVE);
       this.saveItem.setActionCommand("save");
       this.saveItem.setMnemonic(I18n.getLocalizedMnemonic("item.save"));
       this.saveItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK));
-      this.saveItem.addActionListener(listener);
+      this.saveItem.addActionListener(listeners.get(UserEvent.Type.SAVE));
       fileMenu.add(this.saveAsItem = new JMenuItem(I18n.getLocalizedString("item.save_as.text")));
       this.saveAsItem.setIcon(Images.SAVE_AS);
       this.saveAsItem.setActionCommand("save-as");
       this.saveAsItem.setMnemonic(I18n.getLocalizedMnemonic("item.save_as"));
       this.saveAsItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK));
-      this.saveAsItem.addActionListener(listener);
+      this.saveAsItem.addActionListener(listeners.get(UserEvent.Type.SAVE_AS));
       fileMenu.add(i = new JMenuItem(I18n.getLocalizedString("item.exit.text")));
       i.setIcon(Images.EXIT);
       i.setActionCommand("exit");
       i.setMnemonic(I18n.getLocalizedMnemonic("item.exit"));
       i.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4, KeyEvent.ALT_DOWN_MASK));
-      i.addActionListener(listener);
+      i.addActionListener(listeners.get(UserEvent.Type.EXIT));
       menuBar.add(fileMenu);
     }
 
@@ -187,23 +203,21 @@ public class MainFrame extends JFrame {
       this.addCardItem.setActionCommand("add-card");
       this.addCardItem.setMnemonic(I18n.getLocalizedMnemonic("item.add_card"));
       this.addCardItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, KeyEvent.CTRL_DOWN_MASK));
-      this.addCardItem.addActionListener(listener);
+      this.addCardItem.addActionListener(listeners.get(UserEvent.Type.ADD_CARD));
       this.editMenu.add(this.addLinkItem = new JMenuItem(I18n.getLocalizedString("item.add_link.text")));
       this.addLinkItem.setIcon(Images.ADD_LINK);
       this.addLinkItem.setActionCommand("add-link");
       this.addLinkItem.setMnemonic(I18n.getLocalizedMnemonic("item.add_link"));
       this.addLinkItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, KeyEvent.CTRL_DOWN_MASK));
-      this.addLinkItem.addActionListener(listener);
+      this.addLinkItem.addActionListener(listeners.get(UserEvent.Type.ADD_LINK));
       this.editMenu.add(this.editItem = new JMenuItem());
       this.editItem.setActionCommand("edit");
       this.editItem.setMnemonic(I18n.getLocalizedMnemonic("item.edit"));
       this.editItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, KeyEvent.CTRL_DOWN_MASK));
-      this.editItem.addActionListener(listener);
       this.editMenu.add(this.deleteItem = new JMenuItem());
       this.deleteItem.setActionCommand("delete");
       this.deleteItem.setMnemonic(I18n.getLocalizedMnemonic("item.delete"));
       this.deleteItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
-      this.deleteItem.addActionListener(listener);
       menuBar.add(this.editMenu);
     }
 
@@ -215,7 +229,7 @@ public class MainFrame extends JFrame {
       i.setIcon(Images.COLOR_WHEEL);
       i.setActionCommand("edit_colors");
       i.setMnemonic(I18n.getLocalizedMnemonic("item.colors"));
-      i.addActionListener(listener);
+      i.addActionListener(listeners.get(UserEvent.Type.EDIT_COLORS));
       JMenu langMenu = new JMenu(I18n.getLocalizedString("menu.lang.text"));
       langMenu.setMnemonic(I18n.getLocalizedMnemonic("menu.lang"));
       optionsMenu.add(langMenu);
@@ -225,7 +239,7 @@ public class MainFrame extends JFrame {
         i.setSelected(l == config.getLanguage());
         i.setIcon(Images.getCountryFlag(l));
         i.setActionCommand("lang-" + l.getCode());
-        i.addActionListener(listener);
+        i.addActionListener(e -> EventsDispatcher.EVENT_BUS.dispatchEvent(new ChangeLanguageEvent(l)));
         bg.add(i);
       }
       menuBar.add(optionsMenu);
@@ -239,11 +253,11 @@ public class MainFrame extends JFrame {
       i.setIcon(Images.HELP);
       i.setActionCommand("help");
       i.setMnemonic(I18n.getLocalizedMnemonic("item.help"));
-      i.addActionListener(listener);
+      i.addActionListener(listeners.get(UserEvent.Type.HELP));
       helpMenu.add(i = new JMenuItem(I18n.getLocalizedString("item.about.text")));
       i.setActionCommand("about");
       i.setMnemonic(I18n.getLocalizedMnemonic("item.about"));
-      i.addActionListener(listener);
+      i.addActionListener(listeners.get(UserEvent.Type.ABOUT));
       menuBar.add(helpMenu);
     }
 
@@ -253,10 +267,10 @@ public class MainFrame extends JFrame {
   /**
    * Initializes the tool bar.
    * 
-   * @param listener the action listener
+   * @param listeners the action listeners
    * @return the tool bar
    */
-  private JToolBar getJToolBar(ActionListener listener) {
+  private JToolBar getJToolBar(Map<UserEvent.Type, ActionListener> listeners) {
     JToolBar toolBar = new JToolBar(JToolBar.HORIZONTAL);
     toolBar.setFloatable(false);
     toolBar.setBorder(new MatteBorder(0, 0, 1, 0, Color.GRAY));
@@ -266,52 +280,52 @@ public class MainFrame extends JFrame {
     b.setToolTipText(I18n.getLocalizedString("item.new_tree.text") + " (Ctrl+N)");
     b.setFocusable(false);
     b.setActionCommand("new");
-    b.addActionListener(listener);
+    b.addActionListener(listeners.get(UserEvent.Type.NEW));
     toolBar.add(b = new JButton(Images.OPEN_BIG));
     b.setToolTipText(I18n.getLocalizedString("item.open.text") + " (Ctrl+O)");
     b.setFocusable(false);
     b.setActionCommand("open");
-    b.addActionListener(listener);
+    b.addActionListener(listeners.get(UserEvent.Type.OPEN));
     toolBar.add(this.saveBtn = new JButton(Images.SAVE_BIG));
     this.saveBtn.setToolTipText(I18n.getLocalizedString("item.save.text") + " (Ctrl+S)");
     this.saveBtn.setFocusable(false);
     this.saveBtn.setActionCommand("save");
-    this.saveBtn.addActionListener(listener);
+    this.saveBtn.addActionListener(listeners.get(UserEvent.Type.SAVE));
     toolBar.add(this.saveAsBtn = new JButton(Images.SAVE_AS_BIG));
     this.saveAsBtn.setToolTipText(I18n.getLocalizedString("item.save_as.text") + " (Ctrl+Maj+S)");
     this.saveAsBtn.setFocusable(false);
     this.saveAsBtn.setActionCommand("save-as");
-    this.saveAsBtn.addActionListener(listener);
+    this.saveAsBtn.addActionListener(listeners.get(UserEvent.Type.SAVE_AS));
     toolBar.add(this.addCardBtn = new JButton(Images.ADD_CARD_BIG));
     this.addCardBtn.setToolTipText(I18n.getLocalizedString("item.add_card.text") + " (Ctrl+A)");
     this.addCardBtn.setFocusable(false);
     this.addCardBtn.setActionCommand("add-card");
-    this.addCardBtn.addActionListener(listener);
+    this.addCardBtn.addActionListener(listeners.get(UserEvent.Type.ADD_CARD));
     toolBar.add(this.editCardBtn = new JButton(Images.EDIT_CARD_BIG));
     this.editCardBtn.setToolTipText(I18n.getLocalizedString("item.edit_card.text") + " (Ctrl+E)");
     this.editCardBtn.setFocusable(false);
     this.editCardBtn.setActionCommand("edit");
-    this.editCardBtn.addActionListener(listener);
+    this.editCardBtn.addActionListener(listeners.get(UserEvent.Type.EDIT_CARD));
     toolBar.add(this.deleteCardBtn = new JButton(Images.DELETE_CARD_BIG));
     this.deleteCardBtn.setToolTipText(I18n.getLocalizedString("item.delete_card.text") + " (Supprimer)");
     this.deleteCardBtn.setFocusable(false);
     this.deleteCardBtn.setActionCommand("delete");
-    this.deleteCardBtn.addActionListener(listener);
+    this.deleteCardBtn.addActionListener(listeners.get(UserEvent.Type.DELETE_CARD));
     toolBar.add(this.addLinkBtn = new JToggleButton(Images.ADD_LINK_BIG));
     this.addLinkBtn.setToolTipText(I18n.getLocalizedString("item.add_link.text") + " (Ctrl+L)");
     this.addLinkBtn.setFocusable(false);
     this.addLinkBtn.setActionCommand("add-link");
-    this.addLinkBtn.addActionListener(listener);
+    this.addLinkBtn.addActionListener(listeners.get(UserEvent.Type.ADD_LINK));
     toolBar.add(this.editLinkBtn = new JButton(Images.EDIT_LINK_BIG));
     this.editLinkBtn.setToolTipText(I18n.getLocalizedString("item.edit_link.text") + " (Ctrl+E)");
     this.editLinkBtn.setFocusable(false);
     this.editLinkBtn.setActionCommand("edit");
-    this.editLinkBtn.addActionListener(listener);
+    this.editLinkBtn.addActionListener(listeners.get(UserEvent.Type.EDIT_LINK));
     toolBar.add(this.deleteLinkBtn = new JButton(Images.DELETE_LINK_BIG));
     this.deleteLinkBtn.setToolTipText(I18n.getLocalizedString("item.delete_link.text") + " (Supprimer)");
     this.deleteLinkBtn.setFocusable(false);
     this.deleteLinkBtn.setActionCommand("delete");
-    this.deleteLinkBtn.addActionListener(listener);
+    this.deleteLinkBtn.addActionListener(listeners.get(UserEvent.Type.DELETE_LINK));
 
     return toolBar;
   }
@@ -346,32 +360,34 @@ public class MainFrame extends JFrame {
       if (cardSelected) {
         this.editItem.setText(I18n.getLocalizedString("item.edit_card.text"));
         this.editItem.setIcon(Images.EDIT_CARD);
+        this.editItem.removeActionListener(this.listeners.get(UserEvent.Type.EDIT_LINK));
+        this.editItem.addActionListener(this.listeners.get(UserEvent.Type.EDIT_CARD));
         this.deleteItem.setText(I18n.getLocalizedString("item.delete_card.text"));
         this.deleteItem.setIcon(Images.DELETE_CARD);
+        this.deleteItem.removeActionListener(this.listeners.get(UserEvent.Type.DELETE_LINK));
+        this.deleteItem.addActionListener(this.listeners.get(UserEvent.Type.DELETE_CARD));
       }
       else if (linkSelected) {
         this.editItem.setText(I18n.getLocalizedString("item.edit_link.text"));
         this.editItem.setIcon(Images.EDIT_LINK);
+        this.editItem.removeActionListener(this.listeners.get(UserEvent.Type.EDIT_CARD));
+        this.editItem.addActionListener(this.listeners.get(UserEvent.Type.EDIT_LINK));
         this.deleteItem.setText(I18n.getLocalizedString("item.delete_link.text"));
         this.deleteItem.setIcon(Images.DELETE_LINK);
+        this.deleteItem.removeActionListener(this.listeners.get(UserEvent.Type.DELETE_CARD));
+        this.deleteItem.addActionListener(this.listeners.get(UserEvent.Type.DELETE_LINK));
       }
       else {
         this.editItem.setText(I18n.getLocalizedString("item.edit.text"));
         this.editItem.setIcon(null);
+        this.editItem.removeActionListener(this.listeners.get(UserEvent.Type.EDIT_CARD));
+        this.editItem.removeActionListener(this.listeners.get(UserEvent.Type.EDIT_LINK));
         this.deleteItem.setText(I18n.getLocalizedString("item.delete.text"));
         this.deleteItem.setIcon(null);
+        this.deleteItem.removeActionListener(this.listeners.get(UserEvent.Type.DELETE_CARD));
+        this.deleteItem.removeActionListener(this.listeners.get(UserEvent.Type.DELETE_LINK));
       }
     }
-  }
-
-  /**
-   * Selects the given panel. All observers will be notified of the event. Giving -1 will deselect
-   * all panels.
-   * 
-   * @param id panel's ID (member's ID)
-   */
-  public void selectPanel(long id) {
-    this.displayPnl.selectPanel(id, false);
   }
 
   /**

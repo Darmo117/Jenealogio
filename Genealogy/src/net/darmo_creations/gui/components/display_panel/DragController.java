@@ -16,38 +16,40 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.darmo_creations.gui.components.draggable;
+package net.darmo_creations.gui.components.display_panel;
 
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+import net.darmo_creations.events.CardEvent;
+import net.darmo_creations.events.EventsDispatcher;
+import net.darmo_creations.gui.components.FamilyMemberPanel;
+
 /**
- * This controller handles dragging events.
+ * This controller handles dragging events inside the DisplayPanel.
  * 
  * @author Damien Vergnet
- *
- * @param <T> a draggable component type
  */
-public class DragController<T extends Draggable> extends MouseAdapter {
+class DragController extends MouseAdapter {
   /** Grid size in pixels */
-  public static final int GRID_STEP = 10;
+  static final int GRID_STEP = 10;
 
-  private DraggableComponentContainer<T> handler;
-  private T dragable;
+  private DisplayPanel displayPanel;
+  private FamilyMemberPanel memberPanel;
   /** The point where the mouse grabbed in the panel. */
   private Point grabPoint;
 
   /**
    * Creates a controller with the given container and component.
    * 
-   * @param handler the container
-   * @param dragable the component this controller is monitoring
+   * @param displayPanel the container
+   * @param memberPanel the component this controller is monitoring
    */
-  public DragController(DraggableComponentContainer<T> handler, T dragable) {
-    this.handler = handler;
-    this.dragable = dragable;
+  DragController(DisplayPanel displayPanel, FamilyMemberPanel memberPanel) {
+    this.displayPanel = displayPanel;
+    this.memberPanel = memberPanel;
   }
 
   @Override
@@ -57,13 +59,15 @@ public class DragController<T extends Draggable> extends MouseAdapter {
 
   @Override
   public void mouseClicked(MouseEvent e) {
-    this.dragable.doClick(e);
+    int modifiers = e.getModifiers();
+    boolean isCtrlDown = (modifiers & MouseEvent.CTRL_MASK) != 0;
+    EventsDispatcher.EVENT_BUS.dispatchEvent(new CardEvent.Clicked(this.memberPanel.getMemberId(), isCtrlDown));
   }
 
   @Override
   public void mouseDragged(MouseEvent e) {
-    Rectangle bounds = this.dragable.getBounds();
-    Rectangle containerBounds = this.handler.getBounds();
+    Rectangle bounds = this.memberPanel.getBounds();
+    Rectangle containerBounds = this.displayPanel.getBounds();
     if (this.grabPoint == null)
       mousePressed(e);
     int newX = Math.max(containerBounds.x,
@@ -72,25 +76,26 @@ public class DragController<T extends Draggable> extends MouseAdapter {
         Math.min(containerBounds.height - bounds.height, e.getYOnScreen() - getYOffset() - this.grabPoint.y));
     newX = (newX / GRID_STEP) * GRID_STEP;
     newY = (newY / GRID_STEP) * GRID_STEP;
-    Point p = this.dragable.getLocation();
-    int xTrans = newX - p.x;
-    int yTrans = newY - p.y;
+    Point oldLocation = this.memberPanel.getLocation();
+    Point newLocation = new Point(newX, newY);
 
-    this.dragable.setLocation(new Point(newX, newY));
-    this.handler.componentDragged(e, this.dragable, new Point(xTrans, yTrans));
+    if (!oldLocation.equals(newLocation)) {
+      this.memberPanel.setLocation(newLocation);
+      EventsDispatcher.EVENT_BUS.dispatchEvent(new CardEvent.Dragged(this.memberPanel.getMemberId(), oldLocation, newLocation));
+    }
   }
 
   /**
    * @return the onscreen x offset
    */
   private int getXOffset() {
-    return this.handler.getScrollOffset().x;
+    return this.displayPanel.getLocationOnScreen().x;
   }
 
   /**
    * @return the onscreen y offset
    */
   private int getYOffset() {
-    return this.handler.getScrollOffset().y;
+    return this.displayPanel.getLocationOnScreen().y;
   }
 }

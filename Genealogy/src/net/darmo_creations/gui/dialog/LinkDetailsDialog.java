@@ -25,9 +25,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 import java.util.function.Supplier;
 
 import javax.swing.DefaultListCellRenderer;
@@ -38,6 +35,8 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import net.darmo_creations.events.EventsDispatcher;
+import net.darmo_creations.events.UserEvent;
 import net.darmo_creations.gui.MainFrame;
 import net.darmo_creations.gui.components.DetailsPanel;
 import net.darmo_creations.model.family.Family;
@@ -46,18 +45,14 @@ import net.darmo_creations.model.family.Relationship;
 import net.darmo_creations.util.CalendarUtil;
 import net.darmo_creations.util.I18n;
 import net.darmo_creations.util.Images;
-import net.darmo_creations.util.Observable;
-import net.darmo_creations.util.Observer;
 
 /**
  * This dialog dislays details about a person.
  *
  * @author Damien Vergnet
  */
-public class LinkDetailsDialog extends AbstractDialog implements Observable {
+public class LinkDetailsDialog extends AbstractDialog {
   private static final long serialVersionUID = 4772771687761193691L;
-
-  private List<Observer> observers;
 
   private JLabel weddingLbl;
   private JLabel partnersLbl;
@@ -74,8 +69,6 @@ public class LinkDetailsDialog extends AbstractDialog implements Observable {
     super(owner, Mode.CLOSE_OPTION, true);
     setIconImage(Images.JENEALOGIO.getImage());
     setPreferredSize(new Dimension(300, 230));
-
-    this.observers = new ArrayList<>();
 
     JPanel infoPnl = new JPanel(new GridBagLayout());
     GridBagConstraints gbc = new GridBagConstraints();
@@ -176,7 +169,7 @@ public class LinkDetailsDialog extends AbstractDialog implements Observable {
       public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand().equals("edit")) {
           this.dialog.setVisible(false);
-          notifyObservers("edit");
+          EventsDispatcher.EVENT_BUS.dispatchEvent(new UserEvent(UserEvent.Type.EDIT_LINK));
           return;
         }
         super.actionPerformed(e);
@@ -218,21 +211,5 @@ public class LinkDetailsDialog extends AbstractDialog implements Observable {
     relation.getChildren().forEach(child -> model.addElement(family.getMember(child).orElseThrow(supplier)));
     pack();
     setMinimumSize(getSize());
-  }
-
-  @Override
-  public void addObserver(Observer observer) {
-    this.observers.add(Objects.requireNonNull(observer));
-  }
-
-  @Override
-  public void removeObserver(Observer observer) {
-    if (observer != null)
-      this.observers.remove(observer);
-  }
-
-  @Override
-  public void notifyObservers(Object o) {
-    this.observers.forEach(obs -> obs.update(this, o));
   }
 }

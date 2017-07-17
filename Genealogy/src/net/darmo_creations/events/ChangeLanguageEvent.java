@@ -16,37 +16,31 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.darmo_creations.gui.components.draggable;
+package net.darmo_creations.events;
 
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.event.MouseEvent;
+import net.darmo_creations.config.Language;
 
 /**
- * A component can implement this interface to become draggable.
+ * This event is fired when changing the language.
  *
  * @author Damien Vergnet
  */
-public interface Draggable {
-  /**
-   * @return component's location
-   */
-  Point getLocation();
+public class ChangeLanguageEvent extends AbstractEvent {
+  private final Language language;
 
   /**
-   * Sets the location of this component.
+   * Creates an event
    * 
-   * @param p the new location
+   * @param language the desired language
    */
-  void setLocation(Point p);
+  public ChangeLanguageEvent(Language language) {
+    this.language = language;
+  }
 
   /**
-   * @return the bounds as a rectangle
+   * @return the desired language
    */
-  Rectangle getBounds();
-
-  /**
-   * Performs a click action.
-   */
-  void doClick(MouseEvent e);
+  public Language getLanguage() {
+    return this.language;
+  }
 }

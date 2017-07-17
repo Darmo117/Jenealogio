@@ -22,9 +22,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 
 import javax.swing.ImageIcon;
@@ -32,6 +29,8 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.border.LineBorder;
 
+import net.darmo_creations.events.EventsDispatcher;
+import net.darmo_creations.events.UserEvent;
 import net.darmo_creations.gui.MainFrame;
 import net.darmo_creations.gui.components.DetailsPanel;
 import net.darmo_creations.gui.components.ImageLabel;
@@ -39,18 +38,14 @@ import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.model.family.Relationship;
 import net.darmo_creations.util.I18n;
 import net.darmo_creations.util.Images;
-import net.darmo_creations.util.Observable;
-import net.darmo_creations.util.Observer;
 
 /**
  * This dialog dislays details about a person.
  *
  * @author Damien Vergnet
  */
-public class CardDetailsDialog extends AbstractDialog implements Observable {
+public class CardDetailsDialog extends AbstractDialog {
   private static final long serialVersionUID = 4772771687761193691L;
-
-  private List<Observer> observers;
 
   private ImageLabel imageLbl;
   private DetailsPanel infoPnl;
@@ -63,8 +58,6 @@ public class CardDetailsDialog extends AbstractDialog implements Observable {
   public CardDetailsDialog(MainFrame owner) {
     super(owner, Mode.CLOSE_OPTION, true);
     setIconImage(Images.JENEALOGIO.getImage());
-
-    this.observers = new ArrayList<>();
 
     JPanel imagePnl = new JPanel();
     imagePnl.add(this.imageLbl = new ImageLabel(null));
@@ -82,7 +75,7 @@ public class CardDetailsDialog extends AbstractDialog implements Observable {
       public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand().equals("edit")) {
           this.dialog.setVisible(false);
-          notifyObservers("edit");
+          EventsDispatcher.EVENT_BUS.dispatchEvent(new UserEvent(UserEvent.Type.EDIT_CARD));
           return;
         }
         super.actionPerformed(e);
@@ -110,21 +103,5 @@ public class CardDetailsDialog extends AbstractDialog implements Observable {
     this.infoPnl.setInfo(member, relations);
     pack();
     setMinimumSize(getSize());
-  }
-
-  @Override
-  public void addObserver(Observer observer) {
-    this.observers.add(Objects.requireNonNull(observer));
-  }
-
-  @Override
-  public void removeObserver(Observer observer) {
-    if (observer != null)
-      this.observers.remove(observer);
-  }
-
-  @Override
-  public void notifyObservers(Object o) {
-    this.observers.forEach(obs -> obs.update(this, o));
   }
 }
