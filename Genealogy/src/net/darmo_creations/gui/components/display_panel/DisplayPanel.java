@@ -237,20 +237,6 @@ public class DisplayPanel extends JPanel implements Scrollable {
   }
 
   /**
-   * Selects the given panel. All observers will be notified of the event. Giving -1 will deselect
-   * all panels.
-   * 
-   * @param id panel's ID (member's ID)
-   * @param keepSelection if true, the previous selection will be kept
-   */
-  public void selectPanel(long id, boolean keepSelection) {
-    this.panels.forEach((pId, panel) -> panel.setSelected(pId == id));
-    this.links.forEach(l -> l.setSelected(false));
-    revalidate();
-    repaint();
-  }
-
-  /**
    * Selects the given panels as background.
    * 
    * @param ids panels' IDs
@@ -281,7 +267,22 @@ public class DisplayPanel extends JPanel implements Scrollable {
    */
   @SubsribeEvent
   public void onCardClicked(CardEvent.Clicked e) {
-    selectPanel(e.getMemberId(), e.keepPreviousSelection());
+    this.panels.forEach((pId, panel) -> {
+      if (e.getMemberId() < 0) {
+        panel.setSelected(false);
+      }
+      else {
+        if (pId == e.getMemberId())
+          panel.setSelected(true);
+        else if (e.keepPreviousSelection() && panel.isSelected())
+          panel.setSelectedBackground(true);
+        else if (!e.keepPreviousSelection())
+          panel.setSelected(false);
+      }
+    });
+    this.links.forEach(l -> l.setSelected(false));
+    revalidate();
+    repaint();
   }
 
   /**

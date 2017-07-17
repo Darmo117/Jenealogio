@@ -183,6 +183,7 @@ public class MainController implements DropHandler {
     long id = e.getMemberId();
     boolean keepSelection = ((CardEvent.Clicked) e).keepPreviousSelection();
 
+    this.selectedLink = null;
     this.frame.updateMenus(this.fileOpen, id >= 0, false);
     if (id >= 0) {
       FamilyMember prev = null;
@@ -213,7 +214,6 @@ public class MainController implements DropHandler {
       this.lastSelectedCard = null;
       this.selectedCards.clear();
     }
-    this.selectedLink = null;
     this.frame.setPanelsSelectedAsBackground(this.selectedCards.stream().map(f -> f.getId()).collect(Collectors.toList()));
   }
 
