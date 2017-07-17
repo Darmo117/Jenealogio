@@ -37,6 +37,11 @@ public abstract class LinkEvent extends AbstractEvent {
     this.partner2Id = partner2Id;
   }
 
+  @Override
+  public boolean isCancelable() {
+    return false;
+  }
+
   /**
    * @return ID of partner 1
    */
@@ -69,17 +74,6 @@ public abstract class LinkEvent extends AbstractEvent {
    */
   public static class DoubleClicked extends LinkEvent {
     public DoubleClicked(long partner1Id, long partner2Id) {
-      super(partner1Id, partner2Id);
-    }
-  }
-
-  /**
-   * This event is fired when a link is going to be edited.
-   *
-   * @author Damien Vergnet
-   */
-  public static class Edit extends LinkEvent {
-    public Edit(long partner1Id, long partner2Id) {
       super(partner1Id, partner2Id);
     }
   }

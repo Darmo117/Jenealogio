@@ -50,7 +50,8 @@ import net.darmo_creations.config.GlobalConfig;
 import net.darmo_creations.config.Language;
 import net.darmo_creations.controllers.ExtensionFileFilter;
 import net.darmo_creations.controllers.MainController;
-import net.darmo_creations.gui.components.DisplayPanel;
+import net.darmo_creations.events.EventsBus;
+import net.darmo_creations.gui.components.display_panel.DisplayPanel;
 import net.darmo_creations.gui.dialog.AboutDialog;
 import net.darmo_creations.gui.dialog.CardDetailsDialog;
 import net.darmo_creations.gui.dialog.LinkDetailsDialog;
@@ -108,10 +109,8 @@ public class MainFrame extends JFrame {
     this.treeCreationDialog = new TreeCreationDialog(this);
     this.cardDialog = new CardDialog(this);
     this.cardDetailsDialog = new CardDetailsDialog(this);
-    this.cardDetailsDialog.addObserver(controller);
     this.linkDialog = new LinkDialog(this);
     this.linkDetailsDialog = new LinkDetailsDialog(this);
-    this.linkDetailsDialog.addObserver(controller);
     this.editColorsDialog = new EditColorsDialog(this);
     this.helpDialog = new HelpDialog(this, config);
     this.aboutDialog = new AboutDialog(this);
@@ -120,9 +119,11 @@ public class MainFrame extends JFrame {
 
     add(getJToolBar(controller), BorderLayout.NORTH);
     this.displayPnl = new DisplayPanel();
-    this.displayPnl.addObserver(controller);
     this.displayPnl.addDropHandler(controller);
     add(new JScrollPane(this.displayPnl), BorderLayout.CENTER);
+
+    EventsBus.EVENT_BUS.register(controller);
+    EventsBus.EVENT_BUS.register(this.displayPnl);
 
     controller.init();
 

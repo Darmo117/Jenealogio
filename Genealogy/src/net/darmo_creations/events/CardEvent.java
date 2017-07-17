@@ -37,6 +37,11 @@ public abstract class CardEvent extends AbstractEvent {
     this.memberId = memberId;
   }
 
+  @Override
+  public boolean isCancelable() {
+    return false;
+  }
+
   /**
    * @return ID of the concerned member
    */
@@ -83,17 +88,6 @@ public abstract class CardEvent extends AbstractEvent {
   }
 
   /**
-   * This event is fired when a card is going to be edited.
-   *
-   * @author Damien Vergnet
-   */
-  public static class Edit extends CardEvent {
-    public Edit(long memberId) {
-      super(memberId);
-    }
-  }
-
-  /**
    * This event is fired when a card is dragged.
    *
    * @author Damien Vergnet
@@ -126,6 +120,13 @@ public abstract class CardEvent extends AbstractEvent {
      */
     public Point getNewLocation() {
       return (Point) this.newLocation.clone();
+    }
+
+    /**
+     * @return translation amount
+     */
+    public Point getTranslation() {
+      return new Point(this.newLocation.x - this.oldLocation.x, this.newLocation.y - this.oldLocation.y);
     }
   }
 }

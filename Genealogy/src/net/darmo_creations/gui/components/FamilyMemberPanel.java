@@ -21,9 +21,6 @@ package net.darmo_creations.gui.components;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -32,7 +29,6 @@ import javax.swing.border.LineBorder;
 
 import net.darmo_creations.config.ColorConfigKey;
 import net.darmo_creations.config.GlobalConfig;
-import net.darmo_creations.gui.components.draggable.Draggable;
 import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.util.Images;
 
@@ -42,7 +38,7 @@ import net.darmo_creations.util.Images;
  *
  * @author Damien Vergnet
  */
-public class FamilyMemberPanel extends JPanel implements Draggable {
+public class FamilyMemberPanel extends JPanel {
   private static final long serialVersionUID = 8199650844222484357L;
 
   private PanelModel model;
@@ -98,6 +94,10 @@ public class FamilyMemberPanel extends JPanel implements Draggable {
     revalidate();
   }
 
+  public long getMemberId() {
+    return this.model.getId();
+  }
+
   @Override
   public void setLocation(Point p) {
     super.setLocation(p);
@@ -142,47 +142,6 @@ public class FamilyMemberPanel extends JPanel implements Draggable {
   public void setSelectedBackground(boolean selected) {
     this.model.setSelectedBackground(selected);
     setBorder(selected ? this.backgroundBorder : this.unselectedBorder);
-  }
-
-  @Override
-  public void doClick(MouseEvent e) {
-    int modifiers = e.getModifiers();
-    boolean isCtrlDown = (modifiers & MouseEvent.CTRL_MASK) != 0;
-    String cmd = "select" + (isCtrlDown ? "-ctrl" : "");
-
-    fireActionPerformed(cmd + ":" + this.model.getId());
-  }
-
-  /**
-   * Adds an action listener.
-   * 
-   * @param l the listener
-   */
-  public void addActionListener(ActionListener l) {
-    this.listenerList.add(ActionListener.class, l);
-  }
-
-  /**
-   * Removes an action listener.
-   * 
-   * @param l the listener
-   */
-  public void removeActionListener(ActionListener l) {
-    this.listenerList.remove(ActionListener.class, l);
-  }
-
-  /**
-   * Fires an ActionEvent with the given command.
-   * 
-   * @param actionCommand the command
-   */
-  private void fireActionPerformed(String actionCommand) {
-    ActionEvent e = new ActionEvent(this, ActionEvent.ACTION_PERFORMED, actionCommand, System.currentTimeMillis(),
-        ActionEvent.ACTION_PERFORMED);
-
-    for (ActionListener l : this.listenerList.getListeners(ActionListener.class)) {
-      l.actionPerformed(e);
-    }
   }
 
   /**
