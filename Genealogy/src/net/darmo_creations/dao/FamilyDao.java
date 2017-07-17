@@ -237,6 +237,11 @@ public class FamilyDao {
   public void save(String file, Family family, Map<Long, Point> positions) throws IOException {
     JSONObject obj = new JSONObject();
 
+    String comment = String.format(
+        "This is a save file for Jenealogio v%1$s. "
+            + "It is strongly not recommended to modify this file without using Jenealogio v%1$s or higher as it may break it.",
+        Version.CURRENT_VERSION);
+    obj.put("_comment", comment);
     obj.put("version", Version.CURRENT_VERSION.getFullValue());
     obj.put("global_id", family.getGlobalId());
     obj.put("name", family.getName());
