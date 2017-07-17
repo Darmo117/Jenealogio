@@ -26,7 +26,7 @@ import java.util.Optional;
 
 import net.darmo_creations.events.CardEvent;
 import net.darmo_creations.events.CardsSelectionEvent;
-import net.darmo_creations.events.EventsBus;
+import net.darmo_creations.events.EventsDispatcher;
 import net.darmo_creations.events.LinkEvent;
 
 /**
@@ -67,14 +67,14 @@ class DisplayController extends MouseAdapter {
       this.selectionStart = e.getPoint();
       this.selection = new Rectangle(this.selectionStart);
     }
-    EventsBus.EVENT_BUS.dispatchEvent(new CardEvent.Clicked(-1, false));
+    EventsDispatcher.EVENT_BUS.dispatchEvent(new CardEvent.Clicked(-1, false));
   }
 
   @Override
   public void mouseReleased(MouseEvent e) {
     Optional<long[]> opt = this.panel.getPanelsInsideRectangle(this.selection);
     if (opt.isPresent()) {
-      EventsBus.EVENT_BUS.dispatchEvent(new CardsSelectionEvent(opt.get()));
+      EventsDispatcher.EVENT_BUS.dispatchEvent(new CardsSelectionEvent(opt.get()));
     }
     this.selection = null;
     repaint();
@@ -90,9 +90,9 @@ class DisplayController extends MouseAdapter {
 
     if (l.isPresent()) {
       long[] ids = l.get();
-      EventsBus.EVENT_BUS.dispatchEvent(new LinkEvent.Clicked(ids[0], ids[1]));
+      EventsDispatcher.EVENT_BUS.dispatchEvent(new LinkEvent.Clicked(ids[0], ids[1]));
       if (e.getClickCount() == 2)
-        EventsBus.EVENT_BUS.dispatchEvent(new LinkEvent.DoubleClicked(ids[0], ids[1]));
+        EventsDispatcher.EVENT_BUS.dispatchEvent(new LinkEvent.DoubleClicked(ids[0], ids[1]));
     }
   }
 

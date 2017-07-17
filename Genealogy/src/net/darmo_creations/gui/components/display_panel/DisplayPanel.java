@@ -46,7 +46,7 @@ import javax.swing.Scrollable;
 import net.darmo_creations.config.ColorConfigKey;
 import net.darmo_creations.config.GlobalConfig;
 import net.darmo_creations.events.CardEvent;
-import net.darmo_creations.events.EventsBus;
+import net.darmo_creations.events.EventsDispatcher;
 import net.darmo_creations.events.LinkEvent;
 import net.darmo_creations.events.SubsribeEvent;
 import net.darmo_creations.gui.components.FamilyMemberPanel;
@@ -83,7 +83,7 @@ public class DisplayPanel extends JPanel implements Scrollable {
       public void mouseClicked(MouseEvent e) {
         if (e.getClickCount() == 2 && e.getComponent() instanceof FamilyMemberPanel) {
           FamilyMemberPanel p = (FamilyMemberPanel) e.getComponent();
-          EventsBus.EVENT_BUS.dispatchEvent(new CardEvent.DoubleClicked(p.getMemberId()));
+          EventsDispatcher.EVENT_BUS.dispatchEvent(new CardEvent.DoubleClicked(p.getMemberId()));
         }
       }
     };

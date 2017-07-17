@@ -18,29 +18,29 @@
  */
 package net.darmo_creations.events;
 
-import java.util.Arrays;
+import net.darmo_creations.config.Language;
 
 /**
- * This event is fired when cards have been selected.
+ * This event is fired when changing the language.
  *
  * @author Damien Vergnet
  */
-public final class CardsSelectionEvent extends AbstractEvent {
-  private final long[] ids;
+public class ChangeLanguageEvent extends AbstractEvent {
+  private final Language language;
 
   /**
-   * Creates an event.
+   * Creates an event
    * 
-   * @param ids IDs of all selected cards
+   * @param language the desired language
    */
-  public CardsSelectionEvent(long... ids) {
-    this.ids = Arrays.copyOf(ids, ids.length);
+  public ChangeLanguageEvent(Language language) {
+    this.language = language;
   }
 
   /**
-   * @return IDs of all selected cards
+   * @return the desired language
    */
-  public long[] getSelectedPanelsIds() {
-    return Arrays.copyOf(this.ids, this.ids.length);
+  public Language getLanguage() {
+    return this.language;
   }
 }

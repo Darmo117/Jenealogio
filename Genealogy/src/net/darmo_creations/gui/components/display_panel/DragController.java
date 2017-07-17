@@ -24,7 +24,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 import net.darmo_creations.events.CardEvent;
-import net.darmo_creations.events.EventsBus;
+import net.darmo_creations.events.EventsDispatcher;
 import net.darmo_creations.gui.components.FamilyMemberPanel;
 
 /**
@@ -61,7 +61,7 @@ class DragController extends MouseAdapter {
   public void mouseClicked(MouseEvent e) {
     int modifiers = e.getModifiers();
     boolean isCtrlDown = (modifiers & MouseEvent.CTRL_MASK) != 0;
-    EventsBus.EVENT_BUS.dispatchEvent(new CardEvent.Clicked(this.memberPanel.getMemberId(), isCtrlDown));
+    EventsDispatcher.EVENT_BUS.dispatchEvent(new CardEvent.Clicked(this.memberPanel.getMemberId(), isCtrlDown));
   }
 
   @Override
@@ -81,7 +81,7 @@ class DragController extends MouseAdapter {
 
     if (!oldLocation.equals(newLocation)) {
       this.memberPanel.setLocation(newLocation);
-      EventsBus.EVENT_BUS.dispatchEvent(new CardEvent.Dragged(this.memberPanel.getMemberId(), oldLocation, newLocation));
+      EventsDispatcher.EVENT_BUS.dispatchEvent(new CardEvent.Dragged(this.memberPanel.getMemberId(), oldLocation, newLocation));
     }
   }
 

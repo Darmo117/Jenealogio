@@ -20,10 +20,6 @@ package net.darmo_creations.controllers;
 
 import java.awt.Component;
 import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -34,21 +30,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.swing.JOptionPane;
 
 import net.darmo_creations.config.GlobalConfig;
-import net.darmo_creations.config.Language;
 import net.darmo_creations.dao.ConfigDao;
 import net.darmo_creations.dao.FamilyDao;
 import net.darmo_creations.events.CardEvent;
 import net.darmo_creations.events.CardsSelectionEvent;
-import net.darmo_creations.events.EditEvent;
+import net.darmo_creations.events.ChangeLanguageEvent;
+import net.darmo_creations.events.EventsDispatcher;
 import net.darmo_creations.events.LinkEvent;
 import net.darmo_creations.events.SubsribeEvent;
+import net.darmo_creations.events.UserEvent;
 import net.darmo_creations.gui.MainFrame;
 import net.darmo_creations.gui.components.display_panel.DisplayPanel;
 import net.darmo_creations.gui.drag_and_drop.DropHandler;
@@ -63,9 +58,7 @@ import net.darmo_creations.util.VersionException;
  * 
  * @author Damien Vergnet
  */
-public class MainController extends WindowAdapter implements ActionListener, DropHandler {
-  private static final Pattern CHANGE_LANG_PATTERN = Pattern.compile("lang-(\\w+)");
-
+public class MainController implements DropHandler {
   /** Frame being monitored. */
   private final MainFrame frame;
   /** Main DAO. */
@@ -108,16 +101,16 @@ public class MainController extends WindowAdapter implements ActionListener, Dro
     updateFrameMenus();
   }
 
-  @Override
-  public void actionPerformed(ActionEvent e) {
-    switch (e.getActionCommand()) {
-      case "new":
+  @SubsribeEvent
+  public void onMenuEvent(UserEvent e) {
+    switch (e.getType()) {
+      case NEW:
         newFile();
         break;
-      case "open":
+      case OPEN:
         open(null);
         break;
-      case "save":
+      case SAVE:
         boolean ok;
         if (this.alreadySaved)
           ok = save();
@@ -126,48 +119,48 @@ public class MainController extends WindowAdapter implements ActionListener, Dro
         if (!ok)
           this.frame.showErrorDialog(I18n.getLocalizedString("popup.save_file_error.text"));
         break;
-      case "save-as":
+      case SAVE_AS:
         if (!saveAs())
           this.frame.showErrorDialog(I18n.getLocalizedString("popup.save_file_error.text"));
         break;
-      case "add-card":
+      case ADD_CARD:
         addMember();
         break;
-      case "add-link":
-        this.frame.selectPanel(-1);
+      case ADD_LINK:
+        EventsDispatcher.EVENT_BUS.dispatchEvent(new CardEvent.Clicked(-1, false));
         toggleAddLink();
         break;
-      case "edit":
-        edit();
+      case EDIT_CARD:
+        editCard();
         break;
-      case "delete":
-        delete();
+      case EDIT_LINK:
+        editLink();
         break;
-      case "edit_colors":
+      case DELETE_CARD:
+        deleteCard();
+        break;
+      case DELETE_LINK:
+        deleteLink();
+        break;
+      case EDIT_COLORS:
         editColors();
         break;
-      case "help":
+      case HELP:
         this.frame.showHelpDialog();
         break;
-      case "about":
+      case ABOUT:
         this.frame.showAboutDialog();
         break;
-      case "exit":
+      case EXIT:
         exit();
         break;
     }
-
-    Matcher m = CHANGE_LANG_PATTERN.matcher(e.getActionCommand());
-
-    if (m.matches()) {
-      this.config.setLanguage(Language.fromCode(m.group(1)));
-      this.frame.showWarningDialog(I18n.getLocalizedString("popup.change_language_warning.text"));
-    }
   }
 
-  @Override
-  public void windowClosing(WindowEvent e) {
-    exit();
+  @SubsribeEvent
+  public void onChangeLanguage(ChangeLanguageEvent e) {
+    this.config.setLanguage(e.getLanguage());
+    this.frame.showWarningDialog(I18n.getLocalizedString("popup.change_language_warning.text"));
   }
 
   @SubsribeEvent
@@ -234,11 +227,6 @@ public class MainController extends WindowAdapter implements ActionListener, Dro
   public void onLinkDoubleClicked(LinkEvent.DoubleClicked e) {
     // Show link details
     showDetails(e.getPartner1Id(), e.getPartner2Id());
-  }
-
-  @SubsribeEvent
-  public void onEdit(EditEvent e) {
-    edit();
   }
 
   @SubsribeEvent
@@ -455,9 +443,9 @@ public class MainController extends WindowAdapter implements ActionListener, Dro
   }
 
   /**
-   * Opens up "edit card" or "edit link" dialog then updates the model.
+   * Opens up "edit card" dialog then updates the model.
    */
-  private void edit() {
+  private void editCard() {
     if (this.lastSelectedCard != null) {
       Optional<FamilyMember> member = this.frame.showUpdateCardDialog(this.lastSelectedCard);
 
@@ -468,7 +456,13 @@ public class MainController extends WindowAdapter implements ActionListener, Dro
         refreshFrame();
       }
     }
-    else if (this.selectedLink != null) {
+  }
+
+  /**
+   * Opens up "edit link" dialog then updates the model.
+   */
+  private void editLink() {
+    if (this.selectedLink != null) {
       Optional<Relationship> wedding = this.frame.showUpdateLinkDialog(this.selectedLink, this.family);
 
       if (wedding.isPresent()) {
@@ -481,10 +475,10 @@ public class MainController extends WindowAdapter implements ActionListener, Dro
   }
 
   /**
-   * Deletes the selected card(s) or link. Asks the user to confirm the action.
+   * Deletes the selected card(s). Asks the user to confirm the action.
    */
-  private void delete() {
-    if (this.lastSelectedCard != null) {
+  private void deleteCard() {
+    if (this.lastSelectedCard != null || !this.selectedCards.isEmpty()) {
       String key = !this.selectedCards.isEmpty() ? "popup.delete_cards_confirm.text" : "popup.delete_card_confirm.text";
       int choice = this.frame.showConfirmDialog(I18n.getLocalizedString(key));
 
@@ -498,7 +492,13 @@ public class MainController extends WindowAdapter implements ActionListener, Dro
         refreshFrame();
       }
     }
-    else if (this.selectedLink != null) {
+  }
+
+  /**
+   * Deletes the selected link. Asks the user to confirm the action.
+   */
+  private void deleteLink() {
+    if (this.selectedLink != null) {
       int choice = this.frame.showConfirmDialog(I18n.getLocalizedString("popup.delete_link_confirm.text"));
 
       if (choice == JOptionPane.OK_OPTION) {

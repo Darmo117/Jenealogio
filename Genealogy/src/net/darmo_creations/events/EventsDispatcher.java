@@ -30,13 +30,13 @@ import java.util.Map;
  *
  * @author Damien Vergnet
  */
-public class EventsBus {
+public final class EventsDispatcher {
   /** Event bus instance */
-  public static final EventsBus EVENT_BUS = new EventsBus();
+  public static final EventsDispatcher EVENT_BUS = new EventsDispatcher();
 
   private Map<Object, List<Method>> listeners;
 
-  private EventsBus() {
+  private EventsDispatcher() {
     this.listeners = new HashMap<>();
   }
 

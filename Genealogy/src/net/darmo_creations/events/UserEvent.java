@@ -18,29 +18,54 @@
  */
 package net.darmo_creations.events;
 
-import java.util.Arrays;
-
 /**
- * This event is fired when cards have been selected.
- *
+ * This event is fired when a menu item/button is clicked.
+ * 
  * @author Damien Vergnet
  */
-public final class CardsSelectionEvent extends AbstractEvent {
-  private final long[] ids;
+public final class UserEvent extends AbstractEvent {
+  private final Type type;
 
   /**
    * Creates an event.
    * 
-   * @param ids IDs of all selected cards
+   * @param type the type
    */
-  public CardsSelectionEvent(long... ids) {
-    this.ids = Arrays.copyOf(ids, ids.length);
+  public UserEvent(Type type) {
+    this.type = type;
+  }
+
+  @Override
+  public boolean isCancelable() {
+    return false;
   }
 
   /**
-   * @return IDs of all selected cards
+   * @return the type
    */
-  public long[] getSelectedPanelsIds() {
-    return Arrays.copyOf(this.ids, this.ids.length);
+  public Type getType() {
+    return this.type;
+  }
+
+  /**
+   * Event type.
+   *
+   * @author Damien Vergnet
+   */
+  public static enum Type {
+    NEW,
+    OPEN,
+    SAVE,
+    SAVE_AS,
+    ADD_CARD,
+    ADD_LINK,
+    EDIT_CARD,
+    EDIT_LINK,
+    DELETE_CARD,
+    DELETE_LINK,
+    EDIT_COLORS,
+    HELP,
+    ABOUT,
+    EXIT;
   }
 }

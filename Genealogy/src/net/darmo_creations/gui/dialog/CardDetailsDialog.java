@@ -29,8 +29,8 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.border.LineBorder;
 
-import net.darmo_creations.events.EditEvent;
-import net.darmo_creations.events.EventsBus;
+import net.darmo_creations.events.EventsDispatcher;
+import net.darmo_creations.events.UserEvent;
 import net.darmo_creations.gui.MainFrame;
 import net.darmo_creations.gui.components.DetailsPanel;
 import net.darmo_creations.gui.components.ImageLabel;
@@ -75,7 +75,7 @@ public class CardDetailsDialog extends AbstractDialog {
       public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand().equals("edit")) {
           this.dialog.setVisible(false);
-          EventsBus.EVENT_BUS.dispatchEvent(new EditEvent(EditEvent.Type.CARD));
+          EventsDispatcher.EVENT_BUS.dispatchEvent(new UserEvent(UserEvent.Type.EDIT_CARD));
           return;
         }
         super.actionPerformed(e);

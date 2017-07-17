@@ -35,8 +35,8 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-import net.darmo_creations.events.EditEvent;
-import net.darmo_creations.events.EventsBus;
+import net.darmo_creations.events.EventsDispatcher;
+import net.darmo_creations.events.UserEvent;
 import net.darmo_creations.gui.MainFrame;
 import net.darmo_creations.gui.components.DetailsPanel;
 import net.darmo_creations.model.family.Family;
@@ -169,7 +169,7 @@ public class LinkDetailsDialog extends AbstractDialog {
       public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand().equals("edit")) {
           this.dialog.setVisible(false);
-          EventsBus.EVENT_BUS.dispatchEvent(new EditEvent(EditEvent.Type.LINK));
+          EventsDispatcher.EVENT_BUS.dispatchEvent(new UserEvent(UserEvent.Type.EDIT_LINK));
           return;
         }
         super.actionPerformed(e);
