@@ -44,10 +44,10 @@ public class EventsBus {
    * Registers all methods of the given object annotated by the SubscribeEvent annotation.
    * 
    * @param o the object
-   * @throws ReflectiveOperationException if an annotated method does not fulfill the requirements
+   * @throws RuntimeException if an annotated method does not fulfill the requirements
    * @see SubsribeEvent
    */
-  public void register(Object o) throws ReflectiveOperationException {
+  public void register(Object o) {
     List<Method> methods = new ArrayList<>();
     Method[] publicMethods = o.getClass().getMethods();
 
@@ -61,7 +61,7 @@ public class EventsBus {
         else {
           String msg = String.format("annotated method '%s' argument does not extend AbstractEvent or has more than 1 argument.",
               m.getName());
-          throw new ReflectiveOperationException(msg);
+          throw new RuntimeException(msg);
         }
       }
     }
