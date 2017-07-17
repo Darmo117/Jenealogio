@@ -35,7 +35,9 @@ public enum ColorConfigKey implements ConfigKey<Color> {
   LINK("link"),
   LINK_CHILD("link_child"),
   LINK_HOVERED("link_hovered"),
-  LINK_SELECTED("link_selected");
+  LINK_SELECTED("link_selected"),
+  SELECTION_BORDER("selection_border"),
+  SELECTION_BACKGROUND("selection_background");
 
   private final String name;
 

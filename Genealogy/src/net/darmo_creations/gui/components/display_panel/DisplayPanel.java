@@ -19,7 +19,6 @@
 package net.darmo_creations.gui.components.display_panel;
 
 import java.awt.BasicStroke;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -356,48 +355,50 @@ public class DisplayPanel extends JPanel implements Scrollable {
     Graphics2D g2d = (Graphics2D) g;
     g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-    // Selection
-    Optional<Rectangle> optStart = this.controller.getSelection();
-    if (optStart.isPresent()) {
-      Rectangle r = optStart.get();
+    if (this.config != null) {
+      // Selection
+      Optional<Rectangle> optStart = this.controller.getSelection();
+      if (optStart.isPresent()) {
+        Rectangle r = optStart.get();
 
-      g2d.setColor(new Color(185, 213, 241, 128));
-      g2d.fillRect(r.x, r.y, r.width, r.height);
-      g2d.setColor(new Color(0, 120, 215, 128));
-      g2d.drawRect(r.x, r.y, r.width, r.height);
-    }
+        g2d.setColor(this.config.getValue(ColorConfigKey.SELECTION_BACKGROUND));
+        g2d.fillRect(r.x, r.y, r.width, r.height);
+        g2d.setColor(this.config.getValue(ColorConfigKey.SELECTION_BORDER));
+        g2d.drawRect(r.x, r.y, r.width, r.height);
+      }
 
-    // Links
-    this.links.forEach(link -> {
-      final int width = link.isWedding() ? 2 : 1;
-      if (link.hasEnded())
-        g2d.setStroke(new BasicStroke(width, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[]{9}, 0));
-      else
+      // Links
+      this.links.forEach(link -> {
+        final int width = link.isWedding() ? 2 : 1;
+        if (link.hasEnded())
+          g2d.setStroke(new BasicStroke(width, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[]{9}, 0));
+        else
+          g2d.setStroke(new BasicStroke(width));
+
+        // Link between parents
+        Rectangle r1 = this.panels.get(link.getParent1()).getBounds();
+        Rectangle r2 = this.panels.get(link.getParent2()).getBounds();
+        Point p1 = new Point(r1.x + r1.width / 2, r1.y + r1.height / 2);
+        Point p2 = new Point(r2.x + r2.width / 2, r2.y + r2.height / 2);
+        Point middle = new Point((p1.x + p2.x) / 2, (p1.y + p2.y) / 2);
+
+        if (isMouseOnLink(p1, p2))
+          g2d.setColor(this.config.getValue(ColorConfigKey.LINK_HOVERED));
+        else
+          g2d.setColor(link.isSelected() ? this.config.getValue(ColorConfigKey.LINK_SELECTED) : this.config.getValue(ColorConfigKey.LINK));
+        g2d.drawLine(p1.x, p1.y, p2.x, p2.y);
+
         g2d.setStroke(new BasicStroke(width));
+        g2d.setColor(this.config.getValue(ColorConfigKey.LINK_CHILD));
+        // Links to children
+        link.getChildren().forEach(child -> {
+          Rectangle r = this.panels.get(child).getBounds();
+          Point p = new Point(r.x + r.width / 2, r.y + r.height / 2);
 
-      // Link between parents
-      Rectangle r1 = this.panels.get(link.getParent1()).getBounds();
-      Rectangle r2 = this.panels.get(link.getParent2()).getBounds();
-      Point p1 = new Point(r1.x + r1.width / 2, r1.y + r1.height / 2);
-      Point p2 = new Point(r2.x + r2.width / 2, r2.y + r2.height / 2);
-      Point middle = new Point((p1.x + p2.x) / 2, (p1.y + p2.y) / 2);
-
-      if (isMouseOnLink(p1, p2))
-        g2d.setColor(this.config.getValue(ColorConfigKey.LINK_HOVERED));
-      else
-        g2d.setColor(link.isSelected() ? this.config.getValue(ColorConfigKey.LINK_SELECTED) : this.config.getValue(ColorConfigKey.LINK));
-      g2d.drawLine(p1.x, p1.y, p2.x, p2.y);
-
-      g2d.setStroke(new BasicStroke(width));
-      g2d.setColor(this.config.getValue(ColorConfigKey.LINK_CHILD));
-      // Links to children
-      link.getChildren().forEach(child -> {
-        Rectangle r = this.panels.get(child).getBounds();
-        Point p = new Point(r.x + r.width / 2, r.y + r.height / 2);
-
-        g2d.drawLine(middle.x, middle.y, p.x, p.y);
+          g2d.drawLine(middle.x, middle.y, p.x, p.y);
+        });
       });
-    });
+    }
   }
 
   @Override

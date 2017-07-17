@@ -48,6 +48,8 @@ public class GlobalConfig implements Cloneable {
     setValue(ColorConfigKey.LINK_CHILD, Color.BLUE);
     setValue(ColorConfigKey.LINK_HOVERED, Color.RED);
     setValue(ColorConfigKey.LINK_SELECTED, Color.GREEN);
+    setValue(ColorConfigKey.SELECTION_BORDER, new Color(0, 120, 215, 128));
+    setValue(ColorConfigKey.SELECTION_BACKGROUND, new Color(185, 213, 241, 128));
   }
 
   /**
