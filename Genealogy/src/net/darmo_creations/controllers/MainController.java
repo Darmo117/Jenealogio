@@ -101,6 +101,11 @@ public class MainController implements DropHandler {
     updateFrameMenus();
   }
 
+  /**
+   * Called when a UserEvent is fired.
+   * 
+   * @param e the event
+   */
   @SubsribeEvent
   public void onUserEvent(UserEvent e) {
     switch (e.getType()) {
@@ -157,15 +162,24 @@ public class MainController implements DropHandler {
     }
   }
 
+  /**
+   * Called when a ChangeLanguageEvenet is fired.
+   * 
+   * @param e the event
+   */
   @SubsribeEvent
   public void onChangeLanguage(ChangeLanguageEvent e) {
     this.config.setLanguage(e.getLanguage());
     this.frame.showWarningDialog(I18n.getLocalizedString("popup.change_language_warning.text"));
   }
 
+  /**
+   * Called when a card is clicked.
+   * 
+   * @param e the event
+   */
   @SubsribeEvent
   public void onCardClicked(CardEvent.Clicked e) {
-    // Select card
     long id = e.getMemberId();
     boolean keepSelection = ((CardEvent.Clicked) e).keepPreviousSelection();
 
@@ -203,12 +217,21 @@ public class MainController implements DropHandler {
     this.frame.setPanelsSelectedAsBackground(this.selectedCards.stream().map(f -> f.getId()).collect(Collectors.toList()));
   }
 
+  /**
+   * Called when a card is double-clicked.
+   * 
+   * @param e the event
+   */
   @SubsribeEvent
   public void onCardDoubleClicked(CardEvent.DoubleClicked e) {
-    // Display card details
     this.family.getMember(e.getMemberId()).ifPresent(m -> this.frame.showDetailsDialog(m, this.family.getRelations(m.getId())));
   }
 
+  /**
+   * Called when a link is clicked.
+   * 
+   * @param e the event
+   */
   @SubsribeEvent
   public void onLinkClicked(LinkEvent.Clicked e) {
     Optional<FamilyMember> optM1 = this.family.getMember(e.getPartner1Id());
@@ -223,12 +246,21 @@ public class MainController implements DropHandler {
     this.frame.updateMenus(this.fileOpen, false, this.selectedLink != null);
   }
 
+  /**
+   * Called when a link is double-clicked.
+   * 
+   * @param e the event
+   */
   @SubsribeEvent
   public void onLinkDoubleClicked(LinkEvent.DoubleClicked e) {
-    // Show link details
     showDetails(e.getPartner1Id(), e.getPartner2Id());
   }
 
+  /**
+   * Called when several cards are selected.
+   * 
+   * @param e the event
+   */
   @SubsribeEvent
   public void onCardsSelected(CardsSelectionEvent e) {
     List<Long> ids = new ArrayList<>();
@@ -237,6 +269,11 @@ public class MainController implements DropHandler {
     this.frame.setPanelsSelectedAsBackground(ids);
   }
 
+  /**
+   * Called when a card is dragged.
+   * 
+   * @param e the event
+   */
   @SubsribeEvent
   public void onCardDragged(CardEvent.Dragged e) {
     this.saved = false;

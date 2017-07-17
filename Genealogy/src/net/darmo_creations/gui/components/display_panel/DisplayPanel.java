@@ -261,11 +261,34 @@ public class DisplayPanel extends JPanel implements Scrollable {
     repaint();
   }
 
+  /**
+   * Called when a card is dragged.
+   * 
+   * @param evt the event
+   */
   @SubsribeEvent
-  public void onCardSelected(CardEvent.Clicked e) {
+  public void onCardDragged(CardEvent.Dragged evt) {
+    final Point trans = evt.getTranslation();
+    this.panels.entrySet().stream().filter(
+        e -> e.getKey() != evt.getMemberId() && (e.getValue().isSelectedBackground() || e.getValue().isSelected())).forEach(
+            e -> e.getValue().setLocation(e.getValue().getLocation().x + trans.x, e.getValue().getLocation().y + trans.y));
+  }
+
+  /**
+   * Called when a card is clicked.
+   * 
+   * @param e the event
+   */
+  @SubsribeEvent
+  public void onCardClicked(CardEvent.Clicked e) {
     selectPanel(e.getMemberId(), e.keepPreviousSelection());
   }
 
+  /**
+   * Called when a link is clicked.
+   * 
+   * @param e the event
+   */
   @SubsribeEvent
   public void onLinkClicked(LinkEvent.Clicked e) {
     Optional<Link> optL = this.links.stream().filter(
@@ -399,14 +422,6 @@ public class DisplayPanel extends JPanel implements Scrollable {
   @Override
   public boolean getScrollableTracksViewportHeight() {
     return false;
-  }
-
-  @SubsribeEvent
-  public void onPanelDragged(CardEvent.Dragged evt) {
-    final Point trans = evt.getTranslation();
-    this.panels.entrySet().stream().filter(
-        e -> e.getKey() != evt.getMemberId() && (e.getValue().isSelectedBackground() || e.getValue().isSelected())).forEach(
-            e -> e.getValue().setLocation(e.getValue().getLocation().x + trans.x, e.getValue().getLocation().y + trans.y));
   }
 
   /**
