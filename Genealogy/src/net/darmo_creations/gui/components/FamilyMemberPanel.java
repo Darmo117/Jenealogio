@@ -104,6 +104,12 @@ public class FamilyMemberPanel extends JPanel implements Draggable {
     getParent().repaint();
   }
 
+  @Override
+  public void setLocation(int x, int y) {
+    super.setLocation(x, y);
+    getParent().repaint();
+  }
+
   /**
    * @return true if this panel is selected; false otherwise
    */

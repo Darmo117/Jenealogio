@@ -383,8 +383,10 @@ public class DisplayPanel extends JPanel implements Scrollable, Observable, Drag
   }
 
   @Override
-  public void componentDragged(MouseEvent e, FamilyMemberPanel component) {
+  public void componentDragged(MouseEvent e, FamilyMemberPanel component, Point translation) {
     notifyObservers(component);
+    this.panels.values().stream().filter(p -> p != component && (p.isSelectedBackground() || p.isSelected())).forEach(
+        p -> p.setLocation(p.getLocation().x + translation.x, p.getLocation().y + translation.y));
   }
 
   @Override

@@ -52,8 +52,12 @@ public class DragController<T extends Draggable> extends MouseAdapter {
 
   @Override
   public void mousePressed(MouseEvent e) {
-    this.dragable.doClick(e);
     this.grabPoint = new Point(e.getX(), e.getY());
+  }
+
+  @Override
+  public void mouseClicked(MouseEvent e) {
+    this.dragable.doClick(e);
   }
 
   @Override
@@ -66,9 +70,14 @@ public class DragController<T extends Draggable> extends MouseAdapter {
         Math.min(containerBounds.width - bounds.width, e.getXOnScreen() - getXOffset() - this.grabPoint.x));
     int newY = Math.max(containerBounds.y,
         Math.min(containerBounds.height - bounds.height, e.getYOnScreen() - getYOffset() - this.grabPoint.y));
+    newX = (newX / GRID_STEP) * GRID_STEP;
+    newY = (newY / GRID_STEP) * GRID_STEP;
+    Point p = this.dragable.getLocation();
+    int xTrans = newX - p.x;
+    int yTrans = newY - p.y;
 
-    this.dragable.setLocation(new Point((newX / GRID_STEP) * GRID_STEP, (newY / GRID_STEP) * GRID_STEP));
-    this.handler.componentDragged(e, this.dragable);
+    this.dragable.setLocation(new Point(newX, newY));
+    this.handler.componentDragged(e, this.dragable, new Point(xTrans, yTrans));
   }
 
   /**

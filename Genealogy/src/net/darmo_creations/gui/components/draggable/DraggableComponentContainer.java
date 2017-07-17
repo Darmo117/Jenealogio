@@ -45,6 +45,7 @@ public interface DraggableComponentContainer<T extends Draggable> {
    * 
    * @param e the mouse event
    * @param component the dragged component
+   * @param translation distance traveled by the mouse
    */
-  void componentDragged(MouseEvent e, T component);
+  void componentDragged(MouseEvent e, T component, Point translation);
 }

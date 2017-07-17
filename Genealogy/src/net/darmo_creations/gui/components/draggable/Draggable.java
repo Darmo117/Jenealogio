@@ -29,6 +29,11 @@ import java.awt.event.MouseEvent;
  */
 public interface Draggable {
   /**
+   * @return component's location
+   */
+  Point getLocation();
+
+  /**
    * Sets the location of this component.
    * 
    * @param p the new location
