@@ -19,10 +19,12 @@
 package net.darmo_creations.controllers;
 
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,10 +40,14 @@ public class DisplayController extends MouseAdapter implements ActionListener {
 
   private DisplayPanel panel;
   private Point mouseLocation;
+  private Point selectionStart;
+  private Rectangle selection;
 
   public DisplayController(DisplayPanel panel) {
     this.panel = panel;
     this.mouseLocation = new Point();
+    this.selectionStart = null;
+    this.selection = null;
   }
 
   /**
@@ -49,6 +55,13 @@ public class DisplayController extends MouseAdapter implements ActionListener {
    */
   public Point getMouseLocation() {
     return (Point) this.mouseLocation.clone();
+  }
+
+  /**
+   * @return selection's starting position
+   */
+  public Optional<Rectangle> getSelection() {
+    return Optional.ofNullable(this.selection);
   }
 
   /**
@@ -64,13 +77,28 @@ public class DisplayController extends MouseAdapter implements ActionListener {
     }
   }
 
+  @Override
+  public void mousePressed(MouseEvent e) {
+    if (e.getButton() == MouseEvent.BUTTON1) {
+      this.selectionStart = e.getPoint();
+      this.selection = new Rectangle(this.selectionStart);
+    }
+    this.panel.selectPanel(-1, false);
+  }
+
+  @Override
+  public void mouseReleased(MouseEvent e) {
+    this.panel.notifyObservers(this.panel.getPanelsInsideRectangle(this.selection));
+    this.selection = null;
+    repaint();
+  }
+
   /**
    * Called the mouse is clicked inside the DisplayPanel. Deselects all cards and checks if a link
    * was clicked or double-clicked.
    */
   @Override
   public void mouseClicked(MouseEvent e) {
-    this.panel.selectPanel(-1, false);
     this.panel.selectLinkIfHovered();
     if (e.getClickCount() == 2)
       this.panel.editLinkIfHovered();
@@ -81,7 +109,42 @@ public class DisplayController extends MouseAdapter implements ActionListener {
    */
   @Override
   public void mouseMoved(MouseEvent e) {
+    updateMouseLocation(e);
+  }
+
+  @Override
+  public void mouseDragged(MouseEvent e) {
+    updateMouseLocation(e);
+  }
+
+  private void updateMouseLocation(MouseEvent e) {
     this.mouseLocation = e.getPoint();
+    // Selection computation
+    if (this.selection != null) {
+      int width = this.mouseLocation.x - this.selectionStart.x;
+      int height = this.mouseLocation.y - this.selectionStart.y;
+
+      if (width < 0) {
+        width = -width;
+        this.selection.x = this.selectionStart.x - width;
+        this.selection.width = width;
+      }
+      else {
+        this.selection.width = width;
+      }
+      if (height < 0) {
+        height = -height;
+        this.selection.y = this.selectionStart.y - height;
+        this.selection.height = height;
+      }
+      else {
+        this.selection.height = height;
+      }
+    }
+    repaint();
+  }
+
+  private void repaint() {
     this.panel.repaint();
   }
 }

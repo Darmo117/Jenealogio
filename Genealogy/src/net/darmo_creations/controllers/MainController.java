@@ -251,6 +251,13 @@ public class MainController extends WindowAdapter implements ActionListener, Obs
       this.saved = false;
       updateFrameMenus();
     }
+    else if (o instanceof long[]) {
+      long[] a = (long[]) o;
+      List<Long> ids = new ArrayList<>();
+      for (long l : a)
+        ids.add(l);
+      this.frame.setPanelsSelectedAsBackground(ids);
+    }
   }
 
   @Override
