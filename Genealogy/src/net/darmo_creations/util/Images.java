@@ -36,6 +36,8 @@ public final class Images {
   public static final ImageIcon OPEN;
   public static final ImageIcon SAVE;
   public static final ImageIcon SAVE_AS;
+  public static final ImageIcon UNDO;
+  public static final ImageIcon REDO;
   public static final ImageIcon ADD_CARD;
   public static final ImageIcon EDIT_CARD;
   public static final ImageIcon DELETE_CARD;
@@ -66,6 +68,8 @@ public final class Images {
   public static final ImageIcon OPEN_BIG;
   public static final ImageIcon SAVE_BIG;
   public static final ImageIcon SAVE_AS_BIG;
+  public static final ImageIcon UNDO_BIG;
+  public static final ImageIcon REDO_BIG;
   public static final ImageIcon ADD_CARD_BIG;
   public static final ImageIcon EDIT_CARD_BIG;
   public static final ImageIcon DELETE_CARD_BIG;
@@ -83,6 +87,8 @@ public final class Images {
     OPEN = getIcon("/assets/icons/open.png");
     SAVE = getIcon("/assets/icons/save.png");
     SAVE_AS = getIcon("/assets/icons/save_as.png");
+    UNDO = getIcon("/assets/icons/undo.png");
+    REDO = getIcon("/assets/icons/redo.png");
     ADD_CARD = getIcon("/assets/icons/add_card.png");
     EDIT_CARD = getIcon("/assets/icons/edit_card.png");
     DELETE_CARD = getIcon("/assets/icons/delete_card.png");
@@ -113,6 +119,8 @@ public final class Images {
     OPEN_BIG = getIcon("/assets/icons/open_32.png");
     SAVE_BIG = getIcon("/assets/icons/save_32.png");
     SAVE_AS_BIG = getIcon("/assets/icons/save_as_32.png");
+    UNDO_BIG = getIcon("/assets/icons/undo_32.png");
+    REDO_BIG = getIcon("/assets/icons/redo_32.png");
     ADD_CARD_BIG = getIcon("/assets/icons/add_card_32.png");
     EDIT_CARD_BIG = getIcon("/assets/icons/edit_card_32.png");
     DELETE_CARD_BIG = getIcon("/assets/icons/delete_card_32.png");

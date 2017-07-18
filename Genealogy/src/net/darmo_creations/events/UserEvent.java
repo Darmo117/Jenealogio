@@ -57,6 +57,8 @@ public final class UserEvent extends AbstractEvent {
     OPEN,
     SAVE,
     SAVE_AS,
+    UNDO,
+    REDO,
     ADD_CARD,
     ADD_LINK,
     EDIT_CARD,

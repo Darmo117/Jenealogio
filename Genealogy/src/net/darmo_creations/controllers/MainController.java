@@ -47,6 +47,7 @@ import net.darmo_creations.events.UserEvent;
 import net.darmo_creations.gui.MainFrame;
 import net.darmo_creations.gui.components.display_panel.DisplayPanel;
 import net.darmo_creations.gui.drag_and_drop.DropHandler;
+import net.darmo_creations.model.FamilyEdit;
 import net.darmo_creations.model.family.Family;
 import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.model.family.Relationship;
@@ -84,11 +85,15 @@ public class MainController implements DropHandler {
   /** Are we adding a link? */
   private boolean addingLink;
 
+  private UndoRedoManager<FamilyEdit> undoManager;
+
   public MainController(MainFrame frame, GlobalConfig config) {
     this.frame = frame;
     this.config = config;
     this.familyDao = FamilyDao.instance();
     this.selectedCards = new ArrayList<>();
+
+    this.undoManager = new UndoRedoManager<>();
   }
 
   /**
@@ -127,6 +132,12 @@ public class MainController implements DropHandler {
       case SAVE_AS:
         if (!saveAs())
           this.frame.showErrorDialog(I18n.getLocalizedString("popup.save_file_error.text"));
+        break;
+      case UNDO:
+        undo();
+        break;
+      case REDO:
+        redo();
         break;
       case ADD_CARD:
         addMember();
@@ -184,7 +195,7 @@ public class MainController implements DropHandler {
     boolean keepSelection = ((CardEvent.Clicked) e).keepPreviousSelection();
 
     this.selectedLink = null;
-    this.frame.updateMenus(this.fileOpen, id >= 0, false);
+    this.frame.updateMenus(this.fileOpen, id >= 0, false, canUndo(), canRedo());
     if (id >= 0) {
       FamilyMember prev = null;
 
@@ -243,7 +254,7 @@ public class MainController implements DropHandler {
       if (r.isPresent())
         this.selectedLink = r.get();
     }
-    this.frame.updateMenus(this.fileOpen, false, this.selectedLink != null);
+    this.frame.updateMenus(this.fileOpen, false, this.selectedLink != null, canUndo(), canRedo());
   }
 
   /**
@@ -312,7 +323,9 @@ public class MainController implements DropHandler {
     Optional<String> name = this.frame.showCreateTreeDialog();
 
     if (name.isPresent()) {
+      this.undoManager.clear();
       this.family = new Family(name.get());
+      addEdit();
       this.fileOpen = true;
       this.alreadySaved = false;
       this.saved = false;
@@ -359,7 +372,9 @@ public class MainController implements DropHandler {
     try {
       Map<Long, Point> positions = new HashMap<>();
 
+      this.undoManager.clear();
       this.family = this.familyDao.load(fileName, positions, ignoreVersion);
+      this.undoManager.addEdit(new FamilyEdit(this.family.clone(), positions));
       this.fileName = fileName;
       this.fileOpen = true;
       this.alreadySaved = true;
@@ -450,6 +465,7 @@ public class MainController implements DropHandler {
     if (member.isPresent()) {
       this.saved = false;
       this.family.addMember(member.get());
+      addEdit();
       updateFrameMenus();
       Map<Long, Point> points = this.frame.getCardsPositions();
       points.put(this.family.getGlobalId() - 1, this.frame.getDisplayMiddlePoint());
@@ -465,6 +481,7 @@ public class MainController implements DropHandler {
 
     if (optWedding.isPresent()) {
       this.family.addRelation(optWedding.get());
+      addEdit();
       refreshFrame();
       this.saved = false;
       updateFrameMenus();
@@ -488,6 +505,7 @@ public class MainController implements DropHandler {
 
       if (member.isPresent()) {
         this.family.updateMember(member.get());
+        addEdit();
         this.saved = false;
         updateFrameMenus();
         refreshFrame();
@@ -504,6 +522,7 @@ public class MainController implements DropHandler {
 
       if (wedding.isPresent()) {
         this.family.updateRelation(wedding.get());
+        addEdit();
         this.saved = false;
         updateFrameMenus();
         refreshFrame();
@@ -522,6 +541,7 @@ public class MainController implements DropHandler {
       if (choice == JOptionPane.OK_OPTION) {
         this.family.removeMember(this.lastSelectedCard.getId());
         this.selectedCards.forEach(m -> this.family.removeMember(m.getId()));
+        addEdit();
         this.lastSelectedCard = null;
         this.selectedCards.clear();
         this.saved = false;
@@ -540,6 +560,7 @@ public class MainController implements DropHandler {
 
       if (choice == JOptionPane.OK_OPTION) {
         this.family.removeRelationship(this.selectedLink);
+        addEdit();
         this.selectedLink = null;
         this.saved = false;
         updateFrameMenus();
@@ -590,7 +611,7 @@ public class MainController implements DropHandler {
    */
   private void updateFrameMenus() {
     this.frame.setTitle(MainFrame.BASE_TITLE + (this.family != null ? " - " + this.family.getName() : ""));
-    this.frame.updateMenus(this.fileOpen, this.lastSelectedCard != null, this.selectedLink != null);
+    this.frame.updateMenus(this.fileOpen, this.lastSelectedCard != null, this.selectedLink != null, canUndo(), canRedo());
     this.frame.updateSaveMenus(this.saved);
   }
 
@@ -609,5 +630,46 @@ public class MainController implements DropHandler {
    */
   private void showDetails(long id1, long id2) {
     this.family.getRelation(id1, id2).ifPresent(r -> this.frame.showDetailsDialog(r, this.family));
+  }
+
+  /**
+   * Adds the current family object (after cloning it) to the undo manager.
+   */
+  private void addEdit() {
+    this.undoManager.addEdit(new FamilyEdit(this.family.clone(), this.frame.getCardsPositions()));
+  }
+
+  /**
+   * Performs an undo action.
+   */
+  private void undo() {
+    this.undoManager.undo();
+    this.family = this.undoManager.getEdit().getFamily();
+    this.frame.refreshDisplay(this.family, this.undoManager.getEdit().getLocations(), this.config);
+    updateFrameMenus();
+  }
+
+  /**
+   * Performs a redo action.
+   */
+  private void redo() {
+    this.undoManager.redo();
+    this.family = this.undoManager.getEdit().getFamily();
+    this.frame.refreshDisplay(this.family, this.undoManager.getEdit().getLocations(), this.config);
+    updateFrameMenus();
+  }
+
+  /**
+   * Tells if the user can undo changes.
+   */
+  private boolean canUndo() {
+    return this.undoManager.canUndo();
+  }
+
+  /**
+   * Tells if the user can redo changes.
+   */
+  private boolean canRedo() {
+    return this.undoManager.canRedo();
   }
 }

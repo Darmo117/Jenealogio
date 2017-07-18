@@ -93,8 +93,8 @@ public class MainFrame extends JFrame {
   private AboutDialog aboutDialog;
 
   private JMenu editMenu;
-  private JMenuItem saveItem, saveAsItem, addCardItem, addLinkItem, editItem, deleteItem;
-  private JButton saveBtn, saveAsBtn, addCardBtn, editCardBtn, editLinkBtn, deleteCardBtn, deleteLinkBtn;
+  private JMenuItem saveItem, saveAsItem, undoItem, redoItem, addCardItem, addLinkItem, editItem, deleteItem;
+  private JButton saveBtn, saveAsBtn, undoBtn, redoBtn, addCardBtn, editCardBtn, editLinkBtn, deleteCardBtn, deleteLinkBtn;
   private JToggleButton addLinkBtn;
   private DisplayPanel displayPnl;
 
@@ -200,6 +200,18 @@ public class MainFrame extends JFrame {
     {
       this.editMenu = new JMenu(I18n.getLocalizedString("menu.edit.text"));
       this.editMenu.setMnemonic(I18n.getLocalizedMnemonic("menu.edit"));
+      this.editMenu.add(this.undoItem = new JMenuItem(I18n.getLocalizedString("item.undo.text")));
+      this.undoItem.setIcon(Images.UNDO);
+      this.undoItem.setActionCommand("undo");
+      this.undoItem.setMnemonic(I18n.getLocalizedMnemonic("item.undo"));
+      this.undoItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, KeyEvent.CTRL_DOWN_MASK));
+      this.undoItem.addActionListener(listeners.get(UserEvent.Type.UNDO));
+      this.editMenu.add(this.redoItem = new JMenuItem(I18n.getLocalizedString("item.redo.text")));
+      this.redoItem.setIcon(Images.REDO);
+      this.redoItem.setActionCommand("redo");
+      this.redoItem.setMnemonic(I18n.getLocalizedMnemonic("item.redo"));
+      this.redoItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, KeyEvent.CTRL_DOWN_MASK));
+      this.redoItem.addActionListener(listeners.get(UserEvent.Type.REDO));
       this.editMenu.add(this.addCardItem = new JMenuItem(I18n.getLocalizedString("item.add_card.text")));
       this.addCardItem.setIcon(Images.ADD_CARD);
       this.addCardItem.setActionCommand("add-card");
@@ -298,6 +310,16 @@ public class MainFrame extends JFrame {
     this.saveAsBtn.setFocusable(false);
     this.saveAsBtn.setActionCommand("save-as");
     this.saveAsBtn.addActionListener(listeners.get(UserEvent.Type.SAVE_AS));
+    toolBar.add(this.undoBtn = new JButton(Images.UNDO_BIG));
+    this.undoBtn.setToolTipText(I18n.getLocalizedString("item.undo.text") + " (Ctrl+Z)");
+    this.undoBtn.setFocusable(false);
+    this.undoBtn.setActionCommand("undo");
+    this.undoBtn.addActionListener(listeners.get(UserEvent.Type.UNDO));
+    toolBar.add(this.redoBtn = new JButton(Images.REDO_BIG));
+    this.redoBtn.setToolTipText(I18n.getLocalizedString("item.redo.text") + " (Ctrl+Y)");
+    this.redoBtn.setFocusable(false);
+    this.redoBtn.setActionCommand("redo");
+    this.redoBtn.addActionListener(listeners.get(UserEvent.Type.REDO));
     toolBar.add(this.addCardBtn = new JButton(Images.ADD_CARD_BIG));
     this.addCardBtn.setToolTipText(I18n.getLocalizedString("item.add_card.text") + " (Ctrl+A)");
     this.addCardBtn.setFocusable(false);
@@ -340,8 +362,10 @@ public class MainFrame extends JFrame {
    * @param cardSelected is a card selected?
    * @param linkSelected is a link selected?
    */
-  public void updateMenus(boolean fileOpen, boolean cardSelected, boolean linkSelected) {
+  public void updateMenus(boolean fileOpen, boolean cardSelected, boolean linkSelected, boolean canUndo, boolean canRedo) {
     this.saveAsItem.setEnabled(fileOpen);
+    this.undoItem.setEnabled(canUndo);
+    this.redoItem.setEnabled(canRedo);
     this.editMenu.setEnabled(fileOpen);
     this.addCardItem.setEnabled(fileOpen);
     this.addLinkItem.setEnabled(fileOpen);
@@ -349,6 +373,8 @@ public class MainFrame extends JFrame {
     this.deleteItem.setEnabled(fileOpen && (cardSelected || linkSelected));
 
     this.saveAsBtn.setEnabled(fileOpen);
+    this.undoBtn.setEnabled(canUndo);
+    this.redoBtn.setEnabled(canRedo);
     this.addCardBtn.setEnabled(fileOpen);
     this.addLinkBtn.setEnabled(fileOpen);
     this.editCardBtn.setEnabled(fileOpen && cardSelected);
