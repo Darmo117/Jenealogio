@@ -40,6 +40,7 @@ import java.util.TooManyListenersException;
 import java.util.stream.Collectors;
 
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.Scrollable;
 
 import net.darmo_creations.config.ColorConfigKey;
@@ -72,7 +73,9 @@ public class DisplayPanel extends JPanel implements Scrollable {
   private Map<Long, FamilyMemberPanel> panels;
   private List<Link> links;
 
-  public DisplayPanel() {
+  private JScrollPane scrollPane;
+
+  public DisplayPanel(JScrollPane scrollPane) {
     setPreferredSize(new Dimension(4000, 4000));
     setLayout(null);
 
@@ -88,6 +91,8 @@ public class DisplayPanel extends JPanel implements Scrollable {
     };
     addMouseListener(this.controller);
     addMouseMotionListener(this.controller);
+
+    this.scrollPane = scrollPane;
 
     this.panels = new HashMap<>();
     this.links = new ArrayList<>();
@@ -347,6 +352,73 @@ public class DisplayPanel extends JPanel implements Scrollable {
     double d = Math.abs(a * p.getX() + b * p.getY() + c) / Math.hypot(a, b);
 
     return mouseInSegmentRange && d <= HOVER_DISTANCE;
+  }
+
+  public static final int TOP = 1;
+  public static final int RIGHT = 2;
+  public static final int BOTTOM = 4;
+  public static final int LEFT = 8;
+
+  /**
+   * Tells if the mouse is outside the viewport and where.
+   * 
+   * @return an integer indicating where the mouse is outside the panel
+   * @see #TOP
+   * @see #RIGHT
+   * @see #BOTTOM
+   * @see #LEFT
+   */
+  int isMouseOutsideViewport() {
+    Point m = this.controller.getMouseLocation();
+    Rectangle r = getVisibleRect();
+    int res = 0;
+
+    if (m.getX() < r.x) {
+      res |= LEFT;
+    }
+    if (m.getX() > r.x + r.width) {
+      res |= RIGHT;
+    }
+    if (m.getY() < r.y) {
+      res |= TOP;
+    }
+    if (m.getY() > r.y + r.height) {
+      res |= BOTTOM;
+    }
+
+    return res;
+  }
+
+  /**
+   * @return the vertical scrollbar's value
+   */
+  public int getVerticalScroll() {
+    return this.scrollPane.getVerticalScrollBar().getValue();
+  }
+
+  /**
+   * Sets the vertical scrollbar's value
+   * 
+   * @param value the new value
+   */
+  public void setVerticalScroll(int value) {
+    this.scrollPane.getVerticalScrollBar().setValue(value);
+  }
+
+  /**
+   * @return the horizontal scrollbar's value
+   */
+  public int getHorizontalScroll() {
+    return this.scrollPane.getHorizontalScrollBar().getValue();
+  }
+
+  /**
+   * Sets the horizontal scrollbar's value
+   * 
+   * @param value the new value
+   */
+  public void setHorizontalScroll(int value) {
+    this.scrollPane.getHorizontalScrollBar().setValue(value);
   }
 
   @Override

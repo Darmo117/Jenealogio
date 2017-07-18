@@ -133,9 +133,11 @@ public class MainFrame extends JFrame {
 
     setJMenuBar(initJMenuBar(this.listeners, config));
     add(getJToolBar(this.listeners), BorderLayout.NORTH);
-    this.displayPnl = new DisplayPanel();
+    JScrollPane scrollPane = new JScrollPane();
+    this.displayPnl = new DisplayPanel(scrollPane);
     this.displayPnl.addDropHandler(controller);
-    add(new JScrollPane(this.displayPnl), BorderLayout.CENTER);
+    scrollPane.setViewportView(this.displayPnl);
+    add(scrollPane, BorderLayout.CENTER);
 
     EventsDispatcher.EVENT_BUS.register(controller);
     EventsDispatcher.EVENT_BUS.register(this.displayPnl);

@@ -81,8 +81,7 @@ class DisplayController extends MouseAdapter {
   }
 
   /**
-   * Called the mouse is clicked inside the DisplayPanel. Deselects all cards and checks if a link
-   * was clicked or double-clicked.
+   * Deselects all cards and checks if a link was clicked or double-clicked.
    */
   @Override
   public void mouseClicked(MouseEvent e) {
@@ -96,9 +95,6 @@ class DisplayController extends MouseAdapter {
     }
   }
 
-  /**
-   * Repaints the DisplayPanel everytime the mouse moves.
-   */
   @Override
   public void mouseMoved(MouseEvent e) {
     updateMouseLocation(e);
@@ -132,6 +128,28 @@ class DisplayController extends MouseAdapter {
       else {
         this.selection.height = height;
       }
+
+      // Scroll if mouse outside panel
+      int mouseSide = this.panel.isMouseOutsideViewport();
+      int vTrans = 0;
+      int hTrans = 0;
+      final int step = 16;
+
+      if ((mouseSide & DisplayPanel.TOP) != 0) {
+        vTrans = -step;
+      }
+      if ((mouseSide & DisplayPanel.RIGHT) != 0) {
+        hTrans = step;
+      }
+      if ((mouseSide & DisplayPanel.BOTTOM) != 0) {
+        vTrans = step;
+      }
+      if ((mouseSide & DisplayPanel.LEFT) != 0) {
+        hTrans = -step;
+      }
+
+      this.panel.setVerticalScroll(this.panel.getVerticalScroll() + vTrans);
+      this.panel.setHorizontalScroll(this.panel.getHorizontalScroll() + hTrans);
     }
     repaint();
   }
