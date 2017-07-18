@@ -23,6 +23,8 @@ import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+import javax.swing.SwingUtilities;
+
 import net.darmo_creations.events.CardEvent;
 import net.darmo_creations.events.EventsDispatcher;
 import net.darmo_creations.gui.components.FamilyMemberPanel;
@@ -54,34 +56,40 @@ class DragController extends MouseAdapter {
 
   @Override
   public void mousePressed(MouseEvent e) {
-    this.grabPoint = new Point(e.getX(), e.getY());
+    if (SwingUtilities.isLeftMouseButton(e)) {
+      this.grabPoint = new Point(e.getX(), e.getY());
+    }
   }
 
   @Override
   public void mouseClicked(MouseEvent e) {
-    int modifiers = e.getModifiers();
-    boolean isCtrlDown = (modifiers & MouseEvent.CTRL_MASK) != 0;
-    EventsDispatcher.EVENT_BUS.dispatchEvent(new CardEvent.Clicked(this.memberPanel.getMemberId(), isCtrlDown));
+    if (SwingUtilities.isLeftMouseButton(e)) {
+      int modifiers = e.getModifiers();
+      boolean isCtrlDown = (modifiers & MouseEvent.CTRL_MASK) != 0;
+      EventsDispatcher.EVENT_BUS.dispatchEvent(new CardEvent.Clicked(this.memberPanel.getMemberId(), isCtrlDown));
+    }
   }
 
   @Override
   public void mouseDragged(MouseEvent e) {
-    Rectangle bounds = this.memberPanel.getBounds();
-    Rectangle containerBounds = this.displayPanel.getBounds();
-    if (this.grabPoint == null)
-      mousePressed(e);
-    int newX = Math.max(containerBounds.x,
-        Math.min(containerBounds.width - bounds.width, e.getXOnScreen() - getXOffset() - this.grabPoint.x));
-    int newY = Math.max(containerBounds.y,
-        Math.min(containerBounds.height - bounds.height, e.getYOnScreen() - getYOffset() - this.grabPoint.y));
-    newX = (newX / GRID_STEP) * GRID_STEP;
-    newY = (newY / GRID_STEP) * GRID_STEP;
-    Point oldLocation = this.memberPanel.getLocation();
-    Point newLocation = new Point(newX, newY);
+    if (SwingUtilities.isLeftMouseButton(e)) {
+      Rectangle bounds = this.memberPanel.getBounds();
+      Rectangle containerBounds = this.displayPanel.getBounds();
+      if (this.grabPoint == null)
+        mousePressed(e);
+      int newX = Math.max(containerBounds.x,
+          Math.min(containerBounds.width - bounds.width, e.getXOnScreen() - getXOffset() - this.grabPoint.x));
+      int newY = Math.max(containerBounds.y,
+          Math.min(containerBounds.height - bounds.height, e.getYOnScreen() - getYOffset() - this.grabPoint.y));
+      newX = (newX / GRID_STEP) * GRID_STEP;
+      newY = (newY / GRID_STEP) * GRID_STEP;
+      Point oldLocation = this.memberPanel.getLocation();
+      Point newLocation = new Point(newX, newY);
 
-    if (!oldLocation.equals(newLocation)) {
-      this.memberPanel.setLocation(newLocation);
-      EventsDispatcher.EVENT_BUS.dispatchEvent(new CardEvent.Dragged(this.memberPanel.getMemberId(), oldLocation, newLocation));
+      if (!oldLocation.equals(newLocation)) {
+        this.memberPanel.setLocation(newLocation);
+        EventsDispatcher.EVENT_BUS.dispatchEvent(new CardEvent.Dragged(this.memberPanel.getMemberId(), oldLocation, newLocation));
+      }
     }
   }
 

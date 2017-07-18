@@ -68,8 +68,8 @@ class DisplayController extends MouseAdapter {
     if (SwingUtilities.isLeftMouseButton(e)) {
       this.selectionStart = e.getPoint();
       this.selection = new Rectangle(this.selectionStart);
+      EventsDispatcher.EVENT_BUS.dispatchEvent(new CardEvent.Clicked(-1, false));
     }
-    EventsDispatcher.EVENT_BUS.dispatchEvent(new CardEvent.Clicked(-1, false));
   }
 
   @Override

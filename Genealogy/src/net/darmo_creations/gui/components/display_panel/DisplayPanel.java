@@ -42,6 +42,7 @@ import java.util.stream.Collectors;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.Scrollable;
+import javax.swing.SwingUtilities;
 
 import net.darmo_creations.config.ColorConfigKey;
 import net.darmo_creations.config.GlobalConfig;
@@ -83,7 +84,7 @@ public class DisplayPanel extends JPanel implements Scrollable {
     this.doubleClickController = new MouseAdapter() {
       @Override
       public void mouseClicked(MouseEvent e) {
-        if (e.getClickCount() == 2 && e.getComponent() instanceof FamilyMemberPanel) {
+        if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2 && e.getComponent() instanceof FamilyMemberPanel) {
           FamilyMemberPanel p = (FamilyMemberPanel) e.getComponent();
           EventsDispatcher.EVENT_BUS.dispatchEvent(new CardEvent.DoubleClicked(p.getMemberId()));
         }
