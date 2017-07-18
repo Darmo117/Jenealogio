@@ -72,12 +72,14 @@ class DisplayController extends MouseAdapter {
 
   @Override
   public void mouseReleased(MouseEvent e) {
-    Optional<long[]> opt = this.panel.getPanelsInsideRectangle(this.selection);
-    if (opt.isPresent()) {
-      EventsDispatcher.EVENT_BUS.dispatchEvent(new CardsSelectionEvent(opt.get()));
+    if (e.getButton() == MouseEvent.BUTTON1) {
+      Optional<long[]> opt = this.panel.getPanelsInsideRectangle(this.selection);
+      if (opt.isPresent()) {
+        EventsDispatcher.EVENT_BUS.dispatchEvent(new CardsSelectionEvent(opt.get()));
+      }
+      this.selection = null;
+      repaint();
     }
-    this.selection = null;
-    repaint();
   }
 
   /**
@@ -85,13 +87,15 @@ class DisplayController extends MouseAdapter {
    */
   @Override
   public void mouseClicked(MouseEvent e) {
-    Optional<long[]> l = this.panel.getHoveredLinkPartners();
+    if (e.getButton() == MouseEvent.BUTTON1) {
+      Optional<long[]> l = this.panel.getHoveredLinkPartners();
 
-    if (l.isPresent()) {
-      long[] ids = l.get();
-      EventsDispatcher.EVENT_BUS.dispatchEvent(new LinkEvent.Clicked(ids[0], ids[1]));
-      if (e.getClickCount() == 2)
-        EventsDispatcher.EVENT_BUS.dispatchEvent(new LinkEvent.DoubleClicked(ids[0], ids[1]));
+      if (l.isPresent()) {
+        long[] ids = l.get();
+        EventsDispatcher.EVENT_BUS.dispatchEvent(new LinkEvent.Clicked(ids[0], ids[1]));
+        if (e.getClickCount() == 2)
+          EventsDispatcher.EVENT_BUS.dispatchEvent(new LinkEvent.DoubleClicked(ids[0], ids[1]));
+      }
     }
   }
 
@@ -103,6 +107,10 @@ class DisplayController extends MouseAdapter {
   @Override
   public void mouseDragged(MouseEvent e) {
     updateMouseLocation(e);
+    System.out.println(e.getButton());
+    if (e.getButton() == MouseEvent.BUTTON2) {
+      System.out.println("efrgt");
+    }
   }
 
   private void updateMouseLocation(MouseEvent e) {
