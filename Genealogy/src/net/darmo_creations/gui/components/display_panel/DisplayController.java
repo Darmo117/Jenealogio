@@ -24,6 +24,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Optional;
 
+import javax.swing.SwingUtilities;
+
 import net.darmo_creations.events.CardEvent;
 import net.darmo_creations.events.CardsSelectionEvent;
 import net.darmo_creations.events.EventsDispatcher;
@@ -63,7 +65,7 @@ class DisplayController extends MouseAdapter {
 
   @Override
   public void mousePressed(MouseEvent e) {
-    if (e.getButton() == MouseEvent.BUTTON1) {
+    if (SwingUtilities.isLeftMouseButton(e)) {
       this.selectionStart = e.getPoint();
       this.selection = new Rectangle(this.selectionStart);
     }
@@ -72,7 +74,7 @@ class DisplayController extends MouseAdapter {
 
   @Override
   public void mouseReleased(MouseEvent e) {
-    if (e.getButton() == MouseEvent.BUTTON1) {
+    if (SwingUtilities.isLeftMouseButton(e)) {
       Optional<long[]> opt = this.panel.getPanelsInsideRectangle(this.selection);
       if (opt.isPresent()) {
         EventsDispatcher.EVENT_BUS.dispatchEvent(new CardsSelectionEvent(opt.get()));
@@ -87,7 +89,7 @@ class DisplayController extends MouseAdapter {
    */
   @Override
   public void mouseClicked(MouseEvent e) {
-    if (e.getButton() == MouseEvent.BUTTON1) {
+    if (SwingUtilities.isLeftMouseButton(e)) {
       Optional<long[]> l = this.panel.getHoveredLinkPartners();
 
       if (l.isPresent()) {
@@ -106,10 +108,17 @@ class DisplayController extends MouseAdapter {
 
   @Override
   public void mouseDragged(MouseEvent e) {
+    Point prevLocation = this.mouseLocation;
+
     updateMouseLocation(e);
-    System.out.println(e.getButton());
-    if (e.getButton() == MouseEvent.BUTTON2) {
-      System.out.println("efrgt");
+    if (SwingUtilities.isMiddleMouseButton(e)) {
+      Point newLocation = this.mouseLocation;
+
+      int xTrans = newLocation.x - prevLocation.x;
+      int yTrans = newLocation.y - prevLocation.y;
+
+      this.panel.setHorizontalScroll(this.panel.getHorizontalScroll() - xTrans);
+      this.panel.setVerticalScroll(this.panel.getVerticalScroll() - yTrans);
     }
   }
 
