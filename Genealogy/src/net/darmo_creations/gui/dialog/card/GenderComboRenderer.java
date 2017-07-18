@@ -33,11 +33,11 @@ import net.darmo_creations.util.I18n;
  *
  * @author Damien Vergnet
  */
-public class GenderComboRenderer implements ListCellRenderer<Gender> {
+class GenderComboRenderer implements ListCellRenderer<Gender> {
   /** The default renderer */
   private final ListCellRenderer<? super Gender> delegate;
 
-  public GenderComboRenderer(ListCellRenderer<? super Gender> delegate) {
+  GenderComboRenderer(ListCellRenderer<? super Gender> delegate) {
     this.delegate = delegate;
   }
 

@@ -35,11 +35,11 @@ import net.darmo_creations.gui.dialog.DefaultDialogController;
  *
  * @author Damien Vergnet
  */
-public class EditColorController extends DefaultDialogController<EditColorsDialog> implements TreeSelectionListener {
+class EditColorController extends DefaultDialogController<EditColorsDialog> implements TreeSelectionListener {
   private GlobalConfig config;
   private String selectedNode;
 
-  public EditColorController(EditColorsDialog dialog) {
+  EditColorController(EditColorsDialog dialog) {
     super(dialog);
     this.config = null;
     this.selectedNode = null;
@@ -48,7 +48,7 @@ public class EditColorController extends DefaultDialogController<EditColorsDialo
   /**
    * @return the current config
    */
-  public GlobalConfig getConfig() {
+  GlobalConfig getConfig() {
     return this.config;
   }
 
@@ -57,7 +57,7 @@ public class EditColorController extends DefaultDialogController<EditColorsDialo
    * 
    * @param config the new config
    */
-  public void setConfig(GlobalConfig config) {
+  void setConfig(GlobalConfig config) {
     this.dialog.setCanceled(false);
     this.config = config;
     if (this.selectedNode != null)

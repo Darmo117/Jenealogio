@@ -40,13 +40,13 @@ import net.darmo_creations.util.I18n;
  *
  * @author Damien Vergnet
  */
-public class CardController extends DefaultDialogController<CardDialog> implements DocumentListener, ItemListener {
+class CardController extends DefaultDialogController<CardDialog> implements DocumentListener, ItemListener {
   /**
    * Creates a controller.
    * 
    * @param dialog the dialog
    */
-  public CardController(CardDialog dialog) {
+  CardController(CardDialog dialog) {
     super(dialog);
   }
 
@@ -55,7 +55,7 @@ public class CardController extends DefaultDialogController<CardDialog> implemen
    * 
    * @param member the member to display
    */
-  public void reset(FamilyMember member) {
+  void reset(FamilyMember member) {
     if (member != null) {
       this.dialog.setTitle(I18n.getLocalizedString("dialog.update_card.title"));
       this.dialog.setId(member.getId());

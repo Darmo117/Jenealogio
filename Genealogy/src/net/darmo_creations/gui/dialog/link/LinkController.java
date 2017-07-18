@@ -36,7 +36,7 @@ import net.darmo_creations.model.family.Relationship;
  *
  * @author Damien Vergnet
  */
-public class LinkController extends DefaultDialogController<LinkDialog> implements ListSelectionListener {
+class LinkController extends DefaultDialogController<LinkDialog> implements ListSelectionListener {
   private FamilyMember partner1, partner2;
 
   /**
@@ -44,7 +44,7 @@ public class LinkController extends DefaultDialogController<LinkDialog> implemen
    * 
    * @param dialog the dialog
    */
-  public LinkController(LinkDialog dialog) {
+  LinkController(LinkDialog dialog) {
     super(dialog);
   }
 
@@ -55,7 +55,7 @@ public class LinkController extends DefaultDialogController<LinkDialog> implemen
    * @param partner2 the other partner
    * @param family the family
    */
-  public void reset(long partner1, long partner2, Family family) {
+  void reset(long partner1, long partner2, Family family) {
     reset(new Relationship(null, null, true, false, null, partner1, partner2), family);
   }
 
@@ -65,7 +65,7 @@ public class LinkController extends DefaultDialogController<LinkDialog> implemen
    * @param relation the link
    * @param family the family
    */
-  public void reset(Relationship relation, Family family) {
+  void reset(Relationship relation, Family family) {
     Set<FamilyMember> availableChildren = family.getPotentialChildren(relation);
 
     this.partner1 = family.getMember(relation.getPartner1()).get();
@@ -89,7 +89,7 @@ public class LinkController extends DefaultDialogController<LinkDialog> implemen
   /**
    * @return the link
    */
-  public Relationship getLink() {
+  Relationship getLink() {
     return new Relationship(this.dialog.getDate(), this.dialog.getRelationshipLocation(), this.dialog.isWeddingChecked(),
         this.dialog.isEndedChecked(), this.dialog.getEndDate(), this.partner1.getId(), this.partner2.getId(), this.dialog.getChildren());
   }

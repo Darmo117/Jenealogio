@@ -28,13 +28,13 @@ import net.darmo_creations.gui.dialog.DefaultDialogController;
  * 
  * @author Damien Vergnet
  */
-public class TreeCreationController extends DefaultDialogController<TreeCreationDialog> implements DocumentListener {
+class TreeCreationController extends DefaultDialogController<TreeCreationDialog> implements DocumentListener {
   /**
    * Creates a controller.
    * 
    * @param dialog the dialog to monitor
    */
-  public TreeCreationController(TreeCreationDialog dialog) {
+  TreeCreationController(TreeCreationDialog dialog) {
     super(dialog);
   }
 
@@ -48,13 +48,15 @@ public class TreeCreationController extends DefaultDialogController<TreeCreation
     update();
   }
 
+  @Override
+  public void changedUpdate(DocumentEvent e) {
+    update();
+  }
+
   /**
    * Updates the dialog.
    */
   private void update() {
     this.dialog.setValidateButtonEnabled(this.dialog.getTreeName().isPresent());
   }
-
-  @Override
-  public void changedUpdate(DocumentEvent e) {}
 }

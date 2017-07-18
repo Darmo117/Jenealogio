@@ -36,7 +36,7 @@ import net.darmo_creations.gui.components.NamedTreeNode;
 import net.darmo_creations.gui.dialog.DefaultDialogController;
 import net.darmo_creations.util.JarUtil;
 
-public class HelpDialogController extends DefaultDialogController<HelpDialog> implements TreeSelectionListener, HyperlinkListener {
+class HelpDialogController extends DefaultDialogController<HelpDialog> implements TreeSelectionListener, HyperlinkListener {
   private static final String ERROR_LINE = "<html><body><h1>Error: this page is not available!</h1></body></html>";
 
   private GlobalConfig config;
@@ -44,14 +44,14 @@ public class HelpDialogController extends DefaultDialogController<HelpDialog> im
   private boolean collapsingTree;
   private String currentPage;
 
-  public HelpDialogController(HelpDialog dialog, GlobalConfig config) {
+  HelpDialogController(HelpDialog dialog, GlobalConfig config) {
     super(dialog);
     this.config = config;
     this.collapsingTree = false;
     this.currentPage = null;
   }
 
-  public void init(boolean syncTree) {
+  void init(boolean syncTree) {
     this.syncTree = syncTree;
     loadPage("index");
   }
