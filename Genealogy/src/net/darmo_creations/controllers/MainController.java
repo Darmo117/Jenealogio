@@ -61,37 +61,40 @@ import net.darmo_creations.util.VersionException;
  * @author Damien Vergnet
  */
 public class MainController implements DropHandler {
-  /** Frame being monitored. */
   private final MainFrame frame;
-  /** Main DAO. */
+  /** Main DAO */
   private final FamilyDao familyDao;
 
   private GlobalConfig config;
-  /** The family (model). */
+  /** The family (model) */
   private Family family;
+  /** Last save */
+  private FamilyEdit lastSave;
   /** Is a file open? */
   private boolean fileOpen;
   /** Has the file already been saved? */
   private boolean alreadySaved;
   /** Has the file been saved since the last modifications? */
   private boolean saved;
-  /** The name of the last saved file. */
+  /** The name of the last saved file */
   private String fileName;
-  /** The currently selected card. */
+  /** The currently selected card */
   private FamilyMember lastSelectedCard;
-  /** All currently selected cards. */
+  /** All currently selected cards */
   private List<FamilyMember> selectedCards;
-  /** The currently selected link. */
+  /** The currently selected link */
   private Relationship selectedLink;
   /** Are we adding a link? */
   private boolean addingLink;
 
+  /** Undo/redo manager */
   private UndoRedoManager<FamilyEdit> undoManager;
 
   public MainController(MainFrame frame, GlobalConfig config) {
     this.frame = frame;
     this.config = config;
     this.familyDao = FamilyDao.instance();
+    this.lastSave = null;
     this.selectedCards = new ArrayList<>();
 
     this.undoManager = new UndoRedoManager<>();
@@ -289,7 +292,6 @@ public class MainController implements DropHandler {
   @SubsribeEvent
   public void onCardDragPre(CardDragEvent.Pre e) {
     this.saved = false;
-    addEdit();
     updateFrameMenus();
   }
 
@@ -338,11 +340,12 @@ public class MainController implements DropHandler {
     if (name.isPresent()) {
       this.undoManager.clear();
       this.family = new Family(name.get());
-      addEdit();
       this.fileOpen = true;
       this.alreadySaved = false;
       this.saved = false;
       this.frame.resetDisplay();
+      this.lastSave = new FamilyEdit(this.family, this.frame.getCardsPositions());
+      addEdit();
       updateFrameMenus();
     }
   }
@@ -387,7 +390,8 @@ public class MainController implements DropHandler {
 
       this.undoManager.clear();
       this.family = this.familyDao.load(fileName, positions, ignoreVersion);
-      this.undoManager.addEdit(new FamilyEdit(this.family, positions));
+      this.lastSave = new FamilyEdit(this.family, positions);
+      this.undoManager.addEdit(this.lastSave);
       this.fileName = fileName;
       this.fileOpen = true;
       this.alreadySaved = true;
@@ -455,6 +459,7 @@ public class MainController implements DropHandler {
     try {
       Map<Long, Point> points = this.frame.getCardsPositions();
       this.familyDao.save(this.fileName, this.family, points);
+      this.lastSave = new FamilyEdit(this.family, points);
 
       if (!this.alreadySaved)
         this.alreadySaved = true;
@@ -659,6 +664,10 @@ public class MainController implements DropHandler {
     if (this.undoManager.canUndo()) {
       this.undoManager.undo();
       FamilyEdit edit = this.undoManager.getEdit();
+      // if (edit.equals(this.lastSave))
+      // this.saved = true;
+      // else
+      // this.saved = false;
       this.family = edit.getFamily();
       this.frame.refreshDisplay(this.family, edit.getLocations(), this.config);
       updateFrameMenus();
@@ -672,6 +681,10 @@ public class MainController implements DropHandler {
     if (this.undoManager.canRedo()) {
       this.undoManager.redo();
       FamilyEdit edit = this.undoManager.getEdit();
+      // if (edit.equals(this.lastSave))
+      // this.saved = true;
+      // else
+      // this.saved = false;
       this.family = edit.getFamily();
       this.frame.refreshDisplay(this.family, edit.getLocations(), this.config);
       updateFrameMenus();

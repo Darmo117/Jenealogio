@@ -67,7 +67,7 @@ class DragController extends MouseAdapter {
 
   @Override
   public void mouseReleased(MouseEvent e) {
-    if (SwingUtilities.isLeftMouseButton(e)) {
+    if (this.dragging && SwingUtilities.isLeftMouseButton(e)) {
       this.dragging = false;
       EventsDispatcher.EVENT_BUS.dispatchEvent(new CardDragEvent.Post(this.memberPanel.getMemberId()));
     }
@@ -85,11 +85,6 @@ class DragController extends MouseAdapter {
   @Override
   public void mouseDragged(MouseEvent e) {
     if (SwingUtilities.isLeftMouseButton(e)) {
-      if (!this.dragging) {
-        this.dragging = true;
-        EventsDispatcher.EVENT_BUS.dispatchEvent(new CardDragEvent.Pre(this.memberPanel.getMemberId()));
-      }
-
       Rectangle bounds = this.memberPanel.getBounds();
       Rectangle containerBounds = this.displayPanel.getBounds();
       if (this.grabPoint == null)
@@ -104,6 +99,10 @@ class DragController extends MouseAdapter {
       Point newLocation = new Point(newX, newY);
 
       if (!oldLocation.equals(newLocation)) {
+        if (!this.dragging) {
+          this.dragging = true;
+          EventsDispatcher.EVENT_BUS.dispatchEvent(new CardDragEvent.Pre(this.memberPanel.getMemberId()));
+        }
         this.memberPanel.setLocation(newLocation);
         EventsDispatcher.EVENT_BUS.dispatchEvent(new CardDragEvent.Dragging(this.memberPanel.getMemberId(), oldLocation, newLocation));
       }
