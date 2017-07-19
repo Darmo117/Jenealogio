@@ -663,14 +663,7 @@ public class MainController implements DropHandler {
   private void undo() {
     if (this.undoManager.canUndo()) {
       this.undoManager.undo();
-      FamilyEdit edit = this.undoManager.getEdit();
-      if (edit.equals(this.lastSave))
-        this.saved = true;
-      else
-        this.saved = false;
-      this.family = edit.getFamily();
-      this.frame.refreshDisplay(this.family, edit.getLocations(), this.config);
-      updateFrameMenus();
+      undoOrRedo_();
     }
   }
 
@@ -680,15 +673,22 @@ public class MainController implements DropHandler {
   private void redo() {
     if (this.undoManager.canRedo()) {
       this.undoManager.redo();
-      FamilyEdit edit = this.undoManager.getEdit();
-      if (edit.equals(this.lastSave))
-        this.saved = true;
-      else
-        this.saved = false;
-      this.family = edit.getFamily();
-      this.frame.refreshDisplay(this.family, edit.getLocations(), this.config);
-      updateFrameMenus();
+      undoOrRedo_();
     }
+  }
+
+  /**
+   * Method used by undo() and redo().
+   */
+  private void undoOrRedo_() {
+    FamilyEdit edit = this.undoManager.getEdit();
+    if (edit.equals(this.lastSave))
+      this.saved = true;
+    else
+      this.saved = false;
+    this.family = edit.getFamily();
+    this.frame.refreshDisplay(this.family, edit.getLocations(), this.config);
+    updateFrameMenus();
   }
 
   /**
