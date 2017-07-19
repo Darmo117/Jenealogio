@@ -440,14 +440,102 @@ public class FamilyMember implements Comparable<FamilyMember>, Cloneable {
 
   @Override
   public int hashCode() {
-    return Long.hashCode(this.id);
+    final int prime = 31;
+    int result = 1;
+
+    result = prime * result + ((this.birthDate == null) ? 0 : this.birthDate.hashCode());
+    result = prime * result + ((this.birthLocation == null) ? 0 : this.birthLocation.hashCode());
+    result = prime * result + ((this.comment == null) ? 0 : this.comment.hashCode());
+    result = prime * result + (this.dead ? 1231 : 1237);
+    result = prime * result + ((this.deathDate == null) ? 0 : this.deathDate.hashCode());
+    result = prime * result + ((this.deathLocation == null) ? 0 : this.deathLocation.hashCode());
+    result = prime * result + ((this.familyName == null) ? 0 : this.familyName.hashCode());
+    result = prime * result + ((this.firstName == null) ? 0 : this.firstName.hashCode());
+    result = prime * result + ((this.gender == null) ? 0 : this.gender.hashCode());
+    result = prime * result + (int) (this.id ^ (this.id >>> 32));
+    result = prime * result + ((this.image == null) ? 0 : this.image.hashCode());
+    result = prime * result + ((this.otherNames == null) ? 0 : this.otherNames.hashCode());
+    result = prime * result + ((this.useName == null) ? 0 : this.useName.hashCode());
+
+    return result;
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (o instanceof FamilyMember)
-      return getId() == ((FamilyMember) o).getId();
-    return false;
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    FamilyMember other = (FamilyMember) obj;
+    if (this.birthDate == null) {
+      if (other.birthDate != null)
+        return false;
+    }
+    else if (!this.birthDate.equals(other.birthDate))
+      return false;
+    if (this.birthLocation == null) {
+      if (other.birthLocation != null)
+        return false;
+    }
+    else if (!this.birthLocation.equals(other.birthLocation))
+      return false;
+    if (this.comment == null) {
+      if (other.comment != null)
+        return false;
+    }
+    else if (!this.comment.equals(other.comment))
+      return false;
+    if (this.dead != other.dead)
+      return false;
+    if (this.deathDate == null) {
+      if (other.deathDate != null)
+        return false;
+    }
+    else if (!this.deathDate.equals(other.deathDate))
+      return false;
+    if (this.deathLocation == null) {
+      if (other.deathLocation != null)
+        return false;
+    }
+    else if (!this.deathLocation.equals(other.deathLocation))
+      return false;
+    if (this.familyName == null) {
+      if (other.familyName != null)
+        return false;
+    }
+    else if (!this.familyName.equals(other.familyName))
+      return false;
+    if (this.firstName == null) {
+      if (other.firstName != null)
+        return false;
+    }
+    else if (!this.firstName.equals(other.firstName))
+      return false;
+    if (this.gender != other.gender)
+      return false;
+    if (this.id != other.id)
+      return false;
+    if (this.image == null) {
+      if (other.image != null)
+        return false;
+    }
+    else if (!this.image.equals(other.image))
+      return false;
+    if (this.otherNames == null) {
+      if (other.otherNames != null)
+        return false;
+    }
+    else if (!this.otherNames.equals(other.otherNames))
+      return false;
+    if (this.useName == null) {
+      if (other.useName != null)
+        return false;
+    }
+    else if (!this.useName.equals(other.useName))
+      return false;
+    return true;
   }
 
   @Override

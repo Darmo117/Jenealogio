@@ -196,7 +196,7 @@ public class MainController implements DropHandler {
   @SubsribeEvent
   public void onCardClicked(CardEvent.Clicked e) {
     long id = e.getMemberId();
-    boolean keepSelection = ((CardEvent.Clicked) e).keepPreviousSelection();
+    boolean keepSelection = e.keepPreviousSelection();
 
     this.selectedLink = null;
     this.frame.updateMenus(this.fileOpen, id >= 0, false, canUndo(), canRedo());
@@ -215,8 +215,8 @@ public class MainController implements DropHandler {
       }
 
       if (keepSelection) {
-        this.selectedCards.remove(this.lastSelectedCard);
-        if (prev != null && !prev.equals(this.lastSelectedCard))
+        this.selectedCards.removeIf(m -> m.getId() == this.lastSelectedCard.getId());
+        if (prev != null && prev.getId() != this.lastSelectedCard.getId())
           this.selectedCards.add(prev);
       }
       else {
@@ -536,10 +536,10 @@ public class MainController implements DropHandler {
    */
   private void editLink() {
     if (this.selectedLink != null) {
-      Optional<Relationship> wedding = this.frame.showUpdateLinkDialog(this.selectedLink, this.family);
+      Optional<Relationship> relation = this.frame.showUpdateLinkDialog(this.selectedLink, this.family);
 
-      if (wedding.isPresent()) {
-        this.family.updateRelation(wedding.get());
+      if (relation.isPresent()) {
+        this.family.updateRelation(relation.get());
         addEdit();
         this.saved = false;
         updateFrameMenus();
@@ -664,10 +664,10 @@ public class MainController implements DropHandler {
     if (this.undoManager.canUndo()) {
       this.undoManager.undo();
       FamilyEdit edit = this.undoManager.getEdit();
-      // if (edit.equals(this.lastSave))
-      // this.saved = true;
-      // else
-      // this.saved = false;
+      if (edit.equals(this.lastSave))
+        this.saved = true;
+      else
+        this.saved = false;
       this.family = edit.getFamily();
       this.frame.refreshDisplay(this.family, edit.getLocations(), this.config);
       updateFrameMenus();
@@ -681,10 +681,10 @@ public class MainController implements DropHandler {
     if (this.undoManager.canRedo()) {
       this.undoManager.redo();
       FamilyEdit edit = this.undoManager.getEdit();
-      // if (edit.equals(this.lastSave))
-      // this.saved = true;
-      // else
-      // this.saved = false;
+      if (edit.equals(this.lastSave))
+        this.saved = true;
+      else
+        this.saved = false;
       this.family = edit.getFamily();
       this.frame.refreshDisplay(this.family, edit.getLocations(), this.config);
       updateFrameMenus();

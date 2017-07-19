@@ -238,20 +238,60 @@ public final class Relationship implements Comparable<Relationship>, Cloneable {
     final int prime = 31;
     int result = 1;
 
-    result = prime * result + Long.hashCode(getPartner1());
-    result = prime * result + Long.hashCode(getPartner2());
+    result = prime * result + ((this.children == null) ? 0 : this.children.hashCode());
+    result = prime * result + ((this.date == null) ? 0 : this.date.hashCode());
+    result = prime * result + ((this.endDate == null) ? 0 : this.endDate.hashCode());
+    result = prime * result + (this.hasEnded ? 1231 : 1237);
+    result = prime * result + (this.isWedding ? 1231 : 1237);
+    result = prime * result + ((this.location == null) ? 0 : this.location.hashCode());
+    result = prime * result + (int) (this.partner1 ^ (this.partner1 >>> 32));
+    result = prime * result + (int) (this.partner2 ^ (this.partner2 >>> 32));
 
     return result;
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (o instanceof Relationship) {
-      Relationship relation = (Relationship) o;
-      return getPartner1() == relation.getPartner1() && getPartner2() == relation.getPartner2()
-          || getPartner1() == relation.getPartner2() && getPartner2() == relation.getPartner1();
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    Relationship other = (Relationship) obj;
+    if (this.children == null) {
+      if (other.children != null)
+        return false;
     }
-    return false;
+    else if (!this.children.equals(other.children))
+      return false;
+    if (this.date == null) {
+      if (other.date != null)
+        return false;
+    }
+    else if (!this.date.equals(other.date))
+      return false;
+    if (this.endDate == null) {
+      if (other.endDate != null)
+        return false;
+    }
+    else if (!this.endDate.equals(other.endDate))
+      return false;
+    if (this.hasEnded != other.hasEnded)
+      return false;
+    if (this.isWedding != other.isWedding)
+      return false;
+    if (this.location == null) {
+      if (other.location != null)
+        return false;
+    }
+    else if (!this.location.equals(other.location))
+      return false;
+    if (this.partner1 != other.partner1)
+      return false;
+    if (this.partner2 != other.partner2)
+      return false;
+    return true;
   }
 
   @Override

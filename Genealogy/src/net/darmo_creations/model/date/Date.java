@@ -153,6 +153,43 @@ public final class Date implements Comparable<Date>, Cloneable {
   }
 
   @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+
+    result = prime * result + ((this.calendar == null) ? 0 : this.calendar.hashCode());
+    result = prime * result + (this.dateSet ? 1231 : 1237);
+    result = prime * result + (this.monthSet ? 1231 : 1237);
+    result = prime * result + (this.yearSet ? 1231 : 1237);
+
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    Date other = (Date) obj;
+    if (this.calendar == null) {
+      if (other.calendar != null)
+        return false;
+    }
+    else if (!this.calendar.equals(other.calendar))
+      return false;
+    if (this.dateSet != other.dateSet)
+      return false;
+    if (this.monthSet != other.monthSet)
+      return false;
+    if (this.yearSet != other.yearSet)
+      return false;
+    return true;
+  }
+
+  @Override
   public Date clone() {
     try {
       Date date = (Date) super.clone();

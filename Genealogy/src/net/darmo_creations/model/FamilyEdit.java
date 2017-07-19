@@ -58,4 +58,37 @@ public final class FamilyEdit implements Undoable {
   public Map<Long, Point> getLocations() {
     return new HashMap<>(this.locations);
   }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((this.family == null) ? 0 : this.family.hashCode());
+    result = prime * result + ((this.locations == null) ? 0 : this.locations.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    FamilyEdit other = (FamilyEdit) obj;
+    if (this.family == null) {
+      if (other.family != null)
+        return false;
+    }
+    else if (!this.family.equals(other.family))
+      return false;
+    if (this.locations == null) {
+      if (other.locations != null)
+        return false;
+    }
+    else if (!this.locations.equals(other.locations))
+      return false;
+    return true;
+  }
 }

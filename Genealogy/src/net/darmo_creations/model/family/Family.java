@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import net.darmo_creations.controllers.Undoable;
@@ -100,7 +101,7 @@ public class Family implements Cloneable, Undoable {
    * @param id the ID
    * @return the member or nothing if none were found
    */
-  public Optional<FamilyMember> getMember(long id) {
+  public Optional<FamilyMember> getMember(long id) { // TODO clone
     return this.members.stream().filter(member -> member.getId() == id).findAny();
   }
 
@@ -111,9 +112,7 @@ public class Family implements Cloneable, Undoable {
    * @param member the new member
    */
   public void addMember(FamilyMember member) {
-    if (!this.members.contains(member)) {
-      this.members.add(member.clone(getNextMemberId()));
-    }
+    this.members.add(member.clone(getNextMemberId()));
   }
 
   /**
@@ -122,8 +121,10 @@ public class Family implements Cloneable, Undoable {
    * @param member the member's updated data
    */
   public void updateMember(FamilyMember member) {
-    if (this.members.contains(member)) {
-      this.members.remove(member);
+    Predicate<FamilyMember> p = m -> m.getId() == member.getId();
+
+    if (this.members.stream().anyMatch(p)) {
+      this.members.removeIf(p);
       this.members.add(member.clone());
     }
   }
@@ -163,7 +164,7 @@ public class Family implements Cloneable, Undoable {
    * @param id2 the second ID
    * @return the relationship between the two IDs
    */
-  public Optional<Relationship> getRelation(long id1, long id2) {
+  public Optional<Relationship> getRelation(long id1, long id2) { // TODO clone
     return this.relations.stream().filter(r -> r.isInRelationship(id1) && r.isInRelationship(id2)).findAny();
   }
 
@@ -174,7 +175,7 @@ public class Family implements Cloneable, Undoable {
    * @param memberId the member's ID
    * @return the relations
    */
-  public Set<Relationship> getRelations(long memberId) {
+  public Set<Relationship> getRelations(long memberId) { // TODO clone
     return this.relations.stream().filter(relation -> relation.isInRelationship(memberId)).collect(Collectors.toSet());
   }
 
@@ -185,7 +186,7 @@ public class Family implements Cloneable, Undoable {
    * @param relation the new relation
    */
   public void addRelation(Relationship relation) {
-    if (!this.relations.contains(relation) && !areInRelationship(relation.getPartner1(), relation.getPartner2())) {
+    if (!areInRelationship(relation.getPartner1(), relation.getPartner2())) {
       this.relations.add(relation.clone());
     }
   }
@@ -196,12 +197,14 @@ public class Family implements Cloneable, Undoable {
    * @param relation the relation's new data
    */
   public void updateRelation(Relationship relation) {
-    if (this.relations.contains(relation)) {
+    Predicate<Relationship> p = r -> r.isInRelationship(relation.getPartner1()) && r.isInRelationship(relation.getPartner2());
+
+    if (this.relations.stream().anyMatch(p)) {
       relation.getChildren().forEach(id -> {
         if (!getMember(id).isPresent())
           throw new IllegalStateException("member ID '" + id + "' does not exist");
       });
-      this.relations.remove(relation);
+      this.relations.removeIf(p);
       this.relations.add(relation.clone());
     }
   }
@@ -212,7 +215,7 @@ public class Family implements Cloneable, Undoable {
    * @param relation the relation to delete
    */
   public void removeRelationship(Relationship relation) {
-    this.relations.remove(relation);
+    this.relations.removeIf(r -> r.isInRelationship(relation.getPartner1()) && r.isInRelationship(relation.getPartner2()));
   }
 
   /**
@@ -233,7 +236,7 @@ public class Family implements Cloneable, Undoable {
    * @return true if and only if the member has known parents
    */
   public boolean hasParents(long memberId) {
-    return this.relations.stream().anyMatch(w -> w.getChildren().contains(memberId));
+    return this.relations.stream().anyMatch(r -> r.getChildren().contains(memberId));
   }
 
   /**
@@ -264,8 +267,8 @@ public class Family implements Cloneable, Undoable {
     if (partner1 == null || partner2 == null)
       return all;
 
-    all.remove(partner1);
-    all.remove(partner2);
+    all.removeIf(m -> m.getId() == partner1.getId());
+    all.removeIf(m -> m.getId() == partner2.getId());
 
     if (partner1.getBirthDate().isPresent() || partner2.getBirthDate().isPresent()) {
       // Filter out all members that are older than the youngest spouse.
@@ -311,5 +314,50 @@ public class Family implements Cloneable, Undoable {
   @Override
   public Family clone() {
     return new Family(this.globalId, this.name, getAllMembers(), getAllRelations());
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+
+    result = prime * result + (int) (this.globalId ^ (this.globalId >>> 32));
+    result = prime * result + ((this.members == null) ? 0 : this.members.hashCode());
+    result = prime * result + ((this.name == null) ? 0 : this.name.hashCode());
+    result = prime * result + ((this.relations == null) ? 0 : this.relations.hashCode());
+
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    Family other = (Family) obj;
+    if (this.globalId != other.globalId)
+      return false;
+    if (this.members == null) {
+      if (other.members != null)
+        return false;
+    }
+    else if (!this.members.equals(other.members))
+      return false;
+    if (this.name == null) {
+      if (other.name != null)
+        return false;
+    }
+    else if (!this.name.equals(other.name))
+      return false;
+    if (this.relations == null) {
+      if (other.relations != null)
+        return false;
+    }
+    else if (!this.relations.equals(other.relations))
+      return false;
+    return true;
   }
 }
