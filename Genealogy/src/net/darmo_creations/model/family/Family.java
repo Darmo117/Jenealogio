@@ -26,15 +26,12 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import net.darmo_creations.controllers.Undoable;
-
 /**
- * A family has members and each member can be in relationships. The update methods do not use
- * directly the provided arguments but rather copy their fields to keep the family consistent.
+ * A family has members and each member can be in relationships.
  * 
  * @author Damien Vergnet
  */
-public class Family implements Cloneable, Undoable {
+public class Family implements Cloneable {
   /** The global ID */
   private long globalId;
   /** This family's name */

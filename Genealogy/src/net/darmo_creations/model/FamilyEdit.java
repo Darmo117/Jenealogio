@@ -22,15 +22,14 @@ import java.awt.Point;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.darmo_creations.controllers.Undoable;
 import net.darmo_creations.model.family.Family;
 
 /**
- * This class represents a family edit with the positions of all cards.
+ * This class represents a family edit used by the UndoManager class in the MainController.
  *
  * @author Damien Vergnet
  */
-public final class FamilyEdit implements Undoable {
+public final class FamilyEdit {
   private final Family family;
   private final Map<Long, Point> locations;
 
