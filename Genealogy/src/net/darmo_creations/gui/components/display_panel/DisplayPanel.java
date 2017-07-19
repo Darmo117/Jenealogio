@@ -46,6 +46,7 @@ import javax.swing.SwingUtilities;
 
 import net.darmo_creations.config.ColorConfigKey;
 import net.darmo_creations.config.GlobalConfig;
+import net.darmo_creations.events.CardDragEvent;
 import net.darmo_creations.events.CardEvent;
 import net.darmo_creations.events.EventsDispatcher;
 import net.darmo_creations.events.LinkEvent;
@@ -258,7 +259,7 @@ public class DisplayPanel extends JPanel implements Scrollable {
    * @param evt the event
    */
   @SubsribeEvent
-  public void onCardDragged(CardEvent.Dragged evt) {
+  public void onCardDragged(CardDragEvent.Dragging evt) {
     final Point trans = evt.getTranslation();
     this.panels.entrySet().stream().filter(
         e -> e.getKey() != evt.getMemberId() && (e.getValue().isSelectedBackground() || e.getValue().isSelected())).forEach(

@@ -17,10 +17,10 @@ public class FamilyEdit implements Undoable {
   }
 
   public Family getFamily() {
-    return this.family;
+    return this.family.clone();
   }
 
   public Map<Long, Point> getLocations() {
-    return this.locations;
+    return new HashMap<>(this.locations);
   }
 }

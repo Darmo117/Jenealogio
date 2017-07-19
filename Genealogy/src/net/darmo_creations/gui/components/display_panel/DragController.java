@@ -25,6 +25,7 @@ import java.awt.event.MouseEvent;
 
 import javax.swing.SwingUtilities;
 
+import net.darmo_creations.events.CardDragEvent;
 import net.darmo_creations.events.CardEvent;
 import net.darmo_creations.events.EventsDispatcher;
 import net.darmo_creations.gui.components.FamilyMemberPanel;
@@ -42,6 +43,7 @@ class DragController extends MouseAdapter {
   private FamilyMemberPanel memberPanel;
   /** The point where the mouse grabbed in the panel. */
   private Point grabPoint;
+  private boolean dragging;
 
   /**
    * Creates a controller with the given container and component.
@@ -52,12 +54,22 @@ class DragController extends MouseAdapter {
   DragController(DisplayPanel displayPanel, FamilyMemberPanel memberPanel) {
     this.displayPanel = displayPanel;
     this.memberPanel = memberPanel;
+    this.grabPoint = null;
+    this.dragging = false;
   }
 
   @Override
   public void mousePressed(MouseEvent e) {
     if (SwingUtilities.isLeftMouseButton(e)) {
       this.grabPoint = new Point(e.getX(), e.getY());
+    }
+  }
+
+  @Override
+  public void mouseReleased(MouseEvent e) {
+    if (SwingUtilities.isLeftMouseButton(e)) {
+      this.dragging = false;
+      EventsDispatcher.EVENT_BUS.dispatchEvent(new CardDragEvent.Post(this.memberPanel.getMemberId()));
     }
   }
 
@@ -73,6 +85,11 @@ class DragController extends MouseAdapter {
   @Override
   public void mouseDragged(MouseEvent e) {
     if (SwingUtilities.isLeftMouseButton(e)) {
+      if (!this.dragging) {
+        this.dragging = true;
+        EventsDispatcher.EVENT_BUS.dispatchEvent(new CardDragEvent.Pre(this.memberPanel.getMemberId()));
+      }
+
       Rectangle bounds = this.memberPanel.getBounds();
       Rectangle containerBounds = this.displayPanel.getBounds();
       if (this.grabPoint == null)
@@ -88,7 +105,7 @@ class DragController extends MouseAdapter {
 
       if (!oldLocation.equals(newLocation)) {
         this.memberPanel.setLocation(newLocation);
-        EventsDispatcher.EVENT_BUS.dispatchEvent(new CardEvent.Dragged(this.memberPanel.getMemberId(), oldLocation, newLocation));
+        EventsDispatcher.EVENT_BUS.dispatchEvent(new CardDragEvent.Dragging(this.memberPanel.getMemberId(), oldLocation, newLocation));
       }
     }
   }

@@ -40,8 +40,7 @@ public class UndoRedoManager<T extends Undoable> {
 
   public void addEdit(T edit) {
     this.index++;
-    if (!this.edits.isEmpty())
-      this.edits = this.edits.subList(0, this.index);
+    this.edits = this.edits.subList(0, this.index);
     this.edits.add(edit);
   }
 

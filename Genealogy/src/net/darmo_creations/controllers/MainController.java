@@ -37,6 +37,7 @@ import javax.swing.JOptionPane;
 import net.darmo_creations.config.GlobalConfig;
 import net.darmo_creations.dao.ConfigDao;
 import net.darmo_creations.dao.FamilyDao;
+import net.darmo_creations.events.CardDragEvent;
 import net.darmo_creations.events.CardEvent;
 import net.darmo_creations.events.CardsSelectionEvent;
 import net.darmo_creations.events.ChangeLanguageEvent;
@@ -281,13 +282,25 @@ public class MainController implements DropHandler {
   }
 
   /**
-   * Called when a card is dragged.
+   * Called when a card is going to be dragged.
    * 
    * @param e the event
    */
   @SubsribeEvent
-  public void onCardDragged(CardEvent.Dragged e) {
+  public void onCardDragPre(CardDragEvent.Pre e) {
     this.saved = false;
+    addEdit();
+    updateFrameMenus();
+  }
+
+  /**
+   * Called when a card has been dragged.
+   * 
+   * @param e the event
+   */
+  @SubsribeEvent
+  public void onCardDragPost(CardDragEvent.Post e) {
+    addEdit();
     updateFrameMenus();
   }
 
@@ -374,7 +387,7 @@ public class MainController implements DropHandler {
 
       this.undoManager.clear();
       this.family = this.familyDao.load(fileName, positions, ignoreVersion);
-      this.undoManager.addEdit(new FamilyEdit(this.family.clone(), positions));
+      this.undoManager.addEdit(new FamilyEdit(this.family, positions));
       this.fileName = fileName;
       this.fileOpen = true;
       this.alreadySaved = true;
@@ -465,11 +478,11 @@ public class MainController implements DropHandler {
     if (member.isPresent()) {
       this.saved = false;
       this.family.addMember(member.get());
-      addEdit();
-      updateFrameMenus();
       Map<Long, Point> points = this.frame.getCardsPositions();
       points.put(this.family.getGlobalId() - 1, this.frame.getDisplayMiddlePoint());
       this.frame.refreshDisplay(this.family, points, this.config);
+      addEdit();
+      updateFrameMenus();
     }
   }
 
@@ -481,9 +494,9 @@ public class MainController implements DropHandler {
 
     if (optWedding.isPresent()) {
       this.family.addRelation(optWedding.get());
+      this.saved = false;
       addEdit();
       refreshFrame();
-      this.saved = false;
       updateFrameMenus();
     }
   }
@@ -636,27 +649,33 @@ public class MainController implements DropHandler {
    * Adds the current family object (after cloning it) to the undo manager.
    */
   private void addEdit() {
-    this.undoManager.addEdit(new FamilyEdit(this.family.clone(), this.frame.getCardsPositions()));
+    this.undoManager.addEdit(new FamilyEdit(this.family, this.frame.getCardsPositions()));
   }
 
   /**
    * Performs an undo action.
    */
   private void undo() {
-    this.undoManager.undo();
-    this.family = this.undoManager.getEdit().getFamily();
-    this.frame.refreshDisplay(this.family, this.undoManager.getEdit().getLocations(), this.config);
-    updateFrameMenus();
+    if (this.undoManager.canUndo()) {
+      this.undoManager.undo();
+      FamilyEdit edit = this.undoManager.getEdit();
+      this.family = edit.getFamily();
+      this.frame.refreshDisplay(this.family, edit.getLocations(), this.config);
+      updateFrameMenus();
+    }
   }
 
   /**
    * Performs a redo action.
    */
   private void redo() {
-    this.undoManager.redo();
-    this.family = this.undoManager.getEdit().getFamily();
-    this.frame.refreshDisplay(this.family, this.undoManager.getEdit().getLocations(), this.config);
-    updateFrameMenus();
+    if (this.undoManager.canRedo()) {
+      this.undoManager.redo();
+      FamilyEdit edit = this.undoManager.getEdit();
+      this.family = edit.getFamily();
+      this.frame.refreshDisplay(this.family, edit.getLocations(), this.config);
+      updateFrameMenus();
+    }
   }
 
   /**

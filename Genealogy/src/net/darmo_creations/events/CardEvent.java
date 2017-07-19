@@ -18,8 +18,6 @@
  */
 package net.darmo_creations.events;
 
-import java.awt.Point;
-
 /**
  * Base class for all events related to a single card.
  *
@@ -84,49 +82,6 @@ public abstract class CardEvent extends AbstractEvent {
   public static class DoubleClicked extends CardEvent {
     public DoubleClicked(long memberId) {
       super(memberId);
-    }
-  }
-
-  /**
-   * This event is fired when a card is dragged.
-   *
-   * @author Damien Vergnet
-   */
-  public static class Dragged extends CardEvent {
-    private final Point oldLocation, newLocation;
-
-    /**
-     * Creates an event.
-     * 
-     * @param memberId target member ID
-     * @param oldLocation card's old location
-     * @param newLocation card's new location
-     */
-    public Dragged(long memberId, Point oldLocation, Point newLocation) {
-      super(memberId);
-      this.oldLocation = (Point) oldLocation.clone();
-      this.newLocation = (Point) newLocation.clone();
-    }
-
-    /**
-     * @return card's old location
-     */
-    public Point getOldLocation() {
-      return (Point) this.oldLocation.clone();
-    }
-
-    /**
-     * @return card's new location
-     */
-    public Point getNewLocation() {
-      return (Point) this.newLocation.clone();
-    }
-
-    /**
-     * @return translation amount
-     */
-    public Point getTranslation() {
-      return new Point(this.newLocation.x - this.oldLocation.x, this.newLocation.y - this.oldLocation.y);
     }
   }
 }
