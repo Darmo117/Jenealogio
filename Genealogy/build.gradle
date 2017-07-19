@@ -17,7 +17,8 @@ targetCompatibility = 1.8
 
 task fatJar(type: Jar) {
   manifest {
-    attributes 'Main-Class': 'net.darmo_creations.Start'
+    attributes 'Main-Class': 'net.darmo_creations.Start',
+               'Class-Path': '.'
   }
   from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
   with jar
