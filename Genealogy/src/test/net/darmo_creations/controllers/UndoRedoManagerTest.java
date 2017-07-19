@@ -148,7 +148,7 @@ public class UndoRedoManagerTest {
     assertFalse(this.manager.canRedo());
   }
 
-  private static class TestObject implements Cloneable, Undoable {
+  private static class TestObject implements Cloneable {
     private final int id;
 
     public TestObject(int id) {
