@@ -19,9 +19,12 @@
 package net.darmo_creations.controllers;
 
 import java.awt.Component;
+import java.awt.Desktop;
 import java.awt.Point;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.ParseException;
@@ -165,7 +168,7 @@ public class MainController implements DropHandler {
         editColors();
         break;
       case HELP:
-        this.frame.showHelpDialog();
+        showHelp();
         break;
       case ABOUT:
         this.frame.showAboutDialog();
@@ -181,6 +184,7 @@ public class MainController implements DropHandler {
    * 
    * @param e the event
    */
+  // TODO restart if the user wants to; otherwise do not update config
   @SubsribeEvent
   public void onChangeLanguage(ChangeLanguageEvent e) {
     this.config.setLanguage(e.getLanguage());
@@ -593,6 +597,14 @@ public class MainController implements DropHandler {
       if (this.fileOpen)
         refreshFrame();
     }
+  }
+
+  private void showHelp() {
+    String url = String.format("http://darmo-creations.net/jenealogio/help-doc/%s/", this.config.getLanguage().getCode());
+    try {
+      Desktop.getDesktop().browse(new URI(url));
+    }
+    catch (IOException | URISyntaxException __) {}
   }
 
   /**

@@ -61,7 +61,6 @@ import net.darmo_creations.gui.dialog.AboutDialog;
 import net.darmo_creations.gui.dialog.CardDetailsDialog;
 import net.darmo_creations.gui.dialog.LinkDetailsDialog;
 import net.darmo_creations.gui.dialog.card.CardDialog;
-import net.darmo_creations.gui.dialog.help.HelpDialog;
 import net.darmo_creations.gui.dialog.link.LinkDialog;
 import net.darmo_creations.gui.dialog.options.EditColorsDialog;
 import net.darmo_creations.gui.dialog.tree_creation.TreeCreationDialog;
@@ -89,7 +88,6 @@ public class MainFrame extends JFrame {
   private LinkDialog linkDialog;
   private LinkDetailsDialog linkDetailsDialog;
   private EditColorsDialog editColorsDialog;
-  private HelpDialog helpDialog;
   private AboutDialog aboutDialog;
 
   private JMenu editMenu;
@@ -124,7 +122,6 @@ public class MainFrame extends JFrame {
     this.linkDialog = new LinkDialog(this);
     this.linkDetailsDialog = new LinkDetailsDialog(this);
     this.editColorsDialog = new EditColorsDialog(this);
-    this.helpDialog = new HelpDialog(this, config);
     this.aboutDialog = new AboutDialog(this);
 
     this.listeners = new HashMap<>();
@@ -605,13 +602,6 @@ public class MainFrame extends JFrame {
     this.editColorsDialog.setConfig(config.clone());
     this.editColorsDialog.setVisible(true);
     return this.editColorsDialog.getConfig();
-  }
-
-  /**
-   * Shows the "help" dialog.
-   */
-  public void showHelpDialog() {
-    this.helpDialog.setVisible(true);
   }
 
   /**
