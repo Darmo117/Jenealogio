@@ -18,7 +18,6 @@ task fatJar(type: Jar) {
 // Creates the distributable jar
 task createZip(type: Zip) {
   from '/'
-  include 'help-doc/*/*'
   include 'LICENSE'
   from 'build/libs/'
   include 'Jenealogio-' + version + '.jar'

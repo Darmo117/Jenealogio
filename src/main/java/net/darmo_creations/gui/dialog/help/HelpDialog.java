@@ -28,6 +28,7 @@ import java.util.StringJoiner;
 import javax.swing.JButton;
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
@@ -47,6 +48,11 @@ import net.darmo_creations.gui.dialog.AbstractDialog;
 import net.darmo_creations.util.I18n;
 import net.darmo_creations.util.Images;
 
+/**
+ * This dialog provides access to the online help.
+ *
+ * @author Damien Vergnet
+ */
 public class HelpDialog extends AbstractDialog {
   private static final long serialVersionUID = -4647705001322495655L;
 
@@ -55,6 +61,12 @@ public class HelpDialog extends AbstractDialog {
   private JTree tree;
   private JToggleButton syncBtn;
 
+  /**
+   * Creates a dialog.
+   * 
+   * @param owner the owner
+   * @param config the global config
+   */
   public HelpDialog(JFrame owner, GlobalConfig config) {
     super(owner, Mode.CLOSE_OPTION, false);
 
@@ -133,6 +145,8 @@ public class HelpDialog extends AbstractDialog {
 
     add(splitPnl);
 
+    setGlassPane(new JLabel(Images.LOADING));
+
     setActionListener(this.controller);
 
     pack();
@@ -141,6 +155,9 @@ public class HelpDialog extends AbstractDialog {
     this.controller.init(this.syncBtn.isSelected());
   }
 
+  /**
+   * @return the docupment for the editor panel
+   */
   private Document getDocument(JEditorPane textPane) {
     HTMLEditorKit kit = new HTMLEditorKit();
     textPane.setEditorKit(kit);
@@ -155,6 +172,9 @@ public class HelpDialog extends AbstractDialog {
     return kit.createDefaultDocument();
   }
 
+  /**
+   * @return the tree
+   */
   private TreeNode getTree() {
     NamedTreeNode root = new NamedTreeNode("root", "");
 
@@ -183,6 +203,11 @@ public class HelpDialog extends AbstractDialog {
     return root;
   }
 
+  /**
+   * Selects the given node.
+   * 
+   * @param name the node's name
+   */
   void selectNode(String name) {
     NamedTreeNode rootNode = (NamedTreeNode) this.tree.getModel().getRoot();
     NamedTreeNode currentNode = rootNode;
@@ -210,12 +235,20 @@ public class HelpDialog extends AbstractDialog {
     this.tree.setSelectionPath(path);
   }
 
+  /**
+   * Collapses all nodes.
+   */
   void collapseAllNodes() {
     TreeNode root = (TreeNode) this.tree.getModel().getRoot();
     collapseAllNodes(new TreePath(root));
     this.tree.expandPath(new TreePath(root));
   }
 
+  /**
+   * Collapses all nodes under the given node.
+   * 
+   * @param parent the node
+   */
   private void collapseAllNodes(TreePath parent) {
     TreeNode node = (TreeNode) parent.getLastPathComponent();
 
@@ -229,12 +262,28 @@ public class HelpDialog extends AbstractDialog {
     this.tree.collapsePath(parent);
   }
 
+  /**
+   * Clears tree selection.
+   */
   void clearSelection() {
     this.tree.clearSelection();
   }
 
-  void loadHtmlPage(String page) {
-    this.editorPane.setText(page);
+  /**
+   * Set loading icon's visibility.
+   */
+  public void setLoadingIconVisible(boolean visible) {
+    getGlassPane().setVisible(visible);
+  }
+
+  /**
+   * Displays the given HTML document.
+   * 
+   * @param document the document
+   */
+  void displayHtmlDocument(String document) {
+    this.editorPane.setText(document);
     this.editorPane.setCaretPosition(0);
+    setLoadingIconVisible(false);
   }
 }

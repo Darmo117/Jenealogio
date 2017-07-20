@@ -19,10 +19,13 @@
 package net.darmo_creations.gui.dialog.help;
 
 import java.awt.event.ActionEvent;
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.List;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.util.StringJoiner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.JToggleButton;
 import javax.swing.event.HyperlinkEvent;
@@ -30,12 +33,15 @@ import javax.swing.event.HyperlinkListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 
-import net.darmo_creations.Start;
 import net.darmo_creations.config.GlobalConfig;
 import net.darmo_creations.gui.components.NamedTreeNode;
 import net.darmo_creations.gui.dialog.DefaultDialogController;
-import net.darmo_creations.util.JarUtil;
 
+/**
+ * This controller handles actions of the HelpDialog class.
+ *
+ * @author Damien Vergnet
+ */
 class HelpDialogController extends DefaultDialogController<HelpDialog> implements TreeSelectionListener, HyperlinkListener {
   private static final String ERROR_LINE = "<html><body><h1>Error: this page is not available!</h1></body></html>";
 
@@ -44,6 +50,12 @@ class HelpDialogController extends DefaultDialogController<HelpDialog> implement
   private boolean collapsingTree;
   private String currentPage;
 
+  /**
+   * Creates a controller.
+   * 
+   * @param dialog the dialog
+   * @param config the global config
+   */
   HelpDialogController(HelpDialog dialog, GlobalConfig config) {
     super(dialog);
     this.config = config;
@@ -51,40 +63,97 @@ class HelpDialogController extends DefaultDialogController<HelpDialog> implement
     this.currentPage = null;
   }
 
+  /**
+   * Initializes the dialog.
+   * 
+   * @param syncTree tells if the tree should be synced to the current page
+   */
   void init(boolean syncTree) {
     this.syncTree = syncTree;
-    loadPage("index");
+    loadPage(getUrl("index"));
   }
 
-  private void loadPage(String name) {
-    this.currentPage = name;
+  private static final Pattern PAGE_NAME_PATTERN = Pattern.compile("/(\\w+(?:\\.\\w+)*).html");
+
+  /**
+   * Loads the page at the given URL.
+   * 
+   * @param url the url
+   */
+  private void loadPage(String url) {
+    Matcher m = PAGE_NAME_PATTERN.matcher(url);
+
+    if (m.find())
+      this.currentPage = m.group(1);
+
+    this.dialog.setLoadingIconVisible(true);
+
+    Runnable run = () -> {
+      try {
+        this.dialog.displayHtmlDocument(getPage(new URL(url)));
+      }
+      catch (IOException __) {
+        // Avoid infinite loop
+        if ("error".equals(url)) {
+          this.dialog.displayHtmlDocument(ERROR_LINE);
+          this.dialog.setLoadingIconVisible(false);
+        }
+        else {
+          loadPage("error");
+        }
+      }
+    };
+
+    new Thread(run).start();
+  }
+
+  private static final Pattern LINK_PATTERN = Pattern.compile("(src|href)=([\"'])((?!https?://).+?)\\2");
+
+  /**
+   * Returns the page's content for the given URL.
+   * 
+   * @param url the url
+   * @return the page's content
+   * @throws IOException
+   */
+  private String getPage(URL url) throws IOException {
+    try (BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()))) {
+      StringJoiner joiner = new StringJoiner("\n");
+      String inputLine;
+
+      while ((inputLine = in.readLine()) != null) {
+        boolean match = false;
+
+        // Replace all relative links with absolute ones.
+        do {
+          match = false;
+          Matcher m = LINK_PATTERN.matcher(inputLine);
+
+          if (m.find()) {
+            String absoluteUrl = new URL(url, m.group(3)).toString();
+            absoluteUrl = String.format("%1$s=%2$s%3$s%2$s", m.group(1), m.group(2), absoluteUrl);
+            // Every special regex character between \Q and \E is escaped.
+            inputLine = inputLine.replaceAll("\\Q" + m.group(0) + "\\E", absoluteUrl);
+            match = true;
+          }
+        } while (match);
+
+        joiner.add(inputLine);
+      }
+
+      return joiner.toString();
+    }
+  }
+
+  /**
+   * Returns the URL corresponding to the given help file name.
+   * 
+   * @param name the name (without '.html')
+   * @return the URL
+   */
+  private String getUrl(String name) {
     String lang = this.config.getLanguage().getCode();
-    String path = JarUtil.getJarDir('/') + "help-doc/" + lang + "/" + name + ".html";
-
-    if (Start.DEBUG)
-      path = path.replace("bin/", "");
-
-    try {
-      List<String> lines = Files.readAllLines(Paths.get(path));
-      for (int i = 0; i < lines.size(); i++) {
-        String result = String.format("src=\"file:/%shelp-doc/%s/$1\"", JarUtil.getJarDir('/'), lang);
-        String absolutePath = lines.get(i).replaceAll("src=[\"'](.*)[\"']", result);
-
-        if (Start.DEBUG)
-          absolutePath = absolutePath.replace("bin/", "");
-        lines.set(i, absolutePath);
-      }
-      this.dialog.loadHtmlPage(String.join("\n", lines));
-    }
-    catch (IOException __) {
-      // Avoid infinite loop
-      if ("error".equals(name)) {
-        this.dialog.loadHtmlPage(ERROR_LINE);
-      }
-      else {
-        loadPage("error");
-      }
-    }
+    return String.format("http://darmo-creations.net/jenealogio/help-doc/%s/%s.html", lang, name);
   }
 
   @Override
@@ -108,7 +177,7 @@ class HelpDialogController extends DefaultDialogController<HelpDialog> implement
         break;
       case "home":
         this.dialog.clearSelection();
-        loadPage("index");
+        loadPage(getUrl("index"));
         break;
     }
   }
@@ -117,7 +186,7 @@ class HelpDialogController extends DefaultDialogController<HelpDialog> implement
   public void valueChanged(TreeSelectionEvent e) {
     if (!this.collapsingTree) {
       NamedTreeNode node = (NamedTreeNode) e.getPath().getLastPathComponent();
-      loadPage(node.getName());
+      loadPage(getUrl(node.getName()));
     }
   }
 
@@ -125,10 +194,9 @@ class HelpDialogController extends DefaultDialogController<HelpDialog> implement
   public void hyperlinkUpdate(HyperlinkEvent e) {
     if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
       String url = e.getDescription();
-      url = url.substring(0, url.lastIndexOf('.'));
       loadPage(url);
       if (this.syncTree)
-        this.dialog.selectNode(url);
+        this.dialog.selectNode(this.currentPage);
     }
   }
 }
