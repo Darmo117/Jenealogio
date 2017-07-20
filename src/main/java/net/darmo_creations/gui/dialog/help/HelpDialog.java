@@ -36,7 +36,6 @@ import javax.swing.JToggleButton;
 import javax.swing.JTree;
 import javax.swing.text.Document;
 import javax.swing.text.html.HTMLEditorKit;
-import javax.swing.text.html.StyleSheet;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
@@ -161,14 +160,6 @@ public class HelpDialog extends AbstractDialog {
   private Document getDocument(JEditorPane textPane) {
     HTMLEditorKit kit = new HTMLEditorKit();
     textPane.setEditorKit(kit);
-
-    StyleSheet styleSheet = kit.getStyleSheet();
-    styleSheet.addRule("body {font-family: sans serif; margin: 4px;}");
-    styleSheet.addRule(".menu {font-style: italic;}");
-    styleSheet.addRule(".button, .menu {font-weight: bold;}");
-    styleSheet.addRule(".key-stroke {text-decoration: underline;}");
-    styleSheet.addRule("h2 {margin-bottom: 0;}");
-
     return kit.createDefaultDocument();
   }
 
