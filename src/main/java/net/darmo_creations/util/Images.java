@@ -51,7 +51,7 @@ public final class Images {
   public static final ImageIcon BABY;
   public static final ImageIcon HEART;
   public static final ImageIcon HEART_BROKEN;
-  public static final ImageIcon CROSS;
+  public static final ImageIcon TOMBSTONE;
   public static final ImageIcon COLOR_WHEEL;
   public static final ImageIcon BOOK;
   public static final ImageIcon BOOK_OPEN;
@@ -102,7 +102,7 @@ public final class Images {
     BABY = getIcon("/assets/icons/baby.png");
     HEART = getIcon("/assets/icons/heart.png");
     HEART_BROKEN = getIcon("/assets/icons/heart_broken.png");
-    CROSS = getIcon("/assets/icons/cross.png");
+    TOMBSTONE = getIcon("/assets/icons/tombstone.png");
     COLOR_WHEEL = getIcon("/assets/icons/color_wheel.png");
     BOOK = getIcon("/assets/icons/book.png");
     BOOK_OPEN = getIcon("/assets/icons/book_open.png");

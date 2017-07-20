@@ -84,7 +84,7 @@ public class FamilyMemberPanel extends JPanel {
     }
 
     this.model.setId(member.getId());
-    this.nameLbl.setIcon(member.isDead() ? Images.CROSS : null);
+    this.nameLbl.setIcon(member.isDead() ? Images.TOMBSTONE : null);
     this.nameLbl.setText(member.toString());
 
     Dimension size = this.nameLbl.getPreferredSize();

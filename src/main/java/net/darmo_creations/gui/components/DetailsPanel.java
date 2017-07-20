@@ -103,7 +103,7 @@ public class DetailsPanel extends JPanel {
     gbc.gridwidth = 1;
     gbc.anchor = GridBagConstraints.BASELINE_LEADING;
     gbc.fill = GridBagConstraints.NONE;
-    infoPnl.add(new JLabel(Images.CROSS), gbc);
+    infoPnl.add(new JLabel(Images.TOMBSTONE), gbc);
     gbc.gridx = 1;
     gbc.gridwidth = GridBagConstraints.REMAINDER;
     gbc.anchor = GridBagConstraints.BASELINE;
@@ -141,7 +141,7 @@ public class DetailsPanel extends JPanel {
     String death = formatDateAndLocation(member.getDeathDate(), member.getDeathLocation());
 
     this.nameLbl.setText(name);
-    this.nameLbl.setIcon(member.isDead() ? Images.CROSS : null);
+    this.nameLbl.setIcon(member.isDead() ? Images.TOMBSTONE : null);
     this.otherNamesLbl.setText(member.getOtherNames().orElse(""));
     this.birthLbl.setText(birth);
     this.relationsPnl.setRelations(relations);
