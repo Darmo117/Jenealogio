@@ -39,7 +39,7 @@ public final class FamilyEdit {
    * @param family the family
    * @param locations locations for all cards
    */
-  public FamilyEdit(Family family, Map<Long, Point> locations) {
+  public FamilyEdit(final Family family, final Map<Long, Point> locations) {
     this.family = family.clone();
     this.locations = new HashMap<>(locations);
   }

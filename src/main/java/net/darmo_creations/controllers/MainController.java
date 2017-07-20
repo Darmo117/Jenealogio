@@ -26,7 +26,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -69,7 +68,7 @@ public class MainController implements DropHandler {
   /** The family (model) */
   private Family family;
   /** Last save */
-  private FamilyEdit lastSave;
+  private FamilyEdit lastSavedEdit;
   /** Is a file open? */
   private boolean fileOpen;
   /** Has the file already been saved? */
@@ -88,16 +87,16 @@ public class MainController implements DropHandler {
   private boolean addingLink;
 
   /** Undo/redo manager */
-  private UndoRedoManager<FamilyEdit> undoManager;
+  private UndoRedoManager<FamilyEdit> undoRedoManager;
 
   public MainController(MainFrame frame, GlobalConfig config) {
     this.frame = frame;
     this.config = config;
     this.familyDao = FamilyDao.instance();
-    this.lastSave = null;
+    this.lastSavedEdit = null;
     this.selectedCards = new ArrayList<>();
 
-    this.undoManager = new UndoRedoManager<>();
+    this.undoRedoManager = new UndoRedoManager<>();
   }
 
   /**
@@ -338,13 +337,13 @@ public class MainController implements DropHandler {
     Optional<String> name = this.frame.showCreateTreeDialog();
 
     if (name.isPresent()) {
-      this.undoManager.clear();
+      this.undoRedoManager.clear();
       this.family = new Family(name.get());
       this.fileOpen = true;
       this.alreadySaved = false;
       this.saved = false;
       this.frame.resetDisplay();
-      this.lastSave = new FamilyEdit(this.family, this.frame.getCardsPositions());
+      this.lastSavedEdit = new FamilyEdit(this.family, this.frame.getCardsPositions());
       addEdit();
       updateFrameMenus();
     }
@@ -386,18 +385,16 @@ public class MainController implements DropHandler {
    */
   private void loadFile(String fileName, boolean ignoreVersion) {
     try {
-      Map<Long, Point> positions = new HashMap<>();
-
-      this.undoManager.clear();
-      this.family = this.familyDao.load(fileName, positions, ignoreVersion);
-      this.lastSave = new FamilyEdit(this.family, positions);
-      this.undoManager.addEdit(this.lastSave);
+      this.undoRedoManager.clear();
+      this.lastSavedEdit = this.familyDao.load(fileName, ignoreVersion);
+      this.family = this.lastSavedEdit.getFamily();
+      this.undoRedoManager.addEdit(this.lastSavedEdit);
       this.fileName = fileName;
       this.fileOpen = true;
       this.alreadySaved = true;
       this.saved = true;
       this.frame.resetDisplay();
-      this.frame.refreshDisplay(this.family, positions, this.config);
+      this.frame.refreshDisplay(this.family, this.lastSavedEdit.getLocations(), this.config);
     }
     catch (VersionException ex) {
       int choice = this.frame.showConfirmDialog(I18n.getLocalizedString("popup.version_warning.text"), JOptionPane.YES_NO_OPTION);
@@ -457,9 +454,10 @@ public class MainController implements DropHandler {
       return true;
 
     try {
-      Map<Long, Point> points = this.frame.getCardsPositions();
-      this.familyDao.save(this.fileName, this.family, points);
-      this.lastSave = new FamilyEdit(this.family, points);
+      FamilyEdit newSave = new FamilyEdit(this.family, this.frame.getCardsPositions());
+
+      this.familyDao.save(this.fileName, newSave);
+      this.lastSavedEdit = newSave;
 
       if (!this.alreadySaved)
         this.alreadySaved = true;
@@ -654,15 +652,15 @@ public class MainController implements DropHandler {
    * Adds the current family object (after cloning it) to the undo manager.
    */
   private void addEdit() {
-    this.undoManager.addEdit(new FamilyEdit(this.family, this.frame.getCardsPositions()));
+    this.undoRedoManager.addEdit(new FamilyEdit(this.family, this.frame.getCardsPositions()));
   }
 
   /**
    * Performs an undo action.
    */
   private void undo() {
-    if (this.undoManager.canUndo()) {
-      this.undoManager.undo();
+    if (this.undoRedoManager.canUndo()) {
+      this.undoRedoManager.undo();
       undoOrRedo_();
     }
   }
@@ -671,8 +669,8 @@ public class MainController implements DropHandler {
    * Performs a redo action.
    */
   private void redo() {
-    if (this.undoManager.canRedo()) {
-      this.undoManager.redo();
+    if (this.undoRedoManager.canRedo()) {
+      this.undoRedoManager.redo();
       undoOrRedo_();
     }
   }
@@ -681,8 +679,8 @@ public class MainController implements DropHandler {
    * Method used by undo() and redo().
    */
   private void undoOrRedo_() {
-    FamilyEdit edit = this.undoManager.getEdit();
-    if (edit.equals(this.lastSave))
+    FamilyEdit edit = this.undoRedoManager.getEdit();
+    if (edit.equals(this.lastSavedEdit))
       this.saved = true;
     else
       this.saved = false;
@@ -695,13 +693,13 @@ public class MainController implements DropHandler {
    * Tells if the user can undo changes.
    */
   private boolean canUndo() {
-    return this.undoManager.canUndo();
+    return this.undoRedoManager.canUndo();
   }
 
   /**
    * Tells if the user can redo changes.
    */
   private boolean canRedo() {
-    return this.undoManager.canRedo();
+    return this.undoRedoManager.canRedo();
   }
 }

@@ -28,6 +28,7 @@ import java.nio.file.Paths;
 import java.text.ParseException;
 import java.time.format.DateTimeParseException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -43,6 +44,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
+import net.darmo_creations.model.FamilyEdit;
 import net.darmo_creations.model.date.Date;
 import net.darmo_creations.model.date.DateBuilder;
 import net.darmo_creations.model.family.Family;
@@ -70,17 +72,16 @@ public class FamilyDao {
   }
 
   /**
-   * Loads the family from the given file.
+   * Loads the family from the given file with positions for the cards.
    * 
    * @param file the file to load
-   * @param locations <i>[output parameter]</i> this map will hold the location of all the cards
    * @param ignoreVersion if true, any version mismatch will be ignored
-   * @return the loaded family object
+   * @return the loaded family and positions
    * @throws IOException if an I/O error occured
    * @throws ParseException if the file is corrupted/wrongly formatted
    * @throws VersionException if file's version is more recent than the current version
    */
-  public Family load(String file, Map<Long, Point> locations, boolean ignoreVersion) throws IOException, ParseException, VersionException {
+  public FamilyEdit load(String file, boolean ignoreVersion) throws IOException, ParseException, VersionException {
     String jsonString = String.join("", Files.readAllLines(Paths.get(file)));
 
     try {
@@ -89,6 +90,8 @@ public class FamilyDao {
       Set<FamilyMember> members = new HashSet<>();
       Set<Relationship> weddings = new HashSet<>();
       Family family = new Family((Long) obj.get("global_id"), (String) obj.get("name"), members, weddings);
+      Map<Long, Point> locations = new HashMap<>();
+
       Long rawVersion = (Long) obj.get("version");
       Version version = new Version(rawVersion != null ? (int) (long) rawVersion : 0);
 
@@ -168,7 +171,7 @@ public class FamilyDao {
         weddings.add(new Relationship(date, location, isWedding, hasEnded, endDate, partner1, partner2, children));
       }
 
-      return family;
+      return new FamilyEdit(family, locations);
     }
     catch (NullPointerException | ClassCastException | NoSuchElementException | DateTimeParseException
         | org.json.simple.parser.ParseException __) {
@@ -229,13 +232,14 @@ public class FamilyDao {
    * Saves the given family to the disk.
    * 
    * @param file the file to save to
-   * @param family the family object
-   * @param positions the locations for each card panel
+   * @param edit the edit to save
    * @throws IOException if an I/O error occured
    */
   @SuppressWarnings("unchecked")
-  public void save(String file, Family family, Map<Long, Point> positions) throws IOException {
+  public void save(String file, final FamilyEdit edit) throws IOException {
     JSONObject obj = new JSONObject();
+    Family family = edit.getFamily();
+    Map<Long, Point> locations = edit.getLocations();
 
     String comment = String.format(
         "This is a save file for Jenealogio v%1$s. "
@@ -264,8 +268,8 @@ public class FamilyDao {
       memberObj.put("comment", m.getComment().orElse(""));
       memberObj.put("image", base64Encode(m.getImage()));
       JSONObject posObj = new JSONObject();
-      posObj.put("x", positions.get(m.getId()).x);
-      posObj.put("y", positions.get(m.getId()).y);
+      posObj.put("x", locations.get(m.getId()).x);
+      posObj.put("y", locations.get(m.getId()).y);
       memberObj.put("position", posObj);
 
       membersObj.add(memberObj);
