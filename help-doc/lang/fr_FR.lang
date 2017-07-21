@@ -1,0 +1,20 @@
+button.collapse_all=Tout fermer
+button.home=Accueil
+
+tree.overview=Vue générale
+tree.getting_started=Pour commencer...
+tree.getting_started.workbench=L'Espace de travail
+tree.getting_started.cards=Fiches d'identité
+tree.getting_started.cards.details=Vue détaillée
+tree.getting_started.cards.add=Ajouter une fiche
+tree.getting_started.cards.edit=Éditer une fiche
+tree.getting_started.cards.delete=Supprimer une fiche
+tree.getting_started.links.details=Vue détaillée
+tree.getting_started.links=Liens
+tree.getting_started.links.add=Ajouter un lien
+tree.getting_started.links.edit=Éditer un lien
+tree.getting_started.links.delete=Supprimer un lien
+tree.general_options=Options générales
+tree.general_options.languages=Langues
+tree.general_options.colors=Couleurs
+tree.legal=Mentions légales

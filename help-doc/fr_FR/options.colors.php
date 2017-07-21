@@ -1,8 +1,6 @@
-<!doctype html>
-
-<html>
-<body>
-  <h1>Couleurs</h1>
+<?php
+ob_start();
+?>
   <p>
     Ce menu vous permet de changer la couleur de la plupart des composants. Vous pouvez y accéder
     depuis <span class="menu">Options &gt; <img src="../images/color_wheel.png"> Couleurs</span>.
@@ -14,5 +12,7 @@
     pour appliquer les modifications. Vous n'avez pas besoin de rdémarrer l'application car les
     changements sont appliqués immédiatement.
   </p>
-</body>
-</html>
+<?php
+$content = ob_get_clean();
+$title = 'Couleurs';
+require_once '../template.php';

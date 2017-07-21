@@ -1,0 +1,20 @@
+button.collapse_all=Fermi ĉio
+button.home=Ĉefpaĝo
+
+tree.overview=Trarigardo
+tree.getting_started=Komencante
+tree.getting_started.workbench=Stablo
+tree.getting_started.cards=Kartoj de identigo
+tree.getting_started.cards.details=Detala vido
+tree.getting_started.cards.add=Aldoni karto
+tree.getting_started.cards.edit=Modifi karto
+tree.getting_started.cards.delete=Forigi karto
+tree.getting_started.links.details=Detala vido
+tree.getting_started.links=Ligiloj
+tree.getting_started.links.add=Aldoni ligilo
+tree.getting_started.links.edit=Modifi ligilo
+tree.getting_started.links.delete=Forigi ligilo
+tree.general_options=Ĝeneralaj opcioj
+tree.general_options.languages=Lingvoj
+tree.general_options.colors=Koloroj
+tree.legal=Leĝmencioj
