@@ -1,7 +1,7 @@
 <?php
 ob_start();
 ?>
-  Tout d'abord, sélectionnez la fiche à supprimer.<br>
+  Tout d'abord, sélectionnez la fiche à supprimer.<br />
   Une fois de plus, il y plusieus manières de faire&#8239;:
   <ul>
     <li>aller à <span class="menu">Édition &gt; <img src="../images/delete_card.png"> Supprimer une fiche</span>&#8239;;</li>
