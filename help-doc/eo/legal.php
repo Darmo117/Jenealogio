@@ -1,10 +1,8 @@
-<!doctype html>
-
-<html>
-<body>
-  <h1>Averto</h1>
+<?php
+ob_start();
+?>
   <p>
-    La enhavo de tiu gvido estas © Jenealogio 2017.
+    La enhavo de tiu gvido estas ¬© Jenealogio 2017.
   </p>
   <h2>Permesilo</h2>
   <p>
@@ -12,8 +10,11 @@
     document under the terms of the GNU Free Documentation License,
     Version 1.3 or any later version published by the Free Software
     Foundation; with no Invariant Sections, no Front-Cover Texts, and
-    no Back-Cover Texts.  A copy of the license is included in the
-    section entitled ìGNU Free Documentation Licenseî.
+    no Back-Cover Texts. A copy of the license is included in the
+    section entitled ‚ÄúGNU Free Documentation License‚Äù.
   </p>
-</body>
-</html>
+<?php
+$content = ob_get_clean();
+$title = 'Averto';
+$lang = 'eo';
+require_once '../template.php';

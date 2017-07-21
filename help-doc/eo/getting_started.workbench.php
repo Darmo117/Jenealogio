@@ -1,8 +1,6 @@
-<!doctype html>
-
-<html>
-<body>
-  <h1>La Stablo</h1>
+<?php
+ob_start();
+?>
   <p>
     Iam la programo estas komenciĝita, la unua afero vi vidas estas blanka spaco. Post vi kreis
     projekton, vi kreos via arbon tie. Vi povas krei novan arbon alklake
@@ -15,6 +13,9 @@
     Post la projekto estas kreita, vi vidus ke, io butonoj estas nun ŝaltitaj. Ni povas komenci
     labori.
   </p>
-  <p>Sekva temo: <a href="getting_started.cards.html">Kartoj</a></p>
-</body>
-</html>
+  <p class="next-topic">Sekva temo: <a href="getting_started.cards.php">Kartoj</a></p>
+<?php
+$content = ob_get_clean();
+$title = 'La Stablo';
+$lang = 'eo';
+require_once '../template.php';

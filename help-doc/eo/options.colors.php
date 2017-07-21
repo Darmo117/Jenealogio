@@ -1,8 +1,6 @@
-<!doctype html>
-
-<html>
-<body>
-  <h1>Koloroj</h1>
+<?php
+ob_start();
+?>
   <p>
     Vi povas ŝanĝi la kolorojn de preskaŭ ĉiuj la komponantoj tra tiu menuo.
     La menuo estas atingita irante tra <span class="menu">Opcioj &gt;
@@ -14,5 +12,8 @@
     <span class="button">Validigi</span> por apliki la ŝanĝoj. Vi ne bezonas rekomenciĝi
     la programon.
   </p>
-</body>
-</html>
+<?php
+$content = ob_get_clean();
+$title = 'Koloroj';
+$lang = 'eo';
+require_once '../template.php';
