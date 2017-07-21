@@ -76,8 +76,6 @@ public final class Images {
   public static final ImageIcon ARROW_UP_BIG;
   public static final ImageIcon ARROW_DOWN_BIG;
 
-  public static final ImageIcon LOADING;
-
   public static final ImageIcon JENEALOGIO;
   public static final ImageIcon GNU_GPL;
 
@@ -125,8 +123,6 @@ public final class Images {
     DELETE_LINK_BIG = getIcon("/assets/icons/delete_link_32.png");
     ARROW_UP_BIG = getIcon("/assets/icons/arrow_up_32.png");
     ARROW_DOWN_BIG = getIcon("/assets/icons/arrow_down_32.png");
-
-    LOADING = getIcon("/assets/icons/loading.gif");
 
     JENEALOGIO = getIcon("/assets/icons/jenealogio_icon.png");
     GNU_GPL = getIcon("/assets/icons/gplv3-127x51.png");
