@@ -13,4 +13,5 @@ ob_start();
 <?php
 $content = ob_get_clean();
 $title = 'Utilisation de l\'aide';
+$lang = 'fr_FR';
 require_once '../template.php';

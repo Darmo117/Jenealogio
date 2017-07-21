@@ -28,4 +28,5 @@ ob_start();
 <?php
 $content = ob_get_clean();
 $title = 'Fiches d\'identité';
+$lang = 'fr_FR';
 require_once '../template.php';

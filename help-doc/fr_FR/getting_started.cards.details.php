@@ -32,4 +32,5 @@ ob_start();
 <?php
 $content = ob_get_clean();
 $title = 'Vue détaillée';
+$lang = 'fr_FR';
 require_once '../template.php';

@@ -33,4 +33,5 @@ ob_start();
 <?php
 $content = ob_get_clean();
 $title = 'Ajouter un lien';
+$lang = 'fr_FR';
 require_once '../template.php';

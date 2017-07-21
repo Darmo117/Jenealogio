@@ -21,4 +21,5 @@ ob_start();
 <?php
 $content = ob_get_clean();
 $title = 'Éditer une fiche';
+$lang = 'fr_FR';
 require_once '../template.php';

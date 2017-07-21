@@ -15,4 +15,5 @@ ob_start();
 <?php
 $content = ob_get_clean();
 $title = 'Langues';
+$lang = 'fr_FR';
 require_once '../template.php';

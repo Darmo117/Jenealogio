@@ -14,4 +14,5 @@ ob_start();
 <?php
 $content = ob_get_clean();
 $title = 'Vue générale';
+$lang = 'fr_FR';
 require_once '../template.php';

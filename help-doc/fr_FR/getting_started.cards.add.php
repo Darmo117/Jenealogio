@@ -27,4 +27,5 @@ ob_start();
 <?php
 $content = ob_get_clean();
 $title = 'Ajouter une fiche';
+$lang = 'fr_FR';
 require_once '../template.php';

@@ -17,4 +17,5 @@ ob_start();
 <?php
 $content = ob_get_clean();
 $title = 'Éditer un lien';
+$lang = 'fr_FR';
 require_once '../template.php';

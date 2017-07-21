@@ -14,4 +14,5 @@ ob_start();
 <?php
 $content = ob_get_clean();
 $title = 'Pour commencer…';
+$lang = 'fr_FR';
 require_once '../template.php';

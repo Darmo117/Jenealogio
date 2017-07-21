@@ -16,4 +16,5 @@ ob_start();
 <?php
 $content = ob_get_clean();
 $title = 'Notice';
+$lang = 'fr_FR';
 require_once '../template.php';

@@ -18,4 +18,5 @@ ob_start();
 <?php
 $content = ob_get_clean();
 $title = 'L\'Espace de travail';
+$lang = 'fr_FR';
 require_once '../template.php';
