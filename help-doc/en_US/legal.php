@@ -1,8 +1,6 @@
-<!doctype html>
-
-<html>
-<body>
-  <h1>Notice</h1>
+<?php
+ob_start();
+?>
   <p>
     The material in this guide is © Jenealogio 2017.
   </p>
@@ -12,8 +10,10 @@
     document under the terms of the GNU Free Documentation License,
     Version 1.3 or any later version published by the Free Software
     Foundation; with no Invariant Sections, no Front-Cover Texts, and
-    no Back-Cover Texts.  A copy of the license is included in the
+    no Back-Cover Texts. A copy of the license is included in the
     section entitled “GNU Free Documentation License”.
   </p>
-</body>
-</html>
+<?php
+$content = ob_get_clean();
+$title = 'Notice';
+require_once '../template.php';

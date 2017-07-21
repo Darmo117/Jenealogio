@@ -1,8 +1,6 @@
-<!doctype html>
-
-<html>
-<body>
-  <h1>Overview</h1>
+<?php
+ob_start();
+?>
   <p>
     The following topics provide help on how to use the Workbench to create family trees. They also
     explain customization options.
@@ -12,6 +10,8 @@
     The term Workbench refers to the main editing interface. It is composed of the editing zone,
     the tool bar above it and the menu bar at the top of the window.
   </p>
-  <p>Next topic: <a href="getting_started.html">Getting started</a></p>
-</body>
-</html>
+  <p class="next-topic">Next topic: <a href="getting_started.php">Getting started</a></p>
+<?php
+$content = ob_get_clean();
+$title = 'Overview';
+require_once '../template.php';

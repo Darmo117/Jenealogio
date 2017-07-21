@@ -1,8 +1,6 @@
-<!doctype html>
-
-<html>
-<body>
-  <h1>Colors</h1>
+<?php
+ob_start();
+?>
   <p>
     This menu lets you change the colors of most of the components. You can access it by going to
     <span class="menu">Options &gt; <img src="../images/color_wheel.png"> Colors</span>.
@@ -13,5 +11,7 @@
     <span class="button">Validate</span> to apply changes. You don't need to restart the app as
     changes are applied immediatly.
   </p>
-</body>
-</html>
+<?php
+$content = ob_get_clean();
+$title = 'Colors';
+require_once '../template.php';
