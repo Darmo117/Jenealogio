@@ -96,15 +96,20 @@ if (!$noMenu) {
   </body>
   </html>
 <?php
-
+/**
+ * Loads the given lang file.
+ *
+ * @param string $lang language code
+ *
+ * @return array resources array
+ */
 function loadLangFile(string $lang): array {
   $raw = explode("\n", file_get_contents($_SERVER['DOCUMENT_ROOT'] . '/lang/' . $lang . '.lang'));
   $array = [];
 
   foreach ($raw as $line) {
-    if ($line != '') {
-      $v = explode('=', $line);
-      $array[$v[0]] = $v[1];
+    if (preg_match('/(\w+(?:\.\w+)*)=(.*)/', $line, $matches)) {
+      $array[$matches[1]] = $matches[2];
     }
   }
 
