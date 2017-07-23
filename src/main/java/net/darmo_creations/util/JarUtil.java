@@ -19,29 +19,36 @@
 package net.darmo_creations.util;
 
 import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
 
-public class JarUtil {
+import net.darmo_creations.Start;
+
+/**
+ * This class provides utility functions to find Jar path.
+ *
+ * @author Damien Vergnet
+ */
+public final class JarUtil {
   private static String dir;
 
-  public static String getJarDir() {
-    return getJarDir(File.separatorChar);
-  }
-
   /**
-   * @return the path to the jar
+   * @return the jar's directory
    */
-  public static String getJarDir(char separator) {
+  public static String getJarDir() {
     if (dir == null) {
       String path = ClassLoader.getSystemClassLoader().getResource(".").getPath();
 
-      if (File.separatorChar == '\\') {
-        path = path.substring(1); // Removes the first /.
-      }
-
+      if (File.separatorChar == '\\')
+        path = path.substring(1); // Removes the first '/'.
       dir = path;
     }
 
-    return dir.replace('/', separator);
+    return dir.replace('/', File.separatorChar);
+  }
+
+  public static URI getJar() throws URISyntaxException {
+    return Start.class.getProtectionDomain().getCodeSource().getLocation().toURI();
   }
 
   public JarUtil() {}
