@@ -213,7 +213,7 @@ public class MainController implements DropHandler {
       try {
         restartApplication();
       }
-      catch (IOException ex) {
+      catch (IOException __) {
         this.frame.showErrorDialog(I18n.getLocalizedString("popup.change_language.restart_error.text"));
       }
     }
@@ -359,7 +359,6 @@ public class MainController implements DropHandler {
    * @return true if the file has been saved or the user doesn't want to; false if the user canceled
    *         or an error occured
    */
-  // TEMP flag
   private boolean checkSaved() {
     if (this.fileOpen && !this.saved) {
       int choice = this.frame.showConfirmDialog(I18n.getLocalizedString("popup.save_confirm.text"));
@@ -670,7 +669,7 @@ public class MainController implements DropHandler {
 
     // Is it a jar file?
     if (!currentJar.getName().endsWith(".jar"))
-      throw new IOException("unable to find Java");
+      throw new IOException("unable to find executable");
 
     // Build command: java -jar <application>.jar
     ArrayList<String> command = new ArrayList<String>();
