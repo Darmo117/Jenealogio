@@ -665,7 +665,7 @@ public class MainController implements DropHandler {
 
     if (!event.isCanceled()) {
       // Build command: java -jar <application>.jar
-      ArrayList<String> command = new ArrayList<String>();
+      List<String> command = new ArrayList<>();
       command.add(javaBin);
       command.add("-jar");
       command.add(currentJar.getPath());
