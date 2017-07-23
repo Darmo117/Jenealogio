@@ -36,7 +36,6 @@ import java.util.stream.Collectors;
 
 import javax.swing.JOptionPane;
 
-import net.darmo_creations.Start;
 import net.darmo_creations.config.GlobalConfig;
 import net.darmo_creations.dao.ConfigDao;
 import net.darmo_creations.dao.FamilyDao;
@@ -56,6 +55,7 @@ import net.darmo_creations.model.family.Family;
 import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.model.family.Relationship;
 import net.darmo_creations.util.I18n;
+import net.darmo_creations.util.JarUtil;
 import net.darmo_creations.util.VersionException;
 
 /**
@@ -665,7 +665,7 @@ public class MainController implements DropHandler {
    */
   private void restartApplication() throws IOException, URISyntaxException {
     String javaBin = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
-    File currentJar = new File(Start.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+    File currentJar = new File(JarUtil.getJar());
 
     // Is it a jar file?
     if (!currentJar.getName().endsWith(".jar"))
