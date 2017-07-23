@@ -57,6 +57,7 @@ import net.darmo_creations.events.ChangeLanguageEvent;
 import net.darmo_creations.events.EventsDispatcher;
 import net.darmo_creations.events.UserEvent;
 import net.darmo_creations.gui.components.display_panel.DisplayPanel;
+import net.darmo_creations.gui.components.status_bar.StatusBar;
 import net.darmo_creations.gui.dialog.AboutDialog;
 import net.darmo_creations.gui.dialog.CardDetailsDialog;
 import net.darmo_creations.gui.dialog.LinkDetailsDialog;
@@ -95,6 +96,7 @@ public class MainFrame extends JFrame {
   private JButton saveBtn, saveAsBtn, undoBtn, redoBtn, addCardBtn, editCardBtn, editLinkBtn, deleteCardBtn, deleteLinkBtn;
   private JToggleButton addLinkBtn;
   private DisplayPanel displayPnl;
+  private StatusBar statusBar;
 
   private Map<UserEvent.Type, ActionListener> listeners;
 
@@ -129,12 +131,17 @@ public class MainFrame extends JFrame {
       this.listeners.put(type, e -> EventsDispatcher.EVENT_BUS.dispatchEvent(new UserEvent(type)));
 
     setJMenuBar(initJMenuBar(this.listeners, config));
+
     add(getJToolBar(this.listeners), BorderLayout.NORTH);
+
     JScrollPane scrollPane = new JScrollPane();
     this.displayPnl = new DisplayPanel(scrollPane);
     this.displayPnl.addDropHandler(controller);
     scrollPane.setViewportView(this.displayPnl);
     add(scrollPane, BorderLayout.CENTER);
+
+    this.statusBar = new StatusBar();
+    add(this.statusBar, BorderLayout.SOUTH);
 
     EventsDispatcher.EVENT_BUS.register(controller);
     EventsDispatcher.EVENT_BUS.register(this.displayPnl);

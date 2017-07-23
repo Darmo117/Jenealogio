@@ -19,7 +19,7 @@
 package net.darmo_creations.events;
 
 /**
- * This event is fired when a menu item/button is clicked.
+ * This event is fired when a menu item/button is clicked. This event can be cancelled.
  * 
  * @author Damien Vergnet
  */
@@ -33,11 +33,6 @@ public final class UserEvent extends AbstractEvent {
    */
   public UserEvent(Type type) {
     this.type = type;
-  }
-
-  @Override
-  public boolean isCancelable() {
-    return false;
   }
 
   /**

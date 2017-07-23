@@ -55,6 +55,7 @@ import net.darmo_creations.model.family.Family;
 import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.model.family.Relationship;
 import net.darmo_creations.util.I18n;
+import net.darmo_creations.util.JarUtil;
 import net.darmo_creations.util.VersionException;
 
 /**
@@ -119,6 +120,10 @@ public class MainController implements DropHandler {
    */
   @SubsribeEvent
   public void onUserEvent(UserEvent e) {
+    if (e.isCanceled()) {
+      return;
+    }
+
     switch (e.getType()) {
       case NEW:
         newFile();
@@ -133,11 +138,11 @@ public class MainController implements DropHandler {
         else
           ok = saveAs();
         if (!ok)
-          this.frame.showErrorDialog(I18n.getLocalizedString("popup.save_file_error.text"));
+          handleSaveError(e);
         break;
       case SAVE_AS:
         if (!saveAs())
-          this.frame.showErrorDialog(I18n.getLocalizedString("popup.save_file_error.text"));
+          handleSaveError(e);
         break;
       case UNDO:
         undo();
@@ -174,9 +179,16 @@ public class MainController implements DropHandler {
         this.frame.showAboutDialog();
         break;
       case EXIT:
-        exit();
+        if (!exit())
+          e.setCanceled();
         break;
     }
+  }
+
+  private void handleSaveError(UserEvent e) {
+    int choice = this.frame.showConfirmDialog(I18n.getLocalizedString("popup.save_file_error.text"), JOptionPane.YES_NO_OPTION);
+    if (choice == JOptionPane.YES_OPTION)
+      e.setCanceled();
   }
 
   /**
@@ -184,11 +196,27 @@ public class MainController implements DropHandler {
    * 
    * @param e the event
    */
-  // TODO restart if the user wants to; otherwise do not update config
   @SubsribeEvent
   public void onChangeLanguage(ChangeLanguageEvent e) {
-    this.config.setLanguage(e.getLanguage());
-    this.frame.showWarningDialog(I18n.getLocalizedString("popup.change_language_warning.text"));
+    int choice = this.frame.showConfirmDialog(I18n.getLocalizedString("popup.change_language.confirm.text"));
+
+    if (choice == JOptionPane.YES_OPTION) {
+      if (!this.saved) {
+        UserEvent event = new UserEvent(UserEvent.Type.SAVE);
+        EventsDispatcher.EVENT_BUS.dispatchEvent(event);
+
+        if (event.isCanceled()) {
+          return;
+        }
+      }
+      this.config.setLanguage(e.getLanguage());
+      try {
+        restartApplication();
+      }
+      catch (IOException ex) {
+        this.frame.showErrorDialog(I18n.getLocalizedString("popup.change_language.restart_error.text"));
+      }
+    }
   }
 
   /**
@@ -326,30 +354,47 @@ public class MainController implements DropHandler {
   }
 
   /**
-   * Creates a new file. Asks the user if the current file is not saved.
+   * Checks that the file has been saved. If not, the user is asked if they want to save.
+   * 
+   * @return true if the file has been saved or the user doesn't want to; false if the user canceled
+   *         or an error occured
    */
-  private void newFile() {
+  // TEMP flag
+  private boolean checkSaved() {
     if (this.fileOpen && !this.saved) {
       int choice = this.frame.showConfirmDialog(I18n.getLocalizedString("popup.save_confirm.text"));
 
-      if (choice == JOptionPane.YES_OPTION)
-        save();
+      if (choice == JOptionPane.YES_OPTION) {
+        UserEvent event = new UserEvent(UserEvent.Type.SAVE);
+        EventsDispatcher.EVENT_BUS.dispatchEvent(event);
+        if (event.isCanceled())
+          return false;
+      }
       else if (choice == JOptionPane.CANCEL_OPTION || choice == JOptionPane.CLOSED_OPTION)
-        return;
+        return false;
     }
 
-    Optional<String> name = this.frame.showCreateTreeDialog();
+    return true;
+  }
 
-    if (name.isPresent()) {
-      this.undoRedoManager.clear();
-      this.family = new Family(name.get());
-      this.fileOpen = true;
-      this.alreadySaved = false;
-      this.saved = false;
-      this.frame.resetDisplay();
-      this.lastSavedEdit = new FamilyEdit(this.family, this.frame.getCardsPositions());
-      addEdit();
-      updateFrameMenus();
+  /**
+   * Creates a new file. Asks the user if the current file is not saved.
+   */
+  private void newFile() {
+    if (checkSaved()) {
+      Optional<String> name = this.frame.showCreateTreeDialog();
+
+      if (name.isPresent()) {
+        this.undoRedoManager.clear();
+        this.family = new Family(name.get());
+        this.fileOpen = true;
+        this.alreadySaved = false;
+        this.saved = false;
+        this.frame.resetDisplay();
+        this.lastSavedEdit = new FamilyEdit(this.family, this.frame.getCardsPositions());
+        addEdit();
+        updateFrameMenus();
+      }
     }
   }
 
@@ -360,23 +405,19 @@ public class MainController implements DropHandler {
    *          save state is still checked
    */
   private void open(final File file) {
-    if (this.fileOpen && !this.saved) {
-      int choice = this.frame.showConfirmDialog(I18n.getLocalizedString("popup.open_confirm.text"));
-      if (choice != JOptionPane.YES_OPTION)
-        return;
-    }
+    if (checkSaved()) {
+      Optional<File> opt;
 
-    Optional<File> opt;
+      if (file == null) {
+        opt = this.frame.showOpenFileChooser();
+      }
+      else {
+        opt = Optional.of(file);
+      }
 
-    if (file == null) {
-      opt = this.frame.showOpenFileChooser();
-    }
-    else {
-      opt = Optional.of(file);
-    }
-
-    if (opt.isPresent()) {
-      loadFile(opt.get().getAbsolutePath(), false);
+      if (opt.isPresent()) {
+        loadFile(opt.get().getAbsolutePath(), false);
+      }
     }
   }
 
@@ -471,7 +512,6 @@ public class MainController implements DropHandler {
       return true;
     }
     catch (IOException __) {
-      this.frame.showErrorDialog(I18n.getLocalizedString("popup.save_file_error.text"));
       return false;
     }
   }
@@ -556,9 +596,9 @@ public class MainController implements DropHandler {
   private void deleteCard() {
     if (this.lastSelectedCard != null || !this.selectedCards.isEmpty()) {
       String key = !this.selectedCards.isEmpty() ? "popup.delete_cards_confirm.text" : "popup.delete_card_confirm.text";
-      int choice = this.frame.showConfirmDialog(I18n.getLocalizedString(key));
+      int choice = this.frame.showConfirmDialog(I18n.getLocalizedString(key), JOptionPane.YES_NO_OPTION);
 
-      if (choice == JOptionPane.OK_OPTION) {
+      if (choice == JOptionPane.YES_OPTION) {
         this.family.removeMember(this.lastSelectedCard.getId());
         this.selectedCards.forEach(m -> this.family.removeMember(m.getId()));
         addEdit();
@@ -576,9 +616,9 @@ public class MainController implements DropHandler {
    */
   private void deleteLink() {
     if (this.selectedLink != null) {
-      int choice = this.frame.showConfirmDialog(I18n.getLocalizedString("popup.delete_link_confirm.text"));
+      int choice = this.frame.showConfirmDialog(I18n.getLocalizedString("popup.delete_link_confirm.text"), JOptionPane.YES_NO_OPTION);
 
-      if (choice == JOptionPane.OK_OPTION) {
+      if (choice == JOptionPane.YES_OPTION) {
         this.family.removeRelationship(this.selectedLink);
         addEdit();
         this.selectedLink = null;
@@ -609,29 +649,42 @@ public class MainController implements DropHandler {
 
   /**
    * Exits the application. The user is asked to save if the file is not.
+   * 
+   * @return true if the application exited; false otherwise
    */
-  private void exit() {
-    if (this.fileOpen && !this.saved) {
-      int choice = this.frame.showConfirmDialog(I18n.getLocalizedString("popup.save_confirm.text"));
-
-      if (choice == JOptionPane.YES_OPTION) {
-        boolean ok;
-
-        if (this.alreadySaved)
-          ok = save();
-        else
-          ok = saveAs();
-        if (!ok) {
-          this.frame.showErrorDialog(I18n.getLocalizedString("popup.save_file_error.text"));
-          return;
-        }
-      }
-      else if (choice == JOptionPane.CANCEL_OPTION || choice == JOptionPane.CLOSED_OPTION)
-        return;
+  private boolean exit() {
+    if (checkSaved()) {
+      ConfigDao.getInstance().save(this.config);
+      this.frame.dispose();
+      return true;
     }
+    return false;
+  }
 
-    ConfigDao.getInstance().save(this.config);
-    this.frame.dispose();
+  /**
+   * Restarts the application.
+   */
+  private void restartApplication() throws IOException {
+    String javaBin = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
+    File currentJar = new File(JarUtil.getJarDir());
+
+    // Is it a jar file?
+    if (!currentJar.getName().endsWith(".jar"))
+      throw new IOException("unable to find Java");
+
+    // Build command: java -jar <application>.jar
+    ArrayList<String> command = new ArrayList<String>();
+    command.add(javaBin);
+    command.add("-jar");
+    command.add(currentJar.getPath());
+
+    UserEvent event = new UserEvent(UserEvent.Type.EXIT);
+    EventsDispatcher.EVENT_BUS.dispatchEvent(event);
+
+    if (!event.isCanceled()) {
+      ProcessBuilder builder = new ProcessBuilder(command);
+      builder.start();
+    }
   }
 
   /**
