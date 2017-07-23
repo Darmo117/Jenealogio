@@ -32,12 +32,12 @@ public class AboutDialog extends AbstractDialog {
   public AboutDialog(JFrame owner) {
     super(owner, Mode.CLOSE_OPTION, false);
 
+    setResizable(false);
     setTitle(I18n.getLocalizedString("dialog.about.title"));
 
     JPanel leftPnl = new JPanel();
     leftPnl.setBorder(new EmptyBorder(5, 5, 5, 5));
     leftPnl.setLayout(new BoxLayout(leftPnl, BoxLayout.Y_AXIS));
-    // FIXME disable resizing
     ImageLabel icon = new ImageLabel(Images.JENEALOGIO);
     icon.setPreferredSize(new Dimension(100, 100));
     leftPnl.add(icon);
