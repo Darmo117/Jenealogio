@@ -198,23 +198,16 @@ public class MainController implements DropHandler {
    */
   @SubsribeEvent
   public void onChangeLanguage(ChangeLanguageEvent e) {
-    int choice = this.frame.showConfirmDialog(I18n.getLocalizedString("popup.change_language.confirm.text"));
+    int choice = this.frame.showConfirmDialog(I18n.getLocalizedString("popup.change_language.confirm.text"), JOptionPane.YES_NO_OPTION);
 
     if (choice == JOptionPane.YES_OPTION) {
-      if (!this.saved) {
-        UserEvent event = new UserEvent(UserEvent.Type.SAVE);
-        EventsDispatcher.EVENT_BUS.dispatchEvent(event);
-
-        if (event.isCanceled()) {
-          return;
-        }
-      }
-      this.config.setLanguage(e.getLanguage());
       try {
+        this.config.setLanguage(e.getLanguage());
         restartApplication();
       }
       catch (IOException | URISyntaxException __) {
         this.frame.showErrorDialog(I18n.getLocalizedString("popup.change_language.restart_error.text"));
+        System.exit(0);
       }
     }
   }
@@ -667,20 +660,20 @@ public class MainController implements DropHandler {
     String javaBin = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
     File currentJar = new File(JarUtil.getJar());
 
-    // Is it a jar file?
-    if (!currentJar.getName().endsWith(".jar"))
-      throw new IOException("unable to find executable");
-
-    // Build command: java -jar <application>.jar
-    ArrayList<String> command = new ArrayList<String>();
-    command.add(javaBin);
-    command.add("-jar");
-    command.add(currentJar.getPath());
-
     UserEvent event = new UserEvent(UserEvent.Type.EXIT);
     EventsDispatcher.EVENT_BUS.dispatchEvent(event);
 
     if (!event.isCanceled()) {
+      // Build command: java -jar <application>.jar
+      ArrayList<String> command = new ArrayList<String>();
+      command.add(javaBin);
+      command.add("-jar");
+      command.add(currentJar.getPath());
+
+      // Is it a jar file?
+      if (!currentJar.getName().endsWith(".jar"))
+        throw new IOException("unable to find executable");
+
       ProcessBuilder builder = new ProcessBuilder(command);
       builder.start();
       System.exit(0);
