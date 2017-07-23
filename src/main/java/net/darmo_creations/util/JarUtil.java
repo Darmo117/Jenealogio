@@ -47,6 +47,9 @@ public final class JarUtil {
     return dir.replace('/', File.separatorChar);
   }
 
+  /**
+   * @return the path of the Jar
+   */
   public static URI getJar() throws URISyntaxException {
     return Start.class.getProtectionDomain().getCodeSource().getLocation().toURI();
   }
