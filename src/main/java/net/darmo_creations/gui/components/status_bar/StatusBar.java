@@ -22,7 +22,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,23 +29,27 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 /**
- * http://java-articles.info/articles/?p=65
+ * This class implements the missing status bar.
  * 
  * @author Gilbert Le Blanc
  * @author Darmo
+ * @see http://java-articles.info/articles/?p=65
  */
 public class StatusBar extends JPanel {
   private static final long serialVersionUID = 3113718826183202598L;
 
   private JPanel leftPanel;
   private JPanel rightPanel;
-  private JComponent leftComponent;
-  private List<JComponent> rightComponents;
+  private List<JComponent> leftComponents, rightComponents;
 
+  /**
+   * Creates a status bar.
+   */
   public StatusBar() {
     setLayout(new BorderLayout());
     setPreferredSize(new Dimension(0, 25));
 
+    this.leftComponents = new ArrayList<>();
     this.rightComponents = new ArrayList<>();
 
     this.leftPanel = new JPanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
@@ -58,17 +61,35 @@ public class StatusBar extends JPanel {
     add(this.rightPanel, BorderLayout.EAST);
   }
 
-  public void setLeftComponent(JComponent component) {
-    this.leftComponent = component;
-    this.leftPanel.add(this.leftComponent);
+  /**
+   * Adds a component to the left.
+   * 
+   * @param component the component
+   */
+  public void addLeftComponent(JComponent component) {
+    JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEADING));
+
+    if (!this.leftComponents.isEmpty())
+      panel.add(new SeparatorPanel(Color.GRAY, Color.WHITE));
+    panel.add(component);
+    this.leftComponents.add(component);
+    this.leftPanel.add(panel);
   }
 
-  public JComponent getLeftJComponent() {
-    return this.leftComponent;
+  /**
+   * @return the left components
+   */
+  public List<JComponent> getLeftComponents() {
+    return this.leftComponents;
   }
 
+  /**
+   * Adds a component to the right.
+   * 
+   * @param component the component
+   */
   public void addRightComponent(JComponent component) {
-    JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEADING, 5, 3));
+    JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEADING));
 
     panel.add(new SeparatorPanel(Color.GRAY, Color.WHITE));
     panel.add(component);
@@ -76,41 +97,10 @@ public class StatusBar extends JPanel {
     this.rightPanel.add(panel);
   }
 
+  /**
+   * @return the right components
+   */
   public List<JComponent> getRightComponents() {
     return this.rightComponents;
-  }
-
-  @Override
-  protected void paintComponent(Graphics g) {
-    super.paintComponent(g);
-
-    int y = 0;
-    g.setColor(new Color(156, 154, 140));
-    g.drawLine(0, y, getWidth(), y);
-    y++;
-
-    g.setColor(new Color(196, 194, 183));
-    g.drawLine(0, y, getWidth(), y);
-    y++;
-
-    g.setColor(new Color(218, 215, 201));
-    g.drawLine(0, y, getWidth(), y);
-    y++;
-
-    g.setColor(new Color(233, 231, 217));
-    g.drawLine(0, y, getWidth(), y);
-
-    y = getHeight() - 3;
-
-    g.setColor(new Color(233, 232, 218));
-    g.drawLine(0, y, getWidth(), y);
-    y++;
-
-    g.setColor(new Color(233, 231, 216));
-    g.drawLine(0, y, getWidth(), y);
-    y++;
-
-    g.setColor(new Color(221, 221, 220));
-    g.drawLine(0, y, getWidth(), y);
   }
 }
