@@ -53,9 +53,6 @@ public final class Images {
   public static final ImageIcon HEART_BROKEN;
   public static final ImageIcon TOMBSTONE;
   public static final ImageIcon COLOR_WHEEL;
-  public static final ImageIcon BOOK;
-  public static final ImageIcon BOOK_OPEN;
-  public static final ImageIcon PAGE;
   public static final ImageIcon MALE_SYMBOL;
   public static final ImageIcon FEMALE_SYMBOL;
   public static final ImageIcon USER;
@@ -101,9 +98,6 @@ public final class Images {
     HEART_BROKEN = getIcon("/assets/icons/heart_broken.png");
     TOMBSTONE = getIcon("/assets/icons/tombstone.png");
     COLOR_WHEEL = getIcon("/assets/icons/color_wheel.png");
-    BOOK = getIcon("/assets/icons/book.png");
-    BOOK_OPEN = getIcon("/assets/icons/book_open.png");
-    PAGE = getIcon("/assets/icons/page.png");
     MALE_SYMBOL = getIcon("/assets/icons/male_symbol.png");
     FEMALE_SYMBOL = getIcon("/assets/icons/female_symbol.png");
     USER = getIcon("/assets/icons/user.png");
