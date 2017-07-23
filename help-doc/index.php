@@ -1,10 +1,11 @@
 <?php
 ob_start();
 ?>
+<p>Choose a language:</p>
 <ul>
-  <li><a href="en_US/index.php">English</a></li>
-  <li><a href="fr_FR/index.php">Français</a></li>
-  <li><a href="eo/index.php">Esperanto</a></li>
+  <li><a href="en_US/">English</a></li>
+  <li><a href="fr_FR/">Français</a></li>
+  <li><a href="eo/">Esperanto</a></li>
 </ul>
 <?php
 $content = ob_get_clean();

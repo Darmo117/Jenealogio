@@ -1,4 +1,14 @@
 <?php
+$localhost = [
+    '127.0.0.1',
+    '::1',
+    'localhost'
+];
+if (in_array($_SERVER['REMOTE_ADDR'], $localhost))
+  define('ROOT', '');
+else
+  define('ROOT', '/jenealogio/help-doc');
+
 if (!isset($noMenu) || !is_bool($noMenu)) {
   $noMenu = false;
 }
@@ -23,9 +33,9 @@ if (!$noMenu) {
   <head>
     <title><?= $title ?></title>
     <meta charset="UTF-8" />
-    <link rel="stylesheet" type="text/css" href="/style.css" />
-    <link rel="stylesheet" type="text/css" href="/treeview.css" />
-    <script language="JavaScript" src="/splitter.js"></script>
+    <link rel="stylesheet" type="text/css" href="<?= ROOT ?>/style.css" />
+    <link rel="stylesheet" type="text/css" href="<?= ROOT ?>/treeview.css" />
+    <script language="JavaScript" src="<?= ROOT ?>/splitter.js"></script>
     <script>
       function collapseAll() {
         let tree = document.getElementById("treeview");
@@ -42,7 +52,7 @@ if (!$noMenu) {
         <?php if (!$noMenu): ?>
           <div class="top-bar">
             <button title="<?= /** @noinspection PhpUndefinedVariableInspection */
-            $bundle['button.collapse_all'] ?>" onclick="collapseAll()"><img src="/images/collapse.png"></button>
+            $bundle['button.collapse_all'] ?>" onclick="collapseAll()"><img src="<?= ROOT ?>/images/collapse.png"></button>
           </div>
           <div id="treeview" class="css-treeview">
             <ul>
@@ -86,7 +96,7 @@ if (!$noMenu) {
         <?php if (!$noMenu): ?>
           <div class="top-bar">
             <button title="<?= /** @noinspection PhpUndefinedVariableInspection */
-            $bundle['button.home'] ?>" onclick="location.href='.'"><img src="/images/home.png"></button>
+            $bundle['button.home'] ?>" onclick="location.href='.'"><img src="<?= ROOT ?>/images/home.png"></button>
           </div>
         <?php endif; ?>
         <h1 id="main-title"><?= $title ?></h1>
@@ -104,7 +114,7 @@ if (!$noMenu) {
  * @return array resources array
  */
 function loadLangFile(string $lang): array {
-  $raw = explode("\n", file_get_contents($_SERVER['DOCUMENT_ROOT'] . '/lang/' . $lang . '.lang'));
+  $raw = explode("\n", file_get_contents($_SERVER['DOCUMENT_ROOT'] . ROOT . '/lang/' . $lang . '.lang'));
   $array = [];
 
   foreach ($raw as $line) {
