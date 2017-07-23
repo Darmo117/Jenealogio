@@ -36,6 +36,7 @@ import java.util.stream.Collectors;
 
 import javax.swing.JOptionPane;
 
+import net.darmo_creations.Start;
 import net.darmo_creations.config.GlobalConfig;
 import net.darmo_creations.dao.ConfigDao;
 import net.darmo_creations.dao.FamilyDao;
@@ -55,7 +56,6 @@ import net.darmo_creations.model.family.Family;
 import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.model.family.Relationship;
 import net.darmo_creations.util.I18n;
-import net.darmo_creations.util.JarUtil;
 import net.darmo_creations.util.VersionException;
 
 /**
@@ -213,7 +213,7 @@ public class MainController implements DropHandler {
       try {
         restartApplication();
       }
-      catch (IOException __) {
+      catch (IOException | URISyntaxException __) {
         this.frame.showErrorDialog(I18n.getLocalizedString("popup.change_language.restart_error.text"));
       }
     }
@@ -663,9 +663,9 @@ public class MainController implements DropHandler {
   /**
    * Restarts the application.
    */
-  private void restartApplication() throws IOException {
+  private void restartApplication() throws IOException, URISyntaxException {
     String javaBin = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
-    File currentJar = new File(JarUtil.getJarDir());
+    File currentJar = new File(Start.class.getProtectionDomain().getCodeSource().getLocation().toURI());
 
     // Is it a jar file?
     if (!currentJar.getName().endsWith(".jar"))
@@ -683,6 +683,7 @@ public class MainController implements DropHandler {
     if (!event.isCanceled()) {
       ProcessBuilder builder = new ProcessBuilder(command);
       builder.start();
+      System.exit(0);
     }
   }
 
