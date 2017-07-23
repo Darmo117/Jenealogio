@@ -5,6 +5,8 @@ version = '1.5d'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
+compileJava.options.encoding = 'UTF-8'
+
 // Creates the jar with all dependencies included inside
 task fatJar(type: Jar) {
   manifest {
