@@ -64,7 +64,7 @@ import net.darmo_creations.gui.dialog.LinkDetailsDialog;
 import net.darmo_creations.gui.dialog.card.CardDialog;
 import net.darmo_creations.gui.dialog.link.LinkDialog;
 import net.darmo_creations.gui.dialog.options.EditColorsDialog;
-import net.darmo_creations.gui.dialog.tree_creation.TreeCreationDialog;
+import net.darmo_creations.gui.dialog.tree_creation.TreeDialog;
 import net.darmo_creations.model.family.Family;
 import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.model.family.Relationship;
@@ -83,7 +83,7 @@ public class MainFrame extends JFrame {
   public static final String BASE_TITLE = "Jenealogio " + Version.CURRENT_VERSION;
 
   private JFileChooser fileChooser;
-  private TreeCreationDialog treeCreationDialog;
+  private TreeDialog treeDialog;
   private CardDialog cardDialog;
   private CardDetailsDialog cardDetailsDialog;
   private LinkDialog linkDialog;
@@ -92,7 +92,7 @@ public class MainFrame extends JFrame {
   private AboutDialog aboutDialog;
 
   private JMenu editMenu;
-  private JMenuItem saveItem, saveAsItem, undoItem, redoItem, addCardItem, addLinkItem, editItem, deleteItem;
+  private JMenuItem editTreeItem, saveItem, saveAsItem, undoItem, redoItem, addCardItem, addLinkItem, editItem, deleteItem;
   private JButton saveBtn, saveAsBtn, undoBtn, redoBtn, addCardBtn, editCardBtn, editLinkBtn, deleteCardBtn, deleteLinkBtn;
   private JToggleButton addLinkBtn;
   private DisplayPanel displayPnl;
@@ -118,7 +118,7 @@ public class MainFrame extends JFrame {
     this.fileChooser.setAcceptAllFileFilterUsed(false);
     this.fileChooser.setMultiSelectionEnabled(false);
     this.fileChooser.setFileFilter(new ExtensionFileFilter(I18n.getLocalizedString("file_type.tree.desc"), "gtree"));
-    this.treeCreationDialog = new TreeCreationDialog(this);
+    this.treeDialog = new TreeDialog(this);
     this.cardDialog = new CardDialog(this);
     this.cardDetailsDialog = new CardDetailsDialog(this);
     this.linkDialog = new LinkDialog(this);
@@ -169,31 +169,31 @@ public class MainFrame extends JFrame {
       fileMenu.setMnemonic(I18n.getLocalizedMnemonic("menu.file"));
       fileMenu.add(i = new JMenuItem(I18n.getLocalizedString("item.new_tree.text")));
       i.setIcon(Images.NEW_TREE);
-      i.setActionCommand("new");
       i.setMnemonic(I18n.getLocalizedMnemonic("item.new_tree"));
       i.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.CTRL_DOWN_MASK));
       i.addActionListener(listeners.get(UserEvent.Type.NEW));
       fileMenu.add(i = new JMenuItem(I18n.getLocalizedString("item.open.text")));
       i.setIcon(Images.OPEN);
-      i.setActionCommand("open");
       i.setMnemonic(I18n.getLocalizedMnemonic("item.open"));
       i.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK));
       i.addActionListener(listeners.get(UserEvent.Type.OPEN));
+      fileMenu.add(this.editTreeItem = new JMenuItem(I18n.getLocalizedString("item.edit_tree.text")));
+      this.editTreeItem.setIcon(Images.EDIT_TREE);
+      this.editTreeItem.setMnemonic(I18n.getLocalizedMnemonic("item.edit_tree"));
+      this.editTreeItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F2, 0));
+      this.editTreeItem.addActionListener(listeners.get(UserEvent.Type.EDIT_TREE));
       fileMenu.add(this.saveItem = new JMenuItem(I18n.getLocalizedString("item.save.text")));
       this.saveItem.setIcon(Images.SAVE);
-      this.saveItem.setActionCommand("save");
       this.saveItem.setMnemonic(I18n.getLocalizedMnemonic("item.save"));
       this.saveItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK));
       this.saveItem.addActionListener(listeners.get(UserEvent.Type.SAVE));
       fileMenu.add(this.saveAsItem = new JMenuItem(I18n.getLocalizedString("item.save_as.text")));
       this.saveAsItem.setIcon(Images.SAVE_AS);
-      this.saveAsItem.setActionCommand("save-as");
       this.saveAsItem.setMnemonic(I18n.getLocalizedMnemonic("item.save_as"));
       this.saveAsItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK));
       this.saveAsItem.addActionListener(listeners.get(UserEvent.Type.SAVE_AS));
       fileMenu.add(i = new JMenuItem(I18n.getLocalizedString("item.exit.text")));
       i.setIcon(Images.EXIT);
-      i.setActionCommand("exit");
       i.setMnemonic(I18n.getLocalizedMnemonic("item.exit"));
       i.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4, KeyEvent.ALT_DOWN_MASK));
       i.addActionListener(listeners.get(UserEvent.Type.EXIT));
@@ -206,34 +206,28 @@ public class MainFrame extends JFrame {
       this.editMenu.setMnemonic(I18n.getLocalizedMnemonic("menu.edit"));
       this.editMenu.add(this.undoItem = new JMenuItem(I18n.getLocalizedString("item.undo.text")));
       this.undoItem.setIcon(Images.UNDO);
-      this.undoItem.setActionCommand("undo");
       this.undoItem.setMnemonic(I18n.getLocalizedMnemonic("item.undo"));
       this.undoItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, KeyEvent.CTRL_DOWN_MASK));
       this.undoItem.addActionListener(listeners.get(UserEvent.Type.UNDO));
       this.editMenu.add(this.redoItem = new JMenuItem(I18n.getLocalizedString("item.redo.text")));
       this.redoItem.setIcon(Images.REDO);
-      this.redoItem.setActionCommand("redo");
       this.redoItem.setMnemonic(I18n.getLocalizedMnemonic("item.redo"));
       this.redoItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, KeyEvent.CTRL_DOWN_MASK));
       this.redoItem.addActionListener(listeners.get(UserEvent.Type.REDO));
       this.editMenu.add(this.addCardItem = new JMenuItem(I18n.getLocalizedString("item.add_card.text")));
       this.addCardItem.setIcon(Images.ADD_CARD);
-      this.addCardItem.setActionCommand("add-card");
       this.addCardItem.setMnemonic(I18n.getLocalizedMnemonic("item.add_card"));
       this.addCardItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, KeyEvent.CTRL_DOWN_MASK));
       this.addCardItem.addActionListener(listeners.get(UserEvent.Type.ADD_CARD));
       this.editMenu.add(this.addLinkItem = new JMenuItem(I18n.getLocalizedString("item.add_link.text")));
       this.addLinkItem.setIcon(Images.ADD_LINK);
-      this.addLinkItem.setActionCommand("add-link");
       this.addLinkItem.setMnemonic(I18n.getLocalizedMnemonic("item.add_link"));
       this.addLinkItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, KeyEvent.CTRL_DOWN_MASK));
       this.addLinkItem.addActionListener(listeners.get(UserEvent.Type.ADD_LINK));
       this.editMenu.add(this.editItem = new JMenuItem());
-      this.editItem.setActionCommand("edit");
       this.editItem.setMnemonic(I18n.getLocalizedMnemonic("item.edit"));
       this.editItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, KeyEvent.CTRL_DOWN_MASK));
       this.editMenu.add(this.deleteItem = new JMenuItem());
-      this.deleteItem.setActionCommand("delete");
       this.deleteItem.setMnemonic(I18n.getLocalizedMnemonic("item.delete"));
       this.deleteItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
       menuBar.add(this.editMenu);
@@ -245,7 +239,6 @@ public class MainFrame extends JFrame {
       optionsMenu.setMnemonic(I18n.getLocalizedMnemonic("menu.options"));
       optionsMenu.add(i = new JMenuItem(I18n.getLocalizedString("item.colors.text")));
       i.setIcon(Images.COLOR_WHEEL);
-      i.setActionCommand("edit_colors");
       i.setMnemonic(I18n.getLocalizedMnemonic("item.colors"));
       i.addActionListener(listeners.get(UserEvent.Type.EDIT_COLORS));
       JMenu langMenu = new JMenu(I18n.getLocalizedString("menu.lang.text"));
@@ -256,7 +249,6 @@ public class MainFrame extends JFrame {
         langMenu.add(i = new JRadioButtonMenuItem(l.getName()));
         i.setSelected(l == config.getLanguage());
         i.setIcon(Images.getCountryFlag(l));
-        i.setActionCommand("lang-" + l.getCode());
         i.addActionListener(e -> EventsDispatcher.EVENT_BUS.dispatchEvent(new ChangeLanguageEvent(l)));
         bg.add(i);
       }
@@ -269,11 +261,9 @@ public class MainFrame extends JFrame {
       helpMenu.setMnemonic(I18n.getLocalizedMnemonic("menu.help"));
       helpMenu.add(i = new JMenuItem(I18n.getLocalizedString("item.help.text")));
       i.setIcon(Images.HELP);
-      i.setActionCommand("help");
       i.setMnemonic(I18n.getLocalizedMnemonic("item.help"));
       i.addActionListener(listeners.get(UserEvent.Type.HELP));
       helpMenu.add(i = new JMenuItem(I18n.getLocalizedString("item.about.text")));
-      i.setActionCommand("about");
       i.setMnemonic(I18n.getLocalizedMnemonic("item.about"));
       i.addActionListener(listeners.get(UserEvent.Type.ABOUT));
       menuBar.add(helpMenu);
@@ -297,62 +287,50 @@ public class MainFrame extends JFrame {
     toolBar.add(b = new JButton(Images.NEW_TREE_BIG));
     b.setToolTipText(I18n.getLocalizedString("item.new_tree.text") + " (Ctrl+N)");
     b.setFocusable(false);
-    b.setActionCommand("new");
     b.addActionListener(listeners.get(UserEvent.Type.NEW));
     toolBar.add(b = new JButton(Images.OPEN_BIG));
     b.setToolTipText(I18n.getLocalizedString("item.open.text") + " (Ctrl+O)");
     b.setFocusable(false);
-    b.setActionCommand("open");
     b.addActionListener(listeners.get(UserEvent.Type.OPEN));
     toolBar.add(this.saveBtn = new JButton(Images.SAVE_BIG));
     this.saveBtn.setToolTipText(I18n.getLocalizedString("item.save.text") + " (Ctrl+S)");
     this.saveBtn.setFocusable(false);
-    this.saveBtn.setActionCommand("save");
     this.saveBtn.addActionListener(listeners.get(UserEvent.Type.SAVE));
     toolBar.add(this.saveAsBtn = new JButton(Images.SAVE_AS_BIG));
     this.saveAsBtn.setToolTipText(I18n.getLocalizedString("item.save_as.text") + " (Ctrl+Maj+S)");
     this.saveAsBtn.setFocusable(false);
-    this.saveAsBtn.setActionCommand("save-as");
     this.saveAsBtn.addActionListener(listeners.get(UserEvent.Type.SAVE_AS));
     toolBar.add(this.undoBtn = new JButton(Images.UNDO_BIG));
     this.undoBtn.setToolTipText(I18n.getLocalizedString("item.undo.text") + " (Ctrl+Z)");
     this.undoBtn.setFocusable(false);
-    this.undoBtn.setActionCommand("undo");
     this.undoBtn.addActionListener(listeners.get(UserEvent.Type.UNDO));
     toolBar.add(this.redoBtn = new JButton(Images.REDO_BIG));
     this.redoBtn.setToolTipText(I18n.getLocalizedString("item.redo.text") + " (Ctrl+Y)");
     this.redoBtn.setFocusable(false);
-    this.redoBtn.setActionCommand("redo");
     this.redoBtn.addActionListener(listeners.get(UserEvent.Type.REDO));
     toolBar.add(this.addCardBtn = new JButton(Images.ADD_CARD_BIG));
     this.addCardBtn.setToolTipText(I18n.getLocalizedString("item.add_card.text") + " (Ctrl+A)");
     this.addCardBtn.setFocusable(false);
-    this.addCardBtn.setActionCommand("add-card");
     this.addCardBtn.addActionListener(listeners.get(UserEvent.Type.ADD_CARD));
     toolBar.add(this.editCardBtn = new JButton(Images.EDIT_CARD_BIG));
     this.editCardBtn.setToolTipText(I18n.getLocalizedString("item.edit_card.text") + " (Ctrl+E)");
     this.editCardBtn.setFocusable(false);
-    this.editCardBtn.setActionCommand("edit");
     this.editCardBtn.addActionListener(listeners.get(UserEvent.Type.EDIT_CARD));
     toolBar.add(this.deleteCardBtn = new JButton(Images.DELETE_CARD_BIG));
     this.deleteCardBtn.setToolTipText(I18n.getLocalizedString("item.delete_card.text") + " (Supprimer)");
     this.deleteCardBtn.setFocusable(false);
-    this.deleteCardBtn.setActionCommand("delete");
     this.deleteCardBtn.addActionListener(listeners.get(UserEvent.Type.DELETE_CARD));
     toolBar.add(this.addLinkBtn = new JToggleButton(Images.ADD_LINK_BIG));
     this.addLinkBtn.setToolTipText(I18n.getLocalizedString("item.add_link.text") + " (Ctrl+L)");
     this.addLinkBtn.setFocusable(false);
-    this.addLinkBtn.setActionCommand("add-link");
     this.addLinkBtn.addActionListener(listeners.get(UserEvent.Type.ADD_LINK));
     toolBar.add(this.editLinkBtn = new JButton(Images.EDIT_LINK_BIG));
     this.editLinkBtn.setToolTipText(I18n.getLocalizedString("item.edit_link.text") + " (Ctrl+E)");
     this.editLinkBtn.setFocusable(false);
-    this.editLinkBtn.setActionCommand("edit");
     this.editLinkBtn.addActionListener(listeners.get(UserEvent.Type.EDIT_LINK));
     toolBar.add(this.deleteLinkBtn = new JButton(Images.DELETE_LINK_BIG));
     this.deleteLinkBtn.setToolTipText(I18n.getLocalizedString("item.delete_link.text") + " (Supprimer)");
     this.deleteLinkBtn.setFocusable(false);
-    this.deleteLinkBtn.setActionCommand("delete");
     this.deleteLinkBtn.addActionListener(listeners.get(UserEvent.Type.DELETE_LINK));
 
     return toolBar;
@@ -367,6 +345,7 @@ public class MainFrame extends JFrame {
    * @param linkSelected is a link selected?
    */
   public void updateMenus(boolean fileOpen, boolean cardSelected, boolean linkSelected, boolean canUndo, boolean canRedo) {
+    this.editTreeItem.setEnabled(fileOpen);
     this.saveAsItem.setEnabled(fileOpen);
     this.undoItem.setEnabled(canUndo);
     this.redoItem.setEnabled(canRedo);
@@ -522,9 +501,25 @@ public class MainFrame extends JFrame {
    * @return the tree name or nothing if the dialog was dismissed/canceled
    */
   public Optional<String> showCreateTreeDialog() {
-    this.treeCreationDialog.setCanceled(false);
-    this.treeCreationDialog.setVisible(true);
-    return this.treeCreationDialog.getTreeName();
+    this.treeDialog.setInfo(null);
+    this.treeDialog.setCanceled(false);
+    this.treeDialog.setVisible(true);
+
+    return this.treeDialog.getTreeName();
+  }
+
+  /**
+   * Shows the tree edit dialog.
+   * 
+   * @param currentName tree's current name
+   * @return the tree name or nothing if the dialog was dismissed/canceled
+   */
+  public Optional<String> showEditTreeDialog(String currentName) {
+    this.treeDialog.setInfo(currentName);
+    this.treeDialog.setCanceled(false);
+    this.treeDialog.setVisible(true);
+
+    return this.treeDialog.getTreeName();
   }
 
   /**

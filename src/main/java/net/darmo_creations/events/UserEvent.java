@@ -49,6 +49,7 @@ public final class UserEvent extends AbstractEvent {
    */
   public static enum Type {
     NEW,
+    EDIT_TREE,
     OPEN,
     SAVE,
     SAVE_AS,

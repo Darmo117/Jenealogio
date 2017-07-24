@@ -28,13 +28,13 @@ import net.darmo_creations.gui.dialog.DefaultDialogController;
  * 
  * @author Damien Vergnet
  */
-class TreeCreationController extends DefaultDialogController<TreeCreationDialog> implements DocumentListener {
+class TreeController extends DefaultDialogController<TreeDialog> implements DocumentListener {
   /**
    * Creates a controller.
    * 
    * @param dialog the dialog to monitor
    */
-  TreeCreationController(TreeCreationDialog dialog) {
+  TreeController(TreeDialog dialog) {
     super(dialog);
   }
 

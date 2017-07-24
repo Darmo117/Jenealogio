@@ -38,7 +38,7 @@ import net.darmo_creations.util.Images;
  *
  * @author Damien Vergnet
  */
-public class TreeCreationDialog extends AbstractDialog {
+public class TreeDialog extends AbstractDialog {
   private static final long serialVersionUID = -521752892964228483L;
 
   private JTextField nameFld;
@@ -48,14 +48,12 @@ public class TreeCreationDialog extends AbstractDialog {
    * 
    * @param owner the owner
    */
-  public TreeCreationDialog(JFrame owner) {
+  public TreeDialog(JFrame owner) {
     super(owner, Mode.VALIDATE_CANCEL_OPTION, true);
     setResizable(false);
     setIconImage(Images.JENEALOGIO.getImage());
 
-    setTitle(I18n.getLocalizedString("dialog.new_tree.title"));
-
-    TreeCreationController controller = new TreeCreationController(this);
+    TreeController controller = new TreeController(this);
 
     this.nameFld = new JTextField();
     this.nameFld.getDocument().addDocumentListener(controller);
@@ -80,6 +78,19 @@ public class TreeCreationDialog extends AbstractDialog {
 
     pack();
     setLocationRelativeTo(owner);
+  }
+
+  /**
+   * Sets tree's info.
+   * 
+   * @param familyName current tree's name
+   */
+  public void setInfo(String familyName) {
+    if (familyName == null)
+      setTitle(I18n.getLocalizedString("dialog.new_tree.title"));
+    else
+      setTitle(I18n.getLocalizedString("dialog.edit_tree.title"));
+    this.nameFld.setText(familyName);
   }
 
   /**

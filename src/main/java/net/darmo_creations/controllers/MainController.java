@@ -128,6 +128,9 @@ public class MainController implements DropHandler {
       case NEW:
         newFile();
         break;
+      case EDIT_TREE:
+        editTree();
+        break;
       case OPEN:
         open(null);
         break;
@@ -391,6 +394,20 @@ public class MainController implements DropHandler {
   }
 
   /**
+   * Opens the "edit tree" dialog and updates the tree.
+   */
+  private void editTree() {
+    Optional<String> opt = this.frame.showEditTreeDialog(this.family.getName());
+
+    if (opt.isPresent()) {
+      this.family.setName(opt.get());
+      this.saved = false;
+      addEdit();
+      updateFrameMenus();
+    }
+  }
+
+  /**
    * Opens a file. Asks the user if the current file is not saved.
    * 
    * @param file if not null, this method will attempt to open this file instead of asking the user;
@@ -621,6 +638,9 @@ public class MainController implements DropHandler {
     }
   }
 
+  /**
+   * Opens the "edit colors" dialog and updates the config.
+   */
   private void editColors() {
     Optional<GlobalConfig> opt = this.frame.showEditColorsDialog(this.config);
 
@@ -631,6 +651,9 @@ public class MainController implements DropHandler {
     }
   }
 
+  /**
+   * Opens the help in the browser.
+   */
   private void showHelp() {
     String url = String.format("http://darmo-creations.net/jenealogio/help-doc/%s/", this.config.getLanguage().getCode());
     try {

@@ -34,6 +34,7 @@ import net.darmo_creations.config.Language;
 public final class Images {
   public static final ImageIcon NEW_TREE;
   public static final ImageIcon OPEN;
+  public static final ImageIcon EDIT_TREE;
   public static final ImageIcon SAVE;
   public static final ImageIcon SAVE_AS;
   public static final ImageIcon UNDO;
@@ -79,6 +80,7 @@ public final class Images {
   static {
     NEW_TREE = getIcon("/assets/icons/new_tree.png");
     OPEN = getIcon("/assets/icons/open.png");
+    EDIT_TREE = getIcon("/assets/icons/edit_tree.png");
     SAVE = getIcon("/assets/icons/save.png");
     SAVE_AS = getIcon("/assets/icons/save_as.png");
     UNDO = getIcon("/assets/icons/undo.png");
