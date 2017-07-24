@@ -21,7 +21,11 @@ package net.darmo_creations.util;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.WritableRaster;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Arrays;
 
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
 import net.darmo_creations.config.Language;
@@ -154,6 +158,30 @@ public final class Images {
     WritableRaster raster = image.copyData(null);
 
     return new BufferedImage(colorModel, raster, alphaPremultiplied, null);
+  }
+
+  /**
+   * Computes the hashcode of an image.
+   * 
+   * @param img the image
+   * @return the hashcode
+   */
+  public static int hashCode(BufferedImage img) {
+    try {
+      int result;
+      ByteArrayOutputStream barray = new ByteArrayOutputStream();
+
+      ImageIO.write(img, "png", barray);
+      barray.flush();
+      byte[] ib = barray.toByteArray();
+      barray.close();
+      result = Arrays.hashCode(ib);
+
+      return result;
+    }
+    catch (IOException __) {
+      return 0;
+    }
   }
 
   private static ImageIcon getIcon(String path) {

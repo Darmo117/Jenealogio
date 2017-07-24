@@ -28,8 +28,8 @@ import java.util.Calendar;
  * @author Damien Vergnet
  */
 public final class Date implements Comparable<Date>, Cloneable {
-  private Calendar calendar;
-  private boolean yearSet, monthSet, dateSet;
+  private int year, month, day, nbOfDaysInMonth;
+  private boolean yearSet, monthSet, daySet;
 
   /**
    * Creates a date from a builder.
@@ -37,11 +37,21 @@ public final class Date implements Comparable<Date>, Cloneable {
    * @param builder the builder
    */
   Date(DateBuilder builder) {
-    this.calendar = (Calendar) builder.getCalendar().clone();
     this.yearSet = builder.isYearSet();
     this.monthSet = builder.isMonthSet();
-    this.dateSet = builder.isDateSet();
-    if (!this.yearSet && !this.monthSet && !this.dateSet)
+    this.daySet = builder.isDateSet();
+
+    Calendar calendar = (Calendar) builder.getCalendar().clone();
+    if (this.yearSet)
+      this.year = calendar.get(Calendar.YEAR);
+    if (this.monthSet) {
+      this.month = calendar.get(Calendar.MONTH) + 1;
+      this.nbOfDaysInMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+    }
+    if (this.daySet)
+      this.day = calendar.get(Calendar.DAY_OF_MONTH);
+
+    if (!this.yearSet && !this.monthSet && !this.daySet)
       throw new IllegalStateException("empty date");
   }
 
@@ -49,7 +59,7 @@ public final class Date implements Comparable<Date>, Cloneable {
    * @return true if and only if the year, month and date are known
    */
   public boolean isIncomplete() {
-    return !this.yearSet || !this.monthSet || !this.dateSet;
+    return !this.yearSet || !this.monthSet || !this.daySet;
   }
 
   /**
@@ -64,7 +74,7 @@ public final class Date implements Comparable<Date>, Cloneable {
    */
   public int getYear() {
     if (isYearSet())
-      return this.calendar.get(Calendar.YEAR);
+      return this.year;
     throw new NullPointerException("year not set");
   }
 
@@ -80,7 +90,7 @@ public final class Date implements Comparable<Date>, Cloneable {
    */
   public int getMonth() {
     if (isMonthSet())
-      return this.calendar.get(Calendar.MONTH) + 1;
+      return this.month;
     throw new NullPointerException("month not set");
   }
 
@@ -89,7 +99,7 @@ public final class Date implements Comparable<Date>, Cloneable {
    */
   public int getDaysNbInMonth() {
     if (isMonthSet())
-      return this.calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+      return this.nbOfDaysInMonth;
     throw new NullPointerException("month not set");
   }
 
@@ -97,7 +107,7 @@ public final class Date implements Comparable<Date>, Cloneable {
    * @return true if the date is set
    */
   public boolean isDateSet() {
-    return this.dateSet;
+    return this.daySet;
   }
 
   /**
@@ -105,7 +115,7 @@ public final class Date implements Comparable<Date>, Cloneable {
    */
   public int getDate() {
     if (isDateSet())
-      return this.calendar.get(Calendar.DAY_OF_MONTH);
+      return this.day;
     throw new NullPointerException("date not set");
   }
 
@@ -149,7 +159,13 @@ public final class Date implements Comparable<Date>, Cloneable {
       return 0;
     }
 
-    return this.calendar.compareTo(other.calendar);
+    if (getYear() < other.getYear() || getYear() == other.getYear() && getMonth() < other.getMonth()
+        || getYear() == other.getYear() && getMonth() == other.getMonth() && getDate() < other.getDate())
+      return -1;
+    if (getYear() > other.getYear() || getYear() == other.getYear() && getMonth() > other.getMonth()
+        || getYear() == other.getYear() && getMonth() == other.getMonth() && getDate() > other.getDate())
+      return 1;
+    return 0;
   }
 
   @Override
@@ -157,9 +173,12 @@ public final class Date implements Comparable<Date>, Cloneable {
     final int prime = 31;
     int result = 1;
 
-    result = prime * result + ((this.calendar == null) ? 0 : this.calendar.hashCode());
-    result = prime * result + (this.dateSet ? 1231 : 1237);
+    result = prime * result + this.day;
+    result = prime * result + (this.daySet ? 1231 : 1237);
+    result = prime * result + this.month;
     result = prime * result + (this.monthSet ? 1231 : 1237);
+    result = prime * result + this.nbOfDaysInMonth;
+    result = prime * result + this.year;
     result = prime * result + (this.yearSet ? 1231 : 1237);
 
     return result;
@@ -174,15 +193,17 @@ public final class Date implements Comparable<Date>, Cloneable {
     if (getClass() != obj.getClass())
       return false;
     Date other = (Date) obj;
-    if (this.calendar == null) {
-      if (other.calendar != null)
-        return false;
-    }
-    else if (!this.calendar.equals(other.calendar))
+    if (this.day != other.day)
       return false;
-    if (this.dateSet != other.dateSet)
+    if (this.daySet != other.daySet)
+      return false;
+    if (this.month != other.month)
       return false;
     if (this.monthSet != other.monthSet)
+      return false;
+    if (this.nbOfDaysInMonth != other.nbOfDaysInMonth)
+      return false;
+    if (this.year != other.year)
       return false;
     if (this.yearSet != other.yearSet)
       return false;
@@ -192,17 +213,7 @@ public final class Date implements Comparable<Date>, Cloneable {
   @Override
   public Date clone() {
     try {
-      Date date = (Date) super.clone();
-
-      date.calendar = Calendar.getInstance();
-      if (isYearSet())
-        date.calendar.set(Calendar.YEAR, getYear());
-      if (isMonthSet())
-        date.calendar.set(Calendar.MONTH, getMonth() - 1);
-      if (isDateSet())
-        date.calendar.set(Calendar.DAY_OF_MONTH, getDate());
-
-      return date;
+      return (Date) super.clone();
     }
     catch (CloneNotSupportedException e) {
       throw new Error(e);

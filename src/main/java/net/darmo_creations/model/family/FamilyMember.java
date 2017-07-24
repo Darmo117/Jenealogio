@@ -453,7 +453,7 @@ public class FamilyMember implements Comparable<FamilyMember>, Cloneable {
     result = prime * result + ((this.firstName == null) ? 0 : this.firstName.hashCode());
     result = prime * result + ((this.gender == null) ? 0 : this.gender.hashCode());
     result = prime * result + (int) (this.id ^ (this.id >>> 32));
-    result = prime * result + ((this.image == null) ? 0 : this.image.hashCode());
+    result = prime * result + ((this.image == null) ? 0 : Images.hashCode(this.image));
     result = prime * result + ((this.otherNames == null) ? 0 : this.otherNames.hashCode());
     result = prime * result + ((this.useName == null) ? 0 : this.useName.hashCode());
 
@@ -521,7 +521,11 @@ public class FamilyMember implements Comparable<FamilyMember>, Cloneable {
       if (other.image != null)
         return false;
     }
-    else if (!this.image.equals(other.image))
+    else if (this.image != null) {
+      if (other.image == null)
+        return false;
+    }
+    else if (Images.hashCode(this.image) != Images.hashCode(other.image))
       return false;
     if (this.otherNames == null) {
       if (other.otherNames != null)
