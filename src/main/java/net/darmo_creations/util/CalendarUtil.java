@@ -31,7 +31,7 @@ import net.darmo_creations.model.date.DateBuilder;
  * 
  * @author Damien Vergnet
  */
-public class CalendarUtil {
+public final class CalendarUtil {
   /**
    * @return the current date
    */

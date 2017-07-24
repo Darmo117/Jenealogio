@@ -29,7 +29,7 @@ import net.darmo_creations.model.date.Date;
  * 
  * @author Damien Vergnet
  */
-public class I18n {
+public final class I18n {
   private static ResourceBundle resource;
 
   /**
@@ -105,4 +105,6 @@ public class I18n {
       return s.charAt(0);
     return '\0';
   }
+
+  private I18n() {}
 }
