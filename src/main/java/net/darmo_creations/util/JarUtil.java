@@ -22,8 +22,6 @@ import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import net.darmo_creations.Start;
-
 /**
  * This class provides utility functions to find Jar path.
  *
@@ -51,8 +49,8 @@ public final class JarUtil {
    * @return the path of the Jar
    */
   public static URI getJar() throws URISyntaxException {
-    return Start.class.getProtectionDomain().getCodeSource().getLocation().toURI();
+    return JarUtil.class.getProtectionDomain().getCodeSource().getLocation().toURI();
   }
 
-  public JarUtil() {}
+  private JarUtil() {}
 }
