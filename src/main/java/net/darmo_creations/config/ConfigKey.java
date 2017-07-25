@@ -38,8 +38,8 @@ public interface ConfigKey<T> {
    * @param keyClass the class of the returned key
    * @return the key or null if no key were found
    */
-  static <U extends Enum<U> & ConfigKey<?>> U fromName(String name, Class<U> keyClass) {
-    for (U value : keyClass.getEnumConstants()) {
+  static <T extends Enum<T> & ConfigKey<?>> T fromName(String name, Class<T> keyClass) {
+    for (T value : keyClass.getEnumConstants()) {
       if (value.getName().equals(name))
         return value;
     }
