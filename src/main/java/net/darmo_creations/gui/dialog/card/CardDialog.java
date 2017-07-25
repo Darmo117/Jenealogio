@@ -47,7 +47,7 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
-import net.darmo_creations.controllers.ExtensionFileFilter;
+import net.darmo_creations.controllers.ExtensionsFileFilter;
 import net.darmo_creations.gui.MainFrame;
 import net.darmo_creations.gui.components.DateField;
 import net.darmo_creations.gui.components.ImageLabel;
@@ -102,7 +102,7 @@ public class CardDialog extends AbstractDialog {
     this.fileChooser = new JFileChooser();
     this.fileChooser.setAcceptAllFileFilterUsed(false);
     this.fileChooser.setMultiSelectionEnabled(false);
-    this.fileChooser.setFileFilter(new ExtensionFileFilter(I18n.getLocalizedString("file_type.image.desc"), "png", "jpg", "jpeg", "bmp"));
+    this.fileChooser.setFileFilter(new ExtensionsFileFilter(I18n.getLocalizedString("file_type.image.desc"), "png", "jpg", "jpeg", "bmp"));
 
     this.image = null;
     this.imageLbl = new ImageLabel(null);

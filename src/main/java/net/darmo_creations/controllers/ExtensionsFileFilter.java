@@ -19,17 +19,18 @@
 package net.darmo_creations.controllers;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.filechooser.FileFilter;
 
 /**
- * This file filter is used by JFileChooser objects to filter one file type only.
+ * This file filter is used by JFileChooser objects to filter several file types.
  * 
  * @author Damien Vergnet
  */
-public class ExtensionFileFilter extends FileFilter {
+public class ExtensionsFileFilter extends FileFilter {
   private List<String> extensions;
   private String description;
 
@@ -39,7 +40,7 @@ public class ExtensionFileFilter extends FileFilter {
    * @param fileType the description of the file type.
    * @param extensions the extensions without the '.'
    */
-  public ExtensionFileFilter(String fileType, String... extensions) {
+  public ExtensionsFileFilter(String fileType, String... extensions) {
     this.extensions = Arrays.asList(extensions);
     String[] exts = this.extensions.stream().map(ext -> "*." + ext).toArray(String[]::new);
     this.description = fileType + " (" + String.join(", ", exts) + ")";
@@ -53,6 +54,13 @@ public class ExtensionFileFilter extends FileFilter {
   @Override
   public String getDescription() {
     return this.description;
+  }
+
+  /**
+   * @return the list of all extensions accepted by this filter
+   */
+  public List<String> getExtensions() {
+    return new ArrayList<>(this.extensions);
   }
 
   /**

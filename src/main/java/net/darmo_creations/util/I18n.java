@@ -106,5 +106,30 @@ public final class I18n {
     return '\0';
   }
 
+  /**
+   * Converts the given string to title case.
+   * 
+   * @param input the string
+   * @return the string in title case
+   */
+  public static String toTitleCase(String input) {
+    StringBuilder titleCase = new StringBuilder();
+    boolean nextTitleCase = true;
+
+    for (char c : input.toCharArray()) {
+      if (Character.isSpaceChar(c)) {
+        nextTitleCase = true;
+      }
+      else if (nextTitleCase) {
+        c = Character.toTitleCase(c);
+        nextTitleCase = false;
+      }
+
+      titleCase.append(c);
+    }
+
+    return titleCase.toString();
+  }
+
   private I18n() {}
 }

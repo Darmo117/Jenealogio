@@ -29,6 +29,7 @@ import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DropTarget;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -498,6 +499,25 @@ public class DisplayPanel extends JPanel implements Scrollable {
   @Override
   public boolean getScrollableTracksViewportHeight() {
     return false;
+  }
+
+  /**
+   * Exports this panel to an image.
+   * 
+   * @param cropToTree if true the image will be cropped to just the tree with margins
+   * @param margins margins in pixels (must be positive); these are only present if the
+   *          {@code cropToTree} parameter is true
+   * @return the panel as an image
+   */
+  public BufferedImage exportToImage(boolean cropToTree, int margins) {
+    // TODO crop tree + margins
+    int w = getWidth();
+    int h = getHeight();
+    BufferedImage bi = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+
+    paint(bi.createGraphics());
+
+    return bi;
   }
 
   /**

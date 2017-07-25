@@ -22,8 +22,10 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.WritableRaster;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Optional;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -41,6 +43,7 @@ public final class Images {
   public static final ImageIcon EDIT_TREE;
   public static final ImageIcon SAVE;
   public static final ImageIcon SAVE_AS;
+  public static final ImageIcon EXPORT_IMAGE;
   public static final ImageIcon UNDO;
   public static final ImageIcon REDO;
   public static final ImageIcon ADD_CARD;
@@ -90,6 +93,7 @@ public final class Images {
     EDIT_TREE = getIcon("/assets/icons/edit_tree.png");
     SAVE = getIcon("/assets/icons/save.png");
     SAVE_AS = getIcon("/assets/icons/save_as.png");
+    EXPORT_IMAGE = getIcon("/assets/icons/export_image.png");
     UNDO = getIcon("/assets/icons/undo.png");
     REDO = getIcon("/assets/icons/redo.png");
     ADD_CARD = getIcon("/assets/icons/add_card.png");
@@ -188,6 +192,18 @@ public final class Images {
     catch (IOException __) {
       return 0;
     }
+  }
+
+  /**
+   * Writes an image to a file. If the file already exists, it is overwritten.
+   * 
+   * @param image the image
+   * @param file the file
+   */
+  public static void writeImage(BufferedImage image, String file) throws IOException {
+    Optional<String> opt = FileUtil.getExtension(file);
+    String ext = opt.orElseThrow(() -> new IOException("file has no extension"));
+    ImageIO.write(image, ext, new File(file));
   }
 
   private static ImageIcon getIcon(String path) {

@@ -57,6 +57,7 @@ import net.darmo_creations.model.family.Family;
 import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.model.family.Relationship;
 import net.darmo_creations.util.I18n;
+import net.darmo_creations.util.Images;
 import net.darmo_creations.util.JarUtil;
 import net.darmo_creations.util.UpdatesChecker;
 import net.darmo_creations.util.Version;
@@ -197,23 +198,19 @@ public class MainController implements DropHandler {
           e.setCanceled();
         break;
       case OPEN_UPDATE:
-        if (this.updatesChecker.isUpdateAvailable()) {
-          this.frame.showUpdateDialog(this.updatesChecker.getVersion(), this.updatesChecker.getLink(), this.updatesChecker.getChangelog());
-        }
+        openUpdate();
         break;
       case TOGGLE_CHECK_UPDATES:
-        boolean checked = this.frame.isCheckUpdatesItemSelected();
-        this.config.setValue(BooleanConfigKey.CHECK_UPDATES, checked);
-        if (checked) {
-          this.frame.setUpdateLabelText(MainFrame.CHECKING_UPDATES, null);
-          this.updatesChecker.checkUpdate();
-        }
+        toggleCheckUpdates();
+        break;
+      case EXPORT_IMAGE:
+        exportImage();
         break;
     }
   }
 
   private void handleSaveError(UserEvent e) {
-    int choice = this.frame.showConfirmDialog(I18n.getLocalizedString("popup.save_file_error.text"), JOptionPane.YES_NO_OPTION);
+    int choice = this.frame.showConfirmDialog(I18n.getLocalizedString("popup.save_file_error.text"));
     if (choice == JOptionPane.YES_OPTION)
       e.setCanceled();
   }
@@ -225,7 +222,7 @@ public class MainController implements DropHandler {
    */
   @SubsribeEvent
   public void onChangeLanguage(ChangeLanguageEvent e) {
-    int choice = this.frame.showConfirmDialog(I18n.getLocalizedString("popup.change_language.confirm.text"), JOptionPane.YES_NO_OPTION);
+    int choice = this.frame.showConfirmDialog(I18n.getLocalizedString("popup.change_language.confirm.text"));
 
     if (choice == JOptionPane.YES_OPTION) {
       try {
@@ -405,7 +402,7 @@ public class MainController implements DropHandler {
    */
   private boolean checkSaved() {
     if (this.fileOpen && !this.saved) {
-      int choice = this.frame.showConfirmDialog(I18n.getLocalizedString("popup.save_confirm.text"));
+      int choice = this.frame.showConfirmDialog(I18n.getLocalizedString("popup.save_confirm.text"), JOptionPane.YES_NO_CANCEL_OPTION);
 
       if (choice == JOptionPane.YES_OPTION) {
         UserEvent event = new UserEvent(UserEvent.Type.SAVE);
@@ -499,7 +496,7 @@ public class MainController implements DropHandler {
       this.frame.refreshDisplay(this.family, this.lastSavedEdit.getLocations(), this.config);
     }
     catch (VersionException ex) {
-      int choice = this.frame.showConfirmDialog(I18n.getLocalizedString("popup.version_warning.text"), JOptionPane.YES_NO_OPTION);
+      int choice = this.frame.showConfirmDialog(I18n.getLocalizedString("popup.version_warning.text"));
 
       if (choice == JOptionPane.YES_OPTION) {
         loadFile(fileName, true);
@@ -517,27 +514,21 @@ public class MainController implements DropHandler {
    * @return true if and only if save was successful or cancelled
    */
   private boolean saveAs() {
-    boolean ok = false;
+    boolean exit = false;
 
-    while (!ok) {
+    while (!exit) {
       Optional<File> opt = this.frame.showSaveFileChooser();
 
       if (opt.isPresent()) {
-        String path = opt.get().getAbsolutePath();
-
-        if (!path.endsWith(".gtree"))
-          path += ".gtree";
-        this.fileName = path;
+        this.fileName = opt.get().getAbsolutePath();
         if (Files.exists(Paths.get(this.fileName))) {
           int choice = this.frame.showConfirmDialog(I18n.getLocalizedString("popup.file_already_exists.text"));
 
           if (choice == JOptionPane.YES_OPTION)
-            ok = true;
-          else if (choice != JOptionPane.NO_OPTION)
-            return true;
+            exit = true;
         }
         else
-          ok = true;
+          exit = true;
       }
       else
         return true;
@@ -653,7 +644,7 @@ public class MainController implements DropHandler {
   private void deleteCard() {
     if (this.lastSelectedCard != null || !this.selectedCards.isEmpty()) {
       String key = !this.selectedCards.isEmpty() ? "popup.delete_cards_confirm.text" : "popup.delete_card_confirm.text";
-      int choice = this.frame.showConfirmDialog(I18n.getLocalizedString(key), JOptionPane.YES_NO_OPTION);
+      int choice = this.frame.showConfirmDialog(I18n.getLocalizedString(key));
 
       if (choice == JOptionPane.YES_OPTION) {
         this.family.removeMember(this.lastSelectedCard.getId());
@@ -673,7 +664,7 @@ public class MainController implements DropHandler {
    */
   private void deleteLink() {
     if (this.selectedLink != null) {
-      int choice = this.frame.showConfirmDialog(I18n.getLocalizedString("popup.delete_link_confirm.text"), JOptionPane.YES_NO_OPTION);
+      int choice = this.frame.showConfirmDialog(I18n.getLocalizedString("popup.delete_link_confirm.text"));
 
       if (choice == JOptionPane.YES_OPTION) {
         this.family.removeRelationship(this.selectedLink);
@@ -708,6 +699,61 @@ public class MainController implements DropHandler {
       Desktop.getDesktop().browse(new URI(url));
     }
     catch (IOException | URISyntaxException __) {}
+  }
+
+  /**
+   * Opens the update dialog if an update is available.
+   */
+  private void openUpdate() {
+    if (this.updatesChecker.isUpdateAvailable()) {
+      this.frame.showUpdateDialog(this.updatesChecker.getVersion(), this.updatesChecker.getLink(), this.updatesChecker.getChangelog());
+    }
+  }
+
+  /**
+   * Toggles updates checking on startup.
+   */
+  private void toggleCheckUpdates() {
+    boolean checked = this.frame.isCheckUpdatesItemSelected();
+    this.config.setValue(BooleanConfigKey.CHECK_UPDATES, checked);
+    if (checked) {
+      this.frame.setUpdateLabelText(MainFrame.CHECKING_UPDATES, null);
+      this.updatesChecker.checkUpdate();
+    }
+  }
+
+  /**
+   * Exports the tree as an image.
+   */
+  private void exportImage() {
+    boolean exit = false;
+    String path = null;
+
+    while (!exit) {
+      Optional<File> opt = this.frame.showExportImageFileChooser();
+
+      if (opt.isPresent()) {
+        path = opt.get().getAbsolutePath();
+
+        if (Files.exists(Paths.get(path))) {
+          int choice = this.frame.showConfirmDialog(I18n.getLocalizedString("popup.file_already_exists.text"));
+
+          if (choice == JOptionPane.YES_OPTION)
+            exit = true;
+        }
+        else
+          exit = true;
+      }
+      else
+        return;
+    }
+
+    try {
+      Images.writeImage(this.frame.exportToImage(), path);
+    }
+    catch (IOException __) {
+      this.frame.showErrorDialog(I18n.getLocalizedString("popup.image_export_error.text"));
+    }
   }
 
   /**

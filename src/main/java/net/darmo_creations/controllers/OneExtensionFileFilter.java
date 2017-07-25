@@ -16,57 +16,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.darmo_creations.events;
+package net.darmo_creations.controllers;
 
 /**
- * This event is fired when a menu item/button is clicked. This event can be cancelled.
- * 
+ * This file filter is used by JFileChooser objects to filter one file type only.
+ *
  * @author Damien Vergnet
  */
-public final class UserEvent extends AbstractEvent {
-  private final Type type;
-
+public class OneExtensionFileFilter extends ExtensionsFileFilter {
   /**
-   * Creates an event.
+   * Creates a file filter.
    * 
-   * @param type the type
+   * @param fileType the description of the file type.
+   * @param extensions the extension without the '.'
    */
-  public UserEvent(Type type) {
-    this.type = type;
+  public OneExtensionFileFilter(String fileType, String extension) {
+    super(fileType, extension);
   }
 
   /**
-   * @return the type
+   * @return the extension accepted by this filter
    */
-  public Type getType() {
-    return this.type;
-  }
-
-  /**
-   * Event type.
-   *
-   * @author Damien Vergnet
-   */
-  public static enum Type {
-    NEW,
-    EDIT_TREE,
-    OPEN,
-    SAVE,
-    SAVE_AS,
-    UNDO,
-    REDO,
-    ADD_CARD,
-    ADD_LINK,
-    EDIT_CARD,
-    EDIT_LINK,
-    DELETE_CARD,
-    DELETE_LINK,
-    EDIT_COLORS,
-    HELP,
-    ABOUT,
-    EXIT,
-    OPEN_UPDATE,
-    TOGGLE_CHECK_UPDATES,
-    EXPORT_IMAGE;
+  public String getExtension() {
+    return getExtensions().get(0);
   }
 }
