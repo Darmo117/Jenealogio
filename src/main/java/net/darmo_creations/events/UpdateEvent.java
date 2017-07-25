@@ -32,6 +32,19 @@ public abstract class UpdateEvent extends AbstractEvent {
   }
 
   /**
+   * This event is fired just before checking for updates. If it is canceled, updates checking will
+   * be canceled.
+   *
+   * @author Damien Vergnet
+   */
+  public static class Checking extends UpdateEvent {
+    @Override
+    public boolean isCancelable() {
+      return true;
+    }
+  }
+
+  /**
    * This event is fired when a new update is available.
    *
    * @author Damien Vergnet

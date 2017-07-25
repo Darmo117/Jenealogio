@@ -16,56 +16,39 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.darmo_creations.events;
+package net.darmo_creations.config;
 
 /**
- * This event is fired when a menu item/button is clicked. This event can be cancelled.
- * 
+ * This type of keys is associated with boolean values.
+ *
  * @author Damien Vergnet
  */
-public final class UserEvent extends AbstractEvent {
-  private final Type type;
+public enum BooleanConfigKey implements ConfigKey<Boolean> {
+  CHECK_UPDATES("check_updates");
+
+  private final String name;
+
+  private BooleanConfigKey(String name) {
+    this.name = name;
+  }
+
+  @Override
+  public String getName() {
+    return this.name;
+  }
 
   /**
-   * Creates an event.
+   * Returns the key matching the given name.
    * 
-   * @param type the type
+   * @param name the name
+   * @return the key or null if no key were found
    */
-  public UserEvent(Type type) {
-    this.type = type;
-  }
+  public static BooleanConfigKey fromName(String name) {
+    for (BooleanConfigKey key : values()) {
+      if (key.getName().equals(name))
+        return key;
+    }
+    return null;
 
-  /**
-   * @return the type
-   */
-  public Type getType() {
-    return this.type;
-  }
-
-  /**
-   * Event type.
-   *
-   * @author Damien Vergnet
-   */
-  public static enum Type {
-    NEW,
-    EDIT_TREE,
-    OPEN,
-    SAVE,
-    SAVE_AS,
-    UNDO,
-    REDO,
-    ADD_CARD,
-    ADD_LINK,
-    EDIT_CARD,
-    EDIT_LINK,
-    DELETE_CARD,
-    DELETE_LINK,
-    EDIT_COLORS,
-    HELP,
-    ABOUT,
-    EXIT,
-    OPEN_UPDATE,
-    TOGGLE_CHECK_UPDATES;
   }
 }

@@ -62,10 +62,7 @@ public final class UpdatesChecker {
   private boolean updateAvailable;
 
   public UpdatesChecker() {
-    this.version = null;
-    this.link = null;
-    this.changelog = null;
-    this.updateAvailable = false;
+    reset();
   }
 
   /**
@@ -100,6 +97,13 @@ public final class UpdatesChecker {
    * Checks if an update is available.
    */
   public void checkUpdate() {
+    UpdateEvent.Checking event = new UpdateEvent.Checking();
+    EventsDispatcher.EVENT_BUS.dispatchEvent(event);
+
+    if (event.isCanceled()) {
+      return;
+    }
+
     Runnable r = () -> {
       boolean error = false;
       String errorMsg = null;

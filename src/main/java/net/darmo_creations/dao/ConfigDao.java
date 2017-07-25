@@ -36,6 +36,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import net.darmo_creations.config.BooleanConfigKey;
 import net.darmo_creations.config.ColorConfigKey;
 import net.darmo_creations.config.GlobalConfig;
 import net.darmo_creations.config.Language;
@@ -61,9 +62,9 @@ public class ConfigDao {
    * @return the config or null if a fatal error occured
    */
   public GlobalConfig load() {
-    try {
-      GlobalConfig config = new GlobalConfig();
+    GlobalConfig config = new GlobalConfig();
 
+    try {
       File fXmlFile = new File(JarUtil.getJarDir() + "config.xml");
       DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
       DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
@@ -72,25 +73,38 @@ public class ConfigDao {
       doc.getDocumentElement().normalize();
 
       Element root = (Element) doc.getElementsByTagName("Config").item(0);
+      if (root != null) {
+        Element locale = (Element) root.getElementsByTagName("Locale").item(0);
+        if (locale != null) {
+          Language language = Language.fromCode(locale.getTextContent());
+          if (language != null)
+            config.setLanguage(language);
+        }
 
-      Element locale = (Element) root.getElementsByTagName("Locale").item(0);
-      Language language = Language.fromCode(locale.getTextContent());
-      if (language != null)
-        config.setLanguage(language);
+        Element colors = (Element) root.getElementsByTagName("Colors").item(0);
+        if (colors != null) {
+          NodeList colorNodes = colors.getElementsByTagName("Color");
+          for (int i = 0; i < colorNodes.getLength(); i++) {
+            Element color = (Element) colorNodes.item(i);
+            Color c = new Color(Integer.parseInt(color.getTextContent()));
+            config.setValue(ColorConfigKey.fromName(color.getAttribute("name")), c);
+          }
+        }
 
-      Element colors = (Element) root.getElementsByTagName("Colors").item(0);
-      NodeList list = colors.getElementsByTagName("Color");
-      for (int i = 0; i < list.getLength(); i++) {
-        Element color = (Element) list.item(i);
-        Color c = new Color(Integer.parseInt(color.getTextContent()));
-        config.setValue(ColorConfigKey.fromName(color.getAttribute("name")), c);
+        Element booleans = (Element) root.getElementsByTagName("Booleans").item(0);
+        if (booleans != null) {
+          NodeList booleanNodes = booleans.getElementsByTagName("Boolean");
+          for (int i = 0; i < booleanNodes.getLength(); i++) {
+            Element bool = (Element) booleanNodes.item(i);
+            boolean b = "true".equalsIgnoreCase(bool.getTextContent());
+            config.setValue(BooleanConfigKey.fromName(bool.getAttribute("name")), b);
+          }
+        }
       }
+    }
+    catch (NullPointerException | ClassCastException | ParserConfigurationException | SAXException | IOException __) {}
 
-      return config;
-    }
-    catch (NullPointerException | ClassCastException | ParserConfigurationException | SAXException | IOException __) {
-      return new GlobalConfig();
-    }
+    return config;
   }
 
   /**
@@ -118,6 +132,15 @@ public class ConfigDao {
         colors.appendChild(color);
       }
       root.appendChild(colors);
+
+      Element booleans = doc.createElement("Booleans");
+      for (BooleanConfigKey key : BooleanConfigKey.values()) {
+        Element bool = doc.createElement("Boolean");
+        bool.setAttribute("name", key.getName());
+        bool.appendChild(doc.createTextNode(config.getValue(key) ? "true" : "false"));
+        booleans.appendChild(bool);
+      }
+      root.appendChild(booleans);
 
       doc.appendChild(root);
 

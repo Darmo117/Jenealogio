@@ -27,6 +27,7 @@ import java.net.URISyntaxException;
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
+import javax.swing.event.HyperlinkEvent.EventType;
 
 import net.darmo_creations.gui.dialog.AbstractDialog;
 import net.darmo_creations.gui.dialog.DefaultDialogController;
@@ -55,7 +56,8 @@ public class UpdateDialog extends AbstractDialog {
     this.patchnotePnl.setContentType("text/html");
     this.patchnotePnl.addHyperlinkListener(e -> {
       try {
-        Desktop.getDesktop().browse(e.getURL().toURI());
+        if (e.getEventType() == EventType.ACTIVATED)
+          Desktop.getDesktop().browse(e.getURL().toURI());
       }
       catch (IOException | URISyntaxException __) {}
     });

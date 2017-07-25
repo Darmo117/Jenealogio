@@ -36,6 +36,7 @@ import java.util.stream.Collectors;
 
 import javax.swing.JOptionPane;
 
+import net.darmo_creations.config.BooleanConfigKey;
 import net.darmo_creations.config.GlobalConfig;
 import net.darmo_creations.dao.ConfigDao;
 import net.darmo_creations.dao.FamilyDao;
@@ -56,7 +57,6 @@ import net.darmo_creations.model.family.Family;
 import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.model.family.Relationship;
 import net.darmo_creations.util.I18n;
-import net.darmo_creations.util.Images;
 import net.darmo_creations.util.JarUtil;
 import net.darmo_creations.util.UpdatesChecker;
 import net.darmo_creations.util.Version;
@@ -118,7 +118,7 @@ public class MainController implements DropHandler {
     this.alreadySaved = false;
     this.saved = true;
     updateFrameMenus();
-    this.frame.setUpdateLabelText(Images.CHECKING_UPDATES, I18n.getLocalizedString("label.checking_updates.text"));
+    this.frame.setUpdateLabelText(MainFrame.CHECKING_UPDATES, null);
     this.updatesChecker.checkUpdate();
   }
 
@@ -197,6 +197,14 @@ public class MainController implements DropHandler {
       case OPEN_UPDATE:
         if (this.updatesChecker.isUpdateAvailable()) {
           this.frame.showUpdateDialog(this.updatesChecker.getVersion(), this.updatesChecker.getLink(), this.updatesChecker.getChangelog());
+        }
+        break;
+      case TOGGLE_CHECK_UPDATES:
+        boolean checked = this.frame.isCheckUpdatesItemSelected();
+        this.config.setValue(BooleanConfigKey.CHECK_UPDATES, checked);
+        if (checked) {
+          this.frame.setUpdateLabelText(MainFrame.CHECKING_UPDATES, null);
+          this.updatesChecker.checkUpdate();
         }
         break;
     }
@@ -348,14 +356,22 @@ public class MainController implements DropHandler {
   }
 
   @SubsribeEvent
+  public void onUpdateChecking(UpdateEvent.Checking e) {
+    if (!this.config.getValue(BooleanConfigKey.CHECK_UPDATES)) {
+      this.frame.setUpdateLabelText(MainFrame.UPDATES_BLOCKED, null);
+      e.setCanceled();
+    }
+  }
+
+  @SubsribeEvent
   public void onNewUpdate(UpdateEvent.NewUpdate e) {
     Version v = e.getVersion();
-    this.frame.setUpdateLabelText(Images.NEW_UPDATE, I18n.getLocalizedString("label.update_available.text") + " - Jenealogio " + v);
+    this.frame.setUpdateLabelText(MainFrame.NEW_UPDATE, " - Jenealogio " + v);
   }
 
   @SubsribeEvent
   public void onUpdateCheckFailed(UpdateEvent.CheckFailed e) {
-    this.frame.setUpdateLabelText(Images.UPDATE_CHECK_FAILED, I18n.getLocalizedString("label.update_check_failed.text"));
+    this.frame.setUpdateLabelText(MainFrame.UPDATES_CHECK_FAILED, null);
   }
 
   @Override
@@ -735,6 +751,7 @@ public class MainController implements DropHandler {
     this.frame.setTitle(MainFrame.BASE_TITLE + (this.family != null ? " - " + this.family.getName() : ""));
     this.frame.updateMenus(this.fileOpen, this.lastSelectedCard != null, this.selectedLink != null, canUndo(), canRedo());
     this.frame.updateSaveMenus(this.saved);
+    this.frame.setCheckUpdatesItemSelected(this.config.getValue(BooleanConfigKey.CHECK_UPDATES));
   }
 
   /**

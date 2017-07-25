@@ -21,7 +21,7 @@ package net.darmo_creations.config;
 import java.awt.Color;
 
 /**
- * This type of keys are associated with the {@code Color} class.
+ * This type of keys is associated with the {@code Color} class.
  *
  * @author Damien Vergnet
  */

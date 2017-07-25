@@ -37,6 +37,7 @@ import java.util.Set;
 import javax.swing.ButtonGroup;
 import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -100,6 +101,7 @@ public class MainFrame extends JFrame {
 
   private JMenu editMenu;
   private JMenuItem editTreeItem, saveItem, saveAsItem, undoItem, redoItem, addCardItem, addLinkItem, editItem, deleteItem;
+  private JCheckBoxMenuItem checkUpdatesItem;
   private JButton saveBtn, saveAsBtn, undoBtn, redoBtn, addCardBtn, editCardBtn, editLinkBtn, deleteCardBtn, deleteLinkBtn;
   private JToggleButton addLinkBtn;
   private DisplayPanel displayPnl;
@@ -255,6 +257,9 @@ public class MainFrame extends JFrame {
     {
       JMenu optionsMenu = new JMenu(I18n.getLocalizedString("menu.options.text"));
       optionsMenu.setMnemonic(I18n.getLocalizedMnemonic("menu.options"));
+      optionsMenu.add(this.checkUpdatesItem = new JCheckBoxMenuItem(I18n.getLocalizedString("item.check_updates.text")));
+      this.checkUpdatesItem.setMnemonic(I18n.getLocalizedMnemonic("item.check_updates"));
+      this.checkUpdatesItem.addActionListener(listeners.get(UserEvent.Type.TOGGLE_CHECK_UPDATES));
       optionsMenu.add(i = new JMenuItem(I18n.getLocalizedString("item.colors.text")));
       i.setIcon(Images.COLOR_WHEEL);
       i.setMnemonic(I18n.getLocalizedMnemonic("item.colors"));
@@ -429,6 +434,20 @@ public class MainFrame extends JFrame {
   }
 
   /**
+   * @return true if the check updates item is seleted
+   */
+  public boolean isCheckUpdatesItemSelected() {
+    return this.checkUpdatesItem.isSelected();
+  }
+
+  /**
+   * Sets the selection of the check updates item.
+   */
+  public void setCheckUpdatesItemSelected(boolean selected) {
+    this.checkUpdatesItem.setSelected(selected);
+  }
+
+  /**
    * Updates the save buttons.
    * 
    * @param saved is the file saved?
@@ -438,13 +457,45 @@ public class MainFrame extends JFrame {
     this.saveBtn.setEnabled(!saved);
   }
 
+  public static final int UPDATES_BLOCKED = 0;
+  public static final int CHECKING_UPDATES = 1;
+  public static final int NEW_UPDATE = 2;
+  public static final int UPDATES_CHECK_FAILED = 3;
+
   /**
-   * Sets the text of the update label in the status bar.
+   * Sets the text and icon of the updates status.
    * 
-   * @param icon the icon
-   * @param s the text
+   * @param mode one of these values: {@link #UPDATES_BLOCKED}, {@link #CHECKING_UPDATES},
+   *          {@link #NEW_UPDATE}, {@link #UPDATES_CHECK_FAILED}
+   * @param str an optional string to append to the end of the status
    */
-  public void setUpdateLabelText(@Nullable Icon icon, @Nullable String s) {
+  public void setUpdateLabelText(int mode, @Nullable String str) {
+    Icon icon = null;
+    String s = null;
+
+    switch (mode) {
+      case UPDATES_BLOCKED:
+        icon = Images.UPDATE_CHECK_FAILED;
+        s = I18n.getLocalizedString("label.updates_check_blocked.text");
+        break;
+      case CHECKING_UPDATES:
+        icon = Images.CHECKING_UPDATES;
+        s = I18n.getLocalizedString("label.checking_updates.text");
+        break;
+      case NEW_UPDATE:
+        icon = Images.NEW_UPDATE;
+        s = I18n.getLocalizedString("label.update_available.text");
+        break;
+      case UPDATES_CHECK_FAILED:
+        icon = Images.UPDATE_CHECK_FAILED;
+        s = I18n.getLocalizedString("label.update_check_failed.text");
+        break;
+    }
+
+    if (s != null && str != null) {
+      s += str;
+    }
+
     this.updateLbl.setIcon(icon);
     this.updateLbl.setText(s);
   }
