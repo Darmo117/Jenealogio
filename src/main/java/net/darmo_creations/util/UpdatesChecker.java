@@ -154,7 +154,6 @@ public final class UpdatesChecker {
                   this.link = data[0];
                   this.changelog = data[1];
                   this.updateAvailable = true;
-                  EventsDispatcher.EVENT_BUS.dispatchEvent(new UpdateEvent.NewUpdate(lastVersion, data[0], data[1]));
                 }
                 else {
                   noUpdate = true;
@@ -183,6 +182,9 @@ public final class UpdatesChecker {
       }
       else if (noUpdate) {
         EventsDispatcher.EVENT_BUS.dispatchEvent(new UpdateEvent.NoUpdate());
+      }
+      else if (this.updateAvailable) {
+        EventsDispatcher.EVENT_BUS.dispatchEvent(new UpdateEvent.NewUpdate(getVersion(), getLink(), getChangelog()));
       }
     };
     new Thread(r).start();
