@@ -38,6 +38,7 @@ import org.xml.sax.SAXException;
 
 import net.darmo_creations.config.BooleanConfigKey;
 import net.darmo_creations.config.ColorConfigKey;
+import net.darmo_creations.config.ConfigKey;
 import net.darmo_creations.config.GlobalConfig;
 import net.darmo_creations.config.Language;
 import net.darmo_creations.util.JarUtil;
@@ -87,7 +88,7 @@ public class ConfigDao {
           for (int i = 0; i < colorNodes.getLength(); i++) {
             Element color = (Element) colorNodes.item(i);
             Color c = new Color(Integer.parseInt(color.getTextContent()));
-            config.setValue(ColorConfigKey.fromName(color.getAttribute("name")), c);
+            config.setValue(ConfigKey.fromName(color.getAttribute("name"), ColorConfigKey.class), c);
           }
         }
 
@@ -97,7 +98,7 @@ public class ConfigDao {
           for (int i = 0; i < booleanNodes.getLength(); i++) {
             Element bool = (Element) booleanNodes.item(i);
             boolean b = "true".equalsIgnoreCase(bool.getTextContent());
-            config.setValue(BooleanConfigKey.fromName(bool.getAttribute("name")), b);
+            config.setValue(ConfigKey.fromName(bool.getAttribute("name"), BooleanConfigKey.class), b);
           }
         }
       }

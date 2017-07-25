@@ -26,6 +26,7 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 
 import net.darmo_creations.config.ColorConfigKey;
+import net.darmo_creations.config.ConfigKey;
 import net.darmo_creations.config.GlobalConfig;
 import net.darmo_creations.gui.components.NamedTreeNode;
 import net.darmo_creations.gui.dialog.DefaultDialogController;
@@ -85,7 +86,7 @@ class EditColorController extends DefaultDialogController<EditColorsDialog> impl
    * @return the color for the selected option
    */
   private Color getColorForNode() {
-    return this.config.getValue(ColorConfigKey.fromName(this.selectedNode));
+    return this.config.getValue(ConfigKey.fromName(this.selectedNode, ColorConfigKey.class));
   }
 
   /**
@@ -94,7 +95,7 @@ class EditColorController extends DefaultDialogController<EditColorsDialog> impl
    * @param c the color
    */
   private void setColorForNode(Color c) {
-    this.config.setValue(ColorConfigKey.fromName(this.selectedNode), c);
+    this.config.setValue(ConfigKey.fromName(this.selectedNode, ColorConfigKey.class), c);
   }
 
   @Override

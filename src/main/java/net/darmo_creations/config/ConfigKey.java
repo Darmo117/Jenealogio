@@ -19,7 +19,7 @@
 package net.darmo_creations.config;
 
 /**
- * A {@code ConfigKey} is used in the {@code GlobalConfig} object as options keys.
+ * A {@code ConfigKey} is used by the {@code GlobalConfig} class.
  * 
  * @author Damien Vergnet
  *
@@ -30,4 +30,19 @@ public interface ConfigKey<T> {
    * @return this key's name
    */
   String getName();
+
+  /**
+   * Returns the key matching the given name.
+   * 
+   * @param name the name
+   * @param keyClass the class of the returned key
+   * @return the key or null if no key were found
+   */
+  static <U extends Enum<U> & ConfigKey<?>> U fromName(String name, Class<U> keyClass) {
+    for (U value : keyClass.getEnumConstants()) {
+      if (value.getName().equals(name))
+        return value;
+    }
+    return null;
+  }
 }

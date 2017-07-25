@@ -36,19 +36,4 @@ public enum BooleanConfigKey implements ConfigKey<Boolean> {
   public String getName() {
     return this.name;
   }
-
-  /**
-   * Returns the key matching the given name.
-   * 
-   * @param name the name
-   * @return the key or null if no key were found
-   */
-  public static BooleanConfigKey fromName(String name) {
-    for (BooleanConfigKey key : values()) {
-      if (key.getName().equals(name))
-        return key;
-    }
-    return null;
-
-  }
 }
