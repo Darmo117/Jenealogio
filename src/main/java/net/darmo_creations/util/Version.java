@@ -46,8 +46,7 @@ public final class Version implements Comparable<Version> {
   public static final Version V1_3D = new Version(1, 3, 0, true);
 
   static {
-    // TEMP
-    CURRENT_VERSION = new Version(1, 4, 0, true);
+    CURRENT_VERSION = new Version(1, 5, 0, true);
   }
 
   private static final Pattern VERSION_PATTERN = Pattern.compile("(\\d+)\\.(\\d+)(?:\\.(\\d+))?(d)?");
