@@ -151,10 +151,12 @@ public class MainController implements DropHandler {
           ok = saveAs();
         if (!ok)
           handleSaveError(e);
+        updateFrameMenus();
         break;
       case SAVE_AS:
         if (!saveAs())
           handleSaveError(e);
+        updateFrameMenus();
         break;
       case UNDO:
         undo();
@@ -367,6 +369,11 @@ public class MainController implements DropHandler {
   public void onNewUpdate(UpdateEvent.NewUpdate e) {
     Version v = e.getVersion();
     this.frame.setUpdateLabelText(MainFrame.NEW_UPDATE, " - Jenealogio " + v);
+  }
+
+  @SubsribeEvent
+  public void onNoUpdate(UpdateEvent.NoUpdate e) {
+    this.frame.setUpdateLabelText(MainFrame.NO_UPDATE, null);
   }
 
   @SubsribeEvent
@@ -748,7 +755,8 @@ public class MainController implements DropHandler {
    * Updates main frame menus.
    */
   private void updateFrameMenus() {
-    this.frame.setTitle(MainFrame.BASE_TITLE + (this.family != null ? " - " + this.family.getName() : ""));
+    String title = (this.family != null ? (this.saved ? "" : "*") + this.family.getName() + " - " : "") + MainFrame.BASE_TITLE;
+    this.frame.setTitle(title);
     this.frame.updateMenus(this.fileOpen, this.lastSelectedCard != null, this.selectedLink != null, canUndo(), canRedo());
     this.frame.updateSaveMenus(this.saved);
     this.frame.setCheckUpdatesItemSelected(this.config.getValue(BooleanConfigKey.CHECK_UPDATES));

@@ -107,6 +107,7 @@ public final class UpdatesChecker {
     Runnable r = () -> {
       boolean error = false;
       String errorMsg = null;
+      boolean noUpdate = false;
 
       try {
         URL oracle = new URL("https://github.com/Darmo117/Jenealogio/releases.atom");
@@ -155,8 +156,12 @@ public final class UpdatesChecker {
                   this.updateAvailable = true;
                   EventsDispatcher.EVENT_BUS.dispatchEvent(new UpdateEvent.NewUpdate(lastVersion, data[0], data[1]));
                 }
+                else {
+                  noUpdate = true;
+                }
               }
               else {
+                noUpdate = true;
                 reset();
               }
             }
@@ -175,6 +180,9 @@ public final class UpdatesChecker {
       if (error) {
         reset();
         EventsDispatcher.EVENT_BUS.dispatchEvent(new UpdateEvent.CheckFailed(errorMsg));
+      }
+      else if (noUpdate) {
+        EventsDispatcher.EVENT_BUS.dispatchEvent(new UpdateEvent.NoUpdate());
       }
     };
     new Thread(r).start();

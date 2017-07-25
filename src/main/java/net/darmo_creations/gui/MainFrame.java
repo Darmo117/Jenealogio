@@ -460,13 +460,14 @@ public class MainFrame extends JFrame {
   public static final int UPDATES_BLOCKED = 0;
   public static final int CHECKING_UPDATES = 1;
   public static final int NEW_UPDATE = 2;
-  public static final int UPDATES_CHECK_FAILED = 3;
+  public static final int NO_UPDATE = 3;
+  public static final int UPDATES_CHECK_FAILED = 4;
 
   /**
    * Sets the text and icon of the updates status.
    * 
    * @param mode one of these values: {@link #UPDATES_BLOCKED}, {@link #CHECKING_UPDATES},
-   *          {@link #NEW_UPDATE}, {@link #UPDATES_CHECK_FAILED}
+   *          {@link #NEW_UPDATE}, {@link #UPDATES_CHECK_FAILED}, {@link #NO_UPDATE}
    * @param str an optional string to append to the end of the status
    */
   public void setUpdateLabelText(int mode, @Nullable String str) {
@@ -485,6 +486,10 @@ public class MainFrame extends JFrame {
       case NEW_UPDATE:
         icon = Images.NEW_UPDATE;
         s = I18n.getLocalizedString("label.update_available.text");
+        break;
+      case NO_UPDATE:
+        icon = null;
+        s = I18n.getLocalizedString("label.no_update.text");
         break;
       case UPDATES_CHECK_FAILED:
         icon = Images.UPDATE_CHECK_FAILED;

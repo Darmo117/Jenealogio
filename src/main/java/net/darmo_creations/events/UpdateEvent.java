@@ -80,6 +80,13 @@ public abstract class UpdateEvent extends AbstractEvent {
   }
 
   /**
+   * This event is fired when no updates are available.
+   *
+   * @author Damien Vergnet
+   */
+  public static class NoUpdate extends UpdateEvent {}
+
+  /**
    * This event is fired when update checking failed.
    *
    * @author Damien Vergnet
