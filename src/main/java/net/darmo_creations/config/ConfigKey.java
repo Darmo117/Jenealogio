@@ -19,7 +19,7 @@
 package net.darmo_creations.config;
 
 /**
- * A {@code ConfigKey} is used by the {@code GlobalConfig} class.
+ * {@code ConfigKey}s are used by the {@code GlobalConfig} class.
  * 
  * @author Damien Vergnet
  *
