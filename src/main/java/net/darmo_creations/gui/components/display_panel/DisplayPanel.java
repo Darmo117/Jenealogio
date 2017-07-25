@@ -504,20 +504,46 @@ public class DisplayPanel extends JPanel implements Scrollable {
   /**
    * Exports this panel to an image.
    * 
-   * @param cropToTree if true the image will be cropped to just the tree with margins
-   * @param margins margins in pixels (must be positive); these are only present if the
-   *          {@code cropToTree} parameter is true
-   * @return the panel as an image
+   * @return this panel as an image
    */
-  public BufferedImage exportToImage(boolean cropToTree, int margins) {
-    // TODO crop tree + margins
-    int w = getWidth();
-    int h = getHeight();
-    BufferedImage bi = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+  public BufferedImage exportToImage() {
+    BufferedImage image = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_RGB);
+    paint(image.createGraphics());
 
-    paint(bi.createGraphics());
+    Point p1 = getTopLeftPoint();
+    Point p2 = getBottomRightPoint();
 
-    return bi;
+    return image.getSubimage(p1.x, p1.y, p2.x - p1.x, p2.y - p1.y);
+  }
+
+  /**
+   * @return the topmost leftmost point of the tree
+   */
+  private Point getTopLeftPoint() {
+    Point point = new Point(4000, 4000);
+
+    this.panels.values().forEach(p -> {
+      Point l = p.getLocation();
+      point.x = Math.min(point.x, l.x);
+      point.y = Math.min(point.y, l.y);
+    });
+
+    return point;
+  }
+
+  /**
+   * @return the bottommost rightmost point of the tree
+   */
+  private Point getBottomRightPoint() {
+    Point point = new Point();
+
+    this.panels.values().forEach(p -> {
+      Rectangle r = p.getBounds();
+      point.x = Math.max(point.x, r.x + r.width);
+      point.y = Math.max(point.y, r.y + r.height);
+    });
+
+    return point;
   }
 
   /**

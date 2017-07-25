@@ -627,7 +627,7 @@ public class MainFrame extends JFrame {
    * @return the image
    */
   public BufferedImage exportToImage() {
-    return this.displayPnl.exportToImage(true, 10);
+    return this.displayPnl.exportToImage();
   }
 
   /**
