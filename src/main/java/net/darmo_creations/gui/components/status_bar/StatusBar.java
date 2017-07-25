@@ -47,7 +47,7 @@ public class StatusBar extends JPanel {
    */
   public StatusBar() {
     setLayout(new BorderLayout());
-    setPreferredSize(new Dimension(0, 25));
+    setPreferredSize(new Dimension(0, 30));
 
     this.leftComponents = new ArrayList<>();
     this.rightComponents = new ArrayList<>();

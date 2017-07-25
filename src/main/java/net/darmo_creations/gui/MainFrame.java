@@ -24,6 +24,7 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -34,9 +35,11 @@ import java.util.Optional;
 import java.util.Set;
 
 import javax.swing.ButtonGroup;
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -48,6 +51,7 @@ import javax.swing.JToolBar;
 import javax.swing.JViewport;
 import javax.swing.KeyStroke;
 import javax.swing.border.MatteBorder;
+import javax.swing.event.MouseInputAdapter;
 
 import net.darmo_creations.config.GlobalConfig;
 import net.darmo_creations.config.Language;
@@ -65,11 +69,13 @@ import net.darmo_creations.gui.dialog.card.CardDialog;
 import net.darmo_creations.gui.dialog.link.LinkDialog;
 import net.darmo_creations.gui.dialog.options.EditColorsDialog;
 import net.darmo_creations.gui.dialog.tree_creation.TreeDialog;
+import net.darmo_creations.gui.dialog.update.UpdateDialog;
 import net.darmo_creations.model.family.Family;
 import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.model.family.Relationship;
 import net.darmo_creations.util.I18n;
 import net.darmo_creations.util.Images;
+import net.darmo_creations.util.Nullable;
 import net.darmo_creations.util.Version;
 
 /**
@@ -90,6 +96,7 @@ public class MainFrame extends JFrame {
   private LinkDetailsDialog linkDetailsDialog;
   private EditColorsDialog editColorsDialog;
   private AboutDialog aboutDialog;
+  private UpdateDialog updateDialog;
 
   private JMenu editMenu;
   private JMenuItem editTreeItem, saveItem, saveAsItem, undoItem, redoItem, addCardItem, addLinkItem, editItem, deleteItem;
@@ -97,6 +104,7 @@ public class MainFrame extends JFrame {
   private JToggleButton addLinkBtn;
   private DisplayPanel displayPnl;
   private StatusBar statusBar;
+  private JLabel updateLbl;
 
   private Map<UserEvent.Type, ActionListener> listeners;
 
@@ -125,6 +133,7 @@ public class MainFrame extends JFrame {
     this.linkDetailsDialog = new LinkDetailsDialog(this);
     this.editColorsDialog = new EditColorsDialog(this);
     this.aboutDialog = new AboutDialog(this);
+    this.updateDialog = new UpdateDialog(this);
 
     this.listeners = new HashMap<>();
     for (UserEvent.Type type : UserEvent.Type.values())
@@ -142,6 +151,15 @@ public class MainFrame extends JFrame {
 
     this.statusBar = new StatusBar();
     add(this.statusBar, BorderLayout.SOUTH);
+
+    this.updateLbl = new JLabel();
+    this.updateLbl.addMouseListener(new MouseInputAdapter() {
+      @Override
+      public void mouseClicked(MouseEvent e) {
+        EventsDispatcher.EVENT_BUS.dispatchEvent(new UserEvent(UserEvent.Type.OPEN_UPDATE));
+      }
+    });
+    this.statusBar.addRightComponent(this.updateLbl);
 
     EventsDispatcher.EVENT_BUS.register(controller);
     EventsDispatcher.EVENT_BUS.register(this.displayPnl);
@@ -421,6 +439,17 @@ public class MainFrame extends JFrame {
   }
 
   /**
+   * Sets the text of the update label in the status bar.
+   * 
+   * @param icon the icon
+   * @param s the text
+   */
+  public void setUpdateLabelText(@Nullable Icon icon, @Nullable String s) {
+    this.updateLbl.setIcon(icon);
+    this.updateLbl.setText(s);
+  }
+
+  /**
    * Sets the selection state of the "add link" button.
    * 
    * @param selected
@@ -611,6 +640,18 @@ public class MainFrame extends JFrame {
    */
   public void showAboutDialog() {
     this.aboutDialog.setVisible(true);
+  }
+
+  /**
+   * Shows the update dialog.
+   * 
+   * @param version update's version
+   * @param link update's link
+   * @param changelog update's changelog
+   */
+  public void showUpdateDialog(Version version, String link, String changelog) {
+    this.updateDialog.setInfo(version, link, changelog);
+    this.updateDialog.setVisible(true);
   }
 
   /**

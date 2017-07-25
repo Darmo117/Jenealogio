@@ -62,6 +62,9 @@ public final class Images {
   public static final ImageIcon FEMALE_SYMBOL;
   public static final ImageIcon USER;
   public static final ImageIcon LINK;
+  public static final ImageIcon CHECKING_UPDATES;
+  public static final ImageIcon NEW_UPDATE;
+  public static final ImageIcon UPDATE_CHECK_FAILED;
 
   public static final ImageIcon NEW_TREE_BIG;
   public static final ImageIcon OPEN_BIG;
@@ -108,6 +111,9 @@ public final class Images {
     FEMALE_SYMBOL = getIcon("/assets/icons/female_symbol.png");
     USER = getIcon("/assets/icons/user.png");
     LINK = getIcon("/assets/icons/link.png");
+    CHECKING_UPDATES = getIcon("/assets/icons/checking_updates.gif");
+    NEW_UPDATE = getIcon("/assets/icons/update_available.png");
+    UPDATE_CHECK_FAILED = getIcon("/assets/icons/updates_check_failed.png");
 
     NEW_TREE_BIG = getIcon("/assets/icons/new_tree_32.png");
     OPEN_BIG = getIcon("/assets/icons/open_32.png");

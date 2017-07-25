@@ -18,6 +18,10 @@
  */
 package net.darmo_creations.util;
 
+import java.text.ParseException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * This class represents a version number of the following format:
  * 
@@ -42,7 +46,25 @@ public final class Version implements Comparable<Version> {
   public static final Version V1_3D = new Version(1, 3, 0, true);
 
   static {
-    CURRENT_VERSION = new Version(1, 5, 0, true);
+    // TEMP
+    CURRENT_VERSION = new Version(1, 4, 0, true);
+  }
+
+  private static final Pattern VERSION_PATTERN = Pattern.compile("(\\d+)\\.(\\d+)(?:\\.(\\d+))?(d)?");
+
+  public static Version fromString(String version) throws ParseException {
+    Matcher m = VERSION_PATTERN.matcher(version);
+
+    if (m.matches()) {
+      int major = Integer.parseInt(m.group(1));
+      int minor = Integer.parseInt(m.group(2));
+      int patch = m.group(3) != null ? Integer.parseInt(m.group(3)) : 0;
+      boolean indev = "d".equals(m.group(4));
+
+      return new Version(major, minor, patch, indev);
+    }
+
+    throw new ParseException(version, -1);
   }
 
   private final int major, minor, patch;

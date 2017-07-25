@@ -64,6 +64,7 @@ public final class UserEvent extends AbstractEvent {
     EDIT_COLORS,
     HELP,
     ABOUT,
-    EXIT;
+    EXIT,
+    OPEN_UPDATE;
   }
 }

@@ -46,6 +46,7 @@ import net.darmo_creations.events.ChangeLanguageEvent;
 import net.darmo_creations.events.EventsDispatcher;
 import net.darmo_creations.events.LinkEvent;
 import net.darmo_creations.events.SubsribeEvent;
+import net.darmo_creations.events.UpdateEvent;
 import net.darmo_creations.events.UserEvent;
 import net.darmo_creations.gui.MainFrame;
 import net.darmo_creations.gui.components.display_panel.DisplayPanel;
@@ -55,7 +56,10 @@ import net.darmo_creations.model.family.Family;
 import net.darmo_creations.model.family.FamilyMember;
 import net.darmo_creations.model.family.Relationship;
 import net.darmo_creations.util.I18n;
+import net.darmo_creations.util.Images;
 import net.darmo_creations.util.JarUtil;
+import net.darmo_creations.util.UpdatesChecker;
+import net.darmo_creations.util.Version;
 import net.darmo_creations.util.VersionException;
 
 /**
@@ -92,6 +96,8 @@ public class MainController implements DropHandler {
 
   /** Undo/redo manager */
   private UndoRedoManager<FamilyEdit> undoRedoManager;
+  /** Updates checker */
+  private UpdatesChecker updatesChecker;
 
   public MainController(MainFrame frame, GlobalConfig config) {
     this.frame = frame;
@@ -101,6 +107,7 @@ public class MainController implements DropHandler {
     this.selectedCards = new ArrayList<>();
 
     this.undoRedoManager = new UndoRedoManager<>();
+    this.updatesChecker = new UpdatesChecker();
   }
 
   /**
@@ -111,6 +118,8 @@ public class MainController implements DropHandler {
     this.alreadySaved = false;
     this.saved = true;
     updateFrameMenus();
+    this.frame.setUpdateLabelText(Images.CHECKING_UPDATES, I18n.getLocalizedString("label.checking_updates.text"));
+    this.updatesChecker.checkUpdate();
   }
 
   /**
@@ -184,6 +193,11 @@ public class MainController implements DropHandler {
       case EXIT:
         if (!exit())
           e.setCanceled();
+        break;
+      case OPEN_UPDATE:
+        if (this.updatesChecker.isUpdateAvailable()) {
+          this.frame.showUpdateDialog(this.updatesChecker.getVersion(), this.updatesChecker.getLink(), this.updatesChecker.getChangelog());
+        }
         break;
     }
   }
@@ -331,6 +345,17 @@ public class MainController implements DropHandler {
   public void onCardDragPost(CardDragEvent.Post e) {
     addEdit();
     updateFrameMenus();
+  }
+
+  @SubsribeEvent
+  public void onNewUpdate(UpdateEvent.NewUpdate e) {
+    Version v = e.getVersion();
+    this.frame.setUpdateLabelText(Images.NEW_UPDATE, I18n.getLocalizedString("label.update_available.text") + " - Jenealogio " + v);
+  }
+
+  @SubsribeEvent
+  public void onUpdateCheckFailed(UpdateEvent.CheckFailed e) {
+    this.frame.setUpdateLabelText(Images.UPDATE_CHECK_FAILED, I18n.getLocalizedString("label.update_check_failed.text"));
   }
 
   @Override
