@@ -18,8 +18,13 @@
  */
 package net.darmo_creations.util;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.MissingResourceException;
+import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 
 import net.darmo_creations.model.date.Date;
@@ -37,7 +42,13 @@ public final class I18n {
    * <b>This method must be called before any other from this class.</b>
    */
   public static void init(Locale locale) {
-    resource = ResourceBundle.getBundle("assets/langs/lang", locale);
+    try {
+      InputStream in = I18n.class.getResourceAsStream("/assets/langs/" + locale + ".lang");
+      resource = new PropertyResourceBundle(new InputStreamReader(in, StandardCharsets.UTF_8));
+    }
+    catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 
   /**
