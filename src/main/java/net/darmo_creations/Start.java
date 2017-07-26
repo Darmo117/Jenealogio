@@ -27,6 +27,11 @@ import net.darmo_creations.dao.ConfigDao;
 import net.darmo_creations.gui.MainFrame;
 import net.darmo_creations.util.I18n;
 
+/**
+ * Applications main class.
+ *
+ * @author Damien Vergnet
+ */
 public class Start {
   public static final boolean DEBUG = true;
 
@@ -37,7 +42,7 @@ public class Start {
     try {
       UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
     }
-    catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
+    catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException __) {
       JOptionPane.showMessageDialog(null, I18n.getLocalizedString("popup.laf_error.text"), I18n.getLocalizedString("popup.laf_error.title"),
           JOptionPane.ERROR_MESSAGE);
     }
