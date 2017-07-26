@@ -28,7 +28,7 @@ import net.darmo_creations.gui.MainFrame;
 import net.darmo_creations.util.I18n;
 
 /**
- * Applications main class.
+ * Application's main class.
  *
  * @author Damien Vergnet
  */
