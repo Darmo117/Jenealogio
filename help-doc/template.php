@@ -7,7 +7,7 @@ $localhost = [
 if (in_array($_SERVER['REMOTE_ADDR'], $localhost))
   define('ROOT', '');
 else
-  define('ROOT', '/jenealogio/help-doc');
+  define('ROOT', '/products/jenealogio/help-doc');
 
 if (!isset($noMenu) || !is_bool($noMenu)) {
   $noMenu = false;

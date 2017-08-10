@@ -600,7 +600,7 @@ public class MainController implements DropHandler {
   }
 
   private void showHelp() {
-    String url = String.format("http://darmo-creations.net/jenealogio/help-doc/%s/", this.config.getLanguage().getCode());
+    String url = String.format("http://darmo-creations.net/products/jenealogio/help-doc/%s/", this.config.getLanguage().getCode());
     try {
       Desktop.getDesktop().browse(new URI(url));
     }
