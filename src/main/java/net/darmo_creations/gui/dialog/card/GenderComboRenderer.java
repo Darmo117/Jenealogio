@@ -47,7 +47,7 @@ class GenderComboRenderer implements ListCellRenderer<Gender> {
     Component component = this.delegate.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
     if (component instanceof JLabel) {
       String text = I18n.getLocalizedString(value.getUnlocalizedName());
-      ((JLabel) component).setText(text.substring(0, 1).toUpperCase() + text.substring(1));
+      ((JLabel) component).setText(I18n.toTitleCase(text));
     }
     return component;
   }
