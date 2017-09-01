@@ -47,7 +47,6 @@ import net.darmo_creations.jenealogio.events.EventType;
 import net.darmo_creations.jenealogio.events.LinkEvent;
 import net.darmo_creations.jenealogio.gui.MainFrame;
 import net.darmo_creations.jenealogio.gui.components.display_panel.DisplayPanel;
-import net.darmo_creations.jenealogio.gui.drag_and_drop.DropHandler;
 import net.darmo_creations.jenealogio.model.FamilyEdit;
 import net.darmo_creations.jenealogio.model.family.Family;
 import net.darmo_creations.jenealogio.model.family.FamilyMember;
@@ -56,6 +55,7 @@ import net.darmo_creations.jenealogio.util.Images;
 import net.darmo_creations.utils.I18n;
 import net.darmo_creations.utils.UndoRedoManager;
 import net.darmo_creations.utils.events.SubsribeEvent;
+import net.darmo_creations.utils.swing.drag_and_drop.DragAndDropListener;
 import net.darmo_creations.utils.version.VersionException;
 
 /**
@@ -63,7 +63,7 @@ import net.darmo_creations.utils.version.VersionException;
  * 
  * @author Damien Vergnet
  */
-public class MainController extends ApplicationController<MainFrame> implements DropHandler {
+public class MainController extends ApplicationController<MainFrame> implements DragAndDropListener {
   /** Main DAO */
   private final FamilyDao familyDao;
 

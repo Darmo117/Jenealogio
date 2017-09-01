@@ -116,7 +116,7 @@ public class MainFrame extends ApplicationFrame<MainController> {
 
     JScrollPane scrollPane = new JScrollPane();
     this.displayPnl = new DisplayPanel(scrollPane);
-    this.displayPnl.addDropHandler(controller);
+    this.displayPnl.addDragAndDropListener(controller);
     scrollPane.setViewportView(this.displayPnl);
     add(scrollPane, BorderLayout.CENTER);
 

@@ -52,10 +52,11 @@ import net.darmo_creations.jenealogio.events.CardDragEvent;
 import net.darmo_creations.jenealogio.events.CardEvent;
 import net.darmo_creations.jenealogio.events.LinkEvent;
 import net.darmo_creations.jenealogio.gui.components.FamilyMemberPanel;
-import net.darmo_creations.jenealogio.gui.drag_and_drop.DropHandler;
-import net.darmo_creations.jenealogio.gui.drag_and_drop.DropTargetHandler;
 import net.darmo_creations.jenealogio.model.family.Family;
 import net.darmo_creations.utils.events.SubsribeEvent;
+import net.darmo_creations.utils.swing.drag_and_drop.DragAndDropListener;
+import net.darmo_creations.utils.swing.drag_and_drop.DragAndDropTarget;
+import net.darmo_creations.utils.swing.drag_and_drop.DropTargetHandler;
 
 /**
  * This panel displays the family tree and handles click events. It can notify observers of any
@@ -63,7 +64,7 @@ import net.darmo_creations.utils.events.SubsribeEvent;
  *
  * @author Damien Vergnet
  */
-public class DisplayPanel extends JPanel implements Scrollable {
+public class DisplayPanel extends JPanel implements Scrollable, DragAndDropTarget {
   private static final long serialVersionUID = 8747904983365363275L;
 
   /** The maximum distance away from a link the mouse must be to count as a hover. */
@@ -104,13 +105,14 @@ public class DisplayPanel extends JPanel implements Scrollable {
   }
 
   /**
-   * Adds a DropHandler.
+   * Adds a drag-and-drop listener.
    * 
    * @param handler the new handler
    */
-  public void addDropHandler(DropHandler handler) {
+  @Override
+  public void addDragAndDropListener(DragAndDropListener l) {
     try {
-      this.dropTarget.addDropTargetListener(new DropTargetHandler(handler, this));
+      this.dropTarget.addDropTargetListener(new DropTargetHandler(l, this));
     }
     catch (TooManyListenersException e) {
       throw new RuntimeException(e);
