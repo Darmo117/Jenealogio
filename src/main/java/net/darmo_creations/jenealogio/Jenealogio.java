@@ -13,14 +13,13 @@ import net.darmo_creations.utils.version.Version;
 
 public class Jenealogio implements Application {
   public static final Version CURRENT_VERSION = new Version(1, 5, 0, true);
-
-  /** Extension for tree files. */
-  public static final String TREE_FILE_EXT = "gtree";
-  /** Image file extensions a tree can be exported into. */
-  public static final String[] IMAGE_FILES_EXTS = {"bmp", "png", "jpg", "jpeg", "gif"};
-
   /** Version 1.3d */
   public static final Version V1_3D = new Version(1, 3, 0, true);
+
+  /** Extension for tree files */
+  public static final String TREE_FILE_EXT = "gtree";
+  /** Image file extensions a tree can be exported into */
+  public static final String[] IMAGE_FILES_EXTS = {"bmp", "png", "jpg", "jpeg", "gif"};
 
   @Override
   public void preInit() {
