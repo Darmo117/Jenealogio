@@ -37,6 +37,7 @@ import net.darmo_creations.gui_framework.ApplicationRegistry;
 import net.darmo_creations.gui_framework.config.WritableConfig;
 import net.darmo_creations.gui_framework.controllers.ApplicationController;
 import net.darmo_creations.gui_framework.events.UserEvent;
+import net.darmo_creations.jenealogio.Jenealogio;
 import net.darmo_creations.jenealogio.config.ConfigTags;
 import net.darmo_creations.jenealogio.dao.FamilyDao;
 import net.darmo_creations.jenealogio.events.CardDragEvent;
@@ -316,13 +317,13 @@ public class MainController extends ApplicationController<MainFrame> implements 
 
   @Override
   public boolean acceptFiles(List<File> files, Component c) {
-    if (!(c instanceof DisplayPanel) && files.size() != 1)
+    if (!(c instanceof DisplayPanel) || files.size() != 1)
       return false;
 
     String name = files.get(0).getName();
     String ext = name.substring(name.lastIndexOf('.') + 1);
 
-    return "gtree".equalsIgnoreCase(ext);
+    return Jenealogio.TREE_FILE_EXT.equalsIgnoreCase(ext);
   }
 
   @Override
