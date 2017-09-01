@@ -48,14 +48,15 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
 import net.darmo_creations.gui_framework.controllers.ExtensionsFileFilter;
+import net.darmo_creations.jenealogio.Jenealogio;
 import net.darmo_creations.jenealogio.gui.MainFrame;
 import net.darmo_creations.jenealogio.gui.components.DateField;
-import net.darmo_creations.jenealogio.gui.components.ImageLabel;
 import net.darmo_creations.jenealogio.model.date.Date;
 import net.darmo_creations.jenealogio.model.family.FamilyMember;
 import net.darmo_creations.jenealogio.model.family.Gender;
 import net.darmo_creations.jenealogio.util.Images;
 import net.darmo_creations.utils.I18n;
+import net.darmo_creations.utils.swing.ImageLabel;
 import net.darmo_creations.utils.swing.dialog.AbstractDialog;
 
 /**
@@ -102,10 +103,10 @@ public class CardDialog extends AbstractDialog {
     this.fileChooser = new JFileChooser();
     this.fileChooser.setAcceptAllFileFilterUsed(false);
     this.fileChooser.setMultiSelectionEnabled(false);
-    this.fileChooser.setFileFilter(new ExtensionsFileFilter(I18n.getLocalizedString("file_type.image.desc"), "png", "jpg", "jpeg", "bmp"));
+    this.fileChooser.setFileFilter(new ExtensionsFileFilter(I18n.getLocalizedString("file_type.image.desc"), Jenealogio.IMAGE_FILES_EXTS));
 
     this.image = null;
-    this.imageLbl = new ImageLabel(null);
+    this.imageLbl = new ImageLabel(null, true);
     this.imageLbl.setPreferredSize(new Dimension(120, 150));
     this.imageLbl.setMaximumSize(this.imageLbl.getPreferredSize());
     this.imageLbl.setAlignmentX(Component.CENTER_ALIGNMENT);

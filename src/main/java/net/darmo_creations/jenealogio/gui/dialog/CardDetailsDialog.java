@@ -34,11 +34,11 @@ import net.darmo_creations.gui_framework.events.UserEvent;
 import net.darmo_creations.jenealogio.events.EventType;
 import net.darmo_creations.jenealogio.gui.MainFrame;
 import net.darmo_creations.jenealogio.gui.components.DetailsPanel;
-import net.darmo_creations.jenealogio.gui.components.ImageLabel;
 import net.darmo_creations.jenealogio.model.family.FamilyMember;
 import net.darmo_creations.jenealogio.model.family.Relationship;
 import net.darmo_creations.jenealogio.util.Images;
 import net.darmo_creations.utils.I18n;
+import net.darmo_creations.utils.swing.ImageLabel;
 import net.darmo_creations.utils.swing.dialog.AbstractDialog;
 import net.darmo_creations.utils.swing.dialog.DefaultDialogController;
 
@@ -63,7 +63,7 @@ public class CardDetailsDialog extends AbstractDialog {
     setIconImage(Images.JENEALOGIO.getImage());
 
     JPanel imagePnl = new JPanel();
-    imagePnl.add(this.imageLbl = new ImageLabel(null));
+    imagePnl.add(this.imageLbl = new ImageLabel(null, true));
     this.imageLbl.setPreferredSize(new Dimension(120, 150));
     this.imageLbl.setMaximumSize(this.imageLbl.getPreferredSize());
     this.imageLbl.setBorder(new LineBorder(Color.GRAY));
