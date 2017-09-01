@@ -87,9 +87,7 @@ public class Family implements Cloneable {
    * @return all the members
    */
   public Set<FamilyMember> getAllMembers() {
-    Set<FamilyMember> members = new HashSet<>();
-    this.members.forEach(m -> members.add(m.clone()));
-    return members;
+    return this.members.stream().map(member -> member.clone()).collect(Collectors.toSet());
   }
 
   /**
@@ -98,8 +96,8 @@ public class Family implements Cloneable {
    * @param id the ID
    * @return the member or nothing if none were found
    */
-  public Optional<FamilyMember> getMember(long id) { // TODO clone
-    return this.members.stream().filter(member -> member.getId() == id).findAny();
+  public Optional<FamilyMember> getMember(long id) {
+    return this.members.stream().filter(member -> member.getId() == id).findAny().map(member -> member.clone());
   }
 
   /**
@@ -149,9 +147,7 @@ public class Family implements Cloneable {
    * @return all the relations
    */
   public Set<Relationship> getAllRelations() {
-    Set<Relationship> relations = new HashSet<>();
-    this.relations.forEach(r -> relations.add(r.clone()));
-    return relations;
+    return this.relations.stream().map(r -> r.clone()).collect(Collectors.toSet());
   }
 
   /**
@@ -161,8 +157,9 @@ public class Family implements Cloneable {
    * @param id2 the second ID
    * @return the relationship between the two IDs
    */
-  public Optional<Relationship> getRelation(long id1, long id2) { // TODO clone
-    return this.relations.stream().filter(r -> r.isInRelationship(id1) && r.isInRelationship(id2)).findAny();
+  public Optional<Relationship> getRelation(long id1, long id2) {
+    return this.relations.stream().filter(r -> r.isInRelationship(id1) && r.isInRelationship(id2)).findAny().map(
+        relation -> relation.clone());
   }
 
   /**
@@ -172,8 +169,9 @@ public class Family implements Cloneable {
    * @param memberId the member's ID
    * @return the relations
    */
-  public Set<Relationship> getRelations(long memberId) { // TODO clone
-    return this.relations.stream().filter(relation -> relation.isInRelationship(memberId)).collect(Collectors.toSet());
+  public Set<Relationship> getRelations(long memberId) {
+    return this.relations.stream().filter(relation -> relation.isInRelationship(memberId)).map(relation -> relation.clone()).collect(
+        Collectors.toSet());
   }
 
   /**
