@@ -26,10 +26,10 @@ import javax.swing.JList;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import net.darmo_creations.jenealogio.gui.dialog.DefaultDialogController;
 import net.darmo_creations.jenealogio.model.family.Family;
 import net.darmo_creations.jenealogio.model.family.FamilyMember;
 import net.darmo_creations.jenealogio.model.family.Relationship;
+import net.darmo_creations.utils.swing.dialog.DefaultDialogController;
 
 /**
  * This controller handles actions of the LinkDialog class.

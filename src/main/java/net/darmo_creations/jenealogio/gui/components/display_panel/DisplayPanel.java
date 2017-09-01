@@ -45,17 +45,17 @@ import javax.swing.JScrollPane;
 import javax.swing.Scrollable;
 import javax.swing.SwingUtilities;
 
-import net.darmo_creations.jenealogio.config.ColorConfigKey;
-import net.darmo_creations.jenealogio.config.GlobalConfig;
+import net.darmo_creations.gui_framework.ApplicationRegistry;
+import net.darmo_creations.gui_framework.config.WritableConfig;
+import net.darmo_creations.jenealogio.config.ConfigTags;
 import net.darmo_creations.jenealogio.events.CardDragEvent;
 import net.darmo_creations.jenealogio.events.CardEvent;
-import net.darmo_creations.jenealogio.events.EventsDispatcher;
 import net.darmo_creations.jenealogio.events.LinkEvent;
-import net.darmo_creations.jenealogio.events.SubsribeEvent;
 import net.darmo_creations.jenealogio.gui.components.FamilyMemberPanel;
 import net.darmo_creations.jenealogio.gui.drag_and_drop.DropHandler;
 import net.darmo_creations.jenealogio.gui.drag_and_drop.DropTargetHandler;
 import net.darmo_creations.jenealogio.model.family.Family;
+import net.darmo_creations.utils.events.SubsribeEvent;
 
 /**
  * This panel displays the family tree and handles click events. It can notify observers of any
@@ -69,7 +69,7 @@ public class DisplayPanel extends JPanel implements Scrollable {
   /** The maximum distance away from a link the mouse must be to count as a hover. */
   private static final int HOVER_DISTANCE = 5;
 
-  private GlobalConfig config;
+  private WritableConfig config;
   private DropTarget dropTarget;
   private DisplayController controller;
   private MouseAdapter doubleClickController;
@@ -88,7 +88,7 @@ public class DisplayPanel extends JPanel implements Scrollable {
       public void mouseClicked(MouseEvent e) {
         if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2 && e.getComponent() instanceof FamilyMemberPanel) {
           FamilyMemberPanel p = (FamilyMemberPanel) e.getComponent();
-          EventsDispatcher.EVENT_BUS.dispatchEvent(new CardEvent.DoubleClicked(p.getMemberId()));
+          ApplicationRegistry.EVENTS_BUS.dispatchEvent(new CardEvent.DoubleClicked(p.getMemberId()));
         }
       }
     };
@@ -131,7 +131,7 @@ public class DisplayPanel extends JPanel implements Scrollable {
    * 
    * @param family the model
    */
-  public void refresh(Family family, GlobalConfig config) {
+  public void refresh(Family family, WritableConfig config) {
     refresh(family, new HashMap<>(), config);
   }
 
@@ -142,7 +142,7 @@ public class DisplayPanel extends JPanel implements Scrollable {
    * @param family the model
    * @param positions the positions
    */
-  public void refresh(Family family, Map<Long, Point> positions, GlobalConfig config) {
+  public void refresh(Family family, Map<Long, Point> positions, WritableConfig config) {
     this.config = config;
     Set<Long> updatedOrAdded = new HashSet<>();
     Set<Long> keysToDelete = new HashSet<>(this.panels.keySet());
@@ -436,9 +436,9 @@ public class DisplayPanel extends JPanel implements Scrollable {
       if (optStart.isPresent()) {
         Rectangle r = optStart.get();
 
-        g2d.setColor(this.config.getValue(ColorConfigKey.SELECTION_BACKGROUND));
+        g2d.setColor(this.config.getValue(ConfigTags.SELECTION_BACKGROUND_COLOR));
         g2d.fillRect(r.x, r.y, r.width, r.height);
-        g2d.setColor(this.config.getValue(ColorConfigKey.SELECTION_BORDER));
+        g2d.setColor(this.config.getValue(ConfigTags.SELECTION_BORDER_COLOR));
         g2d.drawRect(r.x, r.y, r.width, r.height);
       }
 
@@ -458,13 +458,14 @@ public class DisplayPanel extends JPanel implements Scrollable {
         Point middle = new Point((p1.x + p2.x) / 2, (p1.y + p2.y) / 2);
 
         if (isMouseOnLink(p1, p2))
-          g2d.setColor(this.config.getValue(ColorConfigKey.LINK_HOVERED));
+          g2d.setColor(this.config.getValue(ConfigTags.LINK_HOVERED_COLOR));
         else
-          g2d.setColor(link.isSelected() ? this.config.getValue(ColorConfigKey.LINK_SELECTED) : this.config.getValue(ColorConfigKey.LINK));
+          g2d.setColor(
+              link.isSelected() ? this.config.getValue(ConfigTags.LINK_SELECTED_COLOR) : this.config.getValue(ConfigTags.LINK_COLOR));
         g2d.drawLine(p1.x, p1.y, p2.x, p2.y);
 
         g2d.setStroke(new BasicStroke(width));
-        g2d.setColor(this.config.getValue(ColorConfigKey.LINK_CHILD));
+        g2d.setColor(this.config.getValue(ConfigTags.LINK_CHILD_COLOR));
         // Links to children
         link.getChildren().forEach(child -> {
           Rectangle r = this.panels.get(child).getBounds();

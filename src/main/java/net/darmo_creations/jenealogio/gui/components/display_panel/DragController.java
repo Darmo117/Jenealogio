@@ -25,9 +25,9 @@ import java.awt.event.MouseEvent;
 
 import javax.swing.SwingUtilities;
 
+import net.darmo_creations.gui_framework.ApplicationRegistry;
 import net.darmo_creations.jenealogio.events.CardDragEvent;
 import net.darmo_creations.jenealogio.events.CardEvent;
-import net.darmo_creations.jenealogio.events.EventsDispatcher;
 import net.darmo_creations.jenealogio.gui.components.FamilyMemberPanel;
 
 /**
@@ -69,7 +69,7 @@ class DragController extends MouseAdapter {
   public void mouseReleased(MouseEvent e) {
     if (this.dragging && SwingUtilities.isLeftMouseButton(e)) {
       this.dragging = false;
-      EventsDispatcher.EVENT_BUS.dispatchEvent(new CardDragEvent.Post(this.memberPanel.getMemberId()));
+      ApplicationRegistry.EVENTS_BUS.dispatchEvent(new CardDragEvent.Post(this.memberPanel.getMemberId()));
     }
   }
 
@@ -78,7 +78,7 @@ class DragController extends MouseAdapter {
     if (SwingUtilities.isLeftMouseButton(e)) {
       int modifiers = e.getModifiers();
       boolean isCtrlDown = (modifiers & MouseEvent.CTRL_MASK) != 0;
-      EventsDispatcher.EVENT_BUS.dispatchEvent(new CardEvent.Clicked(this.memberPanel.getMemberId(), isCtrlDown));
+      ApplicationRegistry.EVENTS_BUS.dispatchEvent(new CardEvent.Clicked(this.memberPanel.getMemberId(), isCtrlDown));
     }
   }
 
@@ -101,10 +101,10 @@ class DragController extends MouseAdapter {
       if (!oldLocation.equals(newLocation)) {
         if (!this.dragging) {
           this.dragging = true;
-          EventsDispatcher.EVENT_BUS.dispatchEvent(new CardDragEvent.Pre(this.memberPanel.getMemberId()));
+          ApplicationRegistry.EVENTS_BUS.dispatchEvent(new CardDragEvent.Pre(this.memberPanel.getMemberId()));
         }
         this.memberPanel.setLocation(newLocation);
-        EventsDispatcher.EVENT_BUS.dispatchEvent(new CardDragEvent.Dragging(this.memberPanel.getMemberId(), oldLocation, newLocation));
+        ApplicationRegistry.EVENTS_BUS.dispatchEvent(new CardDragEvent.Dragging(this.memberPanel.getMemberId(), oldLocation, newLocation));
       }
     }
   }

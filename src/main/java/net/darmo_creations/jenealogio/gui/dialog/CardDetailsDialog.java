@@ -29,15 +29,18 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.border.LineBorder;
 
-import net.darmo_creations.jenealogio.events.EventsDispatcher;
-import net.darmo_creations.jenealogio.events.UserEvent;
+import net.darmo_creations.gui_framework.ApplicationRegistry;
+import net.darmo_creations.gui_framework.events.UserEvent;
+import net.darmo_creations.jenealogio.events.EventType;
 import net.darmo_creations.jenealogio.gui.MainFrame;
 import net.darmo_creations.jenealogio.gui.components.DetailsPanel;
 import net.darmo_creations.jenealogio.gui.components.ImageLabel;
 import net.darmo_creations.jenealogio.model.family.FamilyMember;
 import net.darmo_creations.jenealogio.model.family.Relationship;
-import net.darmo_creations.jenealogio.util.I18n;
 import net.darmo_creations.jenealogio.util.Images;
+import net.darmo_creations.utils.I18n;
+import net.darmo_creations.utils.swing.dialog.AbstractDialog;
+import net.darmo_creations.utils.swing.dialog.DefaultDialogController;
 
 /**
  * This dialog dislays details about a person.
@@ -75,7 +78,7 @@ public class CardDetailsDialog extends AbstractDialog {
       public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand().equals("edit")) {
           this.dialog.setVisible(false);
-          EventsDispatcher.EVENT_BUS.dispatchEvent(new UserEvent(UserEvent.Type.EDIT_CARD));
+          ApplicationRegistry.EVENTS_BUS.dispatchEvent(new UserEvent(EventType.EDIT_CARD));
           return;
         }
         super.actionPerformed(e);

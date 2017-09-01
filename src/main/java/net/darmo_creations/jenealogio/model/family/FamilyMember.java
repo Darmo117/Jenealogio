@@ -26,7 +26,7 @@ import java.util.Optional;
 import net.darmo_creations.jenealogio.model.date.Date;
 import net.darmo_creations.jenealogio.util.CalendarUtil;
 import net.darmo_creations.jenealogio.util.Images;
-import net.darmo_creations.jenealogio.util.Nullable;
+import net.darmo_creations.utils.Nullable;
 
 /**
  * A family member has an internal ID, a family name, a use name, first name, other names, gender,

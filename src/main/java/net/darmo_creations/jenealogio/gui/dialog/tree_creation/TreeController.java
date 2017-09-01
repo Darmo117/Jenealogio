@@ -21,7 +21,7 @@ package net.darmo_creations.jenealogio.gui.dialog.tree_creation;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import net.darmo_creations.jenealogio.gui.dialog.DefaultDialogController;
+import net.darmo_creations.utils.swing.dialog.DefaultDialogController;
 
 /**
  * This controller handles the TreeCreationDialog class events.

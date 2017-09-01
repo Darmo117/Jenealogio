@@ -30,7 +30,8 @@ import java.util.Optional;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
-import net.darmo_creations.jenealogio.config.Language;
+import net.darmo_creations.gui_framework.util.ImagesUtil;
+import net.darmo_creations.utils.FilesUtil;
 
 /**
  * This class holds all images for the app and provides a method to copy images.
@@ -88,72 +89,54 @@ public final class Images {
   public static final ImageIcon GNU_GPL;
 
   static {
-    NEW_TREE = getIcon("/assets/icons/new_tree.png");
-    OPEN = getIcon("/assets/icons/open.png");
-    EDIT_TREE = getIcon("/assets/icons/edit_tree.png");
-    SAVE = getIcon("/assets/icons/save.png");
-    SAVE_AS = getIcon("/assets/icons/save_as.png");
-    EXPORT_IMAGE = getIcon("/assets/icons/export_image.png");
-    UNDO = getIcon("/assets/icons/undo.png");
-    REDO = getIcon("/assets/icons/redo.png");
-    ADD_CARD = getIcon("/assets/icons/add_card.png");
-    EDIT_CARD = getIcon("/assets/icons/edit_card.png");
-    DELETE_CARD = getIcon("/assets/icons/delete_card.png");
-    ADD_LINK = getIcon("/assets/icons/add_link.png");
-    EDIT_LINK = getIcon("/assets/icons/edit_link.png");
-    DELETE_LINK = getIcon("/assets/icons/delete_link.png");
-    EXIT = getIcon("/assets/icons/exit.png");
-    HELP = getIcon("/assets/icons/help.png");
-    ARROW_UP = getIcon("/assets/icons/arrow_up.png");
-    ARROW_DOWN = getIcon("/assets/icons/arrow_down.png");
-    BABY = getIcon("/assets/icons/baby.png");
-    HEART = getIcon("/assets/icons/heart.png");
-    HEART_BROKEN = getIcon("/assets/icons/heart_broken.png");
-    TOMBSTONE = getIcon("/assets/icons/tombstone.png");
-    COLOR_WHEEL = getIcon("/assets/icons/color_wheel.png");
-    MALE_SYMBOL = getIcon("/assets/icons/male_symbol.png");
-    FEMALE_SYMBOL = getIcon("/assets/icons/female_symbol.png");
-    USER = getIcon("/assets/icons/user.png");
-    LINK = getIcon("/assets/icons/link.png");
-    CHECKING_UPDATES = getIcon("/assets/icons/checking_updates.gif");
-    NEW_UPDATE = getIcon("/assets/icons/update_available.png");
-    UPDATE_CHECK_FAILED = getIcon("/assets/icons/updates_check_failed.png");
+    NEW_TREE = ImagesUtil.getIcon("/assets/icons/new_tree.png");
+    OPEN = ImagesUtil.getIcon("/assets/icons/open.png");
+    EDIT_TREE = ImagesUtil.getIcon("/assets/icons/edit_tree.png");
+    SAVE = ImagesUtil.getIcon("/assets/icons/save.png");
+    SAVE_AS = ImagesUtil.getIcon("/assets/icons/save_as.png");
+    EXPORT_IMAGE = ImagesUtil.getIcon("/assets/icons/export_image.png");
+    UNDO = ImagesUtil.getIcon("/assets/icons/undo.png");
+    REDO = ImagesUtil.getIcon("/assets/icons/redo.png");
+    ADD_CARD = ImagesUtil.getIcon("/assets/icons/add_card.png");
+    EDIT_CARD = ImagesUtil.getIcon("/assets/icons/edit_card.png");
+    DELETE_CARD = ImagesUtil.getIcon("/assets/icons/delete_card.png");
+    ADD_LINK = ImagesUtil.getIcon("/assets/icons/add_link.png");
+    EDIT_LINK = ImagesUtil.getIcon("/assets/icons/edit_link.png");
+    DELETE_LINK = ImagesUtil.getIcon("/assets/icons/delete_link.png");
+    EXIT = ImagesUtil.getIcon("/assets/icons/exit.png");
+    HELP = ImagesUtil.getIcon("/assets/icons/help.png");
+    ARROW_UP = ImagesUtil.getIcon("/assets/icons/arrow_up.png");
+    ARROW_DOWN = ImagesUtil.getIcon("/assets/icons/arrow_down.png");
+    BABY = ImagesUtil.getIcon("/assets/icons/baby.png");
+    HEART = ImagesUtil.getIcon("/assets/icons/heart.png");
+    HEART_BROKEN = ImagesUtil.getIcon("/assets/icons/heart_broken.png");
+    TOMBSTONE = ImagesUtil.getIcon("/assets/icons/tombstone.png");
+    COLOR_WHEEL = ImagesUtil.getIcon("/assets/icons/color_wheel.png");
+    MALE_SYMBOL = ImagesUtil.getIcon("/assets/icons/male_symbol.png");
+    FEMALE_SYMBOL = ImagesUtil.getIcon("/assets/icons/female_symbol.png");
+    USER = ImagesUtil.getIcon("/assets/icons/user.png");
+    LINK = ImagesUtil.getIcon("/assets/icons/link.png");
+    CHECKING_UPDATES = ImagesUtil.getIcon("/assets/icons/checking_updates.gif");
+    NEW_UPDATE = ImagesUtil.getIcon("/assets/icons/update_available.png");
+    UPDATE_CHECK_FAILED = ImagesUtil.getIcon("/assets/icons/updates_check_failed.png");
 
-    NEW_TREE_BIG = getIcon("/assets/icons/new_tree_32.png");
-    OPEN_BIG = getIcon("/assets/icons/open_32.png");
-    SAVE_BIG = getIcon("/assets/icons/save_32.png");
-    SAVE_AS_BIG = getIcon("/assets/icons/save_as_32.png");
-    UNDO_BIG = getIcon("/assets/icons/undo_32.png");
-    REDO_BIG = getIcon("/assets/icons/redo_32.png");
-    ADD_CARD_BIG = getIcon("/assets/icons/add_card_32.png");
-    EDIT_CARD_BIG = getIcon("/assets/icons/edit_card_32.png");
-    DELETE_CARD_BIG = getIcon("/assets/icons/delete_card_32.png");
-    ADD_LINK_BIG = getIcon("/assets/icons/add_link_32.png");
-    EDIT_LINK_BIG = getIcon("/assets/icons/edit_link_32.png");
-    DELETE_LINK_BIG = getIcon("/assets/icons/delete_link_32.png");
-    ARROW_UP_BIG = getIcon("/assets/icons/arrow_up_32.png");
-    ARROW_DOWN_BIG = getIcon("/assets/icons/arrow_down_32.png");
+    NEW_TREE_BIG = ImagesUtil.getIcon("/assets/icons/new_tree_32.png");
+    OPEN_BIG = ImagesUtil.getIcon("/assets/icons/open_32.png");
+    SAVE_BIG = ImagesUtil.getIcon("/assets/icons/save_32.png");
+    SAVE_AS_BIG = ImagesUtil.getIcon("/assets/icons/save_as_32.png");
+    UNDO_BIG = ImagesUtil.getIcon("/assets/icons/undo_32.png");
+    REDO_BIG = ImagesUtil.getIcon("/assets/icons/redo_32.png");
+    ADD_CARD_BIG = ImagesUtil.getIcon("/assets/icons/add_card_32.png");
+    EDIT_CARD_BIG = ImagesUtil.getIcon("/assets/icons/edit_card_32.png");
+    DELETE_CARD_BIG = ImagesUtil.getIcon("/assets/icons/delete_card_32.png");
+    ADD_LINK_BIG = ImagesUtil.getIcon("/assets/icons/add_link_32.png");
+    EDIT_LINK_BIG = ImagesUtil.getIcon("/assets/icons/edit_link_32.png");
+    DELETE_LINK_BIG = ImagesUtil.getIcon("/assets/icons/delete_link_32.png");
+    ARROW_UP_BIG = ImagesUtil.getIcon("/assets/icons/arrow_up_32.png");
+    ARROW_DOWN_BIG = ImagesUtil.getIcon("/assets/icons/arrow_down_32.png");
 
-    JENEALOGIO = getIcon("/assets/icons/jenealogio_icon.png");
-    GNU_GPL = getIcon("/assets/icons/gplv3-127x51.png");
-  }
-
-  /**
-   * Returns the flag icon for the given language.
-   * 
-   * @param langCode the language
-   * @return the icon or null if none were found
-   */
-  public static ImageIcon getCountryFlag(Language langCode) {
-    switch (langCode) {
-      case ENGLISH:
-        return getIcon("/assets/icons/flag_great_britain.png");
-      case FRENCH:
-        return getIcon("/assets/icons/flag_france.png");
-      case ESPERANTO:
-        return getIcon("/assets/icons/flag_esperanto.png");
-    }
-    return null;
+    JENEALOGIO = ImagesUtil.getIcon("/assets/icons/jenealogio_icon.png");
+    GNU_GPL = ImagesUtil.getIcon("/assets/icons/gplv3-127x51.png");
   }
 
   /**
@@ -201,13 +184,9 @@ public final class Images {
    * @param file the file
    */
   public static void writeImage(BufferedImage image, String file) throws IOException {
-    Optional<String> opt = FileUtil.getExtension(file);
+    Optional<String> opt = FilesUtil.getExtension(file);
     String ext = opt.orElseThrow(() -> new IOException("file has no extension"));
     ImageIO.write(image, ext, new File(file));
-  }
-
-  private static ImageIcon getIcon(String path) {
-    return new ImageIcon(Images.class.getResource(path));
   }
 
   private Images() {}

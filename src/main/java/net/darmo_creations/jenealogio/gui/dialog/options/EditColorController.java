@@ -25,11 +25,10 @@ import java.util.Optional;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 
-import net.darmo_creations.jenealogio.config.ColorConfigKey;
-import net.darmo_creations.jenealogio.config.ConfigKey;
-import net.darmo_creations.jenealogio.config.GlobalConfig;
+import net.darmo_creations.gui_framework.config.WritableConfig;
+import net.darmo_creations.jenealogio.config.ColorTag;
 import net.darmo_creations.jenealogio.gui.components.NamedTreeNode;
-import net.darmo_creations.jenealogio.gui.dialog.DefaultDialogController;
+import net.darmo_creations.utils.swing.dialog.DefaultDialogController;
 
 /**
  * This controller handles events from the EditColorsDialog.
@@ -37,7 +36,7 @@ import net.darmo_creations.jenealogio.gui.dialog.DefaultDialogController;
  * @author Damien Vergnet
  */
 class EditColorController extends DefaultDialogController<EditColorsDialog> implements TreeSelectionListener {
-  private GlobalConfig config;
+  private WritableConfig config;
   private String selectedNode;
 
   EditColorController(EditColorsDialog dialog) {
@@ -49,7 +48,7 @@ class EditColorController extends DefaultDialogController<EditColorsDialog> impl
   /**
    * @return the current config
    */
-  GlobalConfig getConfig() {
+  WritableConfig getConfig() {
     return this.config;
   }
 
@@ -58,7 +57,7 @@ class EditColorController extends DefaultDialogController<EditColorsDialog> impl
    * 
    * @param config the new config
    */
-  void setConfig(GlobalConfig config) {
+  void setConfig(WritableConfig config) {
     this.dialog.setCanceled(false);
     this.config = config;
     if (this.selectedNode != null)
@@ -86,7 +85,10 @@ class EditColorController extends DefaultDialogController<EditColorsDialog> impl
    * @return the color for the selected option
    */
   private Color getColorForNode() {
-    return this.config.getValue(ConfigKey.fromName(this.selectedNode, ColorConfigKey.class));
+    Optional<ColorTag> key = WritableConfig.getTagFromName(this.selectedNode, Color.class.getName());
+    if (key.isPresent())
+      return this.config.getValue(key.get());
+    return null;
   }
 
   /**
@@ -95,7 +97,9 @@ class EditColorController extends DefaultDialogController<EditColorsDialog> impl
    * @param c the color
    */
   private void setColorForNode(Color c) {
-    this.config.setValue(ConfigKey.fromName(this.selectedNode, ColorConfigKey.class), c);
+    Optional<ColorTag> key = WritableConfig.getTagFromName(this.selectedNode, Color.class.getName());
+    if (key.isPresent())
+      this.config.setValue(key.get(), c);
   }
 
   @Override

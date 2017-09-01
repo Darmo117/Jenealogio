@@ -18,14 +18,13 @@
  */
 package net.darmo_creations.jenealogio;
 
-import javax.swing.JOptionPane;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
-import net.darmo_creations.jenealogio.config.GlobalConfig;
-import net.darmo_creations.jenealogio.dao.ConfigDao;
-import net.darmo_creations.jenealogio.gui.MainFrame;
-import net.darmo_creations.jenealogio.util.I18n;
+import net.darmo_creations.gui_framework.ApplicationRegistry;
+import net.darmo_creations.gui_framework.GuiFramework;
+import net.darmo_creations.gui_framework.config.Language;
 
 /**
  * Application's main class.
@@ -33,19 +32,14 @@ import net.darmo_creations.jenealogio.util.I18n;
  * @author Damien Vergnet
  */
 public class Start {
-  public static final boolean DEBUG = true;
-
   public static void main(String[] args) {
-    GlobalConfig config = ConfigDao.getInstance().load();
-    I18n.init(config.getLanguage().getLocale());
+    List<Language> l = new ArrayList<>();
+    l.add(new Language("English", Locale.US));
+    l.add(new Language("Français", Locale.FRANCE));
+    l.add(new Language("Esperanto", new Locale("eo")));
 
-    try {
-      UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-    }
-    catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException __) {
-      JOptionPane.showMessageDialog(null, I18n.getLocalizedString("popup.laf_error.text"), I18n.getLocalizedString("popup.laf_error.title"),
-          JOptionPane.ERROR_MESSAGE);
-    }
-    new MainFrame(config).setVisible(true);
+    ApplicationRegistry.setLanguages(l);
+    ApplicationRegistry.registerApplication(Jenealogio.class);
+    GuiFramework.run();
   }
 }

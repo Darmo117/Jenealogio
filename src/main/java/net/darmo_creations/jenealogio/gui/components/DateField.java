@@ -33,7 +33,7 @@ import javax.swing.text.NumberFormatter;
 import net.darmo_creations.jenealogio.controllers.FormattedFieldFocusListener;
 import net.darmo_creations.jenealogio.model.date.Date;
 import net.darmo_creations.jenealogio.model.date.DateBuilder;
-import net.darmo_creations.jenealogio.util.Nullable;
+import net.darmo_creations.utils.Nullable;
 
 /**
  * This component lets the user type in a date. The format can be specified.

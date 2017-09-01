@@ -35,12 +35,12 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 
-import net.darmo_creations.jenealogio.config.GlobalConfig;
+import net.darmo_creations.gui_framework.config.WritableConfig;
 import net.darmo_creations.jenealogio.gui.components.ColorButton;
 import net.darmo_creations.jenealogio.gui.components.NamedTreeNode;
-import net.darmo_creations.jenealogio.gui.dialog.AbstractDialog;
-import net.darmo_creations.jenealogio.util.I18n;
 import net.darmo_creations.jenealogio.util.Images;
+import net.darmo_creations.utils.I18n;
+import net.darmo_creations.utils.swing.dialog.AbstractDialog;
 
 /**
  * This dialog lets the user change colors of different components.
@@ -183,7 +183,7 @@ public class EditColorsDialog extends AbstractDialog {
   /**
    * @return the new config or nothing if the dialog was canceled
    */
-  public Optional<GlobalConfig> getConfig() {
+  public Optional<WritableConfig> getConfig() {
     return Optional.ofNullable(isCanceled() ? null : this.controller.getConfig());
   }
 
@@ -192,7 +192,7 @@ public class EditColorsDialog extends AbstractDialog {
    * 
    * @param config the new config
    */
-  public void setConfig(GlobalConfig config) {
+  public void setConfig(WritableConfig config) {
     this.controller.setConfig(config);
   }
 }

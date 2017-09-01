@@ -24,7 +24,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import net.darmo_creations.jenealogio.model.date.Date;
-import net.darmo_creations.jenealogio.util.Nullable;
+import net.darmo_creations.utils.Nullable;
 
 /**
  * This class represents a relationship between two people.

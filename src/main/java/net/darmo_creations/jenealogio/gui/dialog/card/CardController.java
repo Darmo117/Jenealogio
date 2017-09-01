@@ -30,10 +30,10 @@ import javax.imageio.ImageIO;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import net.darmo_creations.jenealogio.gui.dialog.DefaultDialogController;
 import net.darmo_creations.jenealogio.model.family.FamilyMember;
 import net.darmo_creations.jenealogio.model.family.Gender;
-import net.darmo_creations.jenealogio.util.I18n;
+import net.darmo_creations.utils.I18n;
+import net.darmo_creations.utils.swing.dialog.DefaultDialogController;
 
 /**
  * This controller handles events from the CardDialog class.

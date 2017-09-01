@@ -41,8 +41,8 @@ import net.darmo_creations.jenealogio.model.date.Date;
 import net.darmo_creations.jenealogio.model.family.FamilyMember;
 import net.darmo_creations.jenealogio.model.family.Relationship;
 import net.darmo_creations.jenealogio.util.CalendarUtil;
-import net.darmo_creations.jenealogio.util.I18n;
 import net.darmo_creations.jenealogio.util.Images;
+import net.darmo_creations.utils.I18n;
 
 /**
  * This class displays all data of a person.

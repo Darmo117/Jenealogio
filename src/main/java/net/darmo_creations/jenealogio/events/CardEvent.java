@@ -18,6 +18,8 @@
  */
 package net.darmo_creations.jenealogio.events;
 
+import net.darmo_creations.utils.events.AbstractEvent;
+
 /**
  * Base class for all events related to a single card.
  *

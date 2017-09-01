@@ -25,6 +25,7 @@ import java.util.TimeZone;
 
 import net.darmo_creations.jenealogio.model.date.Date;
 import net.darmo_creations.jenealogio.model.date.DateBuilder;
+import net.darmo_creations.utils.I18n;
 
 /**
  * Useful functions to handle dates.
@@ -65,8 +66,14 @@ public final class CalendarUtil {
    * @return the formatted date or nothing if there is no date
    */
   public static Optional<String> formatDate(Optional<Date> date) {
-    if (date.isPresent())
-      return Optional.of(I18n.getFormattedDate(date.get()));
+    if (date.isPresent()) {
+      Date d = date.get();
+      String y = d.isYearSet() ? "" + d.getYear() : null;
+      String m = d.isMonthSet() ? "" + d.getMonth() : null;
+      String dd = d.isDateSet() ? "" + d.getDate() : null;
+
+      return Optional.of(I18n.getFormattedDate(y, m, dd));
+    }
     return Optional.empty();
   }
 

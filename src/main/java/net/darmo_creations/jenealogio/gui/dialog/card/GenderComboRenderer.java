@@ -25,7 +25,7 @@ import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 
 import net.darmo_creations.jenealogio.model.family.Gender;
-import net.darmo_creations.jenealogio.util.I18n;
+import net.darmo_creations.utils.I18n;
 
 /**
  * This class encapsulate the default JComboBox renderer to fix the displayed gender. It is used in

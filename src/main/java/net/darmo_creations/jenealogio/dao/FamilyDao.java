@@ -44,6 +44,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
+import net.darmo_creations.jenealogio.Jenealogio;
 import net.darmo_creations.jenealogio.model.FamilyEdit;
 import net.darmo_creations.jenealogio.model.date.Date;
 import net.darmo_creations.jenealogio.model.date.DateBuilder;
@@ -51,8 +52,8 @@ import net.darmo_creations.jenealogio.model.family.Family;
 import net.darmo_creations.jenealogio.model.family.FamilyMember;
 import net.darmo_creations.jenealogio.model.family.Gender;
 import net.darmo_creations.jenealogio.model.family.Relationship;
-import net.darmo_creations.jenealogio.util.Version;
-import net.darmo_creations.jenealogio.util.VersionException;
+import net.darmo_creations.utils.version.Version;
+import net.darmo_creations.utils.version.VersionException;
 
 /**
  * This class handles I/O operations for the {@code Family} class.
@@ -95,8 +96,8 @@ public class FamilyDao {
       Long rawVersion = (Long) obj.get("version");
       Version version = new Version(rawVersion != null ? (int) (long) rawVersion : 0);
 
-      if (!ignoreVersion && version.after(Version.CURRENT_VERSION)) {
-        throw new VersionException(Version.CURRENT_VERSION, version);
+      if (!ignoreVersion && version.after(Jenealogio.CURRENT_VERSION)) {
+        throw new VersionException(Jenealogio.CURRENT_VERSION, version);
       }
 
       // Members loading
@@ -129,7 +130,7 @@ public class FamilyDao {
 
       // Relations loading
       JSONArray relationsObj;
-      boolean before1_3d = version.before(Version.V1_3D);
+      boolean before1_3d = version.before(Jenealogio.V1_3D);
 
       if (before1_3d) {
         relationsObj = (JSONArray) obj.get("weddings");
@@ -244,9 +245,9 @@ public class FamilyDao {
     String comment = String.format(
         "This is a save file for Jenealogio v%1$s. "
             + "It is strongly not recommended to modify this file without using Jenealogio v%1$s or higher as it may break it.",
-        Version.CURRENT_VERSION);
+        Jenealogio.CURRENT_VERSION);
     obj.put("_comment", comment);
-    obj.put("version", Version.CURRENT_VERSION.getFullValue());
+    obj.put("version", Jenealogio.CURRENT_VERSION.getFullValue());
     obj.put("global_id", family.getGlobalId());
     obj.put("name", family.getName());
 

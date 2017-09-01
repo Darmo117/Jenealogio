@@ -26,9 +26,9 @@ import java.util.Optional;
 
 import javax.swing.SwingUtilities;
 
+import net.darmo_creations.gui_framework.ApplicationRegistry;
 import net.darmo_creations.jenealogio.events.CardEvent;
 import net.darmo_creations.jenealogio.events.CardsSelectionEvent;
-import net.darmo_creations.jenealogio.events.EventsDispatcher;
 import net.darmo_creations.jenealogio.events.LinkEvent;
 
 /**
@@ -68,7 +68,7 @@ class DisplayController extends MouseAdapter {
     if (SwingUtilities.isLeftMouseButton(e)) {
       this.selectionStart = e.getPoint();
       this.selection = new Rectangle(this.selectionStart);
-      EventsDispatcher.EVENT_BUS.dispatchEvent(new CardEvent.Clicked(-1, false));
+      ApplicationRegistry.EVENTS_BUS.dispatchEvent(new CardEvent.Clicked(-1, false));
     }
   }
 
@@ -77,7 +77,7 @@ class DisplayController extends MouseAdapter {
     if (SwingUtilities.isLeftMouseButton(e)) {
       Optional<long[]> opt = this.panel.getPanelsInsideRectangle(this.selection);
       if (opt.isPresent()) {
-        EventsDispatcher.EVENT_BUS.dispatchEvent(new CardsSelectionEvent(opt.get()));
+        ApplicationRegistry.EVENTS_BUS.dispatchEvent(new CardsSelectionEvent(opt.get()));
       }
       this.selection = null;
       repaint();
@@ -94,9 +94,9 @@ class DisplayController extends MouseAdapter {
 
       if (l.isPresent()) {
         long[] ids = l.get();
-        EventsDispatcher.EVENT_BUS.dispatchEvent(new LinkEvent.Clicked(ids[0], ids[1]));
+        ApplicationRegistry.EVENTS_BUS.dispatchEvent(new LinkEvent.Clicked(ids[0], ids[1]));
         if (e.getClickCount() == 2)
-          EventsDispatcher.EVENT_BUS.dispatchEvent(new LinkEvent.DoubleClicked(ids[0], ids[1]));
+          ApplicationRegistry.EVENTS_BUS.dispatchEvent(new LinkEvent.DoubleClicked(ids[0], ids[1]));
       }
     }
   }

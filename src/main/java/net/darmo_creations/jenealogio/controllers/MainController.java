@@ -19,12 +19,9 @@
 package net.darmo_creations.jenealogio.controllers;
 
 import java.awt.Component;
-import java.awt.Desktop;
 import java.awt.Point;
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.ParseException;
@@ -36,19 +33,17 @@ import java.util.stream.Collectors;
 
 import javax.swing.JOptionPane;
 
-import net.darmo_creations.jenealogio.config.BooleanConfigKey;
-import net.darmo_creations.jenealogio.config.GlobalConfig;
-import net.darmo_creations.jenealogio.dao.ConfigDao;
+import net.darmo_creations.gui_framework.ApplicationRegistry;
+import net.darmo_creations.gui_framework.config.WritableConfig;
+import net.darmo_creations.gui_framework.controllers.ApplicationController;
+import net.darmo_creations.gui_framework.events.UserEvent;
+import net.darmo_creations.jenealogio.config.ConfigTags;
 import net.darmo_creations.jenealogio.dao.FamilyDao;
 import net.darmo_creations.jenealogio.events.CardDragEvent;
 import net.darmo_creations.jenealogio.events.CardEvent;
 import net.darmo_creations.jenealogio.events.CardsSelectionEvent;
-import net.darmo_creations.jenealogio.events.ChangeLanguageEvent;
-import net.darmo_creations.jenealogio.events.EventsDispatcher;
+import net.darmo_creations.jenealogio.events.EventType;
 import net.darmo_creations.jenealogio.events.LinkEvent;
-import net.darmo_creations.jenealogio.events.SubsribeEvent;
-import net.darmo_creations.jenealogio.events.UpdateEvent;
-import net.darmo_creations.jenealogio.events.UserEvent;
 import net.darmo_creations.jenealogio.gui.MainFrame;
 import net.darmo_creations.jenealogio.gui.components.display_panel.DisplayPanel;
 import net.darmo_creations.jenealogio.gui.drag_and_drop.DropHandler;
@@ -56,24 +51,21 @@ import net.darmo_creations.jenealogio.model.FamilyEdit;
 import net.darmo_creations.jenealogio.model.family.Family;
 import net.darmo_creations.jenealogio.model.family.FamilyMember;
 import net.darmo_creations.jenealogio.model.family.Relationship;
-import net.darmo_creations.jenealogio.util.I18n;
 import net.darmo_creations.jenealogio.util.Images;
-import net.darmo_creations.jenealogio.util.JarUtil;
-import net.darmo_creations.jenealogio.util.UpdatesChecker;
-import net.darmo_creations.jenealogio.util.Version;
-import net.darmo_creations.jenealogio.util.VersionException;
+import net.darmo_creations.utils.I18n;
+import net.darmo_creations.utils.UndoRedoManager;
+import net.darmo_creations.utils.events.SubsribeEvent;
+import net.darmo_creations.utils.version.VersionException;
 
 /**
  * This is controller handles events from the MainFrame class.
  * 
  * @author Damien Vergnet
  */
-public class MainController implements DropHandler {
-  private final MainFrame frame;
+public class MainController extends ApplicationController<MainFrame> implements DropHandler {
   /** Main DAO */
   private final FamilyDao familyDao;
 
-  private GlobalConfig config;
   /** The family (model) */
   private Family family;
   /** Last save */
@@ -97,30 +89,26 @@ public class MainController implements DropHandler {
 
   /** Undo/redo manager */
   private UndoRedoManager<FamilyEdit> undoRedoManager;
-  /** Updates checker */
-  private UpdatesChecker updatesChecker;
 
-  public MainController(MainFrame frame, GlobalConfig config) {
-    this.frame = frame;
-    this.config = config;
+  public MainController(MainFrame frame, WritableConfig config) {
+    super(frame, config);
     this.familyDao = FamilyDao.instance();
     this.lastSavedEdit = null;
     this.selectedCards = new ArrayList<>();
 
     this.undoRedoManager = new UndoRedoManager<>();
-    this.updatesChecker = new UpdatesChecker();
   }
 
   /**
    * Initializes the controller.
    */
+  @Override
   public void init() {
+    super.init();
     this.fileOpen = false;
     this.alreadySaved = false;
     this.saved = true;
     updateFrameMenus();
-    this.frame.setUpdateLabelText(MainFrame.CHECKING_UPDATES, null);
-    this.updatesChecker.checkUpdate();
   }
 
   /**
@@ -128,112 +116,84 @@ public class MainController implements DropHandler {
    * 
    * @param e the event
    */
+  @Override
   @SubsribeEvent
   public void onUserEvent(UserEvent e) {
+    super.onUserEvent(e);
+
     if (e.isCanceled()) {
       return;
     }
 
-    switch (e.getType()) {
-      case NEW:
-        newFile();
-        break;
-      case EDIT_TREE:
-        editTree();
-        break;
-      case OPEN:
-        open(null);
-        break;
-      case SAVE:
-        boolean ok;
-        if (this.alreadySaved)
-          ok = save();
-        else
-          ok = saveAs();
-        if (!ok)
-          handleSaveError(e);
-        updateFrameMenus();
-        break;
-      case SAVE_AS:
-        if (!saveAs())
-          handleSaveError(e);
-        updateFrameMenus();
-        break;
-      case UNDO:
-        undo();
-        break;
-      case REDO:
-        redo();
-        break;
-      case ADD_CARD:
-        addMember();
-        break;
-      case ADD_LINK:
-        EventsDispatcher.EVENT_BUS.dispatchEvent(new CardEvent.Clicked(-1, false));
-        toggleAddLink();
-        break;
-      case EDIT_CARD:
-        editCard();
-        break;
-      case EDIT_LINK:
-        editLink();
-        break;
-      case DELETE_CARD:
-        deleteCard();
-        break;
-      case DELETE_LINK:
-        deleteLink();
-        break;
-      case EDIT_COLORS:
-        editColors();
-        break;
-      case HELP:
-        showHelp();
-        break;
-      case ABOUT:
-        this.frame.showAboutDialog();
-        break;
-      case EXIT:
-        if (!exit())
-          e.setCanceled();
-        break;
-      case OPEN_UPDATE:
-        openUpdate();
-        break;
-      case TOGGLE_CHECK_UPDATES:
-        toggleCheckUpdates();
-        break;
-      case EXPORT_IMAGE:
-        exportImage();
-        break;
+    if (e.getType() == UserEvent.DefaultType.EXIT) {
+      checkExit(e);
+    }
+
+    if (e.getType() instanceof EventType) {
+      switch ((EventType) e.getType()) {
+        case NEW:
+          newFile();
+          break;
+        case EDIT_TREE:
+          editTree();
+          break;
+        case OPEN:
+          open(null);
+          break;
+        case SAVE:
+          boolean ok;
+          if (this.alreadySaved)
+            ok = save();
+          else
+            ok = saveAs();
+          if (!ok)
+            handleSaveError(e);
+          updateFrameMenus();
+          break;
+        case SAVE_AS:
+          if (!saveAs())
+            handleSaveError(e);
+          updateFrameMenus();
+          break;
+        case UNDO:
+          undo();
+          break;
+        case REDO:
+          redo();
+          break;
+        case ADD_CARD:
+          addMember();
+          break;
+        case ADD_LINK:
+          ApplicationRegistry.EVENTS_BUS.dispatchEvent(new CardEvent.Clicked(-1, false));
+          toggleAddLink();
+          break;
+        case EDIT_CARD:
+          editCard();
+          break;
+        case EDIT_LINK:
+          editLink();
+          break;
+        case DELETE_CARD:
+          deleteCard();
+          break;
+        case DELETE_LINK:
+          deleteLink();
+          break;
+        case EDIT_COLORS:
+          editColors();
+          break;
+        case EXPORT_IMAGE:
+          exportImage();
+          break;
+      }
     }
   }
 
   private void handleSaveError(UserEvent e) {
     int choice = this.frame.showConfirmDialog(I18n.getLocalizedString("popup.save_file_error.text"));
-    if (choice == JOptionPane.YES_OPTION)
+    if (choice == JOptionPane.NO_OPTION)
       e.setCanceled();
-  }
-
-  /**
-   * Called when a ChangeLanguageEvenet is fired.
-   * 
-   * @param e the event
-   */
-  @SubsribeEvent
-  public void onChangeLanguage(ChangeLanguageEvent e) {
-    int choice = this.frame.showConfirmDialog(I18n.getLocalizedString("popup.change_language.confirm.text"));
-
-    if (choice == JOptionPane.YES_OPTION) {
-      try {
-        this.config.setLanguage(e.getLanguage());
-        restartApplication();
-      }
-      catch (IOException | URISyntaxException __) {
-        this.frame.showErrorDialog(I18n.getLocalizedString("popup.change_language.restart_error.text"));
-        System.exit(0);
-      }
-    }
   }
 
   /**
@@ -354,30 +314,6 @@ public class MainController implements DropHandler {
     updateFrameMenus();
   }
 
-  @SubsribeEvent
-  public void onUpdateChecking(UpdateEvent.Checking e) {
-    if (!this.config.getValue(BooleanConfigKey.CHECK_UPDATES)) {
-      this.frame.setUpdateLabelText(MainFrame.UPDATES_BLOCKED, null);
-      e.setCanceled();
-    }
-  }
-
-  @SubsribeEvent
-  public void onNewUpdate(UpdateEvent.NewUpdate e) {
-    Version v = e.getVersion();
-    this.frame.setUpdateLabelText(MainFrame.NEW_UPDATE, " - Jenealogio " + v);
-  }
-
-  @SubsribeEvent
-  public void onNoUpdate(UpdateEvent.NoUpdate e) {
-    this.frame.setUpdateLabelText(MainFrame.NO_UPDATE, null);
-  }
-
-  @SubsribeEvent
-  public void onUpdateCheckFailed(UpdateEvent.CheckFailed e) {
-    this.frame.setUpdateLabelText(MainFrame.UPDATES_CHECK_FAILED, null);
-  }
-
   @Override
   public boolean acceptFiles(List<File> files, Component c) {
     if (!(c instanceof DisplayPanel) && files.size() != 1)
@@ -405,8 +341,8 @@ public class MainController implements DropHandler {
       int choice = this.frame.showConfirmDialog(I18n.getLocalizedString("popup.save_confirm.text"), JOptionPane.YES_NO_CANCEL_OPTION);
 
       if (choice == JOptionPane.YES_OPTION) {
-        UserEvent event = new UserEvent(UserEvent.Type.SAVE);
-        EventsDispatcher.EVENT_BUS.dispatchEvent(event);
+        UserEvent event = new UserEvent(EventType.SAVE);
+        ApplicationRegistry.EVENTS_BUS.dispatchEvent(event);
         if (event.isCanceled())
           return false;
       }
@@ -559,7 +495,7 @@ public class MainController implements DropHandler {
 
       return true;
     }
-    catch (IOException __) {
+    catch (IOException ex) {
       return false;
     }
   }
@@ -681,44 +617,25 @@ public class MainController implements DropHandler {
    * Opens the "edit colors" dialog and updates the config.
    */
   private void editColors() {
-    Optional<GlobalConfig> opt = this.frame.showEditColorsDialog(this.config);
+    Optional<WritableConfig> opt = this.frame.showEditColorsDialog(this.config);
 
     if (opt.isPresent()) {
-      this.config = opt.get();
+      WritableConfig c = opt.get();
+
+      this.config.setValue(ConfigTags.CARD_BORDER_COLOR, c.getValue(ConfigTags.CARD_BORDER_COLOR));
+      this.config.setValue(ConfigTags.CARD_SELECTED_BORDER_COLOR, c.getValue(ConfigTags.CARD_SELECTED_BORDER_COLOR));
+      this.config.setValue(ConfigTags.CARD_SELECTED_BACKGROUND_BORDER_COLOR, c.getValue(ConfigTags.CARD_SELECTED_BACKGROUND_BORDER_COLOR));
+      this.config.setValue(ConfigTags.GENDER_UNKNOWN_COLOR, c.getValue(ConfigTags.GENDER_UNKNOWN_COLOR));
+      this.config.setValue(ConfigTags.GENDER_MALE_COLOR, c.getValue(ConfigTags.GENDER_MALE_COLOR));
+      this.config.setValue(ConfigTags.GENDER_FEMALE_COLOR, c.getValue(ConfigTags.GENDER_FEMALE_COLOR));
+      this.config.setValue(ConfigTags.LINK_COLOR, c.getValue(ConfigTags.LINK_COLOR));
+      this.config.setValue(ConfigTags.LINK_CHILD_COLOR, c.getValue(ConfigTags.LINK_CHILD_COLOR));
+      this.config.setValue(ConfigTags.LINK_HOVERED_COLOR, c.getValue(ConfigTags.LINK_HOVERED_COLOR));
+      this.config.setValue(ConfigTags.LINK_SELECTED_COLOR, c.getValue(ConfigTags.LINK_SELECTED_COLOR));
+      this.config.setValue(ConfigTags.SELECTION_BORDER_COLOR, c.getValue(ConfigTags.SELECTION_BORDER_COLOR));
+      this.config.setValue(ConfigTags.SELECTION_BACKGROUND_COLOR, c.getValue(ConfigTags.SELECTION_BACKGROUND_COLOR));
       if (this.fileOpen)
         refreshFrame();
-    }
-  }
-
-  /**
-   * Opens the help in the browser.
-   */
-  private void showHelp() {
-    String url = String.format("http://darmo-creations.net/jenealogio/help-doc/%s/", this.config.getLanguage().getCode());
-    try {
-      Desktop.getDesktop().browse(new URI(url));
-    }
-    catch (IOException | URISyntaxException __) {}
-  }
-
-  /**
-   * Opens the update dialog if an update is available.
-   */
-  private void openUpdate() {
-    if (this.updatesChecker.isUpdateAvailable()) {
-      this.frame.showUpdateDialog(this.updatesChecker.getVersion(), this.updatesChecker.getLink(), this.updatesChecker.getChangelog());
-    }
-  }
-
-  /**
-   * Toggles updates checking on startup.
-   */
-  private void toggleCheckUpdates() {
-    boolean checked = this.frame.isCheckUpdatesItemSelected();
-    this.config.setValue(BooleanConfigKey.CHECK_UPDATES, checked);
-    if (checked) {
-      this.frame.setUpdateLabelText(MainFrame.CHECKING_UPDATES, null);
-      this.updatesChecker.checkUpdate();
     }
   }
 
@@ -751,61 +668,19 @@ public class MainController implements DropHandler {
     try {
       Images.writeImage(this.frame.exportToImage(), path);
     }
-    catch (IOException __) {
+    catch (IOException ex) {
       this.frame.showErrorDialog(I18n.getLocalizedString("popup.image_export_error.text"));
     }
   }
 
   /**
-   * Exits the application. The user is asked to save if the file is not.
-   * 
-   * @return true if the application exited; false otherwise
-   */
-  private boolean exit() {
-    if (checkSaved()) {
-      ConfigDao.getInstance().save(this.config);
-      this.frame.dispose();
-      return true;
-    }
-    return false;
-  }
-
-  /**
-   * Restarts the application.
-   */
-  private void restartApplication() throws IOException, URISyntaxException {
-    String javaBin = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
-    File currentJar = new File(JarUtil.getJar());
-
-    UserEvent event = new UserEvent(UserEvent.Type.EXIT);
-    EventsDispatcher.EVENT_BUS.dispatchEvent(event);
-
-    if (!event.isCanceled()) {
-      // Build command: java -jar <application>.jar
-      List<String> command = new ArrayList<>();
-      command.add(javaBin);
-      command.add("-jar");
-      command.add(currentJar.getPath());
-
-      // Is it a jar file?
-      if (!currentJar.getName().endsWith(".jar"))
-        throw new IOException("unable to find executable");
-
-      ProcessBuilder builder = new ProcessBuilder(command);
-      builder.start();
-      System.exit(0);
-    }
-  }
-
-  /**
-   * Updates main frame menus.
+   * Updates main frame menus and title.
    */
   private void updateFrameMenus() {
-    String title = (this.family != null ? (this.saved ? "" : "*") + this.family.getName() + " - " : "") + MainFrame.BASE_TITLE;
-    this.frame.setTitle(title);
+    String title = this.family != null ? " - " + (this.saved ? "" : "*") + this.family.getName() : "";
+    this.frame.setTitle(this.frame.getBaseTitle() + title);
     this.frame.updateMenus(this.fileOpen, this.lastSelectedCard != null, this.selectedLink != null, canUndo(), canRedo());
     this.frame.updateSaveMenus(this.saved);
-    this.frame.setCheckUpdatesItemSelected(this.config.getValue(BooleanConfigKey.CHECK_UPDATES));
   }
 
   /**
@@ -878,5 +753,25 @@ public class MainController implements DropHandler {
    */
   private boolean canRedo() {
     return this.undoRedoManager.canRedo();
+  }
+
+  /**
+   * Checks if the current file has been saved before exiting.
+   * 
+   * @param e the exit event
+   */
+  private void checkExit(UserEvent e) {
+    if (!this.saved) {
+      int choice = this.frame.showConfirmDialog(I18n.getLocalizedString("popup.save_confirm.text"));
+
+      if (choice == JOptionPane.YES_OPTION) {
+        UserEvent event = new UserEvent(EventType.SAVE);
+        ApplicationRegistry.EVENTS_BUS.dispatchEvent(event);
+        if (event.isCanceled())
+          e.setCanceled();
+      }
+      else if (choice == JOptionPane.CLOSED_OPTION)
+        e.setCanceled();
+    }
   }
 }

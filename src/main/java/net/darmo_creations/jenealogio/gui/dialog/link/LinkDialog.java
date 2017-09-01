@@ -44,13 +44,13 @@ import javax.swing.text.BadLocationException;
 
 import net.darmo_creations.jenealogio.gui.MainFrame;
 import net.darmo_creations.jenealogio.gui.components.DateField;
-import net.darmo_creations.jenealogio.gui.dialog.AbstractDialog;
 import net.darmo_creations.jenealogio.model.date.Date;
 import net.darmo_creations.jenealogio.model.family.Family;
 import net.darmo_creations.jenealogio.model.family.FamilyMember;
 import net.darmo_creations.jenealogio.model.family.Relationship;
-import net.darmo_creations.jenealogio.util.I18n;
 import net.darmo_creations.jenealogio.util.Images;
+import net.darmo_creations.utils.I18n;
+import net.darmo_creations.utils.swing.dialog.AbstractDialog;
 
 /**
  * This dialog lets the user add or edit links.

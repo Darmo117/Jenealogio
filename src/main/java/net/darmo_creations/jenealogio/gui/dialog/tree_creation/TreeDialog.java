@@ -29,9 +29,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import net.darmo_creations.jenealogio.gui.dialog.AbstractDialog;
-import net.darmo_creations.jenealogio.util.I18n;
 import net.darmo_creations.jenealogio.util.Images;
+import net.darmo_creations.utils.I18n;
+import net.darmo_creations.utils.swing.dialog.AbstractDialog;
 
 /**
  * This dialog prompts a name for the tree being created.

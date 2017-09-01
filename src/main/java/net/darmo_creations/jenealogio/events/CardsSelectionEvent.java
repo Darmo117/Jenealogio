@@ -20,6 +20,8 @@ package net.darmo_creations.jenealogio.events;
 
 import java.util.Arrays;
 
+import net.darmo_creations.utils.events.AbstractEvent;
+
 /**
  * This event is fired when cards have been selected.
  *

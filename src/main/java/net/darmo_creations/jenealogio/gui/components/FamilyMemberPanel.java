@@ -27,8 +27,8 @@ import javax.swing.JPanel;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 
-import net.darmo_creations.jenealogio.config.ColorConfigKey;
-import net.darmo_creations.jenealogio.config.GlobalConfig;
+import net.darmo_creations.gui_framework.config.WritableConfig;
+import net.darmo_creations.jenealogio.config.ConfigTags;
 import net.darmo_creations.jenealogio.model.family.FamilyMember;
 import net.darmo_creations.jenealogio.util.Images;
 
@@ -51,7 +51,7 @@ public class FamilyMemberPanel extends JPanel {
    * 
    * @param member the member to display
    */
-  public FamilyMemberPanel(FamilyMember member, GlobalConfig config) {
+  public FamilyMemberPanel(FamilyMember member, WritableConfig config) {
     super(new BorderLayout());
     this.model = new PanelModel(member.getId());
     this.nameLbl = new JLabel();
@@ -66,20 +66,20 @@ public class FamilyMemberPanel extends JPanel {
    * 
    * @param member the member to display
    */
-  public void setInfo(FamilyMember member, GlobalConfig config) {
-    this.selectedBorder = new LineBorder(config.getValue(ColorConfigKey.CARD_SELECTED_BORDER), 2);
-    this.backgroundBorder = new LineBorder(config.getValue(ColorConfigKey.CARD_SELECTED_BACKGROUND_BORDER), 2);
-    this.unselectedBorder = new LineBorder(config.getValue(ColorConfigKey.CARD_BORDER), 2);
+  public void setInfo(FamilyMember member, WritableConfig config) {
+    this.selectedBorder = new LineBorder(config.getValue(ConfigTags.CARD_SELECTED_BORDER_COLOR), 2);
+    this.backgroundBorder = new LineBorder(config.getValue(ConfigTags.CARD_SELECTED_BACKGROUND_BORDER_COLOR), 2);
+    this.unselectedBorder = new LineBorder(config.getValue(ConfigTags.CARD_BORDER_COLOR), 2);
 
     switch (member.getGender()) {
       case UNKNOW:
-        setBackground(config.getValue(ColorConfigKey.GENDER_UNKNOWN));
+        setBackground(config.getValue(ConfigTags.GENDER_UNKNOWN_COLOR));
         break;
       case MAN:
-        setBackground(config.getValue(ColorConfigKey.GENDER_MALE));
+        setBackground(config.getValue(ConfigTags.GENDER_MALE_COLOR));
         break;
       case WOMAN:
-        setBackground(config.getValue(ColorConfigKey.GENDER_FEMALE));
+        setBackground(config.getValue(ConfigTags.GENDER_FEMALE_COLOR));
         break;
     }
 
