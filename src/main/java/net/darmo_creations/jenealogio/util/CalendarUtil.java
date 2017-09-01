@@ -18,13 +18,9 @@
  */
 package net.darmo_creations.jenealogio.util;
 
-import java.util.Calendar;
-import java.util.Locale;
 import java.util.Optional;
-import java.util.TimeZone;
 
 import net.darmo_creations.jenealogio.model.date.Date;
-import net.darmo_creations.jenealogio.model.date.DateBuilder;
 import net.darmo_creations.utils.I18n;
 
 /**
@@ -33,32 +29,6 @@ import net.darmo_creations.utils.I18n;
  * @author Damien Vergnet
  */
 public final class CalendarUtil {
-  /**
-   * @return the current date
-   */
-  public static Date getCurrentDate() {
-    long offset = Calendar.getInstance().get(Calendar.ZONE_OFFSET);
-    // Avoid null if no ID found
-    String id = "";
-
-    for (String i : TimeZone.getAvailableIDs()) {
-      TimeZone tz = TimeZone.getTimeZone(i);
-
-      if (tz.getRawOffset() == offset) {
-        id = i;
-        break;
-      }
-    }
-    Calendar c = Calendar.getInstance(TimeZone.getTimeZone(id), Locale.FRENCH);
-
-    DateBuilder builder = new DateBuilder();
-    builder.setYear(c.get(Calendar.YEAR));
-    builder.setMonth(c.get(Calendar.MONTH) + 1);
-    builder.setDate(c.get(Calendar.DAY_OF_MONTH));
-
-    return builder.getDate();
-  }
-
   /**
    * Formats the given date.
    * 
