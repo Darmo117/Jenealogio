@@ -42,6 +42,8 @@ dependencies {
   compile 'org.slf4j:slf4j-api:1.7.21'
   // JSON Simple
   compile files('libs/json-simple-1.1.1.jar')
+  // GUI-Framework
+  compile files('libs/GUI-Framework-1.4.jar')
   // JUnit
   testCompile 'junit:junit:4.12'
 }
