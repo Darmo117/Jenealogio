@@ -38,6 +38,7 @@ import net.darmo_creations.gui_framework.config.WritableConfig;
 import net.darmo_creations.gui_framework.controllers.ApplicationController;
 import net.darmo_creations.gui_framework.events.UserEvent;
 import net.darmo_creations.jenealogio.Jenealogio;
+import net.darmo_creations.jenealogio.config.ColorTag;
 import net.darmo_creations.jenealogio.config.ConfigTags;
 import net.darmo_creations.jenealogio.dao.FamilyDao;
 import net.darmo_creations.jenealogio.events.CardDragEvent;
@@ -623,18 +624,10 @@ public class MainController extends ApplicationController<MainFrame> implements 
     if (opt.isPresent()) {
       WritableConfig c = opt.get();
 
-      this.config.setValue(ConfigTags.CARD_BORDER_COLOR, c.getValue(ConfigTags.CARD_BORDER_COLOR));
-      this.config.setValue(ConfigTags.CARD_SELECTED_BORDER_COLOR, c.getValue(ConfigTags.CARD_SELECTED_BORDER_COLOR));
-      this.config.setValue(ConfigTags.CARD_SELECTED_BACKGROUND_BORDER_COLOR, c.getValue(ConfigTags.CARD_SELECTED_BACKGROUND_BORDER_COLOR));
-      this.config.setValue(ConfigTags.GENDER_UNKNOWN_COLOR, c.getValue(ConfigTags.GENDER_UNKNOWN_COLOR));
-      this.config.setValue(ConfigTags.GENDER_MALE_COLOR, c.getValue(ConfigTags.GENDER_MALE_COLOR));
-      this.config.setValue(ConfigTags.GENDER_FEMALE_COLOR, c.getValue(ConfigTags.GENDER_FEMALE_COLOR));
-      this.config.setValue(ConfigTags.LINK_COLOR, c.getValue(ConfigTags.LINK_COLOR));
-      this.config.setValue(ConfigTags.LINK_CHILD_COLOR, c.getValue(ConfigTags.LINK_CHILD_COLOR));
-      this.config.setValue(ConfigTags.LINK_HOVERED_COLOR, c.getValue(ConfigTags.LINK_HOVERED_COLOR));
-      this.config.setValue(ConfigTags.LINK_SELECTED_COLOR, c.getValue(ConfigTags.LINK_SELECTED_COLOR));
-      this.config.setValue(ConfigTags.SELECTION_BORDER_COLOR, c.getValue(ConfigTags.SELECTION_BORDER_COLOR));
-      this.config.setValue(ConfigTags.SELECTION_BACKGROUND_COLOR, c.getValue(ConfigTags.SELECTION_BACKGROUND_COLOR));
+      for (ColorTag tag : ConfigTags.COLORS_TAGS) {
+        this.config.setValue(tag, c.getValue(tag));
+      }
+
       if (this.fileOpen)
         refreshFrame();
     }

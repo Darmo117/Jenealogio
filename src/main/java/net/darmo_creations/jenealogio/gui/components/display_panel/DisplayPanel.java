@@ -38,7 +38,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TooManyListenersException;
-import java.util.stream.Collectors;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -194,7 +193,10 @@ public class DisplayPanel extends JPanel implements Scrollable, DragAndDropTarge
     family.getAllRelations().forEach(relation -> {
       long id1 = relation.getPartner1();
       long id2 = relation.getPartner2();
-      Set<Long> children = relation.getChildren().stream().collect(Collectors.toSet());
+      Map<Long, Boolean> children = new HashMap<>();
+      for (Long id : relation.getChildren()) {
+        children.put(id, relation.isAdopted(id));
+      }
       Link link = new Link(id1, id2, children, relation.isWedding(), relation.hasEnded());
 
       if (this.links.contains(link)) {
@@ -467,12 +469,12 @@ public class DisplayPanel extends JPanel implements Scrollable, DragAndDropTarge
         g2d.drawLine(p1.x, p1.y, p2.x, p2.y);
 
         g2d.setStroke(new BasicStroke(width));
-        g2d.setColor(this.config.getValue(ConfigTags.LINK_CHILD_COLOR));
         // Links to children
-        link.getChildren().forEach(child -> {
-          Rectangle r = this.panels.get(child).getBounds();
+        link.getChildren().forEach((id, adopted) -> {
+          Rectangle r = this.panels.get(id).getBounds();
           Point p = new Point(r.x + r.width / 2, r.y + r.height / 2);
 
+          g2d.setColor(this.config.getValue(adopted ? ConfigTags.LINK_ADOPTED_CHILD_COLOR : ConfigTags.LINK_CHILD_COLOR));
           g2d.drawLine(middle.x, middle.y, p.x, p.y);
         });
       });
@@ -558,7 +560,7 @@ public class DisplayPanel extends JPanel implements Scrollable, DragAndDropTarge
     private final long parent1, parent2;
     private boolean wedding;
     private boolean ended;
-    private Set<Long> children;
+    private Map<Long, Boolean> children;
     private boolean selected;
 
     /**
@@ -568,10 +570,10 @@ public class DisplayPanel extends JPanel implements Scrollable, DragAndDropTarge
      * @param parent2 the other parent
      * @param children the children
      */
-    public Link(long parent1, long parent2, Set<Long> children, boolean wedding, boolean ended) {
+    public Link(long parent1, long parent2, Map<Long, Boolean> children, boolean wedding, boolean ended) {
       this.parent1 = parent1;
       this.parent2 = parent2;
-      this.children = new HashSet<>(children);
+      this.children = new HashMap<>(children);
       this.wedding = wedding;
       this.ended = ended;
       this.selected = false;
@@ -585,11 +587,11 @@ public class DisplayPanel extends JPanel implements Scrollable, DragAndDropTarge
       return this.parent2;
     }
 
-    public Set<Long> getChildren() {
+    public Map<Long, Boolean> getChildren() {
       return this.children;
     }
 
-    public void setChildren(Set<Long> children) {
+    public void setChildren(Map<Long, Boolean> children) {
       this.children = children;
     }
 

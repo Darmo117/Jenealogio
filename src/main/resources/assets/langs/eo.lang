@@ -157,6 +157,7 @@ node.colors.links.link.text=Ligilo
 node.colors.links.hovered.text=Superflugita ligilo
 node.colors.links.selected.text=Selektida ligilo
 node.colors.links.child.text=Ligilo al infano
+node.colors.links.child.adopted.text=Ligilo al adopta infano
 node.colors.selection.text=Elekto
 node.colors.selection.border.text=Bordo
 node.colors.selection.background.text=Fono

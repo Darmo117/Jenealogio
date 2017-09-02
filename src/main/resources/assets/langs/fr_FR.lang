@@ -156,6 +156,7 @@ node.colors.links.link.text=Lien
 node.colors.links.hovered.text=Lien survolé
 node.colors.links.selected.text=Lien sélectionné
 node.colors.links.child.text=Lien vers enfant
+node.colors.links.child.adopted.text=Lien vers enfant adopté
 node.colors.selection.text=Sélection
 node.colors.selection.border.text=Bordure
 node.colors.selection.background.text=Fond

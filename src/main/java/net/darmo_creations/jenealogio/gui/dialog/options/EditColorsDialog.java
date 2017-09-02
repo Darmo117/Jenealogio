@@ -36,6 +36,7 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 
 import net.darmo_creations.gui_framework.config.WritableConfig;
+import net.darmo_creations.jenealogio.config.ConfigTags;
 import net.darmo_creations.jenealogio.gui.components.ColorButton;
 import net.darmo_creations.jenealogio.gui.components.NamedTreeNode;
 import net.darmo_creations.jenealogio.util.Images;
@@ -128,25 +129,30 @@ public class EditColorsDialog extends AbstractDialog {
 
     NamedTreeNode genders = new NamedTreeNode("genders", I18n.getLocalizedString("node.colors.genders.text"));
     root.add(genders);
-    genders.add(new NamedTreeNode("gender_unknown", I18n.getLocalizedString("node.colors.genders.unknown.text")));
-    genders.add(new NamedTreeNode("gender_female", I18n.getLocalizedString("node.colors.genders.female.text")));
-    genders.add(new NamedTreeNode("gender_male", I18n.getLocalizedString("node.colors.genders.male.text")));
+    genders.add(new NamedTreeNode(ConfigTags.GENDER_UNKNOWN_COLOR.getName(), I18n.getLocalizedString("node.colors.genders.unknown.text")));
+    genders.add(new NamedTreeNode(ConfigTags.GENDER_FEMALE_COLOR.getName(), I18n.getLocalizedString("node.colors.genders.female.text")));
+    genders.add(new NamedTreeNode(ConfigTags.GENDER_MALE_COLOR.getName(), I18n.getLocalizedString("node.colors.genders.male.text")));
     NamedTreeNode cards = new NamedTreeNode("cards", I18n.getLocalizedString("node.colors.cards.text"));
     root.add(cards);
-    cards.add(new NamedTreeNode("card_border", I18n.getLocalizedString("node.colors.cards.border.text")));
-    cards.add(new NamedTreeNode("card_selected_border", I18n.getLocalizedString("node.colors.cards.border.selected.text")));
-    cards.add(
-        new NamedTreeNode("card_selected_background_border", I18n.getLocalizedString("node.colors.cards.border.selected_background.text")));
+    cards.add(new NamedTreeNode(ConfigTags.CARD_BORDER_COLOR.getName(), I18n.getLocalizedString("node.colors.cards.border.text")));
+    cards.add(new NamedTreeNode(ConfigTags.CARD_SELECTED_BORDER_COLOR.getName(),
+        I18n.getLocalizedString("node.colors.cards.border.selected.text")));
+    cards.add(new NamedTreeNode(ConfigTags.CARD_SELECTED_BACKGROUND_BORDER_COLOR.getName(),
+        I18n.getLocalizedString("node.colors.cards.border.selected_background.text")));
     NamedTreeNode links = new NamedTreeNode("links", I18n.getLocalizedString("node.colors.links.text"));
     root.add(links);
-    links.add(new NamedTreeNode("link", I18n.getLocalizedString("node.colors.links.link.text")));
-    links.add(new NamedTreeNode("link_hovered", I18n.getLocalizedString("node.colors.links.hovered.text")));
-    links.add(new NamedTreeNode("link_selected", I18n.getLocalizedString("node.colors.links.selected.text")));
-    links.add(new NamedTreeNode("link_child", I18n.getLocalizedString("node.colors.links.child.text")));
+    links.add(new NamedTreeNode(ConfigTags.LINK_COLOR.getName(), I18n.getLocalizedString("node.colors.links.link.text")));
+    links.add(new NamedTreeNode(ConfigTags.LINK_HOVERED_COLOR.getName(), I18n.getLocalizedString("node.colors.links.hovered.text")));
+    links.add(new NamedTreeNode(ConfigTags.LINK_SELECTED_COLOR.getName(), I18n.getLocalizedString("node.colors.links.selected.text")));
+    links.add(new NamedTreeNode(ConfigTags.LINK_CHILD_COLOR.getName(), I18n.getLocalizedString("node.colors.links.child.text")));
+    links.add(
+        new NamedTreeNode(ConfigTags.LINK_ADOPTED_CHILD_COLOR.getName(), I18n.getLocalizedString("node.colors.links.child.adopted.text")));
     NamedTreeNode selection = new NamedTreeNode("selection", I18n.getLocalizedString("node.colors.selection.text"));
     root.add(selection);
-    selection.add(new NamedTreeNode("selection_border", I18n.getLocalizedString("node.colors.selection.border.text")));
-    selection.add(new NamedTreeNode("selection_background", I18n.getLocalizedString("node.colors.selection.background.text")));
+    selection.add(
+        new NamedTreeNode(ConfigTags.SELECTION_BORDER_COLOR.getName(), I18n.getLocalizedString("node.colors.selection.border.text")));
+    selection.add(new NamedTreeNode(ConfigTags.SELECTION_BACKGROUND_COLOR.getName(),
+        I18n.getLocalizedString("node.colors.selection.background.text")));
 
     return root;
   }
@@ -157,7 +163,7 @@ public class EditColorsDialog extends AbstractDialog {
    * @param initialColor color chooser's initial color
    * @return the selected color or nothing if chooser was dismissed
    */
-  public Optional<Color> showColorChooser(Color initialColor) {
+  Optional<Color> showColorChooser(Color initialColor) {
     Color c = JColorChooser.showDialog(this, I18n.getLocalizedString("dialog.color_chooser.title"), initialColor);
     return Optional.ofNullable(c);
   }
