@@ -28,7 +28,7 @@ public class Jenealogio implements Application {
     WritableConfig.registerTag(ConfigTags.CARD_SELECTED_BACKGROUND_BORDER_COLOR, Color.BLACK);
     WritableConfig.registerTag(ConfigTags.GENDER_UNKNOWN_COLOR, Color.GRAY);
     WritableConfig.registerTag(ConfigTags.GENDER_MALE_COLOR, new Color(117, 191, 255));
-    WritableConfig.registerTag(ConfigTags.GENDER_FEMALE_COLOR, new Color(37, 117, 19));
+    WritableConfig.registerTag(ConfigTags.GENDER_FEMALE_COLOR, new Color(37, 177, 19));
     WritableConfig.registerTag(ConfigTags.LINK_COLOR, Color.BLACK);
     WritableConfig.registerTag(ConfigTags.LINK_CHILD_COLOR, new Color(70, 128, 255));
     WritableConfig.registerTag(ConfigTags.LINK_ADOPTED_CHILD_COLOR, Color.CYAN.darker());
