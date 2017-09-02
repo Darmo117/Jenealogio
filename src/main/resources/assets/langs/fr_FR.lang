@@ -94,6 +94,7 @@ button.validate.text=Valider
 button.cancel.text=Annuler
 button.close.text=Fermer
 button.edit.text=Éditer
+button.default_color.text=Défaut
 label.tree_name.text=Nom
 label.family_name.text=Nom de famille
 label.use_name.text=Nom d'usage

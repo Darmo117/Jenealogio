@@ -95,6 +95,7 @@ button.validate.text=Validigi
 button.cancel.text=Nuligi
 button.close.text=Fermi
 button.edit.text=Modifi
+button.default_color.text=Defaŭlta
 label.tree_name.text=Nomo
 label.family_name.text=Familia nomo
 label.use_name.text=Uza nomo

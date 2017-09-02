@@ -25,6 +25,7 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.util.Optional;
 
+import javax.swing.JButton;
 import javax.swing.JColorChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -83,10 +84,10 @@ public class EditColorsDialog extends AbstractDialog {
         NamedTreeNode node = (NamedTreeNode) value;
 
         switch (node.getName()) {
-          case "gender_male":
+          case "gender_male_color":
             setIcon(Images.MALE_SYMBOL);
             break;
-          case "gender_female":
+          case "gender_female_color":
             setIcon(Images.FEMALE_SYMBOL);
             break;
           case "cards":
@@ -111,6 +112,10 @@ public class EditColorsDialog extends AbstractDialog {
     rightPnl.add(this.colorButton = new ColorButton(Color.GRAY));
     this.colorButton.setActionCommand("edit_color");
     this.colorButton.addActionListener(this.controller);
+    JButton defaultBtn = new JButton(I18n.getLocalizedString("button.default_color.text"));
+    defaultBtn.setActionCommand("default_color");
+    defaultBtn.addActionListener(this.controller);
+    rightPnl.add(defaultBtn);
     contentPnl.add(rightPnl, BorderLayout.EAST);
     add(contentPnl);
     setActionListener(this.controller);

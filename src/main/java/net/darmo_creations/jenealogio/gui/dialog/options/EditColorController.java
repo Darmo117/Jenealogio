@@ -71,13 +71,24 @@ class EditColorController extends DefaultDialogController<EditColorsDialog> impl
     if (!this.dialog.isVisible())
       return;
 
-    if ("edit_color".equals(e.getActionCommand())) {
-      Optional<Color> opt = this.dialog.showColorChooser(getColorForNode());
+    switch (e.getActionCommand()) {
+      case "edit_color":
+        Optional<Color> opt = this.dialog.showColorChooser(getColorForNode());
 
-      if (opt.isPresent()) {
-        setColorForNode(opt.get());
-        this.dialog.setButtonColor(opt.get());
-      }
+        if (opt.isPresent()) {
+          setColorForNode(opt.get());
+          this.dialog.setButtonColor(opt.get());
+        }
+        break;
+      case "default_color":
+        Optional<ColorTag> tag = WritableConfig.getTagFromName(this.selectedNode, Color.class.getName());
+
+        if (tag.isPresent()) {
+          Color color = WritableConfig.getDefaultValue(tag.get());
+          setColorForNode(color);
+          this.dialog.setButtonColor(color);
+        }
+        break;
     }
   }
 
