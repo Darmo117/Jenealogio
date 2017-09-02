@@ -62,8 +62,8 @@ public class EditColorsDialog extends AbstractDialog {
    */
   public EditColorsDialog(JFrame owner) {
     super(owner, Mode.VALIDATE_CANCEL_OPTION, true);
-    setResizable(false);
     setPreferredSize(new Dimension(400, 300));
+    setMinimumSize(getPreferredSize());
     setTitle(I18n.getLocalizedString("dialog.edit_colors.title"));
     setIconImage(Images.JENEALOGIO.getImage());
 
