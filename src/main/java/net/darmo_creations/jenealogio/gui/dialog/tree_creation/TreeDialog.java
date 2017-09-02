@@ -89,7 +89,7 @@ public class TreeDialog extends AbstractDialog {
     if (familyName == null)
       setTitle(I18n.getLocalizedString("dialog.new_tree.title"));
     else
-      setTitle(I18n.getLocalizedString("dialog.edit_tree.title"));
+      setTitle(I18n.getLocalizedString("dialog.properties.title"));
     this.nameFld.setText(familyName);
   }
 
