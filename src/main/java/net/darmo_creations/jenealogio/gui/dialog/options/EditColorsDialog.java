@@ -54,6 +54,7 @@ public class EditColorsDialog extends AbstractDialog {
 
   private EditColorController controller;
   private ColorButton colorButton;
+  private JButton defaultBtn;
 
   /**
    * Creates a dialog.
@@ -112,10 +113,10 @@ public class EditColorsDialog extends AbstractDialog {
     rightPnl.add(this.colorButton = new ColorButton(Color.GRAY));
     this.colorButton.setActionCommand("edit_color");
     this.colorButton.addActionListener(this.controller);
-    JButton defaultBtn = new JButton(I18n.getLocalizedString("button.default_color.text"));
-    defaultBtn.setActionCommand("default_color");
-    defaultBtn.addActionListener(this.controller);
-    rightPnl.add(defaultBtn);
+    this.defaultBtn = new JButton(I18n.getLocalizedString("button.default_color.text"));
+    this.defaultBtn.setActionCommand("default_color");
+    this.defaultBtn.addActionListener(this.controller);
+    rightPnl.add(this.defaultBtn);
     contentPnl.add(rightPnl, BorderLayout.EAST);
     add(contentPnl);
     setActionListener(this.controller);
@@ -189,6 +190,7 @@ public class EditColorsDialog extends AbstractDialog {
    */
   void setColorButtonEnabled(boolean enabled) {
     this.colorButton.setEnabled(enabled);
+    this.defaultBtn.setEnabled(enabled);
   }
 
   /**
