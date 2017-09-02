@@ -162,21 +162,29 @@ public class FamilyDao {
         String partnerKey = before1_3d ? "spouse" : "partner";
         long partner1 = (Long) relationObj.get(partnerKey + 1);
         long partner2 = (Long) relationObj.get(partnerKey + 2);
+        Set<Long> children = new HashSet<>();
         JSONArray childrenObj = (JSONArray) relationObj.get("children");
-        long[] children = new long[childrenObj.size()];
 
-        for (int i = 0; i < children.length; i++) {
-          children[i] = (Long) childrenObj.get((Integer) i);
+        for (int i = 0; i < childrenObj.size(); i++) {
+          children.add((Long) childrenObj.get((Integer) i));
         }
 
-        weddings.add(new Relationship(date, location, isWedding, hasEnded, endDate, partner1, partner2, children));
+        Map<Long, Date> adoptions = new HashMap<>();
+        JSONObject adoptionsObj = (JSONObject) relationObj.get("adoptions");
+        if (adoptionsObj != null) {
+          for (Object id : adoptionsObj.keySet()) {
+            Optional<String> s = Optional.of((String) adoptionsObj.get(id));
+            adoptions.put(Long.parseLong("" + id), getDate(s.orElse("")));
+          }
+        }
+
+        weddings.add(new Relationship(date, location, isWedding, hasEnded, endDate, partner1, partner2, children, adoptions));
       }
 
       return new FamilyEdit(family, locations);
     }
     catch (NullPointerException | ClassCastException | NoSuchElementException | DateTimeParseException
-        | org.json.simple.parser.ParseException __) {
-      __.printStackTrace();
+        | org.json.simple.parser.ParseException ex) {
       throw new ParseException("corrupted file", -1);
     }
   }
@@ -286,15 +294,21 @@ public class FamilyDao {
       relationObj.put("type", r.isWedding() ? "wedding" : "");
       formatDate(relationObj, "date", r.getDate());
       relationObj.put("location", r.getLocation().orElse(""));
-      JSONArray childrenObj = new JSONArray();
-      r.getChildren().forEach(c -> childrenObj.add(c));
-      relationObj.put("children", childrenObj);
       if (r.getEndDate().isPresent()) {
         formatDate(relationObj, "end_date", r.getEndDate());
       }
       else {
         relationObj.put("has_ended", r.hasEnded());
       }
+      JSONArray childrenObj = new JSONArray();
+      JSONObject adoptionsObj = new JSONObject();
+      for (Long c : r.getChildren()) {
+        childrenObj.add(c);
+        if (r.isAdopted(c))
+          formatDate(adoptionsObj, "" + c, r.getAdoptionDate(c));
+      }
+      relationObj.put("children", childrenObj);
+      relationObj.put("adoptions", adoptionsObj);
 
       relationsObj.add(relationObj);
     }

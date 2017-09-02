@@ -139,6 +139,8 @@ word.day.plural=jours
 word.yes=oui
 word.no=non
 word.image=image
+word.adopted=adopté
+word.adopted.feminine=adoptée
 
 # Arborescences
 node.colors.genders.text=Genres

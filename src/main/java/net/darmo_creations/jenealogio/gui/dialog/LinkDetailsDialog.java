@@ -27,7 +27,6 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.util.function.Supplier;
 
-import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -39,7 +38,9 @@ import net.darmo_creations.gui_framework.ApplicationRegistry;
 import net.darmo_creations.gui_framework.events.UserEvent;
 import net.darmo_creations.jenealogio.events.EventType;
 import net.darmo_creations.jenealogio.gui.MainFrame;
+import net.darmo_creations.jenealogio.gui.components.AdoptionListRenderer;
 import net.darmo_creations.jenealogio.gui.components.DetailsPanel;
+import net.darmo_creations.jenealogio.model.family.AdoptionListEntry;
 import net.darmo_creations.jenealogio.model.family.Family;
 import net.darmo_creations.jenealogio.model.family.FamilyMember;
 import net.darmo_creations.jenealogio.model.family.Relationship;
@@ -61,7 +62,7 @@ public class LinkDetailsDialog extends AbstractDialog {
   private JLabel partnersLbl;
   private JLabel dateLbl, locationLbl;
   private JLabel endDateLbl;
-  private JList<FamilyMember> children;
+  private JList<AdoptionListEntry> children;
 
   /**
    * Creates a dialog.
@@ -150,14 +151,14 @@ public class LinkDetailsDialog extends AbstractDialog {
     gbc.weighty = 1;
     infoPnl.add(new JScrollPane(this.children = new JList<>(new DefaultListModel<>())), gbc);
     this.children.setEnabled(false);
-    this.children.setCellRenderer(new DefaultListCellRenderer() {
-      private static final long serialVersionUID = -5719431706167475340L;
+    this.children.setCellRenderer(new AdoptionListRenderer() {
+      private static final long serialVersionUID = -8410306056784274760L;
 
       @Override
       public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-        Component c = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-        c.setEnabled(true); // To change the foreground to black
-        return c;
+        super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+        setEnabled(true); // To change the foreground to black
+        return this;
       }
     });
 
@@ -191,13 +192,13 @@ public class LinkDetailsDialog extends AbstractDialog {
    */
   public void setInfo(Relationship relation, Family family) {
     Supplier<IllegalStateException> supplier = IllegalStateException::new;
-    FamilyMember m1 = family.getMember(relation.getPartner1()).orElseThrow(supplier);
-    FamilyMember m2 = family.getMember(relation.getPartner2()).orElseThrow(supplier);
-    String partners = String.format("<html>%s<br/>%s</html>", m1, m2).replace(" ", "&nbsp;");
+    FamilyMember partner1 = family.getMember(relation.getPartner1()).orElseThrow(supplier);
+    FamilyMember partner2 = family.getMember(relation.getPartner2()).orElseThrow(supplier);
+    String partners = String.format("<html>%s<br/>%s</html>", partner1, partner2).replace(" ", "&nbsp;");
 
-    setTitle(m1 + "/" + m2);
+    setTitle(partner1 + "/" + partner2);
     String key = relation.isWedding() ? "yes" : "no";
-    this.weddingLbl.setText(I18n.getLocalizedWord(key, false, false));
+    this.weddingLbl.setText(I18n.toTitleCase(I18n.getLocalizedWord(key, false, false)));
     this.partnersLbl.setText(partners);
     this.dateLbl.setText(CalendarUtil.formatDate(relation.getDate()).orElse(DetailsPanel.UNKNOWN_DATA));
     this.locationLbl.setText(relation.getLocation().orElse(DetailsPanel.UNKNOWN_DATA));
@@ -209,9 +210,13 @@ public class LinkDetailsDialog extends AbstractDialog {
       endDate = "–";
     }
     this.endDateLbl.setText(endDate);
-    DefaultListModel<FamilyMember> model = (DefaultListModel<FamilyMember>) this.children.getModel();
+    DefaultListModel<AdoptionListEntry> model = (DefaultListModel<AdoptionListEntry>) this.children.getModel();
     model.removeAllElements();
-    relation.getChildren().forEach(child -> model.addElement(family.getMember(child).orElseThrow(supplier)));
+    relation.getChildren().forEach(id -> {
+      FamilyMember child = family.getMember(id).orElseThrow(supplier);
+      AdoptionListEntry entry = new AdoptionListEntry(child, relation.isAdopted(id), relation.getAdoptionDate(id).orElse(null));
+      model.addElement(entry);
+    });
     pack();
     setMinimumSize(getSize());
   }

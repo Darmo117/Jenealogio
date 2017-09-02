@@ -18,10 +18,12 @@
  */
 package net.darmo_creations.jenealogio.model.family;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
-import java.util.TreeSet;
 
 import net.darmo_creations.jenealogio.model.date.Date;
 import net.darmo_creations.utils.Nullable;
@@ -36,6 +38,7 @@ public final class Relationship implements Comparable<Relationship>, Cloneable {
   private String location;
   private long partner1, partner2;
   private Set<Long> children;
+  private Map<Long, Date> adoptions;
   private boolean isWedding;
   private boolean hasEnded;
   private Date endDate;
@@ -51,10 +54,11 @@ public final class Relationship implements Comparable<Relationship>, Cloneable {
    * @param endDate the date when it ended
    * @param partner1 one partner
    * @param partner2 the other partner
-   * @param children the children
+   * @param children list of children
+   * @param adoptions adopted children; any ID that is not in the set will be ignored
    */
   public Relationship(@Nullable Date date, @Nullable String location, boolean isWedding, boolean hasEnded, @Nullable Date endDate,
-      long partner1, long partner2, long... children) {
+      long partner1, long partner2, Set<Long> children, Map<Long, Date> adoptions) {
     if (partner1 == partner2)
       throw new IllegalArgumentException("partners must be different");
     setDate(date != null ? date.clone() : null);
@@ -65,8 +69,11 @@ public final class Relationship implements Comparable<Relationship>, Cloneable {
     setEndDate(endDate != null ? endDate.clone() : null);
     setHasEnded(hasEnded);
     this.children = new HashSet<>();
-    for (long child : children)
-      addChild(child);
+    this.adoptions = new HashMap<>();
+    for (Long id : children)
+      addChild(id);
+    for (Map.Entry<Long, Date> entry : adoptions.entrySet())
+      setAdopted(entry.getKey(), entry.getValue());
   }
 
   /**
@@ -197,7 +204,7 @@ public final class Relationship implements Comparable<Relationship>, Cloneable {
    * @return a set of all the children's IDs
    */
   public Set<Long> getChildren() {
-    return new TreeSet<>(this.children);
+    return new HashSet<>(this.children);
   }
 
   /**
@@ -209,9 +216,28 @@ public final class Relationship implements Comparable<Relationship>, Cloneable {
   public void addChild(long id) {
     if (id == getPartner1() || id == getPartner2())
       throw new IllegalArgumentException("can't be their own child");
-    if (this.children.contains(id))
-      throw new IllegalArgumentException("child already present");
     this.children.add(id);
+  }
+
+  /**
+   * Sets a child as adopted.
+   * 
+   * @param id the child's ID
+   * @param date the adoption date
+   */
+  public void setAdopted(long id, @Nullable Date date) {
+    if (!this.children.contains(id))
+      throw new NoSuchElementException("child ID " + id + " is not present in this relationship");
+    this.adoptions.put(id, date);
+  }
+
+  /**
+   * Sets a child as not adopted.
+   * 
+   * @param id the child's ID
+   */
+  public void setNotAdopted(long id) {
+    this.adoptions.remove(id);
   }
 
   /**
@@ -221,6 +247,7 @@ public final class Relationship implements Comparable<Relationship>, Cloneable {
    */
   public void removeChild(long id) {
     this.children.remove(id);
+    this.adoptions.remove(id);
   }
 
   /**
@@ -233,12 +260,33 @@ public final class Relationship implements Comparable<Relationship>, Cloneable {
     return getPartner1() == id || getPartner2() == id;
   }
 
+  /**
+   * Indicates if a child is adopted.
+   * 
+   * @param id the child's ID
+   * @return true if the child has been adopted by this couple in this relationship; false otherwise
+   */
+  public boolean isAdopted(long id) {
+    return this.adoptions.containsKey(id);
+  }
+
+  /**
+   * Returns the adoption date for a given child.
+   * 
+   * @param id the child's ID
+   * @return the adoption date
+   */
+  public Optional<Date> getAdoptionDate(long id) {
+    return Optional.ofNullable(this.adoptions.get(id));
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
 
-    result = prime * result + ((this.children == null) ? 0 : this.children.hashCode());
+    result = prime * result + this.adoptions.hashCode();
+    result = prime * result + this.children.hashCode();
     result = prime * result + ((this.date == null) ? 0 : this.date.hashCode());
     result = prime * result + ((this.endDate == null) ? 0 : this.endDate.hashCode());
     result = prime * result + (this.hasEnded ? 1231 : 1237);
@@ -259,6 +307,12 @@ public final class Relationship implements Comparable<Relationship>, Cloneable {
     if (getClass() != obj.getClass())
       return false;
     Relationship other = (Relationship) obj;
+    if (this.adoptions == null) {
+      if (other.adoptions != null)
+        return false;
+    }
+    else if (!this.adoptions.equals(other.adoptions))
+      return false;
     if (this.children == null) {
       if (other.children != null)
         return false;
@@ -295,14 +349,9 @@ public final class Relationship implements Comparable<Relationship>, Cloneable {
   }
 
   @Override
-  public String toString() {
-    return getPartner1() + " <-> " + getPartner2();
-  }
-
-  @Override
   public Relationship clone() {
     return new Relationship(getDate().orElse(null), this.location, this.isWedding, this.hasEnded, getEndDate().orElse(null), this.partner1,
-        this.partner2, this.children.stream().mapToLong(id -> id).toArray());
+        this.partner2, this.children, this.adoptions);
   }
 
   @Override
@@ -314,5 +363,10 @@ public final class Relationship implements Comparable<Relationship>, Cloneable {
       return getEndDate().get().compareTo(r.getEndDate().get());
     }
     return 0;
+  }
+
+  @Override
+  public String toString() {
+    return getPartner1() + " <-> " + getPartner2();
   }
 }

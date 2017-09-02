@@ -18,9 +18,11 @@
  */
 package net.darmo_creations.jenealogio.util;
 
+import java.util.Calendar;
 import java.util.Optional;
 
 import net.darmo_creations.jenealogio.model.date.Date;
+import net.darmo_creations.jenealogio.model.date.DateBuilder;
 import net.darmo_creations.utils.I18n;
 
 /**
@@ -29,6 +31,20 @@ import net.darmo_creations.utils.I18n;
  * @author Damien Vergnet
  */
 public final class CalendarUtil {
+  /**
+   * Returns the current date.
+   */
+  public static Date getCurrentDate() {
+    Calendar c = net.darmo_creations.gui_framework.util.CalendarUtil.getCurrentDate();
+    DateBuilder builder = new DateBuilder();
+
+    builder.setYear(c.get(Calendar.YEAR));
+    builder.setMonth(c.get(Calendar.MONTH) + 1);
+    builder.setDate(c.get(Calendar.DAY_OF_MONTH));
+
+    return builder.getDate();
+  }
+
   /**
    * Formats the given date.
    * 

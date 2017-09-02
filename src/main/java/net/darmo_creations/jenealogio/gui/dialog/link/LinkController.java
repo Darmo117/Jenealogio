@@ -19,6 +19,9 @@
 package net.darmo_creations.jenealogio.gui.dialog.link;
 
 import java.awt.event.ActionEvent;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -26,6 +29,8 @@ import javax.swing.JList;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import net.darmo_creations.jenealogio.model.date.Date;
+import net.darmo_creations.jenealogio.model.family.AdoptionListEntry;
 import net.darmo_creations.jenealogio.model.family.Family;
 import net.darmo_creations.jenealogio.model.family.FamilyMember;
 import net.darmo_creations.jenealogio.model.family.Relationship;
@@ -56,7 +61,7 @@ class LinkController extends DefaultDialogController<LinkDialog> implements List
    * @param family the family
    */
   void reset(long partner1, long partner2, Family family) {
-    reset(new Relationship(null, null, true, false, null, partner1, partner2), family);
+    reset(new Relationship(null, null, true, false, null, partner1, partner2, Collections.emptySet(), Collections.emptyMap()), family);
   }
 
   /**
@@ -79,11 +84,18 @@ class LinkController extends DefaultDialogController<LinkDialog> implements List
     this.dialog.setPartner1(family.getMember(relation.getPartner1()).get().toString());
     this.dialog.setPartner2(family.getMember(relation.getPartner2()).get().toString());
     this.dialog.setAvailableChildren(availableChildren);
-    this.dialog.setChildren(relation.getChildren().stream().map(id -> family.getMember(id).get()).collect(Collectors.toSet()));
+    Map<Long, Date> adoptions = new HashMap<>();
+    for (Long id : relation.getChildren()) {
+      if (relation.isAdopted(id))
+        adoptions.put(id, relation.getAdoptionDate(id).orElse(null));
+    }
+    Set<FamilyMember> children = relation.getChildren().stream().map(id -> family.getMember(id).get()).collect(Collectors.toSet());
+    this.dialog.setChildren(children, adoptions);
 
     this.dialog.setCanceled(false);
     this.dialog.setAddButtonEnabled(false);
     this.dialog.setDeleteButtonEnabled(false);
+    this.dialog.setAdoptionFieldsEnabled(false, false, null, false);
   }
 
   /**
@@ -91,7 +103,8 @@ class LinkController extends DefaultDialogController<LinkDialog> implements List
    */
   Relationship getLink() {
     return new Relationship(this.dialog.getDate(), this.dialog.getRelationshipLocation(), this.dialog.isWeddingChecked(),
-        this.dialog.isEndedChecked(), this.dialog.getEndDate(), this.partner1.getId(), this.partner2.getId(), this.dialog.getChildren());
+        this.dialog.isEndedChecked(), this.dialog.getEndDate(), this.partner1.getId(), this.partner2.getId(), this.dialog.getChildren(),
+        this.dialog.getAdoptedChildren());
   }
 
   @Override
@@ -108,6 +121,15 @@ class LinkController extends DefaultDialogController<LinkDialog> implements List
       case "remove":
         this.dialog.removeSelectedChildren();
         break;
+      case "validate-adoption":
+        AdoptionListEntry entry = this.dialog.getSelectedItem();
+
+        if (entry != null) {
+          entry.setAdopted(this.dialog.isAdoptedChecked());
+          entry.setAdoptionDate(this.dialog.getAdoptionDate());
+          this.dialog.repaint();
+        }
+        break;
     }
   }
 
@@ -117,10 +139,17 @@ class LinkController extends DefaultDialogController<LinkDialog> implements List
       JList<?> list = (JList<?>) e.getSource();
 
       if (list.getName().equals("children")) {
-        this.dialog.setDeleteButtonEnabled(e.getFirstIndex() != -1);
+        AdoptionListEntry entry = ((AdoptionListEntry) list.getSelectedValue());
+        boolean enabled = entry != null;
+        boolean checked = enabled && entry.isAdopted();
+        boolean woman = enabled && entry.getMember().isWoman();
+        Date date = enabled ? entry.getAdoptionDate() : null;
+
+        this.dialog.setDeleteButtonEnabled(enabled);
+        this.dialog.setAdoptionFieldsEnabled(enabled, checked, date, woman);
       }
       else if (list.getName().equals("available-children")) {
-        this.dialog.setAddButtonEnabled(e.getFirstIndex() != -1);
+        this.dialog.setAddButtonEnabled(e.getFirstIndex() >= 0);
       }
     }
   }

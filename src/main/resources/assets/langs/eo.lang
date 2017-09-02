@@ -140,6 +140,8 @@ word.day.plural=tagoj
 word.yes=jes
 word.no=ne
 word.image=bildo
+word.adopted=adoptita
+word.adopted.feminine=adoptita
 
 # Arboj
 node.colors.genders.text=Sekso
