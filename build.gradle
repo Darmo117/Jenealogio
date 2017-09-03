@@ -43,7 +43,7 @@ dependencies {
   // JSON Simple
   compile files('libs/json-simple-1.1.1.jar')
   // GUI-Framework
-  compile files('libs/GUI-Framework-1.4.jar')
+  compile files('libs/GUI-Framework-1.5d.jar')
   // JUnit
   testCompile 'junit:junit:4.12'
 }
