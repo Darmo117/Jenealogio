@@ -19,6 +19,7 @@
 package net.darmo_creations.jenealogio.gui.dialog.link;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -90,6 +91,7 @@ public class LinkDialog extends AbstractDialog {
     super(owner, Mode.VALIDATE_CANCEL_OPTION, true);
     setResizable(false);
     setIconImage(Images.JENEALOGIO.getImage());
+    setPreferredSize(new Dimension(340, 620));
 
     this.controller = new LinkController(this);
 
@@ -242,6 +244,7 @@ public class LinkDialog extends AbstractDialog {
     setActionListener(this.controller);
 
     pack();
+    System.out.println(getSize());
     setLocationRelativeTo(owner);
   }
 
