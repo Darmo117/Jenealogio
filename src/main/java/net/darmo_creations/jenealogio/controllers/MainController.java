@@ -53,6 +53,7 @@ import net.darmo_creations.jenealogio.model.family.Family;
 import net.darmo_creations.jenealogio.model.family.FamilyMember;
 import net.darmo_creations.jenealogio.model.family.Relationship;
 import net.darmo_creations.jenealogio.util.Images;
+import net.darmo_creations.utils.FilesUtil;
 import net.darmo_creations.utils.I18n;
 import net.darmo_creations.utils.UndoRedoManager;
 import net.darmo_creations.utils.events.SubsribeEvent;
@@ -320,11 +321,7 @@ public class MainController extends ApplicationController<MainFrame> implements 
   public boolean acceptFiles(List<File> files, Component c) {
     if (!(c instanceof DisplayPanel) || files.size() != 1)
       return false;
-
-    String name = files.get(0).getName();
-    String ext = name.substring(name.lastIndexOf('.') + 1);
-
-    return Jenealogio.TREE_FILE_EXT.equalsIgnoreCase(ext);
+    return FilesUtil.hasExtension(files.get(0), Jenealogio.TREE_FILE_EXT);
   }
 
   @Override
