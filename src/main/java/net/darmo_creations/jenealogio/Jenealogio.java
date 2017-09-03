@@ -12,7 +12,7 @@ import net.darmo_creations.jenealogio.gui.MainFrame;
 import net.darmo_creations.utils.version.Version;
 
 public class Jenealogio implements Application {
-  public static final Version CURRENT_VERSION = new Version(1, 5, 0, true);
+  public static final Version CURRENT_VERSION = new Version(1, 5, 0, false);
   /** Version 1.3d */
   public static final Version V1_3D = new Version(1, 3, 0, true);
 
