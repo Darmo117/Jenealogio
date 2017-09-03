@@ -1,0 +1,167 @@
+# Dialogoj
+dialog.add_card.title=Aldoni slipo
+dialog.update_card.title=Modifi slipo
+dialog.add_link.title=Aldoni ligilo
+dialog.update_link.title=Modifi ligilo
+dialog.new_tree.title=Nova arbo
+dialog.properties.title=Ecoj
+dialog.edit_colors.title=Modifi koloroj
+dialog.color_chooser.title=Paletro de koloroj
+dialog.about.title=Pri
+dialog.update.title=Ĝisdatigo havebla
+dialog.open.title=Malfermi dosiero
+dialog.save_as.title=Sekurkopii kiel…
+dialog.export_image.title=Eksporti kiel bildo
+
+# Saltofenestro
+popup.laf_error.title=Eraro
+popup.laf_error.text=Ne povis ŝarĝi sistemon GUI. Uzante defaŭlta.
+popup.confirm.title=Konfirmi
+popup.error.title=Eraro
+popup.warning.title=Averto
+popup.save_confirm.text=La dosiero estas ŝanĝita. Ĉu vi volas sekurkopii?
+popup.open_file_error.text=Eraro okazis dum dosiero malfermanto!
+popup.save_file_error.text=Eraro okazis dum sekurkpio! Ĉu vi volas daŭrigi?
+popup.image_export_error.text=Bildo ne povis esti eksportita!
+popup.delete_card_confirm.text=Ĉu vi vere volas forigi tiun slipon?
+popup.delete_cards_confirm.text=Ĉu vi vere volas forigi tiun slipojn?
+popup.delete_link_confirm.text=Ĉu vi vere volas forigi tiun ligilon?
+popup.open_image_error.text=Ne povis ŝarĝi la bildon!
+popup.birth_date_error.text=La naskiĝdato devas esti antaŭ la daton de morto.
+popup.change_language.confirm.text=La programo devas reinici post lingvoŝanĝo. Ĉu vi volas daŭrigi?
+popup.change_language.restart_error.text=La programo ne povis reinici.
+popup.change_language_warning.text=La ŝanĝo estos apliki post reinicion de la programaro.
+popup.file_already_exists.text=Dosiero kun sama nomo jam ekzistas. Ĉu vi volas anstataŭigi?
+popup.version_warning.text=Tiu dosiero estis generita kun pli nova versio kaj ne bone ŝarĝus.\n\
+\u0109u vi \u0109iuokaze volas daŭrigi?
+
+# Dosiertipoj
+file_type.tree.desc=Familio arbo dosiero
+file_type.image.desc=Bildo dosiero
+
+# Menuoj
+menu.file.text=Dosiero
+menu.file.mnemonic=d
+item.new_tree.text=Nova arbo…
+item.new_tree.mnemonic=n
+item.open.text=Malfermi…
+item.open.mnemonic=m
+item.edit_tree.text=Ecoj…
+item.edit_tree.mnemonic=m
+item.save.text=Sekurkopii
+item.save.mnemonic=s
+item.save_as.text=Sekurkopii kiel…
+item.save_as.mnemonic=e
+item.export_image.text=Eksporti kiel bildo…
+item.export_image.mnemonic=k
+item.exit.text=Forlasi
+item.exit.mnemonic=f
+menu.edit.text=Modifi
+menu.edit.mnemonic=e
+item.undo.text=Nuligi
+item.undo.mnemonic=u
+item.redo.text=Reestigi
+item.redo.mnemonic=r
+item.add_card.text=Aldoni slipo…
+item.add_card.mnemonic=a
+item.add_link.text=Aldoni ligilo…
+item.add_link.mnemonic=l
+item.edit.text=Modifi…
+item.edit_card.text=Modifi la slipo…
+item.edit_link.text=Modifi la ligilo…
+item.edit.mnemonic=e
+item.delete.text=Forigi
+item.delete_card.text=Forigi la slipo
+item.delete_link.text=Forigi la ligilo
+item.delete.mnemonic=f
+menu.options.text=Opcioj
+menu.options.mnemonic=o
+item.check_updates.text=Kontroli ĝisdatigoj al la programoinicio
+item.check_updates.mnemonic=o
+item.colors.text=Koloroj
+item.colors.mnemonic=k
+menu.lang.text=Lingvo
+menu.lang.mnemonic=l
+menu.help.text=Helpo
+menu.help.mnemonic=h
+item.help.text=Helpo
+item.help.mnemonic=h
+item.about.text=Pri
+item.about.mnemonic=p
+
+# Butonoj/Etikedoj
+button.choose_image.text=Elekti bildo…
+button.validate.text=Validigi
+button.cancel.text=Nuligi
+button.close.text=Fermi
+button.edit.text=Modifi
+button.default_color.text=Defaŭlta
+label.tree_name.text=Nomo
+label.family_name.text=Familia nomo
+label.use_name.text=Uza nomo
+label.first_name.text=Antaŭnomo
+label.other_names.text=Aliaj antaŭnomoj
+label.gender.text=Sekso
+label.birth_date.text=Naskiĝo
+label.birth_location.text=Ejo
+label.death_date.text=Morto
+label.death_location.text=Ejo
+label.dead.text=Forpasita
+label.comment.text=Komento
+label.wedding.text=Geedziĝo
+label.relationship_partners.text=Gekunuloj
+label.relationship_date.text=Dato
+label.relationship_location.text=Ejo
+label.relationship_ended.text=Rilato finita
+label.relationship_end_date.text=Finodato
+label.partner1.text=Gekunulo 1
+label.partner2.text=Gekunulo 2
+label.children.text=Infanoj
+label.available_children.text=Haveblaj infanoj
+label.search.text=Ser\u0109i
+label.color.text=Koloro
+
+label.updates_check_blocked.text=Kontrolo de ĝisdatigoj malaktivitita
+label.checking_updates.text=Kontrolanta ĝisdatigoj
+label.update_check_failed.text=Kontrolo de ĝisdatigoj malsukcesis
+label.update_available.text=Ĝisdatigo havebla
+label.no_update.text=Neniom ĝisdatigo havebla
+label.download_link.text=Elŝutu tien:
+label.changelog.text=Changelog:
+
+# Vortoj
+word.unknown=nekonata
+word.man=viro
+word.woman=virino
+word.year=jaro
+word.year.plural=jaroj
+word.month=monato
+word.month.plural=monatoj
+word.day=tago
+word.day.plural=tagoj
+word.yes=jes
+word.no=ne
+word.image=bildo
+word.adopted=adoptita
+word.adopted.feminine=adoptita
+
+# Arboj
+node.colors.genders.text=Sekso
+node.colors.genders.unknown.text=Nekonata
+node.colors.genders.male.text=Viro
+node.colors.genders.female.text=Virino
+node.colors.cards.text=Kartoj
+node.colors.cards.border.text=Bordo
+node.colors.cards.border.selected.text=Selektita bordo
+node.colors.cards.border.selected_background.text=Selektita bordo (Dua koloro)
+node.colors.links.text=Ligiloj
+node.colors.links.link.text=Ligilo
+node.colors.links.hovered.text=Superflugita ligilo
+node.colors.links.selected.text=Selektida ligilo
+node.colors.links.child.text=Ligilo al infano
+node.colors.links.child.adopted.text=Ligilo al adopta infano
+node.colors.selection.text=Elekto
+node.colors.selection.border.text=Bordo
+node.colors.selection.background.text=Fono
+
+date.format=D/M/Y

@@ -1,0 +1,166 @@
+# Boîtes de dialogue
+dialog.add_card.title=Ajouter une fiche
+dialog.update_card.title=Modifier une fiche
+dialog.add_link.title=Ajouter un lien
+dialog.update_link.title=Modifier un lien
+dialog.new_tree.title=Nouvel arbre
+dialog.properties.title=Propriétés
+dialog.edit_colors.title=Modifier les couleurs
+dialog.color_chooser.title=Palette de couleurs
+dialog.about.title=À propos
+dialog.update.title=Mise à jour disponible
+dialog.open.title=Ouvrir
+dialog.save_as.title=Enregistrer sous…
+dialog.export_image.title=Exporter comme image
+
+# Popups
+popup.laf_error.title=Erreur
+popup.laf_error.text=Impossible de charger le rendu système, utilisation du rendu par défaut.
+popup.confirm.title=Confirmer
+popup.error.title=Erreur
+popup.warning.title=Avertissement
+popup.save_confirm.text=Le fichier a été modifié. Sauvegarder les changements ?
+popup.open_file_error.text=Une erreur est survenue pendant l'ouverture du fichier !
+popup.save_file_error.text=Une erreur est survenue lors de la sauvegarde ! Voulez-vous continuer ?
+popup.image_export_error.text=L'image n'a pas pu être exportée !
+popup.delete_card_confirm.text=Êtes-vous sûr de vouloir supprimer cette fiche ?
+popup.delete_cards_confirm.text=Êtes-vous sûr de vouloir supprimer ces fiches ?
+popup.delete_link_confirm.text=Êtes-vous sûr de vouloir supprimer de lien ?
+popup.open_image_error.text=Erreur lors de l'ouverture de l'image !
+popup.birth_date_error.text=La date de naissance doit être inférieure à la date de décès !
+popup.change_language.confirm.text=L'application va devoir redémarrer après changement de la langue. Voulez-vous continuer?
+popup.change_language.restart_error.text=Impossible de redémarrer l'application.
+popup.file_already_exists.text=Un fichier du même nom existe déjà. Voulez-vous l'écraser ?
+popup.version_warning.text=Ce fichier a été généré avec une version plus récente du logiciel et risque de ne pas charger correctement.\n\
+Voulez-vous quand-même continuer ?
+
+# Types de fichier
+file_type.tree.desc=Fichier arbre généalogique
+file_type.image.desc=Fichier image
+
+# Menus
+menu.file.text=Fichier
+menu.file.mnemonic=f
+item.new_tree.text=Nouvel arbre…
+item.new_tree.mnemonic=n
+item.open.text=Ouvrir…
+item.open.mnemonic=o
+item.edit_tree.text=Propriétés…
+item.edit_tree.mnemonic=é
+item.save.text=Enregistrer
+item.save.mnemonic=e
+item.save_as.text=Enregistrer sous…
+item.save_as.mnemonic=r
+item.export_image.text=Exporter comme image
+item.export_image.mnemonic=x
+item.exit.text=Quitter
+item.exit.mnemonic=q
+menu.edit.text=Édition
+menu.edit.mnemonic=é
+item.undo.text=Annuler
+item.undo.mnemonic=u
+item.redo.text=Rétablir
+item.redo.mnemonic=r
+item.add_card.text=Ajouter une fiche…
+item.add_card.mnemonic=a
+item.add_link.text=Ajouter un lien…
+item.add_link.mnemonic=j
+item.edit.text=Éditer…
+item.edit_card.text=Éditer la fiche…
+item.edit_link.text=Éditer le lien…
+item.edit.mnemonic=é
+item.delete.text=Supprimer
+item.delete_card.text=Supprimer la fiche
+item.delete_link.text=Supprimer le lien
+item.delete.mnemonic=s
+menu.options.text=Options
+menu.options.mnemonic=o
+item.check_updates.text=Vérifier les mises à jour au démarrage
+item.check_updates.mnemonic=v
+item.colors.text=Couleurs
+item.colors.mnemonic=c
+menu.lang.text=Langue
+menu.lang.mnemonic=l
+menu.help.text=Aide
+menu.help.mnemonic=a
+item.help.text=Aide
+item.help.mnemonic=a
+item.about.text=À propos
+item.about.mnemonic=à
+
+# Boutons/Labels
+button.choose_image.text=Choisir une image…
+button.validate.text=Valider
+button.cancel.text=Annuler
+button.close.text=Fermer
+button.edit.text=Éditer
+button.default_color.text=Défaut
+label.tree_name.text=Nom
+label.family_name.text=Nom de famille
+label.use_name.text=Nom d'usage
+label.first_name.text=Prénom
+label.other_names.text=Autres prénoms
+label.gender.text=Genre
+label.birth_date.text=Naissance
+label.birth_location.text=Lieu
+label.death_date.text=Décès
+label.death_location.text=Lieu
+label.dead.text=Décédé
+label.comment.text=Commentaire
+label.wedding.text=Mariage
+label.relationship_partners.text=Conjoints
+label.relationship_date.text=Date
+label.relationship_location.text=Lieu
+label.relationship_ended.text=Relation rompue
+label.relationship_end_date.text=Date de rupture
+label.partner1.text=Conjoint 1
+label.partner2.text=Conjoint 2
+label.children.text=Enfants
+label.available_children.text=Enfants disponibles
+label.search.text=Rechercher
+label.color.text=Couleur 
+
+label.updates_check_blocked.text=Vérification des mises à jour bloquées
+label.checking_updates.text=Vérification des mises à jour
+label.update_check_failed.text=La vérification des mises à jour a échoué
+label.update_available.text=Mise à jour disponible
+label.no_update.text=Aucune mise à jour disponible
+label.download_link.text=Lien de téléchargement :
+label.changelog.text=Changelog :
+
+# Mots
+word.unknown=inconnu
+word.man=homme
+word.woman=femme
+word.year=an
+word.year.plural=ans
+word.month=mois
+word.month.plural=mois
+word.day=jour
+word.day.plural=jours
+word.yes=oui
+word.no=non
+word.image=image
+word.adopted=adopté
+word.adopted.feminine=adoptée
+
+# Arborescences
+node.colors.genders.text=Genres
+node.colors.genders.unknown.text=Inconnu
+node.colors.genders.male.text=Homme
+node.colors.genders.female.text=Femme
+node.colors.cards.text=Fiches
+node.colors.cards.border.text=Bordure
+node.colors.cards.border.selected.text=Bordure sélectionnée
+node.colors.cards.border.selected_background.text=Bordure sélectionnée en arrière-plan
+node.colors.links.text=Liens
+node.colors.links.link.text=Lien
+node.colors.links.hovered.text=Lien survolé
+node.colors.links.selected.text=Lien sélectionné
+node.colors.links.child.text=Lien vers enfant
+node.colors.links.child.adopted.text=Lien vers enfant adopté
+node.colors.selection.text=Sélection
+node.colors.selection.border.text=Bordure
+node.colors.selection.background.text=Fond
+
+date.format=D/M/Y

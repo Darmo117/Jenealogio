@@ -1,7 +1,7 @@
 apply plugin: 'java'
 apply plugin: 'eclipse'
 
-version = '1.4.2'
+version = '1.5'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
@@ -10,7 +10,7 @@ compileJava.options.encoding = 'UTF-8'
 // Creates the jar with all dependencies included inside
 task fatJar(type: Jar) {
   manifest {
-    attributes 'Main-Class': 'net.darmo_creations.Start',
+    attributes 'Main-Class': 'net.darmo_creations.jenealogio.Start',
                'Class-Path': '.'
   }
   from {
@@ -42,6 +42,8 @@ dependencies {
   compile 'org.slf4j:slf4j-api:1.7.21'
   // JSON Simple
   compile files('libs/json-simple-1.1.1.jar')
+  // GUI-Framework
+  compile files('libs/GUI-Framework-1.5d.jar')
   // JUnit
   testCompile 'junit:junit:4.12'
 }
