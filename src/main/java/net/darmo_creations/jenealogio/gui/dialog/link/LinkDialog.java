@@ -244,7 +244,6 @@ public class LinkDialog extends AbstractDialog {
     setActionListener(this.controller);
 
     pack();
-    System.out.println(getSize());
     setLocationRelativeTo(owner);
   }
 
