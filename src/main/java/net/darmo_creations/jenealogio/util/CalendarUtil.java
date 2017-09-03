@@ -54,9 +54,9 @@ public final class CalendarUtil {
   public static Optional<String> formatDate(Optional<Date> date) {
     if (date.isPresent()) {
       Date d = date.get();
-      String y = d.isYearSet() ? "" + d.getYear() : null;
-      String m = d.isMonthSet() ? "" + d.getMonth() : null;
-      String dd = d.isDateSet() ? "" + d.getDate() : null;
+      String y = d.isYearSet() ? "" + d.getYear() : "";
+      String m = d.isMonthSet() ? "" + d.getMonth() : "";
+      String dd = d.isDateSet() ? "" + d.getDate() : "";
 
       return Optional.of(I18n.getFormattedDate(y, m, dd));
     }
