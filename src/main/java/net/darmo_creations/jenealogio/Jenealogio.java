@@ -20,9 +20,13 @@ package net.darmo_creations.jenealogio;
 
 import java.awt.Color;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 import net.darmo_creations.gui_framework.Application;
+import net.darmo_creations.gui_framework.ApplicationRegistry;
 import net.darmo_creations.gui_framework.config.Language;
 import net.darmo_creations.gui_framework.config.WritableConfig;
 import net.darmo_creations.jenealogio.config.ConfigTags;
@@ -30,7 +34,7 @@ import net.darmo_creations.jenealogio.gui.MainFrame;
 import net.darmo_creations.utils.version.Version;
 
 public class Jenealogio implements Application {
-  public static final Version CURRENT_VERSION = new Version(1, 5, 0, false);
+  public static final Version CURRENT_VERSION = new Version(1, 6, 0, true);
   /** Version 1.3d */
   public static final Version V1_3D = new Version(1, 3, 0, true);
 
@@ -41,6 +45,13 @@ public class Jenealogio implements Application {
 
   @Override
   public void preInit() {
+    List<Language> l = new ArrayList<>();
+    l.add(new Language("English", Locale.US));
+    l.add(new Language("Français", Locale.FRANCE));
+    l.add(new Language("Esperanto", new Locale("eo")));
+
+    ApplicationRegistry.setLanguages(l);
+
     WritableConfig.registerTag(ConfigTags.CARD_BORDER_COLOR, Color.GRAY);
     WritableConfig.registerTag(ConfigTags.CARD_SELECTED_BORDER_COLOR, Color.BLUE);
     WritableConfig.registerTag(ConfigTags.CARD_SELECTED_BACKGROUND_BORDER_COLOR, Color.BLACK);
@@ -69,11 +80,6 @@ public class Jenealogio implements Application {
   @Override
   public Version getCurrentVersion() {
     return CURRENT_VERSION;
-  }
-
-  @Override
-  public String getIconsLocation() {
-    return "/assets/icons/";
   }
 
   @Override
