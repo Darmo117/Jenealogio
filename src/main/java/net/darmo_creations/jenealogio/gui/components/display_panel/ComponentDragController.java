@@ -35,7 +35,7 @@ import net.darmo_creations.jenealogio.gui.components.FamilyMemberPanel;
  * 
  * @author Damien Vergnet
  */
-class DragController extends MouseAdapter {
+class ComponentDragController extends MouseAdapter {
   /** Grid size in pixels */
   static final int GRID_STEP = 10;
 
@@ -51,7 +51,7 @@ class DragController extends MouseAdapter {
    * @param displayPanel the container
    * @param memberPanel the component this controller is monitoring
    */
-  DragController(DisplayPanel displayPanel, FamilyMemberPanel memberPanel) {
+  ComponentDragController(DisplayPanel displayPanel, FamilyMemberPanel memberPanel) {
     this.displayPanel = displayPanel;
     this.memberPanel = memberPanel;
     this.grabPoint = null;

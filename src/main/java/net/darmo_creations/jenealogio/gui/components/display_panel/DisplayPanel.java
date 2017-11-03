@@ -163,7 +163,7 @@ public class DisplayPanel extends JPanel implements Scrollable, DragAndDropTarge
       }
       else {
         FamilyMemberPanel panel = new FamilyMemberPanel(member, this.config);
-        DragController dragController = new DragController(this, panel);
+        ComponentDragController dragController = new ComponentDragController(this, panel);
 
         if (positions != null && positions.containsKey(member.getId())) {
           Point p = positions.get(member.getId());
