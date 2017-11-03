@@ -21,7 +21,7 @@ package net.darmo_creations.jenealogio.events;
 import java.awt.Point;
 
 /**
- * Base class for all card draggin events.
+ * Base class for all card dragging events.
  *
  * @author Damien Vergnet
  */
