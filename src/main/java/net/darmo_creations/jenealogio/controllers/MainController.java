@@ -704,7 +704,7 @@ public class MainController extends ApplicationController<MainFrame> implements 
   private void undo() {
     if (this.undoRedoManager.canUndo()) {
       this.undoRedoManager.undo();
-      undoOrRedo_();
+      undoOrRedo();
     }
   }
 
@@ -714,14 +714,14 @@ public class MainController extends ApplicationController<MainFrame> implements 
   private void redo() {
     if (this.undoRedoManager.canRedo()) {
       this.undoRedoManager.redo();
-      undoOrRedo_();
+      undoOrRedo();
     }
   }
 
   /**
    * Method used by undo() and redo().
    */
-  private void undoOrRedo_() {
+  private void undoOrRedo() {
     FamilyEdit edit = this.undoRedoManager.getEdit();
     if (edit.equals(this.lastSavedEdit))
       this.saved = true;
