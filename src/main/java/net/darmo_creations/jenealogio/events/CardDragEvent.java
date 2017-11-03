@@ -73,7 +73,7 @@ public abstract class CardDragEvent extends CardEvent {
    * @author Damien Vergnet
    */
   public static class Dragging extends CardDragEvent {
-    private final Point oldLocation, newLocation;
+    private final Point oldLocation, newLocation, mouseLocation;
 
     /**
      * Creates an event.
@@ -81,11 +81,13 @@ public abstract class CardDragEvent extends CardEvent {
      * @param memberId target member ID
      * @param oldLocation card's old location
      * @param newLocation card's new location
+     * @param mouseLocation mouse's location in the parent container
      */
-    public Dragging(long memberId, Point oldLocation, Point newLocation) {
+    public Dragging(long memberId, Point oldLocation, Point newLocation, Point mouseLocation) {
       super(memberId);
       this.oldLocation = (Point) oldLocation.clone();
       this.newLocation = (Point) newLocation.clone();
+      this.mouseLocation = (Point) mouseLocation.clone();
     }
 
     /**
@@ -107,6 +109,13 @@ public abstract class CardDragEvent extends CardEvent {
      */
     public Point getTranslation() {
       return new Point(this.newLocation.x - this.oldLocation.x, this.newLocation.y - this.oldLocation.y);
+    }
+
+    /**
+     * @return mouse's location in the parent container
+     */
+    public Point getMouseLocation() {
+      return this.mouseLocation;
     }
   }
 }

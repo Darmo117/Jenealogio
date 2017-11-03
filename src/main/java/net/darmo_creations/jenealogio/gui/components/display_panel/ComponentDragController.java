@@ -104,7 +104,9 @@ class ComponentDragController extends MouseAdapter {
           ApplicationRegistry.EVENTS_BUS.dispatchEvent(new CardDragEvent.Pre(this.memberPanel.getMemberId()));
         }
         this.memberPanel.setLocation(newLocation);
-        ApplicationRegistry.EVENTS_BUS.dispatchEvent(new CardDragEvent.Dragging(this.memberPanel.getMemberId(), oldLocation, newLocation));
+        Point mouse = new Point(newLocation.x + this.grabPoint.x, newLocation.y + this.grabPoint.y);
+        ApplicationRegistry.EVENTS_BUS.dispatchEvent(
+            new CardDragEvent.Dragging(this.memberPanel.getMemberId(), oldLocation, newLocation, mouse));
       }
     }
   }

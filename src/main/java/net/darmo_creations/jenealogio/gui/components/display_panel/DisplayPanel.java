@@ -83,6 +83,7 @@ public class DisplayPanel extends JPanel implements Scrollable, DragAndDropTarge
     setLayout(null);
 
     this.controller = new DisplayController(this);
+    ApplicationRegistry.EVENTS_BUS.register(this.controller);
     this.doubleClickController = new MouseAdapter() {
       @Override
       public void mouseClicked(MouseEvent e) {

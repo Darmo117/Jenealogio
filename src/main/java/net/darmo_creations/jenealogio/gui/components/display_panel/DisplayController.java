@@ -27,9 +27,11 @@ import java.util.Optional;
 import javax.swing.SwingUtilities;
 
 import net.darmo_creations.gui_framework.ApplicationRegistry;
+import net.darmo_creations.jenealogio.events.CardDragEvent;
 import net.darmo_creations.jenealogio.events.CardEvent;
 import net.darmo_creations.jenealogio.events.CardsSelectionEvent;
 import net.darmo_creations.jenealogio.events.LinkEvent;
+import net.darmo_creations.utils.events.SubsribeEvent;
 
 /**
  * This controller handles cards and links selection and notifies the DisplayPanel.
@@ -122,6 +124,12 @@ class DisplayController extends MouseAdapter {
     }
   }
 
+  @SubsribeEvent
+  public void onCardDragged(CardDragEvent.Dragging e) {
+    this.mouseLocation = e.getMouseLocation();
+    scrollIfOutside();
+  }
+
   private void updateMouseLocation(MouseEvent e) {
     this.mouseLocation = e.getPoint();
     // Selection computation
@@ -145,9 +153,14 @@ class DisplayController extends MouseAdapter {
       else {
         this.selection.height = height;
       }
+      scrollIfOutside();
+    }
+    repaint();
+  }
 
-      // Scroll if mouse outside panel
-      int mouseSide = this.panel.isMouseOutsideViewport();
+  private void scrollIfOutside() {
+    int mouseSide = this.panel.isMouseOutsideViewport();
+    if (mouseSide != 0) {
       int vTrans = 0;
       int hTrans = 0;
       final int step = 16;
@@ -165,10 +178,11 @@ class DisplayController extends MouseAdapter {
         hTrans = -step;
       }
 
-      this.panel.setVerticalScroll(this.panel.getVerticalScroll() + vTrans);
-      this.panel.setHorizontalScroll(this.panel.getHorizontalScroll() + hTrans);
+      if (vTrans != 0)
+        this.panel.setVerticalScroll(this.panel.getVerticalScroll() + vTrans);
+      if (hTrans != 0)
+        this.panel.setHorizontalScroll(this.panel.getHorizontalScroll() + hTrans);
     }
-    repaint();
   }
 
   private void repaint() {
