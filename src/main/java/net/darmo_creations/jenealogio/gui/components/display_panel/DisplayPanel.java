@@ -66,6 +66,7 @@ import net.darmo_creations.utils.swing.drag_and_drop.DropTargetHandler;
 public class DisplayPanel extends JPanel implements Scrollable, DragAndDropTarget {
   private static final long serialVersionUID = 8747904983365363275L;
 
+  private static final Dimension DEFAULT_SIZE = new Dimension(4000, 4000);
   /** The maximum distance away from a link the mouse must be to count as a hover. */
   private static final int HOVER_DISTANCE = 5;
 
@@ -79,7 +80,7 @@ public class DisplayPanel extends JPanel implements Scrollable, DragAndDropTarge
   private JScrollPane scrollPane;
 
   public DisplayPanel(JScrollPane scrollPane) {
-    setPreferredSize(new Dimension(4000, 4000));
+    setPreferredSize(DEFAULT_SIZE);
     setLayout(null);
 
     this.controller = new DisplayController(this);
@@ -126,6 +127,9 @@ public class DisplayPanel extends JPanel implements Scrollable, DragAndDropTarge
     this.panels.clear();
     this.links.clear();
     removeAll();
+    setPreferredSize(DEFAULT_SIZE);
+    revalidate();
+    repaint();
   }
 
   /**
@@ -177,6 +181,17 @@ public class DisplayPanel extends JPanel implements Scrollable, DragAndDropTarge
         panel.addMouseListener(this.doubleClickController);
         panel.addMouseMotionListener(dragController);
         this.panels.put(id, panel);
+
+        final int gap = 50;
+        Dimension size = getPreferredSize();
+        Rectangle panelBounds = panel.getBounds();
+        if (panelBounds.x + panelBounds.width > size.width)
+          size.width += panelBounds.x + panelBounds.width - size.width + gap;
+        if (panelBounds.y + panelBounds.height > size.height)
+          size.height += panelBounds.y + panelBounds.height - size.height + gap;
+        if (!size.equals(getPreferredSize()))
+          setPreferredSize(size);
+
         add(panel);
       }
       updatedOrAdded.add(id);
