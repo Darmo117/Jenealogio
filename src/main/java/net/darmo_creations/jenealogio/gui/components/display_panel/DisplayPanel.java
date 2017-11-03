@@ -362,41 +362,6 @@ public class DisplayPanel extends JPanel implements Scrollable, DragAndDropTarge
     return mouseInSegmentRange && d <= HOVER_DISTANCE;
   }
 
-  public static final int TOP = 1;
-  public static final int RIGHT = 2;
-  public static final int BOTTOM = 4;
-  public static final int LEFT = 8;
-
-  /**
-   * Tells if the mouse is outside the viewport and where.
-   * 
-   * @return an integer indicating where the mouse is outside the panel
-   * @see #TOP
-   * @see #RIGHT
-   * @see #BOTTOM
-   * @see #LEFT
-   */
-  int isMouseOutsideViewport() {
-    Point m = this.controller.getMouseLocation();
-    Rectangle r = getVisibleRect();
-    int res = 0;
-
-    if (m.getX() < r.x) {
-      res |= LEFT;
-    }
-    if (m.getX() > r.x + r.width) {
-      res |= RIGHT;
-    }
-    if (m.getY() < r.y) {
-      res |= TOP;
-    }
-    if (m.getY() > r.y + r.height) {
-      res |= BOTTOM;
-    }
-
-    return res;
-  }
-
   /**
    * @return the vertical scrollbar's value
    */

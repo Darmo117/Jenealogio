@@ -159,30 +159,28 @@ class DisplayController extends MouseAdapter {
   }
 
   private void scrollIfOutside() {
-    int mouseSide = this.panel.isMouseOutsideViewport();
-    if (mouseSide != 0) {
-      int vTrans = 0;
-      int hTrans = 0;
-      final int step = 16;
+    Rectangle r = this.panel.getVisibleRect();
+    int vTrans = 0;
+    int hTrans = 0;
+    final int step = 16;
 
-      if ((mouseSide & DisplayPanel.TOP) != 0) {
-        vTrans = -step;
-      }
-      if ((mouseSide & DisplayPanel.RIGHT) != 0) {
-        hTrans = step;
-      }
-      if ((mouseSide & DisplayPanel.BOTTOM) != 0) {
-        vTrans = step;
-      }
-      if ((mouseSide & DisplayPanel.LEFT) != 0) {
-        hTrans = -step;
-      }
-
-      if (vTrans != 0)
-        this.panel.setVerticalScroll(this.panel.getVerticalScroll() + vTrans);
-      if (hTrans != 0)
-        this.panel.setHorizontalScroll(this.panel.getHorizontalScroll() + hTrans);
+    if (this.mouseLocation.getX() < r.x) {
+      hTrans = -step;
     }
+    else if (this.mouseLocation.getX() > r.x + r.width) {
+      hTrans = step;
+    }
+    if (this.mouseLocation.getY() < r.y) {
+      vTrans = -step;
+    }
+    else if (this.mouseLocation.getY() > r.y + r.height) {
+      vTrans = step;
+    }
+
+    if (vTrans != 0)
+      this.panel.setVerticalScroll(this.panel.getVerticalScroll() + vTrans);
+    if (hTrans != 0)
+      this.panel.setHorizontalScroll(this.panel.getHorizontalScroll() + hTrans);
   }
 
   private void repaint() {
