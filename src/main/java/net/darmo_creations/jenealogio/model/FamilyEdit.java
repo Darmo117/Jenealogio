@@ -18,6 +18,7 @@
  */
 package net.darmo_creations.jenealogio.model;
 
+import java.awt.Dimension;
 import java.awt.Point;
 import java.util.HashMap;
 import java.util.Map;
@@ -32,6 +33,7 @@ import net.darmo_creations.jenealogio.model.family.Family;
 public final class FamilyEdit {
   private final Family family;
   private final Map<Long, Point> locations;
+  private final Map<Long, Dimension> sizes;
 
   /**
    * Creates an edit.
@@ -39,9 +41,10 @@ public final class FamilyEdit {
    * @param family the family
    * @param locations locations for all cards
    */
-  public FamilyEdit(final Family family, final Map<Long, Point> locations) {
+  public FamilyEdit(final Family family, final Map<Long, Point> locations, final Map<Long, Dimension> sizes) {
     this.family = family.clone();
     this.locations = new HashMap<>(locations);
+    this.sizes = new HashMap<>(sizes);
   }
 
   /**
@@ -56,6 +59,13 @@ public final class FamilyEdit {
    */
   public Map<Long, Point> getLocations() {
     return new HashMap<>(this.locations);
+  }
+
+  /**
+   * @return sizes for all cards
+   */
+  public Map<Long, Dimension> getSizes() {
+    return new HashMap<>(this.sizes);
   }
 
   @Override

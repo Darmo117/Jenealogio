@@ -50,7 +50,7 @@ import net.darmo_creations.jenealogio.config.ConfigTags;
 import net.darmo_creations.jenealogio.events.CardDragEvent;
 import net.darmo_creations.jenealogio.events.CardEvent;
 import net.darmo_creations.jenealogio.events.LinkEvent;
-import net.darmo_creations.jenealogio.gui.components.FamilyMemberPanel;
+import net.darmo_creations.jenealogio.gui.components.member_panel.FamilyMemberPanel;
 import net.darmo_creations.jenealogio.model.family.Family;
 import net.darmo_creations.utils.events.SubsribeEvent;
 import net.darmo_creations.utils.swing.drag_and_drop.DragAndDropListener;
@@ -138,7 +138,7 @@ public class DisplayPanel extends JPanel implements Scrollable, DragAndDropTarge
    * @param family the model
    */
   public void refresh(Family family, WritableConfig config) {
-    refresh(family, new HashMap<>(), config);
+    refresh(family, new HashMap<>(), new HashMap<>(), config);
   }
 
   /**
@@ -148,7 +148,7 @@ public class DisplayPanel extends JPanel implements Scrollable, DragAndDropTarge
    * @param family the model
    * @param positions the positions
    */
-  public void refresh(Family family, Map<Long, Point> positions, WritableConfig config) {
+  public void refresh(Family family, Map<Long, Point> positions, Map<Long, Dimension> sizes, WritableConfig config) {
     this.config = config;
     Set<Long> updatedOrAdded = new HashSet<>();
     Set<Long> keysToDelete = new HashSet<>(this.panels.keySet());
@@ -162,8 +162,10 @@ public class DisplayPanel extends JPanel implements Scrollable, DragAndDropTarge
 
         panel.setInfo(member, this.config);
         if (positions != null && positions.containsKey(member.getId())) {
-          Point p = positions.get(member.getId());
-          panel.setBounds(new Rectangle(p, panel.getSize()));
+          panel.setBounds(new Rectangle(positions.get(member.getId()), panel.getSize()));
+        }
+        if (sizes != null && sizes.containsKey(member.getId())) {
+          panel.setSize(sizes.get(member.getId()));
         }
       }
       else {
@@ -171,11 +173,13 @@ public class DisplayPanel extends JPanel implements Scrollable, DragAndDropTarge
         ComponentDragController dragController = new ComponentDragController(this, panel);
 
         if (positions != null && positions.containsKey(member.getId())) {
-          Point p = positions.get(member.getId());
-          panel.setBounds(new Rectangle(p, panel.getSize()));
+          panel.setBounds(new Rectangle(positions.get(member.getId()), panel.getSize()));
         }
         else
           panel.setBounds(new Rectangle(panel.getSize()));
+        if (sizes != null && sizes.containsKey(member.getId())) {
+          panel.setSize(sizes.get(member.getId()));
+        }
         panel.setName("member-" + id);
         panel.addMouseListener(dragController);
         panel.addMouseListener(this.doubleClickController);
@@ -248,6 +252,19 @@ public class DisplayPanel extends JPanel implements Scrollable, DragAndDropTarge
     }
 
     return points;
+  }
+
+  /**
+   * @return the sizes of all cards
+   */
+  public Map<Long, Dimension> getCardsSizes() {
+    Map<Long, Dimension> sizes = new HashMap<>();
+
+    for (Long id : this.panels.keySet()) {
+      sizes.put(id, this.panels.get(id).getSize());
+    }
+
+    return sizes;
   }
 
   /**

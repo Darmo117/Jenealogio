@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.darmo_creations.jenealogio.gui.components;
+package net.darmo_creations.jenealogio.gui.components.member_panel;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -25,6 +25,7 @@ import java.awt.Point;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
 import net.darmo_creations.gui_framework.config.WritableConfig;
@@ -41,6 +42,7 @@ import net.darmo_creations.jenealogio.util.Images;
 public class FamilyMemberPanel extends JPanel {
   private static final long serialVersionUID = 8199650844222484357L;
 
+  private ComponentResizer resizer;
   private PanelModel model;
 
   private Border selectedBorder, backgroundBorder, unselectedBorder;
@@ -59,6 +61,16 @@ public class FamilyMemberPanel extends JPanel {
     add(this.nameLbl);
     setInfo(member, config);
     setSelected(false);
+    this.resizer = new ComponentResizer(this);
+    Dimension d = getSize();
+    this.resizer.setMinimumSize(new Dimension(50, d.height));
+  }
+
+  /**
+   * Tells if the mouse is on the border.
+   */
+  public boolean isMouseOnBorder() {
+    return this.resizer.isMouseOnBorder();
   }
 
   /**
@@ -85,7 +97,8 @@ public class FamilyMemberPanel extends JPanel {
 
     this.model.setId(member.getId());
     this.nameLbl.setIcon(member.isDead() ? Images.TOMBSTONE : null);
-    this.nameLbl.setText(member.toString());
+    this.nameLbl.setText("<html><center>" + member.toString() + "</center></html>");
+    this.nameLbl.setBorder(new EmptyBorder(0, 4, 0, 4));
 
     Dimension size = this.nameLbl.getPreferredSize();
     size.width += 20;

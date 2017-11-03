@@ -19,6 +19,7 @@
 package net.darmo_creations.jenealogio.controllers;
 
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Point;
 import java.io.File;
 import java.io.IOException;
@@ -43,6 +44,7 @@ import net.darmo_creations.jenealogio.config.ConfigTags;
 import net.darmo_creations.jenealogio.dao.FamilyDao;
 import net.darmo_creations.jenealogio.events.CardDragEvent;
 import net.darmo_creations.jenealogio.events.CardEvent;
+import net.darmo_creations.jenealogio.events.CardResizeEvent;
 import net.darmo_creations.jenealogio.events.CardsSelectionEvent;
 import net.darmo_creations.jenealogio.events.EventType;
 import net.darmo_creations.jenealogio.events.LinkEvent;
@@ -317,6 +319,28 @@ public class MainController extends ApplicationController<MainFrame> implements 
     updateFrameMenus();
   }
 
+  /**
+   * Called when a card is going to be resized.
+   * 
+   * @param e the event
+   */
+  @SubsribeEvent
+  public void onCardResizePre(CardResizeEvent.Pre e) {
+    this.saved = false;
+    updateFrameMenus();
+  }
+
+  /**
+   * Called when a card has been resized.
+   * 
+   * @param e the event
+   */
+  @SubsribeEvent
+  public void onCardResizePost(CardResizeEvent.Post e) {
+    addEdit();
+    updateFrameMenus();
+  }
+
   @Override
   public boolean acceptFiles(List<File> files, Component c) {
     if (!(c instanceof DisplayPanel) || files.size() != 1)
@@ -366,7 +390,7 @@ public class MainController extends ApplicationController<MainFrame> implements 
         this.alreadySaved = false;
         this.saved = false;
         this.frame.resetDisplay();
-        this.lastSavedEdit = new FamilyEdit(this.family, this.frame.getCardsPositions());
+        this.lastSavedEdit = new FamilyEdit(this.family, this.frame.getCardsPositions(), this.frame.getCardsSizes());
         addEdit();
         updateFrameMenus();
       }
@@ -428,7 +452,7 @@ public class MainController extends ApplicationController<MainFrame> implements 
       this.alreadySaved = true;
       this.saved = true;
       this.frame.resetDisplay();
-      this.frame.refreshDisplay(this.family, this.lastSavedEdit.getLocations(), this.config);
+      this.frame.refreshDisplay(this.family, this.lastSavedEdit.getLocations(), this.lastSavedEdit.getSizes(), this.config);
     }
     catch (VersionException ex) {
       int choice = this.frame.showConfirmDialog(I18n.getLocalizedString("popup.version_warning.text"));
@@ -482,7 +506,7 @@ public class MainController extends ApplicationController<MainFrame> implements 
       return true;
 
     try {
-      FamilyEdit newSave = new FamilyEdit(this.family, this.frame.getCardsPositions());
+      FamilyEdit newSave = new FamilyEdit(this.family, this.frame.getCardsPositions(), this.frame.getCardsSizes());
 
       this.familyDao.save(this.fileName, newSave);
       this.lastSavedEdit = newSave;
@@ -509,8 +533,9 @@ public class MainController extends ApplicationController<MainFrame> implements 
       this.saved = false;
       this.family.addMember(member.get());
       Map<Long, Point> points = this.frame.getCardsPositions();
+      Map<Long, Dimension> sizes = this.frame.getCardsSizes();
       points.put(this.family.getGlobalId() - 1, this.frame.getDisplayMiddlePoint());
-      this.frame.refreshDisplay(this.family, points, this.config);
+      this.frame.refreshDisplay(this.family, points, sizes, this.config);
       addEdit();
       updateFrameMenus();
     }
@@ -695,7 +720,7 @@ public class MainController extends ApplicationController<MainFrame> implements 
    * Adds the current family object (after cloning it) to the undo manager.
    */
   private void addEdit() {
-    this.undoRedoManager.addEdit(new FamilyEdit(this.family, this.frame.getCardsPositions()));
+    this.undoRedoManager.addEdit(new FamilyEdit(this.family, this.frame.getCardsPositions(), this.frame.getCardsSizes()));
   }
 
   /**
@@ -728,7 +753,7 @@ public class MainController extends ApplicationController<MainFrame> implements 
     else
       this.saved = false;
     this.family = edit.getFamily();
-    this.frame.refreshDisplay(this.family, edit.getLocations(), this.config);
+    this.frame.refreshDisplay(this.family, edit.getLocations(), edit.getSizes(), this.config);
     updateFrameMenus();
   }
 

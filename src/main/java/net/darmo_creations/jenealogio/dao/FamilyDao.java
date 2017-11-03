@@ -18,6 +18,7 @@
  */
 package net.darmo_creations.jenealogio.dao;
 
+import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -92,6 +93,7 @@ public class FamilyDao {
       Set<Relationship> weddings = new HashSet<>();
       Family family = new Family((Long) obj.get("global_id"), (String) obj.get("name"), members, weddings);
       Map<Long, Point> locations = new HashMap<>();
+      Map<Long, Dimension> sizes = new HashMap<>();
 
       Long rawVersion = (Long) obj.get("version");
       Version version = new Version(rawVersion != null ? (int) (long) rawVersion : 0);
@@ -119,11 +121,19 @@ public class FamilyDao {
         // This boolean may not be present in older save versions.
         dead = dead == null ? false : dead;
         String comment = getNullIfEmpty((String) memberObj.get("comment"));
+
         JSONObject positionObj = (JSONObject) memberObj.get("position");
         int x = (int) (long) positionObj.get("x");
         int y = (int) (long) positionObj.get("y");
-
         locations.put(id, new Point(x, y));
+
+        JSONObject dimensionObj = (JSONObject) memberObj.get("size");
+        if (dimensionObj != null) {
+          int w = (int) (long) dimensionObj.get("w");
+          int h = (int) (long) dimensionObj.get("h");
+          sizes.put(id, new Dimension(w, h));
+        }
+
         members.add(new FamilyMember(id, image, familyName, useName, firstName, otherNames, gender, birthDate, birthLocation, deathDate,
             deathLocation, dead, comment));
       }
@@ -181,7 +191,7 @@ public class FamilyDao {
         weddings.add(new Relationship(date, location, isWedding, hasEnded, endDate, partner1, partner2, children, adoptions));
       }
 
-      return new FamilyEdit(family, locations);
+      return new FamilyEdit(family, locations, sizes);
     }
     catch (NullPointerException | ClassCastException | NoSuchElementException | DateTimeParseException
         | org.json.simple.parser.ParseException ex) {
@@ -249,6 +259,7 @@ public class FamilyDao {
     JSONObject obj = new JSONObject();
     Family family = edit.getFamily();
     Map<Long, Point> locations = edit.getLocations();
+    Map<Long, Dimension> sizes = edit.getSizes();
 
     String comment = String.format(
         "This is a save file for Jenealogio v%1$s. "
@@ -280,6 +291,10 @@ public class FamilyDao {
       posObj.put("x", locations.get(m.getId()).x);
       posObj.put("y", locations.get(m.getId()).y);
       memberObj.put("position", posObj);
+      JSONObject dimObj = new JSONObject();
+      dimObj.put("w", sizes.get(m.getId()).width);
+      dimObj.put("h", sizes.get(m.getId()).height);
+      memberObj.put("size", dimObj);
 
       membersObj.add(memberObj);
     }

@@ -436,8 +436,8 @@ public class MainFrame extends ApplicationFrame<MainController> {
    * @param family the tree
    * @param positions positions for all cards
    */
-  public void refreshDisplay(Family family, Map<Long, Point> positions, WritableConfig config) {
-    this.displayPnl.refresh(family, positions, config);
+  public void refreshDisplay(Family family, Map<Long, Point> positions, Map<Long, Dimension> sizes, WritableConfig config) {
+    this.displayPnl.refresh(family, positions, sizes, config);
   }
 
   /**
@@ -445,6 +445,13 @@ public class MainFrame extends ApplicationFrame<MainController> {
    */
   public Map<Long, Point> getCardsPositions() {
     return this.displayPnl.getCardsPositions();
+  }
+
+  /**
+   * @return the sizes of all cards
+   */
+  public Map<Long, Dimension> getCardsSizes() {
+    return this.displayPnl.getCardsSizes();
   }
 
   /**
