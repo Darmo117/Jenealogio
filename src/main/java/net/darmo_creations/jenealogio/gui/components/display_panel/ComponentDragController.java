@@ -85,14 +85,11 @@ class ComponentDragController extends MouseAdapter {
   @Override
   public void mouseDragged(MouseEvent e) {
     if (SwingUtilities.isLeftMouseButton(e)) {
-      Rectangle bounds = this.memberPanel.getBounds();
       Rectangle containerBounds = this.displayPanel.getBounds();
       if (this.grabPoint == null)
         mousePressed(e);
-      int newX = Math.max(containerBounds.x,
-          /* Math.min(containerBounds.width - bounds.width, */ e.getXOnScreen() - getXOffset() - this.grabPoint.x);
-      int newY = Math.max(containerBounds.y,
-          /* Math.min(containerBounds.height - bounds.height, */ e.getYOnScreen() - getYOffset() - this.grabPoint.y);
+      int newX = Math.max(containerBounds.x, e.getXOnScreen() - getXOffset() - this.grabPoint.x);
+      int newY = Math.max(containerBounds.y, e.getYOnScreen() - getYOffset() - this.grabPoint.y);
       newX = (newX / GRID_STEP) * GRID_STEP;
       newY = (newY / GRID_STEP) * GRID_STEP;
       Point oldLocation = this.memberPanel.getLocation();
