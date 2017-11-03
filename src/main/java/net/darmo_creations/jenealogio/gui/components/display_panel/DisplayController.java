@@ -18,6 +18,7 @@
  */
 package net.darmo_creations.jenealogio.gui.components.display_panel;
 
+import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
@@ -127,6 +128,7 @@ class DisplayController extends MouseAdapter {
   @SubsribeEvent
   public void onCardDragged(CardDragEvent.Dragging e) {
     this.mouseLocation = e.getMouseLocation();
+    resizePanelIfOutside();
     scrollIfOutside();
   }
 
@@ -158,23 +160,78 @@ class DisplayController extends MouseAdapter {
     repaint();
   }
 
+  private static final int INSIDE = 0;
+  private static final int LEFT = 1;
+  private static final int RIGHT = 2;
+  private static final int TOP = 4;
+  private static final int BOTTOM = 8;
+
+  private int isOutsideRectangle(Point p, Rectangle r) {
+    if (p.getX() < r.x) {
+      return LEFT;
+    }
+    else if (p.getX() > r.x + r.width) {
+      return RIGHT;
+    }
+    if (p.getY() < r.y) {
+      return TOP;
+    }
+    else if (p.getY() > r.y + r.height) {
+      return BOTTOM;
+    }
+    return INSIDE;
+  }
+
+  /**
+   * Resizes the panel if a component is dragged outside.
+   */
+  private void resizePanelIfOutside() {
+    Rectangle r = this.panel.getBounds();
+    r.x = r.y = 0;
+    int mouse = isOutsideRectangle(this.mouseLocation, r);
+    int vAdd = 0;
+    int hAdd = 0;
+    final int step = 30;
+
+    switch (mouse) {
+      case RIGHT:
+        hAdd = step;
+        break;
+      case BOTTOM:
+        vAdd = step;
+        break;
+    }
+
+    if (vAdd != 0 || hAdd != 0) {
+      Dimension d = this.panel.getSize();
+      this.panel.setPreferredSize(new Dimension(d.width + hAdd, d.height + vAdd));
+      this.panel.revalidate();
+      repaint();
+    }
+  }
+
+  /**
+   * Scrolls if the mouse is outside the viewport.
+   */
   private void scrollIfOutside() {
-    Rectangle r = this.panel.getVisibleRect();
+    int mouse = isOutsideRectangle(this.mouseLocation, this.panel.getVisibleRect());
     int vTrans = 0;
     int hTrans = 0;
     final int step = 16;
 
-    if (this.mouseLocation.getX() < r.x) {
-      hTrans = -step;
-    }
-    else if (this.mouseLocation.getX() > r.x + r.width) {
-      hTrans = step;
-    }
-    if (this.mouseLocation.getY() < r.y) {
-      vTrans = -step;
-    }
-    else if (this.mouseLocation.getY() > r.y + r.height) {
-      vTrans = step;
+    switch (mouse) {
+      case LEFT:
+        hTrans = -step;
+        break;
+      case RIGHT:
+        hTrans = step;
+        break;
+      case TOP:
+        vTrans = -step;
+        break;
+      case BOTTOM:
+        vTrans = step;
+        break;
     }
 
     if (vTrans != 0)
