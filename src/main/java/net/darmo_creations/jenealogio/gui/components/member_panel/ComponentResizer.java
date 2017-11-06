@@ -258,6 +258,9 @@ public class ComponentResizer extends MouseAdapter {
 
   @Override
   public void mousePressed(MouseEvent e) {
+    if (!SwingUtilities.isLeftMouseButton(e))
+      return;
+
     // The mouseMoved event continually updates this variable
     if (this.direction == 0)
       return;
@@ -282,6 +285,9 @@ public class ComponentResizer extends MouseAdapter {
    */
   @Override
   public void mouseReleased(MouseEvent e) {
+    if (!SwingUtilities.isLeftMouseButton(e))
+      return;
+
     this.resizing = false;
 
     this.panel.setCursor(this.sourceCursor);
@@ -300,6 +306,9 @@ public class ComponentResizer extends MouseAdapter {
    */
   @Override
   public void mouseDragged(MouseEvent e) {
+    if (!SwingUtilities.isLeftMouseButton(e))
+      return;
+
     if (this.resizing) {
       Point dragged = e.getPoint();
       SwingUtilities.convertPointToScreen(dragged, this.panel);
