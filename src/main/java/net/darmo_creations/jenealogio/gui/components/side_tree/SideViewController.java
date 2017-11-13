@@ -54,80 +54,84 @@ public class SideViewController extends MouseAdapter implements TreeSelectionLis
   @Override
   public void valueChanged(TreeSelectionEvent e) {
     JTree tree = (JTree) e.getSource();
-    List<TreePath> paths = Arrays.asList(tree.getSelectionPaths());
-    JPopupMenu popupMenu = this.view.getPopupMenu();
-    boolean gotoEnabled = paths.size() == 1;
-    boolean canDelete = !paths.isEmpty();
+    TreePath[] treePaths = tree.getSelectionPaths();
 
-    if (gotoEnabled) {
-      Object o = ((NamedTreeNode) paths.get(0).getLastPathComponent()).getUserObject();
-      gotoEnabled &= o instanceof FamilyMember || o instanceof Relationship;
-    }
-    if (canDelete) {
-      canDelete &= paths.size() == 1 && ((NamedTreeNode) paths.get(0).getLastPathComponent()).getUserObject() instanceof Relationship;
-      if (!canDelete)
-        canDelete |= paths.stream().allMatch(p -> ((NamedTreeNode) p.getLastPathComponent()).getUserObject() instanceof FamilyMember);
-    }
+    if (treePaths != null) {
+      List<TreePath> paths = Arrays.asList(treePaths);
+      JPopupMenu popupMenu = this.view.getPopupMenu();
+      boolean gotoEnabled = paths.size() == 1;
+      boolean canDelete = !paths.isEmpty();
 
-    for (Component c : popupMenu.getComponents()) {
-      JMenuItem i = (JMenuItem) c;
-      switch (i.getName()) {
-        case "go_to":
-          i.setEnabled(gotoEnabled);
-          for (ActionListener l : i.getActionListeners())
-            i.removeActionListener(l);
+      if (gotoEnabled) {
+        Object o = ((NamedTreeNode) paths.get(0).getLastPathComponent()).getUserObject();
+        gotoEnabled &= o instanceof FamilyMember || o instanceof Relationship;
+      }
+      if (canDelete) {
+        canDelete &= paths.size() == 1 && ((NamedTreeNode) paths.get(0).getLastPathComponent()).getUserObject() instanceof Relationship;
+        if (!canDelete)
+          canDelete |= paths.stream().allMatch(p -> ((NamedTreeNode) p.getLastPathComponent()).getUserObject() instanceof FamilyMember);
+      }
 
-          if (gotoEnabled) {
-            Object o = ((NamedTreeNode) paths.get(0).getLastPathComponent()).getUserObject();
-            if (o instanceof FamilyMember) {
-              FamilyMember m = (FamilyMember) o;
-              i.addActionListener(l -> ApplicationRegistry.EVENTS_BUS.dispatchEvent(new CardEvent.Clicked(m.getId(), false, true)));
+      for (Component c : popupMenu.getComponents()) {
+        JMenuItem i = (JMenuItem) c;
+        switch (i.getName()) {
+          case "go_to":
+            i.setEnabled(gotoEnabled);
+            for (ActionListener l : i.getActionListeners())
+              i.removeActionListener(l);
+
+            if (gotoEnabled) {
+              Object o = ((NamedTreeNode) paths.get(0).getLastPathComponent()).getUserObject();
+              if (o instanceof FamilyMember) {
+                FamilyMember m = (FamilyMember) o;
+                i.addActionListener(l -> ApplicationRegistry.EVENTS_BUS.dispatchEvent(new CardEvent.Clicked(m.getId(), false, true)));
+              }
+              else if (o instanceof Relationship) {
+                Relationship r = (Relationship) o;
+                i.addActionListener(l -> {
+                  ApplicationRegistry.EVENTS_BUS.dispatchEvent(new CardEvent.Clicked(-1, false));
+                  ApplicationRegistry.EVENTS_BUS.dispatchEvent(new LinkEvent.Clicked(r.getPartner1(), r.getPartner2(), true));
+                });
+              }
             }
-            else if (o instanceof Relationship) {
-              Relationship r = (Relationship) o;
-              i.addActionListener(l -> {
-                ApplicationRegistry.EVENTS_BUS.dispatchEvent(new CardEvent.Clicked(-1, false));
-                ApplicationRegistry.EVENTS_BUS.dispatchEvent(new LinkEvent.Clicked(r.getPartner1(), r.getPartner2(), true));
-              });
-            }
-          }
-          break;
-        case "delete":
-          i.setEnabled(canDelete);
-          for (ActionListener l : i.getActionListeners())
-            i.removeActionListener(l);
+            break;
+          case "delete":
+            i.setEnabled(canDelete);
+            for (ActionListener l : i.getActionListeners())
+              i.removeActionListener(l);
 
-          if (canDelete) {
-            Object o = ((NamedTreeNode) paths.get(0).getLastPathComponent()).getUserObject();
-            if (o instanceof FamilyMember) {
-              FamilyMember m = (FamilyMember) o;
-              i.addActionListener(l -> {
-                ApplicationRegistry.EVENTS_BUS.dispatchEvent(new CardEvent.Clicked(m.getId(), false));
-                for (int j = 1; j < paths.size(); j++) {
-                  FamilyMember m1 = (FamilyMember) ((NamedTreeNode) paths.get(j).getLastPathComponent()).getUserObject();
-                  ApplicationRegistry.EVENTS_BUS.dispatchEvent(new CardEvent.Clicked(m1.getId(), true));
-                }
-                ApplicationRegistry.EVENTS_BUS.dispatchEvent(new UserEvent(EventType.DELETE_CARD));
-              });
-              i.setText(I18n.getLocalizedString("item.delete_card.text"));
-              i.setIcon(Images.DELETE_CARD);
-            }
-            else if (o instanceof Relationship) {
-              Relationship r = (Relationship) o;
-              // TODO listener
-              i.setText(I18n.getLocalizedString("item.delete_link.text"));
-              i.setIcon(Images.DELETE_LINK);
+            if (canDelete) {
+              Object o = ((NamedTreeNode) paths.get(0).getLastPathComponent()).getUserObject();
+              if (o instanceof FamilyMember) {
+                FamilyMember m = (FamilyMember) o;
+                i.addActionListener(l -> {
+                  ApplicationRegistry.EVENTS_BUS.dispatchEvent(new CardEvent.Clicked(m.getId(), false));
+                  for (int j = 1; j < paths.size(); j++) {
+                    FamilyMember m1 = (FamilyMember) ((NamedTreeNode) paths.get(j).getLastPathComponent()).getUserObject();
+                    ApplicationRegistry.EVENTS_BUS.dispatchEvent(new CardEvent.Clicked(m1.getId(), true));
+                  }
+                  ApplicationRegistry.EVENTS_BUS.dispatchEvent(new UserEvent(EventType.DELETE_CARD));
+                });
+                i.setText(I18n.getLocalizedString("item.delete_card.text"));
+                i.setIcon(Images.DELETE_CARD);
+              }
+              else if (o instanceof Relationship) {
+                Relationship r = (Relationship) o;
+                // TODO listener
+                i.setText(I18n.getLocalizedString("item.delete_link.text"));
+                i.setIcon(Images.DELETE_LINK);
+              }
+              else {
+                i.setText(I18n.getLocalizedString("item.delete.text"));
+                i.setIcon(null);
+              }
             }
             else {
               i.setText(I18n.getLocalizedString("item.delete.text"));
               i.setIcon(null);
             }
-          }
-          else {
-            i.setText(I18n.getLocalizedString("item.delete.text"));
-            i.setIcon(null);
-          }
-          break;
+            break;
+        }
       }
     }
   }
