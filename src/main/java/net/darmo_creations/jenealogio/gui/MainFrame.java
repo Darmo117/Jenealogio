@@ -36,6 +36,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.JViewport;
@@ -50,6 +51,7 @@ import net.darmo_creations.jenealogio.Jenealogio;
 import net.darmo_creations.jenealogio.controllers.MainController;
 import net.darmo_creations.jenealogio.events.EventType;
 import net.darmo_creations.jenealogio.gui.components.display_panel.DisplayPanel;
+import net.darmo_creations.jenealogio.gui.components.side_tree.SideView;
 import net.darmo_creations.jenealogio.gui.dialog.CardDetailsDialog;
 import net.darmo_creations.jenealogio.gui.dialog.LinkDetailsDialog;
 import net.darmo_creations.jenealogio.gui.dialog.card.CardDialog;
@@ -84,6 +86,7 @@ public class MainFrame extends ApplicationFrame<MainController> {
   private JButton saveBtn, saveAsBtn, undoBtn, redoBtn, addCardBtn, editCardBtn, editLinkBtn, deleteCardBtn, deleteLinkBtn;
   private JToggleButton addLinkBtn;
   private DisplayPanel displayPnl;
+  private SideView sideView;
 
   public MainFrame(WritableConfig config) {
     super(config, true, true, true, true, new Dimension(800, 600), true);
@@ -114,11 +117,19 @@ public class MainFrame extends ApplicationFrame<MainController> {
     this.linkDetailsDialog = new LinkDetailsDialog(this);
     this.editColorsDialog = new EditColorsDialog(this);
 
-    JScrollPane scrollPane = new JScrollPane();
-    this.displayPnl = new DisplayPanel(scrollPane);
+    JSplitPane splitPane = new JSplitPane();
+    splitPane.setContinuousLayout(true);
+
+    this.sideView = new SideView();
+    splitPane.setLeftComponent(this.sideView);
+
+    JScrollPane canvasPane = new JScrollPane();
+    this.displayPnl = new DisplayPanel(canvasPane);
     this.displayPnl.addDragAndDropListener(controller);
-    scrollPane.setViewportView(this.displayPnl);
-    add(scrollPane, BorderLayout.CENTER);
+    canvasPane.setViewportView(this.displayPnl);
+    splitPane.setRightComponent(canvasPane);
+
+    add(splitPane, BorderLayout.CENTER);
 
     ApplicationRegistry.EVENTS_BUS.register(this.displayPnl);
   }
@@ -132,7 +143,10 @@ public class MainFrame extends ApplicationFrame<MainController> {
   @Override
   protected JMenuBar initJMenuBar(Map<UserEvent.Type, ActionListener> listeners, WritableConfig config) {
     for (EventType type : EventType.values())
-      listeners.put(type, e -> ApplicationRegistry.EVENTS_BUS.dispatchEvent(new UserEvent(type)));
+      listeners.put(type, e -> {
+        System.out.println(type); // DEBUG
+        ApplicationRegistry.EVENTS_BUS.dispatchEvent(new UserEvent(type));
+      });
 
     JMenuBar menuBar = super.initJMenuBar(listeners, config);
     JMenuItem i;
@@ -321,14 +335,9 @@ public class MainFrame extends ApplicationFrame<MainController> {
   }
 
   /**
-   * Updates the menu bar. The last two arguments cannot be true at the same time or an
-   * IllegalStateException will be thrown.
-   * 
-   * @param fileOpen is a file open?
-   * @param cardSelected is a card selected?
-   * @param linkSelected is a link selected?
+   * Updates the menu bar.
    */
-  public void updateMenus(boolean fileOpen, boolean cardSelected, boolean linkSelected, boolean canUndo, boolean canRedo) {
+  public void updateMenus(boolean fileOpen, int selectedCardsNb, boolean linkSelected, boolean canUndo, boolean canRedo) {
     this.editTreeItem.setEnabled(fileOpen);
     this.saveAsItem.setEnabled(fileOpen);
     this.exportImageItem.setEnabled(fileOpen);
@@ -337,23 +346,24 @@ public class MainFrame extends ApplicationFrame<MainController> {
     this.editMenu.setEnabled(fileOpen);
     this.addCardItem.setEnabled(fileOpen);
     this.addLinkItem.setEnabled(fileOpen);
-    this.editItem.setEnabled(fileOpen && (cardSelected || linkSelected));
-    this.deleteItem.setEnabled(fileOpen && (cardSelected || linkSelected));
+    this.editItem.setEnabled(fileOpen && (selectedCardsNb == 1 || linkSelected));
+    this.deleteItem.setEnabled(fileOpen && (selectedCardsNb > 0 || linkSelected));
 
     this.saveAsBtn.setEnabled(fileOpen);
     this.undoBtn.setEnabled(canUndo);
     this.redoBtn.setEnabled(canRedo);
     this.addCardBtn.setEnabled(fileOpen);
     this.addLinkBtn.setEnabled(fileOpen);
-    this.editCardBtn.setEnabled(fileOpen && cardSelected);
-    this.deleteCardBtn.setEnabled(fileOpen && cardSelected);
+    this.editCardBtn.setEnabled(fileOpen && selectedCardsNb == 1);
+    this.deleteCardBtn.setEnabled(fileOpen && selectedCardsNb > 0);
     this.editLinkBtn.setEnabled(fileOpen && linkSelected);
     this.deleteLinkBtn.setEnabled(fileOpen && linkSelected);
 
+    if (selectedCardsNb > 0 && linkSelected)
+      throw new IllegalStateException("Cards and link cannot be selected at the same time.");
+
     if (fileOpen) {
-      if (cardSelected && linkSelected)
-        throw new IllegalStateException("can't select a card and a link at the same time");
-      if (cardSelected) {
+      if (selectedCardsNb > 0) {
         this.editItem.setText(I18n.getLocalizedString("item.edit_card.text"));
         this.editItem.setIcon(Images.EDIT_CARD);
         this.editItem.removeActionListener(this.listeners.get(EventType.EDIT_LINK));
@@ -428,6 +438,7 @@ public class MainFrame extends ApplicationFrame<MainController> {
    */
   public void refreshDisplay(Family family, WritableConfig config) {
     this.displayPnl.refresh(family, config);
+    this.sideView.refresh(family);
   }
 
   /**
@@ -438,6 +449,7 @@ public class MainFrame extends ApplicationFrame<MainController> {
    */
   public void refreshDisplay(Family family, Map<Long, Point> positions, Map<Long, Dimension> sizes, WritableConfig config) {
     this.displayPnl.refresh(family, positions, sizes, config);
+    this.sideView.refresh(family);
   }
 
   /**

@@ -68,6 +68,7 @@ class DisplayController extends MouseAdapter {
 
   @Override
   public void mousePressed(MouseEvent e) {
+    this.panel.requestFocus();
     if (SwingUtilities.isLeftMouseButton(e)) {
       this.selectionStart = e.getPoint();
       this.selection = new Rectangle(this.selectionStart);
@@ -130,6 +131,19 @@ class DisplayController extends MouseAdapter {
     this.mouseLocation = e.getMouseLocation();
     resizePanelIfOutside();
     scrollIfOutside();
+  }
+
+  @SubsribeEvent
+  public void onLinkClicked(LinkEvent.Clicked e) {
+    if (e.scrollTo())
+      this.panel.scrollToLink(e.getPartner1Id(), e.getPartner2Id());
+  }
+
+  @SubsribeEvent
+  public void onCardClicked(CardEvent.Clicked e) {
+    this.panel.requestFocus();
+    if (e.scrollTo())
+      this.panel.scrollToPanel(e.getMemberId());
   }
 
   private void updateMouseLocation(MouseEvent e) {

@@ -119,6 +119,7 @@ label.children.text=Children
 label.available_children.text=Available children
 label.search.text=Search
 label.color.text=Color
+label.tree_explorer.text=Tree Explorer
 
 label.updates_check_blocked.text=Updates check disabled
 label.checking_updates.text=Checking updates
@@ -145,6 +146,9 @@ word.adopted=adopted
 word.adopted.feminine=adopted
 
 # Trees
+node.members.text=Members
+node.relations.text=Relations
+
 node.colors.genders.text=Genders
 node.colors.genders.unknown.text=Unknown
 node.colors.genders.male.text=Male

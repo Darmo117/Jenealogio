@@ -64,8 +64,19 @@ public abstract class LinkEvent extends AbstractEvent {
    * @author Damien Vergnet
    */
   public static class Clicked extends LinkEvent {
+    private final boolean scrollTo;
+
     public Clicked(long partner1Id, long partner2Id) {
+      this(partner1Id, partner2Id, false);
+    }
+
+    public Clicked(long partner1Id, long partner2Id, boolean scrollTo) {
       super(partner1Id, partner2Id);
+      this.scrollTo = scrollTo;
+    }
+
+    public boolean scrollTo() {
+      return this.scrollTo;
     }
   }
 

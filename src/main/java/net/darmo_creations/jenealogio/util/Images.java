@@ -64,8 +64,11 @@ public final class Images {
   public static final ImageIcon COLOR_WHEEL;
   public static final ImageIcon MALE_SYMBOL;
   public static final ImageIcon FEMALE_SYMBOL;
+  public static final ImageIcon GROUP;
+  public static final ImageIcon GROUP_LINK;
   public static final ImageIcon USER;
   public static final ImageIcon LINK;
+  public static final ImageIcon LINK_BROKEN;
   public static final ImageIcon CHECKING_UPDATES;
   public static final ImageIcon NEW_UPDATE;
   public static final ImageIcon UPDATE_CHECK_FAILED;
@@ -114,8 +117,11 @@ public final class Images {
     COLOR_WHEEL = ImagesUtil.getIcon("/assets/icons/color_wheel.png");
     MALE_SYMBOL = ImagesUtil.getIcon("/assets/icons/male_symbol.png");
     FEMALE_SYMBOL = ImagesUtil.getIcon("/assets/icons/female_symbol.png");
+    GROUP = ImagesUtil.getIcon("/assets/icons/group.png");
+    GROUP_LINK = ImagesUtil.getIcon("/assets/icons/group_link.png");
     USER = ImagesUtil.getIcon("/assets/icons/user.png");
     LINK = ImagesUtil.getIcon("/assets/icons/link.png");
+    LINK_BROKEN = ImagesUtil.getIcon("/assets/icons/link_break.png");
     CHECKING_UPDATES = ImagesUtil.getIcon("/assets/icons/checking_updates.gif");
     NEW_UPDATE = ImagesUtil.getIcon("/assets/icons/update_available.png");
     UPDATE_CHECK_FAILED = ImagesUtil.getIcon("/assets/icons/updates_check_failed.png");

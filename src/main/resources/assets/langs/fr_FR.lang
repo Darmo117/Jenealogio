@@ -119,6 +119,7 @@ label.children.text=Enfants
 label.available_children.text=Enfants disponibles
 label.search.text=Rechercher
 label.color.text=Couleur 
+label.tree_explorer.text=Explorateur
 
 label.updates_check_blocked.text=Vérification des mises à jour bloquées
 label.checking_updates.text=Vérification des mises à jour
@@ -145,6 +146,9 @@ word.adopted=adopté
 word.adopted.feminine=adoptée
 
 # Arborescences
+node.members.text=Membres
+node.relations.text=Relations
+
 node.colors.genders.text=Genres
 node.colors.genders.unknown.text=Inconnu
 node.colors.genders.male.text=Homme

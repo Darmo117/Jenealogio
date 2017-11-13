@@ -212,7 +212,6 @@ public class MainController extends ApplicationController<MainFrame> implements 
     boolean keepSelection = e.keepPreviousSelection();
 
     this.selectedLink = null;
-    this.frame.updateMenus(this.fileOpen, id >= 0, false, canUndo(), canRedo());
     if (id >= 0) {
       FamilyMember prev = null;
 
@@ -242,6 +241,7 @@ public class MainController extends ApplicationController<MainFrame> implements 
       this.lastSelectedCard = null;
       this.selectedCards.clear();
     }
+    updateFrameMenus();
     this.frame.setPanelsSelectedAsBackground(this.selectedCards.stream().map(f -> f.getId()).collect(Collectors.toList()));
   }
 
@@ -271,7 +271,7 @@ public class MainController extends ApplicationController<MainFrame> implements 
       if (r.isPresent())
         this.selectedLink = r.get();
     }
-    this.frame.updateMenus(this.fileOpen, false, this.selectedLink != null, canUndo(), canRedo());
+    updateFrameMenus();
   }
 
   /**
@@ -285,16 +285,23 @@ public class MainController extends ApplicationController<MainFrame> implements 
   }
 
   /**
-   * Called when several cards are selected.
+   * Called when several cards are selected simultaneously.
    * 
    * @param e the event
    */
   @SubsribeEvent
   public void onCardsSelected(CardsSelectionEvent e) {
-    List<Long> ids = new ArrayList<>();
-    for (long l : e.getSelectedPanelsIds())
-      ids.add(l);
-    this.frame.setPanelsSelectedAsBackground(ids);
+    long[] ids = e.getSelectedPanelsIds();
+
+    this.lastSelectedCard = null;
+    this.selectedCards.clear();
+    if (ids.length > 0) {
+      for (int i = 1; i < ids.length; i++) {
+        this.selectedCards.add(this.family.getMember(ids[i]).orElseThrow(IllegalArgumentException::new));
+      }
+      ApplicationRegistry.EVENTS_BUS.dispatchEvent(new CardEvent.Clicked(ids[0], true));
+    }
+    updateFrameMenus();
   }
 
   /**
@@ -695,7 +702,8 @@ public class MainController extends ApplicationController<MainFrame> implements 
   private void updateFrameMenus() {
     String title = this.family != null ? " - " + (this.saved ? "" : "*") + this.family.getName() : "";
     this.frame.setTitle(this.frame.getBaseTitle() + title);
-    this.frame.updateMenus(this.fileOpen, this.lastSelectedCard != null, this.selectedLink != null, canUndo(), canRedo());
+    int nb = this.selectedCards.size() + (this.lastSelectedCard != null ? 1 : 0);
+    this.frame.updateMenus(this.fileOpen, nb, this.selectedLink != null, canUndo(), canRedo());
     this.frame.updateSaveMenus(this.saved);
   }
 

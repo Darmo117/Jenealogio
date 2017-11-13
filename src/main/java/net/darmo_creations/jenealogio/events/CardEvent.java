@@ -56,6 +56,7 @@ public abstract class CardEvent extends AbstractEvent {
    */
   public static class Clicked extends CardEvent {
     private final boolean keepPreviousSelection;
+    private final boolean scrollTo;
 
     /**
      * Creates an event.
@@ -64,8 +65,20 @@ public abstract class CardEvent extends AbstractEvent {
      * @param keepPreviousSelection tells if the previous selection should be kept
      */
     public Clicked(long memberId, boolean keepPreviousSelection) {
+      this(memberId, keepPreviousSelection, false);
+    }
+
+    /**
+     * Creates an event.
+     * 
+     * @param memberId target member ID
+     * @param keepPreviousSelection tells if the previous selection should be kept
+     * @param scrollTo indicates if the screen should scroll to the card
+     */
+    public Clicked(long memberId, boolean keepPreviousSelection, boolean scrollTo) {
       super(memberId);
       this.keepPreviousSelection = keepPreviousSelection;
+      this.scrollTo = scrollTo;
     }
 
     /**
@@ -73,6 +86,13 @@ public abstract class CardEvent extends AbstractEvent {
      */
     public boolean keepPreviousSelection() {
       return this.keepPreviousSelection;
+    }
+
+    /**
+     * @return true if the screen should scroll to the card
+     */
+    public boolean scrollTo() {
+      return this.scrollTo;
     }
   }
 

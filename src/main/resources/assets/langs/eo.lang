@@ -24,7 +24,7 @@ popup.open_file_error.text=Eraro okazis dum dosiero malfermanto!
 popup.save_file_error.text=Eraro okazis dum sekurkpio! Ĉu vi volas daŭrigi?
 popup.image_export_error.text=Bildo ne povis esti eksportita!
 popup.delete_card_confirm.text=Ĉu vi vere volas forigi tiun slipon?
-popup.delete_cards_confirm.text=Ĉu vi vere volas forigi tiun slipojn?
+popup.delete_cards_confirm.text=Ĉu vi vere volas forigi tiujn slipojn?
 popup.delete_link_confirm.text=Ĉu vi vere volas forigi tiun ligilon?
 popup.open_image_error.text=Ne povis ŝarĝi la bildon!
 popup.birth_date_error.text=La naskiĝdato devas esti antaŭ la daton de morto.
@@ -120,6 +120,7 @@ label.children.text=Infanoj
 label.available_children.text=Haveblaj infanoj
 label.search.text=Ser\u0109i
 label.color.text=Koloro
+label.tree_explorer.text=Arbesplorilo
 
 label.updates_check_blocked.text=Kontrolo de ĝisdatigoj malaktivitita
 label.checking_updates.text=Kontrolanta ĝisdatigoj
@@ -146,6 +147,9 @@ word.adopted=adoptita
 word.adopted.feminine=adoptita
 
 # Arboj
+node.members.text=Membraro
+node.relations.text=Rilataro
+
 node.colors.genders.text=Sekso
 node.colors.genders.unknown.text=Nekonata
 node.colors.genders.male.text=Viro

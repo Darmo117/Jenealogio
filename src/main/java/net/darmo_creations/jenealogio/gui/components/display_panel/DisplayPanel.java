@@ -426,6 +426,57 @@ public class DisplayPanel extends JPanel implements Scrollable, DragAndDropTarge
     this.scrollPane.getHorizontalScrollBar().setValue(value);
   }
 
+  /**
+   * Scrolls to the card with the given ID.
+   * 
+   * @param id the ID
+   */
+  public void scrollToPanel(long id) {
+    FamilyMemberPanel p = this.panels.get(id);
+
+    if (p != null) {
+      Rectangle r = p.getBounds();
+      Rectangle v = getVisibleRect();
+      Rectangle r1 = new Rectangle(v.getSize());
+
+      // Centers the component in the panel.
+      r1.x = r.x - (v.width - r.width) / 2;
+      r1.y = r.y - (v.height - r.height) / 2;
+      scrollRectToVisible(r1);
+    }
+  }
+
+  /**
+   * Scrolls to the given link.
+   * 
+   * @param id1 partner 1 ID
+   * @param id2 partner 2 ID
+   */
+  public void scrollToLink(long id1, long id2) {
+    Optional<Link> link = this.links.stream().filter(l -> l.getParent1() == id1 && l.getParent2() == id2).findAny();
+
+    if (link.isPresent()) {
+      Point[] points = getLinkCoords(link.get());
+      Point middle = points[2];
+      Rectangle v = getVisibleRect();
+      Rectangle r = new Rectangle(v.getSize());
+
+      r.x = middle.x - v.width / 2;
+      r.y = middle.y - v.height / 2;
+      scrollRectToVisible(r);
+    }
+  }
+
+  private Point[] getLinkCoords(Link link) {
+    Rectangle r1 = this.panels.get(link.getParent1()).getBounds();
+    Rectangle r2 = this.panels.get(link.getParent2()).getBounds();
+    Point p1 = new Point(r1.x + r1.width / 2, r1.y + r1.height / 2);
+    Point p2 = new Point(r2.x + r2.width / 2, r2.y + r2.height / 2);
+    Point middle = new Point((p1.x + p2.x) / 2, (p1.y + p2.y) / 2);
+
+    return new Point[]{p1, p2, middle};
+  }
+
   @Override
   protected void paintComponent(Graphics g) {
     super.paintComponent(g);
@@ -453,11 +504,10 @@ public class DisplayPanel extends JPanel implements Scrollable, DragAndDropTarge
           g2d.setStroke(new BasicStroke(width));
 
         // Link between parents
-        Rectangle r1 = this.panels.get(link.getParent1()).getBounds();
-        Rectangle r2 = this.panels.get(link.getParent2()).getBounds();
-        Point p1 = new Point(r1.x + r1.width / 2, r1.y + r1.height / 2);
-        Point p2 = new Point(r2.x + r2.width / 2, r2.y + r2.height / 2);
-        Point middle = new Point((p1.x + p2.x) / 2, (p1.y + p2.y) / 2);
+        Point[] points = getLinkCoords(link);
+        Point p1 = points[0];
+        Point p2 = points[1];
+        Point middle = points[2];
 
         if (isMouseOnLink(p1, p2))
           g2d.setColor(this.config.getValue(ConfigTags.LINK_HOVERED_COLOR));
