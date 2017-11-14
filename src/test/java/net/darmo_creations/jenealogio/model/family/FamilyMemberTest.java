@@ -13,8 +13,6 @@ import org.junit.Test;
 
 import net.darmo_creations.jenealogio.model.date.Date;
 import net.darmo_creations.jenealogio.model.date.DateBuilder;
-import net.darmo_creations.jenealogio.model.family.FamilyMember;
-import net.darmo_creations.jenealogio.model.family.Gender;
 import net.darmo_creations.jenealogio.util.Images;
 
 public class FamilyMemberTest {
@@ -31,8 +29,8 @@ public class FamilyMemberTest {
     builder.setYear(1999);
     builder.setDate(16);
     Date death = builder.getDate();
-    this.m2 = new FamilyMember(1, ImageIO.read(getClass().getResourceAsStream("/net/darmo_creations/model/family/lena.bmp")), "Smith", null,
-        "Richard", "Oliver", Gender.MAN, birth, "London", death, "Manchester", true, "Blop!");
+    this.m2 = new FamilyMember(1, ImageIO.read(getClass().getResourceAsStream("/net/darmo_creations/jenealogio/model/family/lena.bmp")),
+        "Smith", null, "Richard", "Oliver", Gender.MAN, birth, "London", death, "Manchester", true, "Blop!");
   }
 
   @After
@@ -175,18 +173,241 @@ public class FamilyMemberTest {
   }
 
   @Test
-  public void testNotYoungerThan() {
+  public void testNoBirthDate() {
     this.m1.setBirthDate(getDate(2000, 1, 1));
     FamilyMember p1 = new FamilyMember(null, null, null, null, null, Gender.UNKNOW, null, null, null, null, false, null);
     assertFalse(this.m1.compareBirthdays(p1).isPresent());
   }
 
-  private static Date getDate(int year, int month, int day) {
+  @Test
+  public void testOnlyYearsBefore() {
+    this.m1.setBirthDate(getDate(2000, null, null));
+    this.m2.setBirthDate(getDate(2001, null, null));
+    Optional<Integer> opt = this.m1.compareBirthdays(this.m2);
+    if (opt.isPresent())
+      assertEquals(-1, (int) opt.get());
+    else
+      fail("empty result");
+  }
+
+  @Test
+  public void testOnlyYearsSame() {
+    this.m1.setBirthDate(getDate(2000, null, null));
+    this.m2.setBirthDate(getDate(2000, null, null));
+    Optional<Integer> opt = this.m1.compareBirthdays(this.m2);
+    if (opt.isPresent())
+      assertEquals(0, (int) opt.get());
+    else
+      fail("empty result");
+  }
+
+  @Test
+  public void testOnlyYearsAfter() {
+    this.m1.setBirthDate(getDate(2001, null, null));
+    this.m2.setBirthDate(getDate(2000, null, null));
+    Optional<Integer> opt = this.m1.compareBirthdays(this.m2);
+    if (opt.isPresent())
+      assertEquals(1, (int) opt.get());
+    else
+      fail("empty result");
+  }
+
+  @Test
+  public void testYearsBeforeAndMonthsBeforeDaysNull() {
+    this.m1.setBirthDate(getDate(2000, 1, null));
+    this.m2.setBirthDate(getDate(2001, 2, null));
+    Optional<Integer> opt = this.m1.compareBirthdays(this.m2);
+    if (opt.isPresent())
+      assertEquals(-1, (int) opt.get());
+    else
+      fail("empty result");
+  }
+
+  @Test
+  public void testYearsBeforeAndMonthsSameDaysNull() {
+    this.m1.setBirthDate(getDate(2000, 1, null));
+    this.m2.setBirthDate(getDate(2001, 1, null));
+    Optional<Integer> opt = this.m1.compareBirthdays(this.m2);
+    if (opt.isPresent())
+      assertEquals(-1, (int) opt.get());
+    else
+      fail("empty result");
+  }
+
+  @Test
+  public void testYearsBeforeAndMonthsAfterDaysNull() {
+    this.m1.setBirthDate(getDate(2000, 2, null));
+    this.m2.setBirthDate(getDate(2001, 1, null));
+    Optional<Integer> opt = this.m1.compareBirthdays(this.m2);
+    if (opt.isPresent())
+      assertEquals(-1, (int) opt.get());
+    else
+      fail("empty result");
+  }
+
+  @Test
+  public void testYearsSameAndMonthsBeforeDaysNull() {
+    this.m1.setBirthDate(getDate(2000, 1, null));
+    this.m2.setBirthDate(getDate(2000, 2, null));
+    Optional<Integer> opt = this.m1.compareBirthdays(this.m2);
+    if (opt.isPresent())
+      assertEquals(-1, (int) opt.get());
+    else
+      fail("empty result");
+  }
+
+  @Test
+  public void testYearsSameAndMonthsSameDaysNull() {
+    this.m1.setBirthDate(getDate(2000, 1, null));
+    this.m2.setBirthDate(getDate(2000, 1, null));
+    Optional<Integer> opt = this.m1.compareBirthdays(this.m2);
+    if (opt.isPresent())
+      assertEquals(0, (int) opt.get());
+    else
+      fail("empty result");
+  }
+
+  @Test
+  public void testYearsSameAndMonthsAfterDaysNull() {
+    this.m1.setBirthDate(getDate(2000, 2, null));
+    this.m2.setBirthDate(getDate(2000, 1, null));
+    Optional<Integer> opt = this.m1.compareBirthdays(this.m2);
+    if (opt.isPresent())
+      assertEquals(1, (int) opt.get());
+    else
+      fail("empty result");
+  }
+
+  @Test
+  public void testYearsAfterAndMonthsBeforeDaysNull() {
+    this.m1.setBirthDate(getDate(2001, 1, null));
+    this.m2.setBirthDate(getDate(2000, 2, null));
+    Optional<Integer> opt = this.m1.compareBirthdays(this.m2);
+    if (opt.isPresent())
+      assertEquals(1, (int) opt.get());
+    else
+      fail("empty result");
+  }
+
+  @Test
+  public void testYearsAfterAndMonthsSameDaysNull() {
+    this.m1.setBirthDate(getDate(2001, 1, null));
+    this.m2.setBirthDate(getDate(2000, 1, null));
+    Optional<Integer> opt = this.m1.compareBirthdays(this.m2);
+    if (opt.isPresent())
+      assertEquals(1, (int) opt.get());
+    else
+      fail("empty result");
+  }
+
+  @Test
+  public void testYearsAfterAndMonthsAfterDaysNull() {
+    this.m1.setBirthDate(getDate(2001, 2, null));
+    this.m2.setBirthDate(getDate(2000, 1, null));
+    Optional<Integer> opt = this.m1.compareBirthdays(this.m2);
+    if (opt.isPresent())
+      assertEquals(1, (int) opt.get());
+    else
+      fail("empty result");
+  }
+
+  @Test
+  public void testYearsNullAndMonthsBeforeDaysNull() {
+    this.m1.setBirthDate(getDate(null, 1, null));
+    this.m2.setBirthDate(getDate(null, 2, null));
+    Optional<Integer> opt = this.m1.compareBirthdays(this.m2);
+    if (opt.isPresent())
+      assertEquals(-1, (int) opt.get());
+    else
+      fail("empty result");
+  }
+
+  @Test
+  public void testYearsNullAndMonthsSameDaysNull() {
+    this.m1.setBirthDate(getDate(null, 1, null));
+    this.m2.setBirthDate(getDate(null, 1, null));
+    Optional<Integer> opt = this.m1.compareBirthdays(this.m2);
+    if (opt.isPresent())
+      assertEquals(0, (int) opt.get());
+    else
+      fail("empty result");
+  }
+
+  @Test
+  public void testYearsNullAndMonthsAfterDaysNull() {
+    this.m1.setBirthDate(getDate(null, 2, null));
+    this.m2.setBirthDate(getDate(null, 1, null));
+    Optional<Integer> opt = this.m1.compareBirthdays(this.m2);
+    if (opt.isPresent())
+      assertEquals(1, (int) opt.get());
+    else
+      fail("empty result");
+  }
+
+  @Test
+  public void testYearsNullAndMonthsNullDaysBefore() {
+    this.m1.setBirthDate(getDate(null, null, 1));
+    this.m2.setBirthDate(getDate(null, null, 2));
+    Optional<Integer> opt = this.m1.compareBirthdays(this.m2);
+    if (opt.isPresent())
+      assertEquals(-1, (int) opt.get());
+    else
+      fail("empty result");
+  }
+
+  @Test
+  public void testYearsNullAndMonthsNullDaysSame() {
+    this.m1.setBirthDate(getDate(null, null, 1));
+    this.m2.setBirthDate(getDate(null, null, 1));
+    Optional<Integer> opt = this.m1.compareBirthdays(this.m2);
+    if (opt.isPresent())
+      assertEquals(0, (int) opt.get());
+    else
+      fail("empty result");
+  }
+
+  @Test
+  public void testYearsNullAndMonthsNullDaysAfter() {
+    this.m1.setBirthDate(getDate(null, null, 2));
+    this.m2.setBirthDate(getDate(null, null, 1));
+    Optional<Integer> opt = this.m1.compareBirthdays(this.m2);
+    if (opt.isPresent())
+      assertEquals(1, (int) opt.get());
+    else
+      fail("empty result");
+  }
+
+  @Test
+  public void testNotComparableDates1() {
+    this.m1.setBirthDate(getDate(null, 1, 1));
+    this.m2.setBirthDate(getDate(null, null, 1));
+    Optional<Integer> opt = this.m1.compareBirthdays(this.m2);
+    if (opt.isPresent())
+      assertEquals(0, (int) opt.get());
+    else
+      fail("empty result");
+  }
+
+  @Test
+  public void testNotComparableDates2() {
+    this.m1.setBirthDate(getDate(2000, 1, null));
+    this.m2.setBirthDate(getDate(null, 1, null));
+    Optional<Integer> opt = this.m1.compareBirthdays(this.m2);
+    if (opt.isPresent())
+      assertEquals(0, (int) opt.get());
+    else
+      fail("empty result");
+  }
+
+  private static Date getDate(Integer year, Integer month, Integer day) {
     DateBuilder builder = new DateBuilder();
 
-    builder.setYear(year);
-    builder.setMonth(month);
-    builder.setDate(day);
+    if (year != null)
+      builder.setYear(year);
+    if (month != null)
+      builder.setMonth(month);
+    if (day != null)
+      builder.setDate(day);
 
     return builder.getDate();
   }

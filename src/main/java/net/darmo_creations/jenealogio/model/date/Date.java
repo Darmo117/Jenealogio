@@ -143,28 +143,54 @@ public final class Date implements Comparable<Date>, Cloneable {
 
   @Override
   public int compareTo(Date other) {
-    if (isYearSet() && isMonthSet() && other.isYearSet() && other.isMonthSet() && (!isDateSet() || !other.isDateSet())) {
-      if (getYear() < other.getYear() || getYear() == other.getYear() && getMonth() < other.getMonth())
+    if (isYearSet() && other.isYearSet()) {
+      if (!isMonthSet() || !other.isMonthSet()) {
+        if (getYear() < other.getYear())
+          return -1;
+        if (getYear() > other.getYear())
+          return 1;
+        return 0;
+      }
+
+      if (!isDateSet() || !other.isDateSet()) {
+        if (getYear() < other.getYear() || getYear() == other.getYear() && getMonth() < other.getMonth())
+          return -1;
+        if (getYear() > other.getYear() || getYear() == other.getYear() && getMonth() > other.getMonth())
+          return 1;
+        return 0;
+      }
+
+      if (getYear() < other.getYear() || getYear() == other.getYear() && getMonth() < other.getMonth()
+          || getYear() == other.getYear() && getMonth() == other.getMonth() && getDate() < other.getDate())
         return -1;
-      if (getYear() > other.getYear() || getYear() == other.getYear() && getMonth() > other.getMonth())
+      if (getYear() > other.getYear() || getYear() == other.getYear() && getMonth() > other.getMonth()
+          || getYear() == other.getYear() && getMonth() == other.getMonth() && getDate() > other.getDate())
+        return 1;
+      return 0;
+    }
+    else if (!isYearSet() && !other.isYearSet() && isMonthSet() && other.isMonthSet()) {
+      if (!isDateSet() || !other.isDateSet()) {
+        if (getMonth() < other.getMonth())
+          return -1;
+        if (getMonth() > other.getMonth())
+          return 1;
+        return 0;
+      }
+
+      if (getMonth() < other.getMonth() || getMonth() == other.getMonth() && getDate() < other.getDate())
+        return -1;
+      if (getMonth() > other.getMonth() || getMonth() == other.getMonth() && getDate() > other.getDate())
+        return 1;
+      return 0;
+    }
+    else if (!isYearSet() && !other.isYearSet() && !isMonthSet() && !other.isMonthSet() && isDateSet() && other.isDateSet()) {
+      if (getDate() < other.getDate())
+        return -1;
+      if (getDate() > other.getDate())
         return 1;
       return 0;
     }
 
-    if (isYearSet() && other.isYearSet() && (!isMonthSet() || !other.isMonthSet())) {
-      if (getYear() < other.getYear())
-        return -1;
-      if (getYear() > other.getYear())
-        return 1;
-      return 0;
-    }
-
-    if (getYear() < other.getYear() || getYear() == other.getYear() && getMonth() < other.getMonth()
-        || getYear() == other.getYear() && getMonth() == other.getMonth() && getDate() < other.getDate())
-      return -1;
-    if (getYear() > other.getYear() || getYear() == other.getYear() && getMonth() > other.getMonth()
-        || getYear() == other.getYear() && getMonth() == other.getMonth() && getDate() > other.getDate())
-      return 1;
     return 0;
   }
 
