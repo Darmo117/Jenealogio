@@ -23,9 +23,8 @@ popup.save_confirm.text=The file has been modified. Save changes?
 popup.open_file_error.text=An error occured while opening file!
 popup.save_file_error.text=An error occured while saving! Do you want to continue?
 popup.image_export_error.text=Could not export image!
-popup.delete_card_confirm.text=Do you really want to delete this card?
-popup.delete_cards_confirm.text=Do you really want to delete these cards?
-popup.delete_link_confirm.text=Do you really want to delete this link?
+popup.delete_object_confirm.text=Do you really want to delete this object?
+popup.delete_objects_confirm.text=Do you really want to delete these objects?
 popup.open_image_error.text=Could not load image!
 popup.birth_date_error.text=Birth date must be before to death date!
 popup.change_language.confirm.text=The application will restart after change the language. Do you want to continue?
@@ -33,6 +32,8 @@ popup.change_language.restart_error.text=Unable to restart the application.
 popup.file_already_exists.text=A file with the same name already exists. Overwrite?
 popup.version_warning.text=This file has been generated with a more recent version of Jenealogio and may not load properly.\n\
 Do you still want to continue?
+popup.nonexistant_object.text=This object does not exist!
+popup.already_in_relationship.text=Members already in a relationship!
 
 # File types
 file_type.tree.desc=Family Tree File
@@ -66,12 +67,8 @@ item.add_card.mnemonic=a
 item.add_link.text=Add Link…
 item.add_link.mnemonic=l
 item.edit.text=Edit…
-item.edit_card.text=Edit Card…
-item.edit_link.text=Edit Link…
 item.edit.mnemonic=e
 item.delete.text=Delete
-item.delete_card.text=Delete Card
-item.delete_link.text=Delete Link
 item.delete.mnemonic=d
 menu.options.text=Options
 menu.options.mnemonic=o

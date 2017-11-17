@@ -25,7 +25,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -50,18 +49,20 @@ import net.darmo_creations.gui_framework.gui.ApplicationFrame;
 import net.darmo_creations.jenealogio.Jenealogio;
 import net.darmo_creations.jenealogio.controllers.MainController;
 import net.darmo_creations.jenealogio.events.EventType;
-import net.darmo_creations.jenealogio.gui.components.display_panel.DisplayPanel;
-import net.darmo_creations.jenealogio.gui.components.side_tree.SideView;
+import net.darmo_creations.jenealogio.gui.components.canvas_view.CanvasView;
+import net.darmo_creations.jenealogio.gui.components.side_view.SideView;
 import net.darmo_creations.jenealogio.gui.dialog.CardDetailsDialog;
 import net.darmo_creations.jenealogio.gui.dialog.LinkDetailsDialog;
 import net.darmo_creations.jenealogio.gui.dialog.card.CardDialog;
 import net.darmo_creations.jenealogio.gui.dialog.link.LinkDialog;
 import net.darmo_creations.jenealogio.gui.dialog.options.EditColorsDialog;
 import net.darmo_creations.jenealogio.gui.dialog.tree_creation.TreeDialog;
+import net.darmo_creations.jenealogio.model.ViewType;
 import net.darmo_creations.jenealogio.model.family.Family;
 import net.darmo_creations.jenealogio.model.family.FamilyMember;
 import net.darmo_creations.jenealogio.model.family.Relationship;
 import net.darmo_creations.jenealogio.util.Images;
+import net.darmo_creations.jenealogio.util.Selection;
 import net.darmo_creations.utils.FilesUtil;
 import net.darmo_creations.utils.I18n;
 
@@ -83,9 +84,9 @@ public class MainFrame extends ApplicationFrame<MainController> {
 
   private JMenu editMenu;
   private JMenuItem editTreeItem, saveItem, saveAsItem, exportImageItem, undoItem, redoItem, addCardItem, addLinkItem, editItem, deleteItem;
-  private JButton saveBtn, saveAsBtn, undoBtn, redoBtn, addCardBtn, editCardBtn, editLinkBtn, deleteCardBtn, deleteLinkBtn;
+  private JButton saveBtn, saveAsBtn, undoBtn, redoBtn, addCardBtn, editBtn, deleteBtn;
   private JToggleButton addLinkBtn;
-  private DisplayPanel displayPnl;
+  private CanvasView canvasView;
   private SideView sideView;
 
   public MainFrame(WritableConfig config) {
@@ -124,14 +125,12 @@ public class MainFrame extends ApplicationFrame<MainController> {
     splitPane.setLeftComponent(this.sideView);
 
     JScrollPane canvasPane = new JScrollPane();
-    this.displayPnl = new DisplayPanel(canvasPane);
-    this.displayPnl.addDragAndDropListener(controller);
-    canvasPane.setViewportView(this.displayPnl);
+    this.canvasView = new CanvasView(canvasPane);
+    this.canvasView.addDragAndDropListener(controller);
+    canvasPane.setViewportView(this.canvasView);
     splitPane.setRightComponent(canvasPane);
 
     add(splitPane, BorderLayout.CENTER);
-
-    ApplicationRegistry.EVENTS_BUS.register(this.displayPnl);
   }
 
   /**
@@ -235,13 +234,17 @@ public class MainFrame extends ApplicationFrame<MainController> {
     this.addLinkItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, KeyEvent.CTRL_DOWN_MASK));
     this.addLinkItem.addActionListener(listeners.get(EventType.ADD_LINK));
 
-    this.editMenu.add(this.editItem = new JMenuItem());
+    this.editMenu.add(this.editItem = new JMenuItem(I18n.getLocalizedString("item.edit.text")));
+    this.editItem.setIcon(Images.EDIT);
     this.editItem.setMnemonic(I18n.getLocalizedMnemonic("item.edit"));
     this.editItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, KeyEvent.CTRL_DOWN_MASK));
+    this.editItem.addActionListener(listeners.get(EventType.EDIT_OBJECT));
 
-    this.editMenu.add(this.deleteItem = new JMenuItem());
+    this.editMenu.add(this.deleteItem = new JMenuItem(I18n.getLocalizedString("item.delete.text")));
+    this.deleteItem.setIcon(Images.DELETE);
     this.deleteItem.setMnemonic(I18n.getLocalizedMnemonic("item.delete"));
     this.deleteItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
+    this.deleteItem.addActionListener(listeners.get(EventType.DELETE_OBJECT));
 
     menuBar.add(this.editMenu, 1);
 
@@ -306,113 +309,71 @@ public class MainFrame extends ApplicationFrame<MainController> {
     this.addCardBtn.setFocusable(false);
     this.addCardBtn.addActionListener(listeners.get(EventType.ADD_CARD));
 
-    toolBar.add(this.editCardBtn = new JButton(Images.EDIT_CARD_BIG));
-    this.editCardBtn.setToolTipText(I18n.getLocalizedString("item.edit_card.text") + " (Ctrl+E)");
-    this.editCardBtn.setFocusable(false);
-    this.editCardBtn.addActionListener(listeners.get(EventType.EDIT_CARD));
-
-    toolBar.add(this.deleteCardBtn = new JButton(Images.DELETE_CARD_BIG));
-    this.deleteCardBtn.setToolTipText(I18n.getLocalizedString("item.delete_card.text") + " (Supprimer)");
-    this.deleteCardBtn.setFocusable(false);
-    this.deleteCardBtn.addActionListener(listeners.get(EventType.DELETE_CARD));
-
     toolBar.add(this.addLinkBtn = new JToggleButton(Images.ADD_LINK_BIG));
     this.addLinkBtn.setToolTipText(I18n.getLocalizedString("item.add_link.text") + " (Ctrl+L)");
     this.addLinkBtn.setFocusable(false);
     this.addLinkBtn.addActionListener(listeners.get(EventType.ADD_LINK));
 
-    toolBar.add(this.editLinkBtn = new JButton(Images.EDIT_LINK_BIG));
-    this.editLinkBtn.setToolTipText(I18n.getLocalizedString("item.edit_link.text") + " (Ctrl+E)");
-    this.editLinkBtn.setFocusable(false);
-    this.editLinkBtn.addActionListener(listeners.get(EventType.EDIT_LINK));
+    toolBar.add(this.editBtn = new JButton(Images.EDIT_BIG));
+    this.editBtn.setToolTipText(I18n.getLocalizedString("item.edit.text") + " (Ctrl+E)");
+    this.editBtn.setFocusable(false);
+    this.editBtn.addActionListener(listeners.get(EventType.EDIT_OBJECT));
 
-    toolBar.add(this.deleteLinkBtn = new JButton(Images.DELETE_LINK_BIG));
-    this.deleteLinkBtn.setToolTipText(I18n.getLocalizedString("item.delete_link.text") + " (Supprimer)");
-    this.deleteLinkBtn.setFocusable(false);
-    this.deleteLinkBtn.addActionListener(listeners.get(EventType.DELETE_LINK));
+    toolBar.add(this.deleteBtn = new JButton(Images.DELETE_BIG));
+    this.deleteBtn.setToolTipText(I18n.getLocalizedString("item.delete.text") + " (Supprimer)");
+    this.deleteBtn.setFocusable(false);
+    this.deleteBtn.addActionListener(listeners.get(EventType.DELETE_OBJECT));
 
     return toolBar;
   }
 
-  /**
-   * Updates the menu bar.
-   */
-  public void updateMenus(boolean fileOpen, int selectedCardsNb, boolean linkSelected, boolean canUndo, boolean canRedo) {
-    this.editTreeItem.setEnabled(fileOpen);
-    this.saveAsItem.setEnabled(fileOpen);
-    this.exportImageItem.setEnabled(fileOpen);
-    this.undoItem.setEnabled(canUndo);
-    this.redoItem.setEnabled(canRedo);
-    this.editMenu.setEnabled(fileOpen);
-    this.addCardItem.setEnabled(fileOpen);
-    this.addLinkItem.setEnabled(fileOpen);
-    this.editItem.setEnabled(fileOpen && (selectedCardsNb == 1 || linkSelected));
-    this.deleteItem.setEnabled(fileOpen && (selectedCardsNb > 0 || linkSelected));
-
-    this.saveAsBtn.setEnabled(fileOpen);
-    this.undoBtn.setEnabled(canUndo);
-    this.redoBtn.setEnabled(canRedo);
-    this.addCardBtn.setEnabled(fileOpen);
-    this.addLinkBtn.setEnabled(fileOpen);
-    this.editCardBtn.setEnabled(fileOpen && selectedCardsNb == 1);
-    this.deleteCardBtn.setEnabled(fileOpen && selectedCardsNb > 0);
-    this.editLinkBtn.setEnabled(fileOpen && linkSelected);
-    this.deleteLinkBtn.setEnabled(fileOpen && linkSelected);
-
-    if (selectedCardsNb > 0 && linkSelected)
-      throw new IllegalStateException("Cards and link cannot be selected at the same time.");
-
-    if (fileOpen) {
-      if (selectedCardsNb > 0) {
-        this.editItem.setText(I18n.getLocalizedString("item.edit_card.text"));
-        this.editItem.setIcon(Images.EDIT_CARD);
-        this.editItem.removeActionListener(this.listeners.get(EventType.EDIT_LINK));
-        this.editItem.addActionListener(this.listeners.get(EventType.EDIT_CARD));
-        this.deleteItem.setText(I18n.getLocalizedString("item.delete_card.text"));
-        this.deleteItem.setIcon(Images.DELETE_CARD);
-        this.deleteItem.removeActionListener(this.listeners.get(EventType.DELETE_LINK));
-        this.deleteItem.addActionListener(this.listeners.get(EventType.DELETE_CARD));
-      }
-      else if (linkSelected) {
-        this.editItem.setText(I18n.getLocalizedString("item.edit_link.text"));
-        this.editItem.setIcon(Images.EDIT_LINK);
-        this.editItem.removeActionListener(this.listeners.get(EventType.EDIT_CARD));
-        this.editItem.addActionListener(this.listeners.get(EventType.EDIT_LINK));
-        this.deleteItem.setText(I18n.getLocalizedString("item.delete_link.text"));
-        this.deleteItem.setIcon(Images.DELETE_LINK);
-        this.deleteItem.removeActionListener(this.listeners.get(EventType.DELETE_CARD));
-        this.deleteItem.addActionListener(this.listeners.get(EventType.DELETE_LINK));
-      }
-      else {
-        this.editItem.setText(I18n.getLocalizedString("item.edit.text"));
-        this.editItem.setIcon(null);
-        this.editItem.removeActionListener(this.listeners.get(EventType.EDIT_CARD));
-        this.editItem.removeActionListener(this.listeners.get(EventType.EDIT_LINK));
-        this.deleteItem.setText(I18n.getLocalizedString("item.delete.text"));
-        this.deleteItem.setIcon(null);
-        this.deleteItem.removeActionListener(this.listeners.get(EventType.DELETE_CARD));
-        this.deleteItem.removeActionListener(this.listeners.get(EventType.DELETE_LINK));
-      }
-    }
+  public void setEditTreeEnabled(boolean enabled) {
+    this.editTreeItem.setEnabled(enabled);
   }
 
-  /**
-   * Selects the given panels as background.
-   * 
-   * @param ids panels' IDs
-   */
-  public void setPanelsSelectedAsBackground(List<Long> ids) {
-    this.displayPnl.selectPanelsAsBackground(ids);
+  public void setExportEnabled(boolean enabled) {
+    this.exportImageItem.setEnabled(enabled);
   }
 
-  /**
-   * Updates the save buttons.
-   * 
-   * @param saved is the file saved?
-   */
-  public void updateSaveMenus(boolean saved) {
-    this.saveItem.setEnabled(!saved);
-    this.saveBtn.setEnabled(!saved);
+  public void setEditEnabled(boolean enabled) {
+    this.editMenu.setEnabled(enabled);
+  }
+
+  public void setSaveEnabled(boolean enabled) {
+    this.saveItem.setEnabled(enabled);
+    this.saveBtn.setEnabled(enabled);
+  }
+
+  public void setSaveAsEnabled(boolean enabled) {
+    this.saveAsItem.setEnabled(enabled);
+    this.saveAsBtn.setEnabled(enabled);
+  }
+
+  public void setUndoEnabled(boolean enabled) {
+    this.undoItem.setEnabled(enabled);
+    this.undoBtn.setEnabled(enabled);
+  }
+
+  public void setRedoEnabled(boolean enabled) {
+    this.redoItem.setEnabled(enabled);
+    this.redoBtn.setEnabled(enabled);
+  }
+
+  public void setAddObjectEnabled(boolean enabled) {
+    this.addCardItem.setEnabled(enabled);
+    this.addLinkItem.setEnabled(enabled);
+    this.addCardBtn.setEnabled(enabled);
+    this.addLinkBtn.setEnabled(enabled);
+  }
+
+  public void setEditObjectEnabled(boolean enabled) {
+    this.editItem.setEnabled(enabled);
+    this.editBtn.setEnabled(enabled);
+  }
+
+  public void setDeleteObjectEnabled(boolean enabled) {
+    this.deleteItem.setEnabled(enabled);
+    this.deleteBtn.setEnabled(enabled);
   }
 
   /**
@@ -420,7 +381,7 @@ public class MainFrame extends ApplicationFrame<MainController> {
    * 
    * @param selected
    */
-  public void setAddLinkButtonSelected(boolean selected) {
+  public void setAddLinkSelected(boolean selected) {
     this.addLinkBtn.setSelected(selected);
   }
 
@@ -428,7 +389,8 @@ public class MainFrame extends ApplicationFrame<MainController> {
    * Resets the tree display.
    */
   public void resetDisplay() {
-    this.displayPnl.reset();
+    this.canvasView.reset();
+    this.sideView.reset();
   }
 
   /**
@@ -437,7 +399,7 @@ public class MainFrame extends ApplicationFrame<MainController> {
    * @param family the tree
    */
   public void refreshDisplay(Family family, WritableConfig config) {
-    this.displayPnl.refresh(family, config);
+    this.canvasView.refresh(family, config);
     this.sideView.refresh(family);
   }
 
@@ -448,29 +410,47 @@ public class MainFrame extends ApplicationFrame<MainController> {
    * @param positions positions for all cards
    */
   public void refreshDisplay(Family family, Map<Long, Point> positions, Map<Long, Dimension> sizes, WritableConfig config) {
-    this.displayPnl.refresh(family, positions, sizes, config);
+    this.canvasView.refresh(family, positions, sizes, config);
     this.sideView.refresh(family);
+    this.canvasView.requestFocus();
+  }
+
+  /**
+   * Returns the selection from the given view.
+   * 
+   * @param view the view
+   * @return the selection
+   */
+  public Selection getSelection(ViewType view) {
+    switch (view) {
+      case CANVAS:
+        return this.canvasView.getSelection();
+      case SIDE:
+        return this.sideView.getSelection();
+    }
+
+    throw new NullPointerException();
   }
 
   /**
    * @return the positions of all cards
    */
   public Map<Long, Point> getCardsPositions() {
-    return this.displayPnl.getCardsPositions();
+    return this.canvasView.getCardsPositions();
   }
 
   /**
    * @return the sizes of all cards
    */
   public Map<Long, Dimension> getCardsSizes() {
-    return this.displayPnl.getCardsSizes();
+    return this.canvasView.getCardsSizes();
   }
 
   /**
    * @return the display's current middle coordinate
    */
   public Point getDisplayMiddlePoint() {
-    JViewport viewport = (JViewport) this.displayPnl.getParent();
+    JViewport viewport = (JViewport) this.canvasView.getParent();
     Point pos = viewport.getViewPosition();
     Dimension size = viewport.getExtentSize();
     int x = pos.x + size.width / 2;
@@ -485,7 +465,7 @@ public class MainFrame extends ApplicationFrame<MainController> {
    * @return the image
    */
   public BufferedImage exportToImage() {
-    return this.displayPnl.exportToImage();
+    return this.canvasView.exportToImage();
   }
 
   /**

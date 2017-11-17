@@ -23,17 +23,17 @@ popup.save_confirm.text=La dosiero estas ŝanĝita. Ĉu vi volas sekurkopii?
 popup.open_file_error.text=Eraro okazis dum dosiero malfermanto!
 popup.save_file_error.text=Eraro okazis dum sekurkpio! Ĉu vi volas daŭrigi?
 popup.image_export_error.text=Bildo ne povis esti eksportita!
-popup.delete_card_confirm.text=Ĉu vi vere volas forigi tiun slipon?
-popup.delete_cards_confirm.text=Ĉu vi vere volas forigi tiujn slipojn?
-popup.delete_link_confirm.text=Ĉu vi vere volas forigi tiun ligilon?
+popup.delete_object_confirm.text=Ĉu vi vere volas forigi tiun objekton?
+popup.delete_objects_confirm.text=Ĉu vi vere volas forigi tiujn objektojn?
 popup.open_image_error.text=Ne povis ŝarĝi la bildon!
 popup.birth_date_error.text=La naskiĝdato devas esti antaŭ la daton de morto.
 popup.change_language.confirm.text=La programo devas reinici post lingvoŝanĝo. Ĉu vi volas daŭrigi?
 popup.change_language.restart_error.text=La programo ne povis reinici.
-popup.change_language_warning.text=La ŝanĝo estos apliki post reinicion de la programaro.
 popup.file_already_exists.text=Dosiero kun sama nomo jam ekzistas. Ĉu vi volas anstataŭigi?
 popup.version_warning.text=Tiu dosiero estis generita kun pli nova versio kaj ne bone ŝarĝus.\n\
-\u0109u vi \u0109iuokaze volas daŭrigi?
+Ĉu vi ĉiuokaze volas daŭrigi?
+popup.nonexistant_object.text=Tiu objekto ne ekzistas!
+popup.already_in_relationship.text=Membroj jam estas en rilato!
 
 # Dosiertipoj
 file_type.tree.desc=Familio arbo dosiero
@@ -67,12 +67,8 @@ item.add_card.mnemonic=a
 item.add_link.text=Aldoni ligilo…
 item.add_link.mnemonic=l
 item.edit.text=Modifi…
-item.edit_card.text=Modifi la slipo…
-item.edit_link.text=Modifi la ligilo…
 item.edit.mnemonic=e
 item.delete.text=Forigi
-item.delete_card.text=Forigi la slipo
-item.delete_link.text=Forigi la ligilo
 item.delete.mnemonic=f
 menu.options.text=Opcioj
 menu.options.mnemonic=o
@@ -118,7 +114,7 @@ label.partner1.text=Gekunulo 1
 label.partner2.text=Gekunulo 2
 label.children.text=Infanoj
 label.available_children.text=Haveblaj infanoj
-label.search.text=Ser\u0109i
+label.search.text=Serĉi
 label.color.text=Koloro
 label.tree_explorer.text=Arbesplorilo
 

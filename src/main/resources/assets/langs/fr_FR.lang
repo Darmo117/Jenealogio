@@ -23,9 +23,8 @@ popup.save_confirm.text=Le fichier a été modifié. Sauvegarder les changements
 popup.open_file_error.text=Une erreur est survenue pendant l'ouverture du fichier !
 popup.save_file_error.text=Une erreur est survenue lors de la sauvegarde ! Voulez-vous continuer ?
 popup.image_export_error.text=L'image n'a pas pu être exportée !
-popup.delete_card_confirm.text=Êtes-vous sûr de vouloir supprimer cette fiche ?
-popup.delete_cards_confirm.text=Êtes-vous sûr de vouloir supprimer ces fiches ?
-popup.delete_link_confirm.text=Êtes-vous sûr de vouloir supprimer de lien ?
+popup.delete_object_confirm.text=Êtes-vous sûr de vouloir supprimer cet objet ?
+popup.delete_objects_confirm.text=Êtes-vous sûr de vouloir supprimer ces objets ?
 popup.open_image_error.text=Erreur lors de l'ouverture de l'image !
 popup.birth_date_error.text=La date de naissance doit être inférieure à la date de décès !
 popup.change_language.confirm.text=L'application va devoir redémarrer après changement de la langue. Voulez-vous continuer?
@@ -33,6 +32,8 @@ popup.change_language.restart_error.text=Impossible de redémarrer l'application
 popup.file_already_exists.text=Un fichier du même nom existe déjà. Voulez-vous l'écraser ?
 popup.version_warning.text=Ce fichier a été généré avec une version plus récente du logiciel et risque de ne pas charger correctement.\n\
 Voulez-vous quand-même continuer ?
+popup.nonexistant_object.text=Cet object n'existe pas !
+popup.already_in_relationship.text=Membres déjà dans une relation !
 
 # Types de fichier
 file_type.tree.desc=Fichier arbre généalogique
@@ -66,12 +67,8 @@ item.add_card.mnemonic=a
 item.add_link.text=Ajouter un lien…
 item.add_link.mnemonic=j
 item.edit.text=Éditer…
-item.edit_card.text=Éditer la fiche…
-item.edit_link.text=Éditer le lien…
 item.edit.mnemonic=é
 item.delete.text=Supprimer
-item.delete_card.text=Supprimer la fiche
-item.delete_link.text=Supprimer le lien
 item.delete.mnemonic=s
 menu.options.text=Options
 menu.options.mnemonic=o

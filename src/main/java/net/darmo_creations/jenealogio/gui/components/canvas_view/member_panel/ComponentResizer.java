@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.darmo_creations.jenealogio.gui.components.member_panel;
+package net.darmo_creations.jenealogio.gui.components.canvas_view.member_panel;
 
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -31,7 +31,7 @@ import java.util.Map;
 import javax.swing.SwingUtilities;
 
 import net.darmo_creations.gui_framework.ApplicationRegistry;
-import net.darmo_creations.jenealogio.events.CardResizeEvent;
+import net.darmo_creations.jenealogio.events.ViewEditEvent;
 
 /**
  * The ComponentResizer allows you to resize a component by dragging its borders.
@@ -294,7 +294,7 @@ public class ComponentResizer extends MouseAdapter {
     this.panel.setAutoscrolls(this.autoscrolls);
     if (this.dragging) {
       this.dragging = false;
-      ApplicationRegistry.EVENTS_BUS.dispatchEvent(new CardResizeEvent.Post(this.panel.getMemberId()));
+      ApplicationRegistry.EVENTS_BUS.dispatchEvent(new ViewEditEvent());
     }
   }
 
@@ -364,11 +364,8 @@ public class ComponentResizer extends MouseAdapter {
     source.validate();
 
     if (!bounds.equals(newBounds)) {
-      if (!this.dragging) {
+      if (!this.dragging)
         this.dragging = true;
-        ApplicationRegistry.EVENTS_BUS.dispatchEvent(new CardResizeEvent.Pre(this.panel.getMemberId()));
-      }
-      ApplicationRegistry.EVENTS_BUS.dispatchEvent(new CardResizeEvent.Resizing(this.panel.getMemberId(), bounds, newBounds));
     }
   }
 

@@ -16,40 +16,53 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.darmo_creations.jenealogio.gui.components.display_panel;
+package net.darmo_creations.jenealogio.gui.components.canvas_view;
 
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import javax.swing.SwingUtilities;
 
 import net.darmo_creations.gui_framework.ApplicationRegistry;
-import net.darmo_creations.jenealogio.events.CardDragEvent;
-import net.darmo_creations.jenealogio.events.CardEvent;
-import net.darmo_creations.jenealogio.events.CardsSelectionEvent;
-import net.darmo_creations.jenealogio.events.LinkEvent;
-import net.darmo_creations.utils.events.SubsribeEvent;
+import net.darmo_creations.jenealogio.events.FocusChangeEvent;
+import net.darmo_creations.jenealogio.events.LinkDoubleClickEvent;
+import net.darmo_creations.jenealogio.events.SelectionChangeEvent;
+import net.darmo_creations.jenealogio.model.ViewType;
+import net.darmo_creations.jenealogio.util.Pair;
+import net.darmo_creations.jenealogio.util.Selection;
 
 /**
  * This controller handles cards and links selection and notifies the DisplayPanel.
  * 
  * @author Damien Vergnet
  */
-class DisplayController extends MouseAdapter {
-  private DisplayPanel panel;
+class CanvasViewController extends MouseAdapter implements FocusListener {
+  private CanvasView canvas;
   private Point mouseLocation;
   private Point selectionStart;
   private Rectangle selection;
 
-  DisplayController(DisplayPanel panel) {
-    this.panel = panel;
+  /** All currently selected cards */
+  private List<Long> selectedCards;
+  /** The currently selected links */
+  private List<Pair<Long, Long>> selectedLinks;
+
+  CanvasViewController(CanvasView panel) {
+    this.canvas = panel;
     this.mouseLocation = new Point();
     this.selectionStart = null;
     this.selection = null;
+
+    this.selectedCards = new ArrayList<>();
+    this.selectedLinks = new ArrayList<>();
   }
 
   /**
@@ -62,27 +75,31 @@ class DisplayController extends MouseAdapter {
   /**
    * @return selection's starting position
    */
-  Optional<Rectangle> getSelection() {
+  Optional<Rectangle> getSelectionRectangle() {
     return Optional.ofNullable(this.selection);
+  }
+
+  /**
+   * Returns the current selection.
+   */
+  public Selection getSelection() {
+    return new Selection(this.selectedCards, this.selectedLinks);
   }
 
   @Override
   public void mousePressed(MouseEvent e) {
-    this.panel.requestFocus();
+    this.canvas.requestFocus();
     if (SwingUtilities.isLeftMouseButton(e)) {
       this.selectionStart = e.getPoint();
       this.selection = new Rectangle(this.selectionStart);
-      ApplicationRegistry.EVENTS_BUS.dispatchEvent(new CardEvent.Clicked(-1, false));
+      deselectAll();
     }
   }
 
   @Override
   public void mouseReleased(MouseEvent e) {
     if (SwingUtilities.isLeftMouseButton(e)) {
-      Optional<long[]> opt = this.panel.getPanelsInsideRectangle(this.selection);
-      if (opt.isPresent()) {
-        ApplicationRegistry.EVENTS_BUS.dispatchEvent(new CardsSelectionEvent(opt.get()));
-      }
+      cardsSelected(this.canvas.getPanelsInsideRectangle(this.selection));
       this.selection = null;
       repaint();
     }
@@ -94,13 +111,14 @@ class DisplayController extends MouseAdapter {
   @Override
   public void mouseClicked(MouseEvent e) {
     if (SwingUtilities.isLeftMouseButton(e)) {
-      Optional<long[]> l = this.panel.getHoveredLinkPartners();
+      Optional<Pair<Long, Long>> l = this.canvas.getHoveredLinkPartners();
 
       if (l.isPresent()) {
-        long[] ids = l.get();
-        ApplicationRegistry.EVENTS_BUS.dispatchEvent(new LinkEvent.Clicked(ids[0], ids[1]));
-        if (e.getClickCount() == 2)
-          ApplicationRegistry.EVENTS_BUS.dispatchEvent(new LinkEvent.DoubleClicked(ids[0], ids[1]));
+        boolean ctrlDown = e.isControlDown();
+        Pair<Long, Long> ids = l.get();
+        linkClicked(ids.getValue1(), ids.getValue2(), ctrlDown);
+        if (!ctrlDown && e.getClickCount() == 2)
+          ApplicationRegistry.EVENTS_BUS.dispatchEvent(new LinkDoubleClickEvent(ids.getValue1(), ids.getValue2()));
       }
     }
   }
@@ -121,29 +139,99 @@ class DisplayController extends MouseAdapter {
       int xTrans = newLocation.x - prevLocation.x;
       int yTrans = newLocation.y - prevLocation.y;
 
-      this.panel.setHorizontalScroll(this.panel.getHorizontalScroll() - xTrans);
-      this.panel.setVerticalScroll(this.panel.getVerticalScroll() - yTrans);
+      this.canvas.setHorizontalScroll(this.canvas.getHorizontalScroll() - xTrans);
+      this.canvas.setVerticalScroll(this.canvas.getVerticalScroll() - yTrans);
     }
   }
 
-  @SubsribeEvent
-  public void onCardDragged(CardDragEvent.Dragging e) {
-    this.mouseLocation = e.getMouseLocation();
+  @Override
+  public void focusGained(FocusEvent e) {
+    ApplicationRegistry.EVENTS_BUS.dispatchEvent(new FocusChangeEvent(ViewType.CANVAS));
+  }
+
+  @Override
+  public void focusLost(FocusEvent e) {}
+
+  /**
+   * Called when several cards are selected simultaneously.
+   */
+  void cardsSelected(List<Long> ids) {
+    Selection old = getSelection();
+
+    this.selectedLinks.clear();
+    this.selectedCards.clear();
+    this.selectedCards.addAll(ids);
+    this.canvas.selectPanels(ids);
+
+    ApplicationRegistry.EVENTS_BUS.dispatchEvent(new SelectionChangeEvent(old, getSelection()));
+  }
+
+  void cardDragged(Point mouseLocation) {
+    this.mouseLocation = mouseLocation;
     resizePanelIfOutside();
     scrollIfOutside();
   }
 
-  @SubsribeEvent
-  public void onLinkClicked(LinkEvent.Clicked e) {
-    if (e.scrollTo())
-      this.panel.scrollToLink(e.getPartner1Id(), e.getPartner2Id());
+  /**
+   * Called when a card is clicked.
+   * 
+   * @param e the event
+   */
+  void panelClicked(long id, boolean keepSelection) {
+    if (id < 0)
+      throw new IllegalArgumentException("" + id);
+
+    Selection old = getSelection();
+
+    if (keepSelection) {
+      if (this.selectedCards.contains(id))
+        this.selectedCards.remove(id);
+      else
+        this.selectedCards.add(id);
+    }
+    else {
+      this.selectedCards.clear();
+      this.selectedCards.add(id);
+      this.selectedLinks.clear();
+    }
+
+    this.canvas.selectPanels(this.selectedCards);
+    this.canvas.selectLinks(this.selectedLinks);
+
+    ApplicationRegistry.EVENTS_BUS.dispatchEvent(new SelectionChangeEvent(old, getSelection()));
   }
 
-  @SubsribeEvent
-  public void onCardClicked(CardEvent.Clicked e) {
-    this.panel.requestFocus();
-    if (e.scrollTo())
-      this.panel.scrollToPanel(e.getMemberId());
+  private void linkClicked(long id1, long id2, boolean keepSelection) {
+    Selection old = getSelection();
+
+    if (keepSelection) {
+      this.selectedLinks.add(new Pair<>(id1, id2));
+    }
+    else {
+      this.selectedLinks.clear();
+      this.selectedLinks.add(new Pair<>(id1, id2));
+      this.selectedCards.clear();
+    }
+
+    this.canvas.selectPanels(this.selectedCards);
+    this.canvas.selectLinks(this.selectedLinks);
+
+    ApplicationRegistry.EVENTS_BUS.dispatchEvent(new SelectionChangeEvent(old, getSelection()));
+  }
+
+  /**
+   * Deselects all components and sends a ViewEditEvent.
+   */
+  private void deselectAll() {
+    Selection old = getSelection();
+
+    this.selectedCards.clear();
+    this.selectedLinks.clear();
+
+    this.canvas.selectPanels(this.selectedCards);
+    this.canvas.selectLinks(this.selectedLinks);
+
+    ApplicationRegistry.EVENTS_BUS.dispatchEvent(new SelectionChangeEvent(old, getSelection()));
   }
 
   private void updateMouseLocation(MouseEvent e) {
@@ -200,7 +288,7 @@ class DisplayController extends MouseAdapter {
    * Resizes the panel if a component is dragged outside.
    */
   private void resizePanelIfOutside() {
-    Rectangle r = this.panel.getBounds();
+    Rectangle r = this.canvas.getBounds();
     r.x = r.y = 0;
     int mouse = isOutsideRectangle(this.mouseLocation, r);
     int vAdd = 0;
@@ -217,9 +305,9 @@ class DisplayController extends MouseAdapter {
     }
 
     if (vAdd != 0 || hAdd != 0) {
-      Dimension d = this.panel.getSize();
-      this.panel.setPreferredSize(new Dimension(d.width + hAdd, d.height + vAdd));
-      this.panel.revalidate();
+      Dimension d = this.canvas.getSize();
+      this.canvas.setPreferredSize(new Dimension(d.width + hAdd, d.height + vAdd));
+      this.canvas.revalidate();
       repaint();
     }
   }
@@ -228,7 +316,7 @@ class DisplayController extends MouseAdapter {
    * Scrolls if the mouse is outside the viewport.
    */
   private void scrollIfOutside() {
-    int mouse = isOutsideRectangle(this.mouseLocation, this.panel.getVisibleRect());
+    int mouse = isOutsideRectangle(this.mouseLocation, this.canvas.getVisibleRect());
     int vTrans = 0;
     int hTrans = 0;
     final int step = 16;
@@ -249,12 +337,12 @@ class DisplayController extends MouseAdapter {
     }
 
     if (vTrans != 0)
-      this.panel.setVerticalScroll(this.panel.getVerticalScroll() + vTrans);
+      this.canvas.setVerticalScroll(this.canvas.getVerticalScroll() + vTrans);
     if (hTrans != 0)
-      this.panel.setHorizontalScroll(this.panel.getHorizontalScroll() + hTrans);
+      this.canvas.setHorizontalScroll(this.canvas.getHorizontalScroll() + hTrans);
   }
 
   private void repaint() {
-    this.panel.repaint();
+    this.canvas.repaint();
   }
 }

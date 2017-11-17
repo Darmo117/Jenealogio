@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.darmo_creations.jenealogio.gui.components.display_panel;
+package net.darmo_creations.jenealogio.gui.components.canvas_view;
 
 import java.awt.BasicStroke;
 import java.awt.Dimension;
@@ -31,6 +31,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -38,6 +39,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TooManyListenersException;
+import java.util.stream.Collectors;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -47,12 +49,12 @@ import javax.swing.SwingUtilities;
 import net.darmo_creations.gui_framework.ApplicationRegistry;
 import net.darmo_creations.gui_framework.config.WritableConfig;
 import net.darmo_creations.jenealogio.config.ConfigTags;
-import net.darmo_creations.jenealogio.events.CardDragEvent;
-import net.darmo_creations.jenealogio.events.CardEvent;
-import net.darmo_creations.jenealogio.events.LinkEvent;
-import net.darmo_creations.jenealogio.gui.components.member_panel.FamilyMemberPanel;
+import net.darmo_creations.jenealogio.events.CardDoubleClickEvent;
+import net.darmo_creations.jenealogio.gui.components.View;
+import net.darmo_creations.jenealogio.gui.components.canvas_view.member_panel.FamilyMemberPanel;
 import net.darmo_creations.jenealogio.model.family.Family;
-import net.darmo_creations.utils.events.SubsribeEvent;
+import net.darmo_creations.jenealogio.util.Pair;
+import net.darmo_creations.jenealogio.util.Selection;
 import net.darmo_creations.utils.swing.drag_and_drop.DragAndDropListener;
 import net.darmo_creations.utils.swing.drag_and_drop.DragAndDropTarget;
 import net.darmo_creations.utils.swing.drag_and_drop.DropTargetHandler;
@@ -63,7 +65,7 @@ import net.darmo_creations.utils.swing.drag_and_drop.DropTargetHandler;
  *
  * @author Damien Vergnet
  */
-public class DisplayPanel extends JPanel implements Scrollable, DragAndDropTarget {
+public class CanvasView extends JPanel implements Scrollable, DragAndDropTarget, View {
   private static final long serialVersionUID = 8747904983365363275L;
 
   private static final Dimension DEFAULT_SIZE = new Dimension(4000, 4000);
@@ -72,30 +74,30 @@ public class DisplayPanel extends JPanel implements Scrollable, DragAndDropTarge
 
   private WritableConfig config;
   private DropTarget dropTarget;
-  private DisplayController controller;
+  private CanvasViewController controller;
   private MouseAdapter doubleClickController;
   private Map<Long, FamilyMemberPanel> panels;
   private List<Link> links;
 
   private JScrollPane scrollPane;
 
-  public DisplayPanel(JScrollPane scrollPane) {
+  public CanvasView(JScrollPane scrollPane) {
     setPreferredSize(DEFAULT_SIZE);
     setLayout(null);
 
-    this.controller = new DisplayController(this);
-    ApplicationRegistry.EVENTS_BUS.register(this.controller);
+    this.controller = new CanvasViewController(this);
     this.doubleClickController = new MouseAdapter() {
       @Override
       public void mouseClicked(MouseEvent e) {
         if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2 && e.getComponent() instanceof FamilyMemberPanel) {
           FamilyMemberPanel p = (FamilyMemberPanel) e.getComponent();
-          ApplicationRegistry.EVENTS_BUS.dispatchEvent(new CardEvent.DoubleClicked(p.getMemberId()));
+          ApplicationRegistry.EVENTS_BUS.dispatchEvent(new CardDoubleClickEvent(p.getMemberId()));
         }
       }
     };
     addMouseListener(this.controller);
     addMouseMotionListener(this.controller);
+    addFocusListener(this.controller);
 
     this.scrollPane = scrollPane;
 
@@ -241,6 +243,11 @@ public class DisplayPanel extends JPanel implements Scrollable, DragAndDropTarge
     repaint();
   }
 
+  @Override
+  public Selection getSelection() {
+    return this.controller.getSelection();
+  }
+
   /**
    * @return the positions of all panels
    */
@@ -273,84 +280,69 @@ public class DisplayPanel extends JPanel implements Scrollable, DragAndDropTarge
    * @param r the zone
    * @return all panels inside the zone
    */
-  public Optional<long[]> getPanelsInsideRectangle(Rectangle r) {
+  List<Long> getPanelsInsideRectangle(Rectangle r) {
     if (r != null)
-      return Optional.of(
-          this.panels.entrySet().stream().filter(e -> r.contains(e.getValue().getBounds())).mapToLong(e -> e.getKey()).toArray());
-    return Optional.empty();
+      return this.panels.entrySet().stream().filter(e -> r.contains(e.getValue().getBounds())).map(e -> e.getKey()).collect(
+          Collectors.toList());
+    return Collections.emptyList();
   }
 
   /**
-   * Selects the given panels as background.
+   * Selects the given panels.
    * 
    * @param ids panels' IDs
    */
-  public void selectPanelsAsBackground(List<Long> ids) {
-    this.panels.entrySet().stream().filter(e -> ids.contains(e.getKey())).forEach(e -> e.getValue().setSelectedBackground(true));
+  void selectPanels(List<Long> ids) {
+    this.panels.forEach((id, p) -> p.setSelected(false));
+
+    if (!ids.isEmpty()) {
+      long last = ids.get(ids.size() - 1);
+
+      this.panels.get(last).setSelected(true);
+      this.panels.entrySet().stream().filter(e -> ids.contains(e.getKey()) && e.getKey() != last).forEach(
+          e -> e.getValue().setSelectedBackground(true));
+    }
     revalidate();
     repaint();
+  }
+
+  /**
+   * Selects the given links.
+   */
+  void selectLinks(List<Pair<Long, Long>> links) {
+    this.links.forEach(l -> l.setSelected(false));
+
+    if (!links.isEmpty())
+      this.links.stream().filter(l -> links.contains(new Pair<>(l.getParent1(), l.getParent2()))
+          || links.contains(new Pair<>(l.getParent2(), l.getParent1()))).forEach(l -> l.setSelected(true));
+    revalidate();
+    repaint();
+  }
+
+  /**
+   * Called when a panel is clicked.
+   * 
+   * @param id
+   * @param keepSelection
+   */
+  void panelClicked(long id, boolean keepSelection) {
+    this.controller.panelClicked(id, keepSelection);
   }
 
   /**
    * Called when a card is dragged.
-   * 
-   * @param evt the event
    */
-  @SubsribeEvent
-  public void onCardDragged(CardDragEvent.Dragging evt) {
-    final Point trans = evt.getTranslation();
+  void cardDragged(long id, Point translation, Point mouseLocation) {
+    this.controller.cardDragged(mouseLocation);
     this.panels.entrySet().stream().filter(
-        e -> e.getKey() != evt.getMemberId() && (e.getValue().isSelectedBackground() || e.getValue().isSelected())).forEach(
-            e -> e.getValue().setLocation(e.getValue().getLocation().x + trans.x, e.getValue().getLocation().y + trans.y));
-  }
-
-  /**
-   * Called when a card is clicked.
-   * 
-   * @param e the event
-   */
-  @SubsribeEvent
-  public void onCardClicked(CardEvent.Clicked e) {
-    this.panels.forEach((pId, panel) -> {
-      if (e.getMemberId() < 0) {
-        panel.setSelected(false);
-      }
-      else {
-        if (pId == e.getMemberId())
-          panel.setSelected(true);
-        else if (e.keepPreviousSelection() && panel.isSelected())
-          panel.setSelectedBackground(true);
-        else if (!e.keepPreviousSelection())
-          panel.setSelected(false);
-      }
-    });
-    this.links.forEach(l -> l.setSelected(false));
-    revalidate();
-    repaint();
-  }
-
-  /**
-   * Called when a link is clicked.
-   * 
-   * @param e the event
-   */
-  @SubsribeEvent
-  public void onLinkClicked(LinkEvent.Clicked e) {
-    Optional<Link> optL = this.links.stream().filter(
-        l -> l.getParent1() == e.getPartner1Id() && l.getParent2() == e.getPartner2Id()).findAny();
-
-    if (optL.isPresent()) {
-      Link link = optL.get();
-
-      this.links.forEach(l -> l.setSelected(false));
-      link.setSelected(true);
-    }
+        e -> e.getKey() != id && (e.getValue().isSelectedBackground() || e.getValue().isSelected())).forEach(
+            e -> e.getValue().setLocation(e.getValue().getLocation().x + translation.x, e.getValue().getLocation().y + translation.y));
   }
 
   /**
    * @return an array containing the two partners' IDs from the currently hovered link
    */
-  public Optional<long[]> getHoveredLinkPartners() {
+  Optional<Pair<Long, Long>> getHoveredLinkPartners() {
     for (Link link : this.links) {
       Rectangle r1 = this.panels.get(link.getParent1()).getBounds();
       Rectangle r2 = this.panels.get(link.getParent2()).getBounds();
@@ -358,7 +350,7 @@ public class DisplayPanel extends JPanel implements Scrollable, DragAndDropTarge
       Point p2 = new Point(r2.x + r2.width / 2, r2.y + r2.height / 2);
 
       if (isMouseOnLink(p1, p2)) {
-        return Optional.of(new long[]{link.getParent1(), link.getParent2()});
+        return Optional.of(new Pair<>(link.getParent1(), link.getParent2()));
       }
     }
     return Optional.empty();
@@ -485,7 +477,7 @@ public class DisplayPanel extends JPanel implements Scrollable, DragAndDropTarge
 
     if (this.config != null) {
       // Selection
-      Optional<Rectangle> optStart = this.controller.getSelection();
+      Optional<Rectangle> optStart = this.controller.getSelectionRectangle();
       if (optStart.isPresent()) {
         Rectangle r = optStart.get();
 

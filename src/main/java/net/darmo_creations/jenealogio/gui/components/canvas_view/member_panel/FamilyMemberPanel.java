@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.darmo_creations.jenealogio.gui.components.member_panel;
+package net.darmo_creations.jenealogio.gui.components.canvas_view.member_panel;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;

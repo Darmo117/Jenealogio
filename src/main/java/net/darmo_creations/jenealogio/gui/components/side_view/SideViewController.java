@@ -16,13 +16,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.darmo_creations.jenealogio.gui.components.side_tree;
+package net.darmo_creations.jenealogio.gui.components.side_view;
 
 import java.awt.Component;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.JMenuItem;
@@ -35,20 +38,26 @@ import javax.swing.tree.TreePath;
 
 import net.darmo_creations.gui_framework.ApplicationRegistry;
 import net.darmo_creations.gui_framework.events.UserEvent;
-import net.darmo_creations.jenealogio.events.CardEvent;
+import net.darmo_creations.jenealogio.events.CardDoubleClickEvent;
 import net.darmo_creations.jenealogio.events.EventType;
-import net.darmo_creations.jenealogio.events.LinkEvent;
+import net.darmo_creations.jenealogio.events.FocusChangeEvent;
+import net.darmo_creations.jenealogio.events.LinkDoubleClickEvent;
+import net.darmo_creations.jenealogio.events.SelectionChangeEvent;
 import net.darmo_creations.jenealogio.gui.components.NamedTreeNode;
+import net.darmo_creations.jenealogio.model.ViewType;
 import net.darmo_creations.jenealogio.model.family.FamilyMember;
 import net.darmo_creations.jenealogio.model.family.Relationship;
 import net.darmo_creations.jenealogio.util.Images;
+import net.darmo_creations.jenealogio.util.Selection;
 import net.darmo_creations.utils.I18n;
 
-public class SideViewController extends MouseAdapter implements TreeSelectionListener {
+public class SideViewController extends MouseAdapter implements TreeSelectionListener, FocusListener {
   private SideView view;
+  private Selection lastSelection;
 
   public SideViewController(SideView view) {
     this.view = view;
+    this.lastSelection = new Selection(Collections.emptyList(), Collections.emptyList());
   }
 
   @Override
@@ -60,16 +69,14 @@ public class SideViewController extends MouseAdapter implements TreeSelectionLis
       List<TreePath> paths = Arrays.asList(treePaths);
       JPopupMenu popupMenu = this.view.getPopupMenu();
       boolean gotoEnabled = paths.size() == 1;
-      boolean canDelete = !paths.isEmpty();
+      boolean canDelete = paths.stream().allMatch(p -> {
+        Object obj = ((NamedTreeNode) p.getLastPathComponent()).getUserObject();
+        return obj instanceof FamilyMember || obj instanceof Relationship;
+      });
 
       if (gotoEnabled) {
         Object o = ((NamedTreeNode) paths.get(0).getLastPathComponent()).getUserObject();
         gotoEnabled &= o instanceof FamilyMember || o instanceof Relationship;
-      }
-      if (canDelete) {
-        canDelete &= paths.size() == 1 && ((NamedTreeNode) paths.get(0).getLastPathComponent()).getUserObject() instanceof Relationship;
-        if (!canDelete)
-          canDelete |= paths.stream().allMatch(p -> ((NamedTreeNode) p.getLastPathComponent()).getUserObject() instanceof FamilyMember);
       }
 
       for (Component c : popupMenu.getComponents()) {
@@ -84,56 +91,37 @@ public class SideViewController extends MouseAdapter implements TreeSelectionLis
               Object o = ((NamedTreeNode) paths.get(0).getLastPathComponent()).getUserObject();
               if (o instanceof FamilyMember) {
                 FamilyMember m = (FamilyMember) o;
-                i.addActionListener(l -> ApplicationRegistry.EVENTS_BUS.dispatchEvent(new CardEvent.Clicked(m.getId(), false, true)));
+                // i.addActionListener(l -> ApplicationRegistry.EVENTS_BUS.dispatchEvent(new
+                // CardEvent.Clicked(m.getId(), false, true)));
               }
               else if (o instanceof Relationship) {
                 Relationship r = (Relationship) o;
-                i.addActionListener(l -> {
-                  ApplicationRegistry.EVENTS_BUS.dispatchEvent(new CardEvent.Clicked(-1, false));
-                  ApplicationRegistry.EVENTS_BUS.dispatchEvent(new LinkEvent.Clicked(r.getPartner1(), r.getPartner2(), true));
-                });
+                // i.addActionListener(l -> {
+                // ApplicationRegistry.EVENTS_BUS.dispatchEvent(new CardEvent.Clicked(-1, false));
+                // ApplicationRegistry.EVENTS_BUS.dispatchEvent(new
+                // LinkEvent.Clicked(r.getPartner1(), r.getPartner2(), true));
+                // });
               }
             }
             break;
           case "delete":
             i.setEnabled(canDelete);
-            for (ActionListener l : i.getActionListeners())
-              i.removeActionListener(l);
 
             if (canDelete) {
               Object o = ((NamedTreeNode) paths.get(0).getLastPathComponent()).getUserObject();
-              if (o instanceof FamilyMember) {
-                FamilyMember m = (FamilyMember) o;
-                i.addActionListener(l -> {
-                  ApplicationRegistry.EVENTS_BUS.dispatchEvent(new CardEvent.Clicked(m.getId(), false));
-                  for (int j = 1; j < paths.size(); j++) {
-                    FamilyMember m1 = (FamilyMember) ((NamedTreeNode) paths.get(j).getLastPathComponent()).getUserObject();
-                    ApplicationRegistry.EVENTS_BUS.dispatchEvent(new CardEvent.Clicked(m1.getId(), true));
-                  }
-                  ApplicationRegistry.EVENTS_BUS.dispatchEvent(new UserEvent(EventType.DELETE_CARD));
-                });
+              if (o instanceof FamilyMember || o instanceof Relationship) {
+                i.addActionListener(l -> ApplicationRegistry.EVENTS_BUS.dispatchEvent(new UserEvent(EventType.DELETE_OBJECT)));
                 i.setText(I18n.getLocalizedString("item.delete_card.text"));
-                i.setIcon(Images.DELETE_CARD);
+                i.setIcon(Images.DELETE_BIG);
               }
-              else if (o instanceof Relationship) {
-                Relationship r = (Relationship) o;
-                // TODO listener
-                i.setText(I18n.getLocalizedString("item.delete_link.text"));
-                i.setIcon(Images.DELETE_LINK);
-              }
-              else {
-                i.setText(I18n.getLocalizedString("item.delete.text"));
-                i.setIcon(null);
-              }
-            }
-            else {
-              i.setText(I18n.getLocalizedString("item.delete.text"));
-              i.setIcon(null);
             }
             break;
         }
       }
     }
+
+    ApplicationRegistry.EVENTS_BUS.dispatchEvent(new SelectionChangeEvent(this.lastSelection, this.view.getSelection()));
+    this.lastSelection = this.view.getSelection();
   }
 
   @Override
@@ -151,13 +139,21 @@ public class SideViewController extends MouseAdapter implements TreeSelectionLis
 
       if (clickedNode == selectedNode) {
         if (value instanceof FamilyMember) {
-          ApplicationRegistry.EVENTS_BUS.dispatchEvent(new CardEvent.DoubleClicked(((FamilyMember) value).getId()));
+          ApplicationRegistry.EVENTS_BUS.dispatchEvent(new CardDoubleClickEvent(((FamilyMember) value).getId()));
         }
         else if (value instanceof Relationship) {
           Relationship r = (Relationship) value;
-          ApplicationRegistry.EVENTS_BUS.dispatchEvent(new LinkEvent.DoubleClicked(r.getPartner1(), r.getPartner2()));
+          ApplicationRegistry.EVENTS_BUS.dispatchEvent(new LinkDoubleClickEvent(r.getPartner1(), r.getPartner2()));
         }
       }
     }
   }
+
+  @Override
+  public void focusGained(FocusEvent e) {
+    ApplicationRegistry.EVENTS_BUS.dispatchEvent(new FocusChangeEvent(ViewType.SIDE));
+  }
+
+  @Override
+  public void focusLost(FocusEvent e) {}
 }

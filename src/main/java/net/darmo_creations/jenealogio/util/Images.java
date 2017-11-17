@@ -48,11 +48,9 @@ public final class Images {
   public static final ImageIcon UNDO;
   public static final ImageIcon REDO;
   public static final ImageIcon ADD_CARD;
-  public static final ImageIcon EDIT_CARD;
-  public static final ImageIcon DELETE_CARD;
   public static final ImageIcon ADD_LINK;
-  public static final ImageIcon EDIT_LINK;
-  public static final ImageIcon DELETE_LINK;
+  public static final ImageIcon EDIT;
+  public static final ImageIcon DELETE;
   public static final ImageIcon EXIT;
   public static final ImageIcon HELP;
   public static final ImageIcon ARROW_UP;
@@ -80,11 +78,9 @@ public final class Images {
   public static final ImageIcon UNDO_BIG;
   public static final ImageIcon REDO_BIG;
   public static final ImageIcon ADD_CARD_BIG;
-  public static final ImageIcon EDIT_CARD_BIG;
-  public static final ImageIcon DELETE_CARD_BIG;
   public static final ImageIcon ADD_LINK_BIG;
-  public static final ImageIcon EDIT_LINK_BIG;
-  public static final ImageIcon DELETE_LINK_BIG;
+  public static final ImageIcon EDIT_BIG;
+  public static final ImageIcon DELETE_BIG;
   public static final ImageIcon ARROW_UP_BIG;
   public static final ImageIcon ARROW_DOWN_BIG;
 
@@ -101,11 +97,9 @@ public final class Images {
     UNDO = ImagesUtil.getIcon("/assets/icons/undo.png");
     REDO = ImagesUtil.getIcon("/assets/icons/redo.png");
     ADD_CARD = ImagesUtil.getIcon("/assets/icons/add_card.png");
-    EDIT_CARD = ImagesUtil.getIcon("/assets/icons/edit_card.png");
-    DELETE_CARD = ImagesUtil.getIcon("/assets/icons/delete_card.png");
     ADD_LINK = ImagesUtil.getIcon("/assets/icons/add_link.png");
-    EDIT_LINK = ImagesUtil.getIcon("/assets/icons/edit_link.png");
-    DELETE_LINK = ImagesUtil.getIcon("/assets/icons/delete_link.png");
+    EDIT = ImagesUtil.getIcon("/assets/icons/edit.png");
+    DELETE = ImagesUtil.getIcon("/assets/icons/delete.png");
     EXIT = ImagesUtil.getIcon("/assets/icons/exit.png");
     HELP = ImagesUtil.getIcon("/assets/icons/help.png");
     ARROW_UP = ImagesUtil.getIcon("/assets/icons/arrow_up.png");
@@ -133,11 +127,9 @@ public final class Images {
     UNDO_BIG = ImagesUtil.getIcon("/assets/icons/undo_32.png");
     REDO_BIG = ImagesUtil.getIcon("/assets/icons/redo_32.png");
     ADD_CARD_BIG = ImagesUtil.getIcon("/assets/icons/add_card_32.png");
-    EDIT_CARD_BIG = ImagesUtil.getIcon("/assets/icons/edit_card_32.png");
-    DELETE_CARD_BIG = ImagesUtil.getIcon("/assets/icons/delete_card_32.png");
     ADD_LINK_BIG = ImagesUtil.getIcon("/assets/icons/add_link_32.png");
-    EDIT_LINK_BIG = ImagesUtil.getIcon("/assets/icons/edit_link_32.png");
-    DELETE_LINK_BIG = ImagesUtil.getIcon("/assets/icons/delete_link_32.png");
+    EDIT_BIG = ImagesUtil.getIcon("/assets/icons/edit_32.png");
+    DELETE_BIG = ImagesUtil.getIcon("/assets/icons/delete_32.png");
     ARROW_UP_BIG = ImagesUtil.getIcon("/assets/icons/arrow_up_32.png");
     ARROW_DOWN_BIG = ImagesUtil.getIcon("/assets/icons/arrow_down_32.png");
 

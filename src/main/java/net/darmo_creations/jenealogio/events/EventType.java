@@ -12,10 +12,8 @@ public enum EventType implements UserEvent.Type {
   REDO,
   ADD_CARD,
   ADD_LINK,
-  EDIT_CARD,
-  EDIT_LINK,
-  DELETE_CARD,
-  DELETE_LINK,
+  EDIT_OBJECT,
+  DELETE_OBJECT,
   EDIT_COLORS,
   EXPORT_IMAGE;
 }

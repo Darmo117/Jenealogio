@@ -16,13 +16,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.darmo_creations.jenealogio.gui.components.side_tree;
+package net.darmo_creations.jenealogio.gui.components.side_view;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.JLabel;
@@ -37,17 +38,22 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreePath;
 
 import net.darmo_creations.jenealogio.gui.components.NamedTreeNode;
+import net.darmo_creations.jenealogio.gui.components.View;
 import net.darmo_creations.jenealogio.model.family.Family;
 import net.darmo_creations.jenealogio.model.family.FamilyMember;
 import net.darmo_creations.jenealogio.model.family.Relationship;
 import net.darmo_creations.jenealogio.util.Images;
+import net.darmo_creations.jenealogio.util.Pair;
+import net.darmo_creations.jenealogio.util.Selection;
 import net.darmo_creations.utils.I18n;
 
-public class SideView extends JPanel {
+public class SideView extends JPanel implements View {
   private static final long serialVersionUID = -1739589891038892474L;
 
+  private JTree tree;
   private DefaultTreeModel treeModel;
   private NamedTreeNode membersNode, relationsNode;
   private JPopupMenu popupMenu;
@@ -64,15 +70,16 @@ public class SideView extends JPanel {
     root.add(this.relationsNode);
 
     SideViewController controller = new SideViewController(this);
+
     this.treeModel = new DefaultTreeModel(root);
-    JTree tree = new JTree(this.treeModel);
-    tree.setRootVisible(false);
-    tree.setShowsRootHandles(true);
-    tree.setBorder(new EmptyBorder(5, 5, 5, 5));
-    tree.addMouseListener(controller);
-    tree.addTreeSelectionListener(controller);
-    tree.setLargeModel(true);
-    tree.setCellRenderer(new DefaultTreeCellRenderer() {
+    this.tree = new JTree(this.treeModel);
+    this.tree.setRootVisible(false);
+    this.tree.setShowsRootHandles(true);
+    this.tree.setBorder(new EmptyBorder(5, 5, 5, 5));
+    this.tree.addMouseListener(controller);
+    this.tree.addTreeSelectionListener(controller);
+    this.tree.setLargeModel(true);
+    this.tree.setCellRenderer(new DefaultTreeCellRenderer() {
       private static final long serialVersionUID = -489015910861060922L;
 
       @Override
@@ -113,12 +120,13 @@ public class SideView extends JPanel {
         return c;
       }
     });
+    this.tree.addFocusListener(controller);
 
     JLabel topLbl = new JLabel(I18n.getLocalizedString("label.tree_explorer.text"));
     topLbl.setBorder(new CompoundBorder(new MatteBorder(0, 0, 2, 0, Color.GRAY), new EmptyBorder(5, 5, 5, 5)));
     add(topLbl, BorderLayout.NORTH);
 
-    add(new JScrollPane(tree), BorderLayout.CENTER);
+    add(new JScrollPane(this.tree), BorderLayout.CENTER);
 
     initMenu();
   }
@@ -168,6 +176,38 @@ public class SideView extends JPanel {
 
     revalidate();
     repaint();
+  }
+
+  public void reset() {
+    this.membersNode.removeAllChildren();
+    this.relationsNode.removeAllChildren();
+    this.treeModel.reload(this.membersNode);
+    this.treeModel.reload(this.relationsNode);
+    revalidate();
+    repaint();
+  }
+
+  @Override
+  public Selection getSelection() {
+    TreePath[] treePaths = this.tree.getSelectionPaths();
+    List<Long> members = new ArrayList<>();
+    List<Pair<Long, Long>> relations = new ArrayList<>();
+
+    if (treePaths != null) {
+      List<TreePath> paths = Arrays.asList(treePaths);
+      paths.forEach(p -> {
+        Object obj = ((NamedTreeNode) p.getLastPathComponent()).getUserObject();
+        if (obj instanceof FamilyMember) {
+          members.add(((FamilyMember) obj).getId());
+        }
+        else if (obj instanceof Relationship) {
+          Relationship r = (Relationship) obj;
+          relations.add(new Pair<Long, Long>(r.getPartner1(), r.getPartner2()));
+        }
+      });
+    }
+
+    return new Selection(members, relations);
   }
 
   JPopupMenu getPopupMenu() {

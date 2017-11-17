@@ -26,11 +26,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.swing.JOptionPane;
 
@@ -42,19 +40,22 @@ import net.darmo_creations.jenealogio.Jenealogio;
 import net.darmo_creations.jenealogio.config.ColorTag;
 import net.darmo_creations.jenealogio.config.ConfigTags;
 import net.darmo_creations.jenealogio.dao.FamilyDao;
-import net.darmo_creations.jenealogio.events.CardDragEvent;
-import net.darmo_creations.jenealogio.events.CardEvent;
-import net.darmo_creations.jenealogio.events.CardResizeEvent;
-import net.darmo_creations.jenealogio.events.CardsSelectionEvent;
+import net.darmo_creations.jenealogio.events.CardDoubleClickEvent;
 import net.darmo_creations.jenealogio.events.EventType;
-import net.darmo_creations.jenealogio.events.LinkEvent;
+import net.darmo_creations.jenealogio.events.FocusChangeEvent;
+import net.darmo_creations.jenealogio.events.LinkDoubleClickEvent;
+import net.darmo_creations.jenealogio.events.SelectionChangeEvent;
+import net.darmo_creations.jenealogio.events.ViewEditEvent;
 import net.darmo_creations.jenealogio.gui.MainFrame;
-import net.darmo_creations.jenealogio.gui.components.display_panel.DisplayPanel;
+import net.darmo_creations.jenealogio.gui.components.canvas_view.CanvasView;
 import net.darmo_creations.jenealogio.model.FamilyEdit;
+import net.darmo_creations.jenealogio.model.ViewType;
 import net.darmo_creations.jenealogio.model.family.Family;
 import net.darmo_creations.jenealogio.model.family.FamilyMember;
 import net.darmo_creations.jenealogio.model.family.Relationship;
 import net.darmo_creations.jenealogio.util.Images;
+import net.darmo_creations.jenealogio.util.Pair;
+import net.darmo_creations.jenealogio.util.Selection;
 import net.darmo_creations.utils.FilesUtil;
 import net.darmo_creations.utils.I18n;
 import net.darmo_creations.utils.UndoRedoManager;
@@ -71,6 +72,7 @@ public class MainController extends ApplicationController<MainFrame> implements 
   /** Main DAO */
   private final FamilyDao familyDao;
 
+  private ViewType currentView;
   /** The family (model) */
   private Family family;
   /** Last save */
@@ -83,12 +85,6 @@ public class MainController extends ApplicationController<MainFrame> implements 
   private boolean saved;
   /** The name of the last saved file */
   private String fileName;
-  /** The currently selected card */
-  private FamilyMember lastSelectedCard;
-  /** All currently selected cards */
-  private List<FamilyMember> selectedCards;
-  /** The currently selected link */
-  private Relationship selectedLink;
   /** Are we adding a link? */
   private boolean addingLink;
 
@@ -99,7 +95,6 @@ public class MainController extends ApplicationController<MainFrame> implements 
     super(frame, config);
     this.familyDao = FamilyDao.instance();
     this.lastSavedEdit = null;
-    this.selectedCards = new ArrayList<>();
 
     this.undoRedoManager = new UndoRedoManager<>();
   }
@@ -126,6 +121,7 @@ public class MainController extends ApplicationController<MainFrame> implements 
   public void onUserEvent(UserEvent e) {
     super.onUserEvent(e);
 
+    // FIXME delete event is fired multiple times in a row
     if (e.isCanceled()) {
       return;
     }
@@ -170,20 +166,13 @@ public class MainController extends ApplicationController<MainFrame> implements 
           addMember();
           break;
         case ADD_LINK:
-          ApplicationRegistry.EVENTS_BUS.dispatchEvent(new CardEvent.Clicked(-1, false));
           toggleAddLink();
           break;
-        case EDIT_CARD:
-          editCard();
+        case EDIT_OBJECT:
+          editObject();
           break;
-        case EDIT_LINK:
-          editLink();
-          break;
-        case DELETE_CARD:
-          deleteCard();
-          break;
-        case DELETE_LINK:
-          deleteLink();
+        case DELETE_OBJECT:
+          deleteObject();
           break;
         case EDIT_COLORS:
           editColors();
@@ -201,48 +190,10 @@ public class MainController extends ApplicationController<MainFrame> implements 
       e.setCanceled();
   }
 
-  /**
-   * Called when a card is clicked.
-   * 
-   * @param e the event
-   */
   @SubsribeEvent
-  public void onCardClicked(CardEvent.Clicked e) {
-    long id = e.getMemberId();
-    boolean keepSelection = e.keepPreviousSelection();
-
-    this.selectedLink = null;
-    if (id >= 0) {
-      FamilyMember prev = null;
-
-      if (!this.addingLink
-          || (this.addingLink && this.lastSelectedCard != null && !this.family.areInRelationship(this.lastSelectedCard.getId(), id)))
-        prev = this.lastSelectedCard;
-
-      this.lastSelectedCard = this.family.getMember(id).orElseThrow(IllegalStateException::new);
-
-      if (this.addingLink && prev != null) {
-        addLink(prev.getId(), this.lastSelectedCard.getId());
-        toggleAddLink();
-      }
-
-      if (keepSelection) {
-        this.selectedCards.removeIf(m -> m.getId() == this.lastSelectedCard.getId());
-        if (prev != null && prev.getId() != this.lastSelectedCard.getId())
-          this.selectedCards.add(prev);
-      }
-      else {
-        this.selectedCards.clear();
-      }
-    }
-    else {
-      if (this.addingLink)
-        toggleAddLink();
-      this.lastSelectedCard = null;
-      this.selectedCards.clear();
-    }
+  public void onFocusChanged(FocusChangeEvent e) {
+    this.currentView = e.getView();
     updateFrameMenus();
-    this.frame.setPanelsSelectedAsBackground(this.selectedCards.stream().map(f -> f.getId()).collect(Collectors.toList()));
   }
 
   /**
@@ -251,26 +202,46 @@ public class MainController extends ApplicationController<MainFrame> implements 
    * @param e the event
    */
   @SubsribeEvent
-  public void onCardDoubleClicked(CardEvent.DoubleClicked e) {
+  public void onCardDoubleClicked(CardDoubleClickEvent e) {
     this.family.getMember(e.getMemberId()).ifPresent(m -> this.frame.showDetailsDialog(m, this.family.getRelations(m.getId())));
   }
 
   /**
-   * Called when a link is clicked.
+   * Called when the selection inside the active view changes.
    * 
    * @param e the event
    */
   @SubsribeEvent
-  public void onLinkClicked(LinkEvent.Clicked e) {
-    Optional<FamilyMember> optM1 = this.family.getMember(e.getPartner1Id());
-    Optional<FamilyMember> optM2 = this.family.getMember(e.getPartner2Id());
+  public void onSelectionChanged(SelectionChangeEvent e) {
+    System.out.println(e); // DEBUG
+    Selection old = e.getLastSelection();
+    Selection current = e.getNewSelection();
 
-    if (optM1.isPresent() && optM2.isPresent()) {
-      Optional<Relationship> r = this.family.getRelation(optM1.get().getId(), optM2.get().getId());
+    if (this.addingLink) {
+      if (!current.getMembers().isEmpty() && current.getRelations().isEmpty()) {
+        List<Long> previous = old.getMembers();
+        List<Long> cur = current.getMembers();
 
-      if (r.isPresent())
-        this.selectedLink = r.get();
+        if (this.family.areInRelation(previous.get(0), cur.get(0))) {
+          this.frame.showErrorDialog(I18n.getLocalizedString("popup.already_in_relationship.text"));
+        }
+        else if (previous.size() == 1 && current.size() == 1 && !this.family.areInRelation(previous.get(0), cur.get(0))) {
+          addLink(previous.get(0), cur.get(0));
+        }
+        toggleAddLink();
+      }
+      else
+        toggleAddLink();
     }
+
+    updateFrameMenus();
+  }
+
+  @SubsribeEvent
+  public void onViewEdit(ViewEditEvent e) {
+    this.saved = false;
+    System.out.println(e); // DEBUG
+    addEdit();
     updateFrameMenus();
   }
 
@@ -280,77 +251,13 @@ public class MainController extends ApplicationController<MainFrame> implements 
    * @param e the event
    */
   @SubsribeEvent
-  public void onLinkDoubleClicked(LinkEvent.DoubleClicked e) {
+  public void onLinkDoubleClicked(LinkDoubleClickEvent e) {
     showDetails(e.getPartner1Id(), e.getPartner2Id());
-  }
-
-  /**
-   * Called when several cards are selected simultaneously.
-   * 
-   * @param e the event
-   */
-  @SubsribeEvent
-  public void onCardsSelected(CardsSelectionEvent e) {
-    long[] ids = e.getSelectedPanelsIds();
-
-    this.lastSelectedCard = null;
-    this.selectedCards.clear();
-    if (ids.length > 0) {
-      for (int i = 1; i < ids.length; i++) {
-        this.selectedCards.add(this.family.getMember(ids[i]).orElseThrow(IllegalArgumentException::new));
-      }
-      ApplicationRegistry.EVENTS_BUS.dispatchEvent(new CardEvent.Clicked(ids[0], true));
-    }
-    updateFrameMenus();
-  }
-
-  /**
-   * Called when a card is going to be dragged.
-   * 
-   * @param e the event
-   */
-  @SubsribeEvent
-  public void onCardDragPre(CardDragEvent.Pre e) {
-    this.saved = false;
-    updateFrameMenus();
-  }
-
-  /**
-   * Called when a card has been dragged.
-   * 
-   * @param e the event
-   */
-  @SubsribeEvent
-  public void onCardDragPost(CardDragEvent.Post e) {
-    addEdit();
-    updateFrameMenus();
-  }
-
-  /**
-   * Called when a card is going to be resized.
-   * 
-   * @param e the event
-   */
-  @SubsribeEvent
-  public void onCardResizePre(CardResizeEvent.Pre e) {
-    this.saved = false;
-    updateFrameMenus();
-  }
-
-  /**
-   * Called when a card has been resized.
-   * 
-   * @param e the event
-   */
-  @SubsribeEvent
-  public void onCardResizePost(CardResizeEvent.Post e) {
-    addEdit();
-    updateFrameMenus();
   }
 
   @Override
   public boolean acceptFiles(List<File> files, Component c) {
-    if (!(c instanceof DisplayPanel) || files.size() != 1)
+    if (!(c instanceof CanvasView) || files.size() != 1)
       return false;
     return FilesUtil.hasExtension(files.get(0), Jenealogio.TREE_FILE_EXT);
   }
@@ -521,7 +428,7 @@ public class MainController extends ApplicationController<MainFrame> implements 
       if (!this.alreadySaved)
         this.alreadySaved = true;
       this.saved = true;
-      this.frame.updateSaveMenus(this.saved);
+      updateFrameMenus();
 
       return true;
     }
@@ -568,76 +475,71 @@ public class MainController extends ApplicationController<MainFrame> implements 
    */
   private void toggleAddLink() {
     this.addingLink = !this.addingLink;
-    this.frame.setAddLinkButtonSelected(this.addingLink);
+    this.frame.setAddLinkSelected(this.addingLink);
+    // TODO deselect everything.
   }
 
   /**
-   * Opens up "edit card" dialog then updates the model.
+   * Opens up and "edit" dialog then updates the model.
    */
-  private void editCard() {
-    if (this.lastSelectedCard != null) {
-      Optional<FamilyMember> member = this.frame.showUpdateCardDialog(this.lastSelectedCard);
+  private void editObject() {
+    Selection selection = this.frame.getSelection(this.currentView);
 
-      if (member.isPresent()) {
-        this.family.updateMember(member.get());
-        addEdit();
-        this.saved = false;
-        updateFrameMenus();
-        refreshFrame();
+    if (selection.size() == 1) {
+      if (!selection.getMembers().isEmpty()) {
+        Optional<FamilyMember> opt = this.family.getMember(selection.getMembers().get(0));
+
+        if (opt.isPresent()) {
+          Optional<FamilyMember> member = this.frame.showUpdateCardDialog(opt.get());
+
+          if (member.isPresent()) {
+            this.family.updateMember(member.get());
+            addEdit();
+            this.saved = false;
+            updateFrameMenus();
+            refreshFrame();
+          }
+        }
+        else
+          this.frame.showErrorDialog(I18n.getLocalizedString("popup.nonexistant_object.text"));
+      }
+      else if (!selection.getRelations().isEmpty()) {
+        Pair<Long, Long> link = selection.getRelations().get(0);
+        Optional<Relationship> opt = this.family.getRelation(link.getValue1(), link.getValue2());
+
+        if (opt.isPresent()) {
+          Optional<Relationship> relation = this.frame.showUpdateLinkDialog(opt.get(), this.family);
+
+          if (relation.isPresent()) {
+            this.family.updateRelation(relation.get());
+            addEdit();
+            this.saved = false;
+            updateFrameMenus();
+            refreshFrame();
+          }
+        }
+        else
+          this.frame.showErrorDialog(I18n.getLocalizedString("popup.nonexistant_object.text"));
       }
     }
   }
 
   /**
-   * Opens up "edit link" dialog then updates the model.
+   * Deletes the selected object(s). Asks the user to confirm the action.
    */
-  private void editLink() {
-    if (this.selectedLink != null) {
-      Optional<Relationship> relation = this.frame.showUpdateLinkDialog(this.selectedLink, this.family);
+  private void deleteObject() {
+    Selection selection = this.frame.getSelection(this.currentView);
 
-      if (relation.isPresent()) {
-        this.family.updateRelation(relation.get());
-        addEdit();
-        this.saved = false;
-        updateFrameMenus();
-        refreshFrame();
-      }
-    }
-  }
-
-  /**
-   * Deletes the selected card(s). Asks the user to confirm the action.
-   */
-  private void deleteCard() {
-    if (this.lastSelectedCard != null || !this.selectedCards.isEmpty()) {
-      String key = !this.selectedCards.isEmpty() ? "popup.delete_cards_confirm.text" : "popup.delete_card_confirm.text";
+    if (!selection.isEmpty()) {
+      String key = selection.size() > 1 ? "popup.delete_objects_confirm.text" : "popup.delete_object_confirm.text";
       int choice = this.frame.showConfirmDialog(I18n.getLocalizedString(key));
 
       if (choice == JOptionPane.YES_OPTION) {
-        this.family.removeMember(this.lastSelectedCard.getId());
-        this.selectedCards.forEach(m -> this.family.removeMember(m.getId()));
-        addEdit();
-        this.lastSelectedCard = null;
-        this.selectedCards.clear();
+        selection.getMembers().forEach(id -> this.family.removeMember(id));
+        selection.getRelations().forEach(r -> this.family.removeRelation(r.getValue1(), r.getValue2()));
         this.saved = false;
-        updateFrameMenus();
-        refreshFrame();
-      }
-    }
-  }
 
-  /**
-   * Deletes the selected link. Asks the user to confirm the action.
-   */
-  private void deleteLink() {
-    if (this.selectedLink != null) {
-      int choice = this.frame.showConfirmDialog(I18n.getLocalizedString("popup.delete_link_confirm.text"));
-
-      if (choice == JOptionPane.YES_OPTION) {
-        this.family.removeRelationship(this.selectedLink);
         addEdit();
-        this.selectedLink = null;
-        this.saved = false;
         updateFrameMenus();
         refreshFrame();
       }
@@ -702,9 +604,17 @@ public class MainController extends ApplicationController<MainFrame> implements 
   private void updateFrameMenus() {
     String title = this.family != null ? " - " + (this.saved ? "" : "*") + this.family.getName() : "";
     this.frame.setTitle(this.frame.getBaseTitle() + title);
-    int nb = this.selectedCards.size() + (this.lastSelectedCard != null ? 1 : 0);
-    this.frame.updateMenus(this.fileOpen, nb, this.selectedLink != null, canUndo(), canRedo());
-    this.frame.updateSaveMenus(this.saved);
+    this.frame.setEditTreeEnabled(this.fileOpen);
+    this.frame.setExportEnabled(this.fileOpen);
+    this.frame.setEditEnabled(this.fileOpen);
+    this.frame.setSaveEnabled(this.fileOpen && !this.saved);
+    this.frame.setSaveAsEnabled(this.fileOpen);
+    this.frame.setUndoEnabled(this.undoRedoManager.canUndo());
+    this.frame.setRedoEnabled(this.undoRedoManager.canRedo());
+    this.frame.setAddObjectEnabled(this.fileOpen);
+    int selectedNb = this.currentView != null ? this.frame.getSelection(this.currentView).size() : 0;
+    this.frame.setEditObjectEnabled(selectedNb == 1);
+    this.frame.setDeleteObjectEnabled(selectedNb > 0);
   }
 
   /**
@@ -763,20 +673,6 @@ public class MainController extends ApplicationController<MainFrame> implements 
     this.family = edit.getFamily();
     this.frame.refreshDisplay(this.family, edit.getLocations(), edit.getSizes(), this.config);
     updateFrameMenus();
-  }
-
-  /**
-   * Tells if the user can undo changes.
-   */
-  private boolean canUndo() {
-    return this.undoRedoManager.canUndo();
-  }
-
-  /**
-   * Tells if the user can redo changes.
-   */
-  private boolean canRedo() {
-    return this.undoRedoManager.canRedo();
   }
 
   /**

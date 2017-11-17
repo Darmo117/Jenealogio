@@ -16,33 +16,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.darmo_creations.jenealogio.events;
+package net.darmo_creations.jenealogio.gui.components;
 
-import java.util.Arrays;
+import net.darmo_creations.jenealogio.util.Selection;
 
-import net.darmo_creations.utils.events.AbstractEvent;
-
-/**
- * This event is fired when cards have been selected.
- *
- * @author Damien Vergnet
- */
-public final class CardsSelectionEvent extends AbstractEvent {
-  private final long[] ids;
-
+public interface View {
   /**
-   * Creates an event.
-   * 
-   * @param ids IDs of all selected cards
+   * Returns the current selection.
    */
-  public CardsSelectionEvent(long... ids) {
-    this.ids = Arrays.copyOf(ids, ids.length);
-  }
-
-  /**
-   * @return IDs of all selected cards
-   */
-  public long[] getSelectedPanelsIds() {
-    return Arrays.copyOf(this.ids, this.ids.length);
-  }
+  Selection getSelection();
 }

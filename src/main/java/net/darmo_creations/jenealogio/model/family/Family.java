@@ -125,7 +125,7 @@ public class Family implements Cloneable {
   }
 
   /**
-   * Deletes a member from the family. Also removes associated relation. If the member does not
+   * Deletes a member from the family. Also removes associated relations. If the member does not
    * exist in this family, nothing will happen.
    * 
    * @param id the ID of the member to remove
@@ -181,7 +181,7 @@ public class Family implements Cloneable {
    * @param relation the new relation
    */
   public void addRelation(Relationship relation) {
-    if (!areInRelationship(relation.getPartner1(), relation.getPartner2())) {
+    if (!areInRelation(relation.getPartner1(), relation.getPartner2())) {
       this.relations.add(relation.clone());
     }
   }
@@ -209,8 +209,8 @@ public class Family implements Cloneable {
    * 
    * @param relation the relation to delete
    */
-  public void removeRelationship(Relationship relation) {
-    this.relations.removeIf(r -> r.isInRelationship(relation.getPartner1()) && r.isInRelationship(relation.getPartner2()));
+  public void removeRelation(long id1, long id2) {
+    this.relations.removeIf(r -> r.isInRelationship(id1) && r.isInRelationship(id2));
   }
 
   /**
@@ -220,7 +220,7 @@ public class Family implements Cloneable {
    * @param id2 second member ID
    * @return true if and only if they are in a relationship
    */
-  public boolean areInRelationship(long id1, long id2) {
+  public boolean areInRelation(long id1, long id2) {
     return this.relations.stream().anyMatch(relation -> relation.isInRelationship(id1) && relation.isInRelationship(id2));
   }
 

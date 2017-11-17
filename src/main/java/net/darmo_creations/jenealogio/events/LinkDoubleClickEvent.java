@@ -21,11 +21,11 @@ package net.darmo_creations.jenealogio.events;
 import net.darmo_creations.utils.events.AbstractEvent;
 
 /**
- * Base class for all events related to a single links.
+ * This event is fired when a link is double-clicked.
  *
  * @author Damien Vergnet
  */
-public abstract class LinkEvent extends AbstractEvent {
+public final class LinkDoubleClickEvent extends AbstractEvent {
   private final long partner1Id, partner2Id;
 
   /**
@@ -34,7 +34,7 @@ public abstract class LinkEvent extends AbstractEvent {
    * @param partner1Id ID of partner 1
    * @param partner2Id ID of partner 2
    */
-  protected LinkEvent(long partner1Id, long partner2Id) {
+  public LinkDoubleClickEvent(long partner1Id, long partner2Id) {
     this.partner1Id = partner1Id;
     this.partner2Id = partner2Id;
   }
@@ -56,38 +56,5 @@ public abstract class LinkEvent extends AbstractEvent {
    */
   public final long getPartner2Id() {
     return this.partner2Id;
-  }
-
-  /**
-   * This event is fired when a link is clicked.
-   *
-   * @author Damien Vergnet
-   */
-  public static class Clicked extends LinkEvent {
-    private final boolean scrollTo;
-
-    public Clicked(long partner1Id, long partner2Id) {
-      this(partner1Id, partner2Id, false);
-    }
-
-    public Clicked(long partner1Id, long partner2Id, boolean scrollTo) {
-      super(partner1Id, partner2Id);
-      this.scrollTo = scrollTo;
-    }
-
-    public boolean scrollTo() {
-      return this.scrollTo;
-    }
-  }
-
-  /**
-   * This event is fired when a link is double-clicked.
-   *
-   * @author Damien Vergnet
-   */
-  public static class DoubleClicked extends LinkEvent {
-    public DoubleClicked(long partner1Id, long partner2Id) {
-      super(partner1Id, partner2Id);
-    }
   }
 }

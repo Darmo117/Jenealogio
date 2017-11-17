@@ -29,9 +29,6 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.border.LineBorder;
 
-import net.darmo_creations.gui_framework.ApplicationRegistry;
-import net.darmo_creations.gui_framework.events.UserEvent;
-import net.darmo_creations.jenealogio.events.EventType;
 import net.darmo_creations.jenealogio.gui.MainFrame;
 import net.darmo_creations.jenealogio.gui.components.DetailsPanel;
 import net.darmo_creations.jenealogio.model.family.FamilyMember;
@@ -78,7 +75,8 @@ public class CardDetailsDialog extends AbstractDialog {
       public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand().equals("edit")) {
           this.dialog.setVisible(false);
-          ApplicationRegistry.EVENTS_BUS.dispatchEvent(new UserEvent(EventType.EDIT_CARD));
+          // TODO
+          // ApplicationRegistry.EVENTS_BUS.dispatchEvent(new UserEvent(EventType.EDIT_CARD));
           return;
         }
         super.actionPerformed(e);
