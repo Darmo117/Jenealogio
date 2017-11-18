@@ -346,6 +346,18 @@ public class CanvasView extends View implements Scrollable, DragAndDropTarget {
             e -> e.getValue().setLocation(e.getValue().getLocation().x + translation.x, e.getValue().getLocation().y + translation.y));
   }
 
+  public Rectangle getCanvasBounds() {
+    return this.canvas.getBounds();
+  }
+
+  public void setCanvasPreferredSize(Dimension size) {
+    this.canvas.setPreferredSize(size);
+  }
+
+  Point getCanvasOffset() {
+    return this.canvas.getLocationOnScreen();
+  }
+
   /**
    * @return an array containing the two partners' IDs from the currently hovered link
    */

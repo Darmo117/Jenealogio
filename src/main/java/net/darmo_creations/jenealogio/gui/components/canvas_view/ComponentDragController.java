@@ -38,7 +38,7 @@ class ComponentDragController extends MouseAdapter {
   /** Grid size in pixels */
   static final int GRID_STEP = 10;
 
-  private CanvasView canvas;
+  private CanvasView canvasView;
   private FamilyMemberPanel memberPanel;
   /** The point where the mouse grabbed in the panel. */
   private Point grabPoint;
@@ -51,7 +51,7 @@ class ComponentDragController extends MouseAdapter {
    * @param memberPanel the component this controller is monitoring
    */
   ComponentDragController(CanvasView canvas, FamilyMemberPanel memberPanel) {
-    this.canvas = canvas;
+    this.canvasView = canvas;
     this.memberPanel = memberPanel;
     this.grabPoint = null;
     this.dragging = false;
@@ -77,14 +77,14 @@ class ComponentDragController extends MouseAdapter {
     if (SwingUtilities.isLeftMouseButton(e)) {
       int modifiers = e.getModifiers();
       boolean isCtrlDown = (modifiers & MouseEvent.CTRL_MASK) != 0;
-      this.canvas.panelClicked(this.memberPanel.getMemberId(), isCtrlDown);
+      this.canvasView.panelClicked(this.memberPanel.getMemberId(), isCtrlDown);
     }
   }
 
   @Override
   public void mouseDragged(MouseEvent e) {
     if (!this.memberPanel.isMouseOnBorder() && SwingUtilities.isLeftMouseButton(e)) {
-      Rectangle containerBounds = this.canvas.getBounds();
+      Rectangle containerBounds = this.canvasView.getCanvasBounds();
       if (this.grabPoint == null)
         mousePressed(e);
       int newX = Math.max(containerBounds.x, e.getXOnScreen() - getXOffset() - this.grabPoint.x);
@@ -95,12 +95,14 @@ class ComponentDragController extends MouseAdapter {
       Point newLocation = new Point(newX, newY);
 
       if (!oldLocation.equals(newLocation)) {
-        if (!this.dragging) {
+        if (!this.dragging)
           this.dragging = true;
-        }
+
+        Point translation = new Point(newLocation.x - oldLocation.x, newLocation.y - oldLocation.y);
+        Point middle = new Point(newLocation.x + this.memberPanel.getWidth() / 2, newLocation.y + this.memberPanel.getHeight() / 2);
+
         this.memberPanel.setLocation(newLocation);
-        this.canvas.cardDragged(this.memberPanel.getMemberId(), new Point(newLocation.x - oldLocation.x, newLocation.y - oldLocation.y),
-            e.getPoint());
+        this.canvasView.cardDragged(this.memberPanel.getMemberId(), translation, middle);
       }
     }
   }
@@ -109,13 +111,13 @@ class ComponentDragController extends MouseAdapter {
    * @return the onscreen x offset
    */
   private int getXOffset() {
-    return this.canvas.getLocationOnScreen().x;
+    return this.canvasView.getCanvasOffset().x;
   }
 
   /**
    * @return the onscreen y offset
    */
   private int getYOffset() {
-    return this.canvas.getLocationOnScreen().y;
+    return this.canvasView.getCanvasOffset().y;
   }
 }

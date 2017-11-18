@@ -20,11 +20,15 @@ package net.darmo_creations.jenealogio.gui.components.view;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Point;
+import java.awt.Rectangle;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JViewport;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
@@ -69,12 +73,29 @@ public abstract class View extends JPanel {
   }
 
   /**
+   * @return the coordinates of the view's middle point
+   */
+  public Point getDisplayMiddlePoint() {
+    JViewport viewport = this.scrollPane.getViewport();
+    Point pos = viewport.getViewPosition();
+    Dimension size = viewport.getExtentSize();
+    int x = pos.x + size.width / 2;
+    int y = pos.y + size.height / 2;
+
+    return new Point(x, y);
+  }
+
+  /**
    * Sets the viewport.
    * 
    * @param viewport the viewport
    */
   public void setViewport(JComponent viewport) {
     this.scrollPane.setViewportView(viewport);
+  }
+
+  public Rectangle getViewportVisibleRect() {
+    return ((JComponent) this.scrollPane.getViewport().getView()).getVisibleRect();
   }
 
   /**

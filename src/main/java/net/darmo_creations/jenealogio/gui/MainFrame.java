@@ -37,7 +37,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JSplitPane;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
-import javax.swing.JViewport;
 import javax.swing.KeyStroke;
 
 import net.darmo_creations.gui_framework.ApplicationRegistry;
@@ -441,16 +440,10 @@ public class MainFrame extends ApplicationFrame<MainController> {
   }
 
   /**
-   * @return the display's current middle coordinate
+   * @return the canvas' current middle coordinate
    */
   public Point getDisplayMiddlePoint() {
-    JViewport viewport = (JViewport) this.canvasView.getParent();
-    Point pos = viewport.getViewPosition();
-    Dimension size = viewport.getExtentSize();
-    int x = pos.x + size.width / 2;
-    int y = pos.y + size.height / 2;
-
-    return new Point(x, y);
+    return this.canvasView.getDisplayMiddlePoint();
   }
 
   /**

@@ -291,7 +291,7 @@ class CanvasViewController extends ViewController {
    * Resizes the panel if a component is dragged outside.
    */
   private void resizePanelIfOutside() {
-    Rectangle r = this.view.getBounds();
+    Rectangle r = getView().getCanvasBounds();
     r.x = r.y = 0;
     int mouse = isOutsideRectangle(this.mouseLocation, r);
     int vAdd = 0;
@@ -308,8 +308,8 @@ class CanvasViewController extends ViewController {
     }
 
     if (vAdd != 0 || hAdd != 0) {
-      Dimension d = this.view.getSize();
-      this.view.setPreferredSize(new Dimension(d.width + hAdd, d.height + vAdd));
+      Dimension d = getView().getCanvasBounds().getSize();
+      getView().setCanvasPreferredSize(new Dimension(d.width + hAdd, d.height + vAdd));
       this.view.revalidate();
       repaint();
     }
@@ -319,7 +319,7 @@ class CanvasViewController extends ViewController {
    * Scrolls if the mouse is outside the viewport.
    */
   private void scrollIfOutside() {
-    int mouse = isOutsideRectangle(this.mouseLocation, this.view.getVisibleRect());
+    int mouse = isOutsideRectangle(this.mouseLocation, this.view.getViewportVisibleRect());
     int vTrans = 0;
     int hTrans = 0;
     final int step = 16;
