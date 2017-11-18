@@ -42,7 +42,6 @@ import java.util.TooManyListenersException;
 import java.util.stream.Collectors;
 
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.Scrollable;
 import javax.swing.SwingUtilities;
 
@@ -50,11 +49,12 @@ import net.darmo_creations.gui_framework.ApplicationRegistry;
 import net.darmo_creations.gui_framework.config.WritableConfig;
 import net.darmo_creations.jenealogio.config.ConfigTags;
 import net.darmo_creations.jenealogio.events.CardDoubleClickEvent;
-import net.darmo_creations.jenealogio.gui.components.View;
 import net.darmo_creations.jenealogio.gui.components.canvas_view.member_panel.FamilyMemberPanel;
+import net.darmo_creations.jenealogio.gui.components.view.View;
 import net.darmo_creations.jenealogio.model.family.Family;
 import net.darmo_creations.jenealogio.util.Pair;
 import net.darmo_creations.jenealogio.util.Selection;
+import net.darmo_creations.utils.I18n;
 import net.darmo_creations.utils.swing.drag_and_drop.DragAndDropListener;
 import net.darmo_creations.utils.swing.drag_and_drop.DragAndDropTarget;
 import net.darmo_creations.utils.swing.drag_and_drop.DropTargetHandler;
@@ -65,7 +65,7 @@ import net.darmo_creations.utils.swing.drag_and_drop.DropTargetHandler;
  *
  * @author Damien Vergnet
  */
-public class CanvasView extends JPanel implements Scrollable, DragAndDropTarget, View {
+public class CanvasView extends View implements Scrollable, DragAndDropTarget {
   private static final long serialVersionUID = 8747904983365363275L;
 
   private static final Dimension DEFAULT_SIZE = new Dimension(4000, 4000);
@@ -74,18 +74,15 @@ public class CanvasView extends JPanel implements Scrollable, DragAndDropTarget,
 
   private WritableConfig config;
   private DropTarget dropTarget;
-  private CanvasViewController controller;
   private MouseAdapter doubleClickController;
   private Map<Long, FamilyMemberPanel> panels;
   private List<Link> links;
 
-  private JScrollPane scrollPane;
+  private Canvas canvas;
 
-  public CanvasView(JScrollPane scrollPane) {
-    setPreferredSize(DEFAULT_SIZE);
-    setLayout(null);
+  public CanvasView() {
+    super(I18n.getLocalizedString("label.canvas.text"), new CanvasViewController());
 
-    this.controller = new CanvasViewController(this);
     this.doubleClickController = new MouseAdapter() {
       @Override
       public void mouseClicked(MouseEvent e) {
@@ -95,11 +92,14 @@ public class CanvasView extends JPanel implements Scrollable, DragAndDropTarget,
         }
       }
     };
-    addMouseListener(this.controller);
-    addMouseMotionListener(this.controller);
-    addFocusListener(this.controller);
 
-    this.scrollPane = scrollPane;
+    this.canvas = new Canvas();
+    this.canvas.setLayout(null);
+    this.canvas.setPreferredSize(DEFAULT_SIZE);
+    this.canvas.addMouseListener(getController());
+    this.canvas.addMouseMotionListener(getController());
+    this.canvas.addFocusListener(this.controller);
+    setViewport(this.canvas);
 
     this.panels = new HashMap<>();
     this.links = new ArrayList<>();
@@ -126,10 +126,12 @@ public class CanvasView extends JPanel implements Scrollable, DragAndDropTarget,
    * Resets the panel. All internal components are destroyed.
    */
   public void reset() {
+    getController().deselectAll();
     this.panels.clear();
     this.links.clear();
-    removeAll();
-    setPreferredSize(DEFAULT_SIZE);
+
+    this.canvas.removeAll();
+    this.canvas.setPreferredSize(DEFAULT_SIZE);
     revalidate();
     repaint();
   }
@@ -140,7 +142,7 @@ public class CanvasView extends JPanel implements Scrollable, DragAndDropTarget,
    * @param family the model
    */
   public void refresh(Family family, WritableConfig config) {
-    refresh(family, new HashMap<>(), new HashMap<>(), config);
+    refresh(family, Collections.emptyMap(), Collections.emptyMap(), config);
   }
 
   /**
@@ -189,16 +191,16 @@ public class CanvasView extends JPanel implements Scrollable, DragAndDropTarget,
         this.panels.put(id, panel);
 
         final int gap = 50;
-        Dimension size = getPreferredSize();
+        Dimension size = this.canvas.getPreferredSize();
         Rectangle panelBounds = panel.getBounds();
         if (panelBounds.x + panelBounds.width > size.width)
           size.width += panelBounds.x + panelBounds.width - size.width + gap;
         if (panelBounds.y + panelBounds.height > size.height)
           size.height += panelBounds.y + panelBounds.height - size.height + gap;
-        if (!size.equals(getPreferredSize()))
-          setPreferredSize(size);
+        if (!size.equals(this.canvas.getPreferredSize()))
+          this.canvas.setPreferredSize(size);
 
-        add(panel);
+        this.canvas.add(panel);
       }
       updatedOrAdded.add(id);
     });
@@ -206,7 +208,7 @@ public class CanvasView extends JPanel implements Scrollable, DragAndDropTarget,
     // Delete members removed from the model
     keysToDelete.removeAll(updatedOrAdded);
     keysToDelete.forEach(id -> {
-      remove(this.panels.get(id));
+      this.canvas.remove(this.panels.get(id));
       this.panels.remove(id);
     });
 
@@ -244,8 +246,13 @@ public class CanvasView extends JPanel implements Scrollable, DragAndDropTarget,
   }
 
   @Override
+  public void deselectAll() {
+    getController().deselectAll();
+  }
+
+  @Override
   public Selection getSelection() {
-    return this.controller.getSelection();
+    return getController().getSelection();
   }
 
   /**
@@ -326,14 +333,14 @@ public class CanvasView extends JPanel implements Scrollable, DragAndDropTarget,
    * @param keepSelection
    */
   void panelClicked(long id, boolean keepSelection) {
-    this.controller.panelClicked(id, keepSelection);
+    getController().panelClicked(id, keepSelection);
   }
 
   /**
    * Called when a card is dragged.
    */
   void cardDragged(long id, Point translation, Point mouseLocation) {
-    this.controller.cardDragged(mouseLocation);
+    getController().cardDragged(mouseLocation);
     this.panels.entrySet().stream().filter(
         e -> e.getKey() != id && (e.getValue().isSelectedBackground() || e.getValue().isSelected())).forEach(
             e -> e.getValue().setLocation(e.getValue().getLocation().x + translation.x, e.getValue().getLocation().y + translation.y));
@@ -371,7 +378,7 @@ public class CanvasView extends JPanel implements Scrollable, DragAndDropTarget,
    *      between a point and a line</a>
    */
   private boolean isMouseOnLink(Point p1, Point p2) {
-    Point m = this.controller.getMouseLocation();
+    Point m = getController().getMouseLocation();
     double dx = p2.getX() - p1.getX();
     double dy = p2.getY() - p1.getY();
     double innerProduct = (m.getX() - p1.getX()) * dx + (m.getY() - p1.getY()) * dy;
@@ -380,42 +387,10 @@ public class CanvasView extends JPanel implements Scrollable, DragAndDropTarget,
     double a = p2.getY() - p1.getY();
     double b = -(p2.getX() - p1.getX());
     double c = -a * p1.getX() - b * p1.getY();
-    Point p = this.controller.getMouseLocation();
+    Point p = getController().getMouseLocation();
     double d = Math.abs(a * p.getX() + b * p.getY() + c) / Math.hypot(a, b);
 
     return mouseInSegmentRange && d <= HOVER_DISTANCE;
-  }
-
-  /**
-   * @return the vertical scrollbar's value
-   */
-  public int getVerticalScroll() {
-    return this.scrollPane.getVerticalScrollBar().getValue();
-  }
-
-  /**
-   * Sets the vertical scrollbar's value
-   * 
-   * @param value the new value
-   */
-  public void setVerticalScroll(int value) {
-    this.scrollPane.getVerticalScrollBar().setValue(value);
-  }
-
-  /**
-   * @return the horizontal scrollbar's value
-   */
-  public int getHorizontalScroll() {
-    return this.scrollPane.getHorizontalScrollBar().getValue();
-  }
-
-  /**
-   * Sets the horizontal scrollbar's value
-   * 
-   * @param value the new value
-   */
-  public void setHorizontalScroll(int value) {
-    this.scrollPane.getHorizontalScrollBar().setValue(value);
   }
 
   /**
@@ -428,13 +403,13 @@ public class CanvasView extends JPanel implements Scrollable, DragAndDropTarget,
 
     if (p != null) {
       Rectangle r = p.getBounds();
-      Rectangle v = getVisibleRect();
+      Rectangle v = this.canvas.getVisibleRect();
       Rectangle r1 = new Rectangle(v.getSize());
 
       // Centers the component in the panel.
       r1.x = r.x - (v.width - r.width) / 2;
       r1.y = r.y - (v.height - r.height) / 2;
-      scrollRectToVisible(r1);
+      this.canvas.scrollRectToVisible(r1);
     }
   }
 
@@ -450,12 +425,12 @@ public class CanvasView extends JPanel implements Scrollable, DragAndDropTarget,
     if (link.isPresent()) {
       Point[] points = getLinkCoords(link.get());
       Point middle = points[2];
-      Rectangle v = getVisibleRect();
+      Rectangle v = this.canvas.getVisibleRect();
       Rectangle r = new Rectangle(v.getSize());
 
       r.x = middle.x - v.width / 2;
       r.y = middle.y - v.height / 2;
-      scrollRectToVisible(r);
+      this.canvas.scrollRectToVisible(r);
     }
   }
 
@@ -470,60 +445,8 @@ public class CanvasView extends JPanel implements Scrollable, DragAndDropTarget,
   }
 
   @Override
-  protected void paintComponent(Graphics g) {
-    super.paintComponent(g);
-    Graphics2D g2d = (Graphics2D) g;
-    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-    if (this.config != null) {
-      // Selection
-      Optional<Rectangle> optStart = this.controller.getSelectionRectangle();
-      if (optStart.isPresent()) {
-        Rectangle r = optStart.get();
-
-        g2d.setColor(this.config.getValue(ConfigTags.SELECTION_BACKGROUND_COLOR));
-        g2d.fillRect(r.x, r.y, r.width, r.height);
-        g2d.setColor(this.config.getValue(ConfigTags.SELECTION_BORDER_COLOR));
-        g2d.drawRect(r.x, r.y, r.width, r.height);
-      }
-
-      // Links
-      this.links.forEach(link -> {
-        final int width = link.isWedding() ? 2 : 1;
-        if (link.hasEnded())
-          g2d.setStroke(new BasicStroke(width, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[]{9}, 0));
-        else
-          g2d.setStroke(new BasicStroke(width));
-
-        // Link between parents
-        Point[] points = getLinkCoords(link);
-        Point p1 = points[0];
-        Point p2 = points[1];
-        Point middle = points[2];
-
-        if (isMouseOnLink(p1, p2))
-          g2d.setColor(this.config.getValue(ConfigTags.LINK_HOVERED_COLOR));
-        else
-          g2d.setColor(
-              link.isSelected() ? this.config.getValue(ConfigTags.LINK_SELECTED_COLOR) : this.config.getValue(ConfigTags.LINK_COLOR));
-        g2d.drawLine(p1.x, p1.y, p2.x, p2.y);
-
-        g2d.setStroke(new BasicStroke(width));
-        // Links to children
-        link.getChildren().forEach((id, adopted) -> {
-          Rectangle r = this.panels.get(id).getBounds();
-          Point p = new Point(r.x + r.width / 2, r.y + r.height / 2);
-
-          g2d.setColor(this.config.getValue(adopted ? ConfigTags.LINK_ADOPTED_CHILD_COLOR : ConfigTags.LINK_CHILD_COLOR));
-          g2d.drawLine(middle.x, middle.y, p.x, p.y);
-        });
-      });
-    }
-  }
-
-  @Override
   public Dimension getPreferredScrollableViewportSize() {
-    return getPreferredSize();
+    return this.canvas.getPreferredSize();
   }
 
   @Override
@@ -552,8 +475,8 @@ public class CanvasView extends JPanel implements Scrollable, DragAndDropTarget,
    * @return this panel as an image
    */
   public BufferedImage exportToImage() {
-    BufferedImage image = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_RGB);
-    paint(image.createGraphics());
+    BufferedImage image = new BufferedImage(this.canvas.getWidth(), this.canvas.getHeight(), BufferedImage.TYPE_INT_RGB);
+    this.canvas.paint(image.createGraphics());
 
     Point p1 = getTopLeftPoint();
     Point p2 = getBottomRightPoint();
@@ -589,6 +512,66 @@ public class CanvasView extends JPanel implements Scrollable, DragAndDropTarget,
     });
 
     return point;
+  }
+
+  private CanvasViewController getController() {
+    return (CanvasViewController) this.controller;
+  }
+
+  private class Canvas extends JPanel {
+    private static final long serialVersionUID = -7308185736594294332L;
+
+    @Override
+    protected void paintComponent(Graphics g) {
+      super.paintComponent(g);
+      Graphics2D g2d = (Graphics2D) g;
+      g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+      if (CanvasView.this.config != null) {
+        // Selection
+        Optional<Rectangle> optStart = CanvasView.this.getController().getSelectionRectangle();
+        if (optStart.isPresent()) {
+          Rectangle r = optStart.get();
+
+          g2d.setColor(CanvasView.this.config.getValue(ConfigTags.SELECTION_BACKGROUND_COLOR));
+          g2d.fillRect(r.x, r.y, r.width, r.height);
+          g2d.setColor(CanvasView.this.config.getValue(ConfigTags.SELECTION_BORDER_COLOR));
+          g2d.drawRect(r.x, r.y, r.width, r.height);
+        }
+
+        // Links
+        CanvasView.this.links.forEach(link -> {
+          final int width = link.isWedding() ? 2 : 1;
+          if (link.hasEnded())
+            g2d.setStroke(new BasicStroke(width, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[]{9}, 0));
+          else
+            g2d.setStroke(new BasicStroke(width));
+
+          // Link between parents
+          Point[] points = getLinkCoords(link);
+          Point p1 = points[0];
+          Point p2 = points[1];
+          Point middle = points[2];
+
+          if (isMouseOnLink(p1, p2))
+            g2d.setColor(CanvasView.this.config.getValue(ConfigTags.LINK_HOVERED_COLOR));
+          else
+            g2d.setColor(link.isSelected() ? CanvasView.this.config.getValue(ConfigTags.LINK_SELECTED_COLOR)
+                : CanvasView.this.config.getValue(ConfigTags.LINK_COLOR));
+          g2d.drawLine(p1.x, p1.y, p2.x, p2.y);
+
+          g2d.setStroke(new BasicStroke(width));
+          // Links to children
+          link.getChildren().forEach((id, adopted) -> {
+            Rectangle r = CanvasView.this.panels.get(id).getBounds();
+            Point p = new Point(r.x + r.width / 2, r.y + r.height / 2);
+
+            g2d.setColor(CanvasView.this.config.getValue(adopted ? ConfigTags.LINK_ADOPTED_CHILD_COLOR : ConfigTags.LINK_CHILD_COLOR));
+            g2d.drawLine(middle.x, middle.y, p.x, p.y);
+          });
+        });
+      }
+    }
   }
 
   /**

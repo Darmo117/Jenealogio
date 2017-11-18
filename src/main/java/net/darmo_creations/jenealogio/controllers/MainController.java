@@ -121,7 +121,6 @@ public class MainController extends ApplicationController<MainFrame> implements 
   public void onUserEvent(UserEvent e) {
     super.onUserEvent(e);
 
-    // FIXME delete event is fired multiple times in a row
     if (e.isCanceled()) {
       return;
     }
@@ -172,7 +171,7 @@ public class MainController extends ApplicationController<MainFrame> implements 
           editObject();
           break;
         case DELETE_OBJECT:
-          deleteObject();
+          deleteObjects();
           break;
         case EDIT_COLORS:
           editColors();
@@ -193,6 +192,7 @@ public class MainController extends ApplicationController<MainFrame> implements 
   @SubsribeEvent
   public void onFocusChanged(FocusChangeEvent e) {
     this.currentView = e.getView();
+    System.out.println(this.currentView);
     updateFrameMenus();
   }
 
@@ -449,6 +449,7 @@ public class MainController extends ApplicationController<MainFrame> implements 
       Map<Long, Point> points = this.frame.getCardsPositions();
       Map<Long, Dimension> sizes = this.frame.getCardsSizes();
       points.put(this.family.getGlobalId() - 1, this.frame.getDisplayMiddlePoint());
+      this.frame.getView(this.currentView).deselectAll();
       this.frame.refreshDisplay(this.family, points, sizes, this.config);
       addEdit();
       updateFrameMenus();
@@ -465,7 +466,7 @@ public class MainController extends ApplicationController<MainFrame> implements 
       this.family.addRelation(optWedding.get());
       this.saved = false;
       addEdit();
-      refreshFrame();
+      refreshFrame(true);
       updateFrameMenus();
     }
   }
@@ -483,7 +484,7 @@ public class MainController extends ApplicationController<MainFrame> implements 
    * Opens up and "edit" dialog then updates the model.
    */
   private void editObject() {
-    Selection selection = this.frame.getSelection(this.currentView);
+    Selection selection = this.frame.getView(this.currentView).getSelection();
 
     if (selection.size() == 1) {
       if (!selection.getMembers().isEmpty()) {
@@ -496,8 +497,8 @@ public class MainController extends ApplicationController<MainFrame> implements 
             this.family.updateMember(member.get());
             addEdit();
             this.saved = false;
+            refreshFrame(false);
             updateFrameMenus();
-            refreshFrame();
           }
         }
         else
@@ -514,8 +515,8 @@ public class MainController extends ApplicationController<MainFrame> implements 
             this.family.updateRelation(relation.get());
             addEdit();
             this.saved = false;
+            refreshFrame(false);
             updateFrameMenus();
-            refreshFrame();
           }
         }
         else
@@ -527,21 +528,25 @@ public class MainController extends ApplicationController<MainFrame> implements 
   /**
    * Deletes the selected object(s). Asks the user to confirm the action.
    */
-  private void deleteObject() {
-    Selection selection = this.frame.getSelection(this.currentView);
+  private void deleteObjects() {
+    Selection selection = this.frame.getView(this.currentView).getSelection();
 
     if (!selection.isEmpty()) {
       String key = selection.size() > 1 ? "popup.delete_objects_confirm.text" : "popup.delete_object_confirm.text";
       int choice = this.frame.showConfirmDialog(I18n.getLocalizedString(key));
 
       if (choice == JOptionPane.YES_OPTION) {
+        System.out.println(this.family);
+        System.out.println(selection.getRelations());
         selection.getMembers().forEach(id -> this.family.removeMember(id));
         selection.getRelations().forEach(r -> this.family.removeRelation(r.getValue1(), r.getValue2()));
+        System.out.println(this.family);
+
         this.saved = false;
 
         addEdit();
+        refreshFrame(true);
         updateFrameMenus();
-        refreshFrame();
       }
     }
   }
@@ -560,7 +565,7 @@ public class MainController extends ApplicationController<MainFrame> implements 
       }
 
       if (this.fileOpen)
-        refreshFrame();
+        refreshFrame(false);
     }
   }
 
@@ -612,16 +617,18 @@ public class MainController extends ApplicationController<MainFrame> implements 
     this.frame.setUndoEnabled(this.undoRedoManager.canUndo());
     this.frame.setRedoEnabled(this.undoRedoManager.canRedo());
     this.frame.setAddObjectEnabled(this.fileOpen);
-    int selectedNb = this.currentView != null ? this.frame.getSelection(this.currentView).size() : 0;
+    int selectedNb = this.currentView != null ? this.frame.getView(this.currentView).getSelection().size() : 0;
     this.frame.setEditObjectEnabled(selectedNb == 1);
     this.frame.setDeleteObjectEnabled(selectedNb > 0);
   }
 
   /**
-   * Refreshes tree display.
+   * Refreshes the display.
    */
-  private void refreshFrame() {
+  private void refreshFrame(boolean deselectAll) {
     this.frame.refreshDisplay(this.family, this.config);
+    if (deselectAll)
+      this.frame.getView(this.currentView).deselectAll();
   }
 
   /**
@@ -671,6 +678,7 @@ public class MainController extends ApplicationController<MainFrame> implements 
     else
       this.saved = false;
     this.family = edit.getFamily();
+    this.frame.getView(this.currentView).deselectAll();
     this.frame.refreshDisplay(this.family, edit.getLocations(), edit.getSizes(), this.config);
     updateFrameMenus();
   }

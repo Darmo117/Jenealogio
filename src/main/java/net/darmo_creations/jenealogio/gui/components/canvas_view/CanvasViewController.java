@@ -21,9 +21,6 @@ package net.darmo_creations.jenealogio.gui.components.canvas_view;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,9 +29,9 @@ import java.util.Optional;
 import javax.swing.SwingUtilities;
 
 import net.darmo_creations.gui_framework.ApplicationRegistry;
-import net.darmo_creations.jenealogio.events.FocusChangeEvent;
 import net.darmo_creations.jenealogio.events.LinkDoubleClickEvent;
 import net.darmo_creations.jenealogio.events.SelectionChangeEvent;
+import net.darmo_creations.jenealogio.gui.components.view.ViewController;
 import net.darmo_creations.jenealogio.model.ViewType;
 import net.darmo_creations.jenealogio.util.Pair;
 import net.darmo_creations.jenealogio.util.Selection;
@@ -44,8 +41,7 @@ import net.darmo_creations.jenealogio.util.Selection;
  * 
  * @author Damien Vergnet
  */
-class CanvasViewController extends MouseAdapter implements FocusListener {
-  private CanvasView canvas;
+class CanvasViewController extends ViewController {
   private Point mouseLocation;
   private Point selectionStart;
   private Rectangle selection;
@@ -55,8 +51,9 @@ class CanvasViewController extends MouseAdapter implements FocusListener {
   /** The currently selected links */
   private List<Pair<Long, Long>> selectedLinks;
 
-  CanvasViewController(CanvasView panel) {
-    this.canvas = panel;
+  CanvasViewController() {
+    super(ViewType.CANVAS);
+
     this.mouseLocation = new Point();
     this.selectionStart = null;
     this.selection = null;
@@ -88,7 +85,9 @@ class CanvasViewController extends MouseAdapter implements FocusListener {
 
   @Override
   public void mousePressed(MouseEvent e) {
-    this.canvas.requestFocus();
+    super.mousePressed(e);
+
+    this.view.requestFocus();
     if (SwingUtilities.isLeftMouseButton(e)) {
       this.selectionStart = e.getPoint();
       this.selection = new Rectangle(this.selectionStart);
@@ -98,8 +97,10 @@ class CanvasViewController extends MouseAdapter implements FocusListener {
 
   @Override
   public void mouseReleased(MouseEvent e) {
+    super.mouseReleased(e);
+
     if (SwingUtilities.isLeftMouseButton(e)) {
-      cardsSelected(this.canvas.getPanelsInsideRectangle(this.selection));
+      cardsSelected(getView().getPanelsInsideRectangle(this.selection));
       this.selection = null;
       repaint();
     }
@@ -110,8 +111,10 @@ class CanvasViewController extends MouseAdapter implements FocusListener {
    */
   @Override
   public void mouseClicked(MouseEvent e) {
+    super.mouseClicked(e);
+
     if (SwingUtilities.isLeftMouseButton(e)) {
-      Optional<Pair<Long, Long>> l = this.canvas.getHoveredLinkPartners();
+      Optional<Pair<Long, Long>> l = getView().getHoveredLinkPartners();
 
       if (l.isPresent()) {
         boolean ctrlDown = e.isControlDown();
@@ -125,11 +128,15 @@ class CanvasViewController extends MouseAdapter implements FocusListener {
 
   @Override
   public void mouseMoved(MouseEvent e) {
+    super.mouseMoved(e);
+
     updateMouseLocation(e);
   }
 
   @Override
   public void mouseDragged(MouseEvent e) {
+    super.mouseDragged(e);
+
     Point prevLocation = this.mouseLocation;
 
     updateMouseLocation(e);
@@ -139,18 +146,25 @@ class CanvasViewController extends MouseAdapter implements FocusListener {
       int xTrans = newLocation.x - prevLocation.x;
       int yTrans = newLocation.y - prevLocation.y;
 
-      this.canvas.setHorizontalScroll(this.canvas.getHorizontalScroll() - xTrans);
-      this.canvas.setVerticalScroll(this.canvas.getVerticalScroll() - yTrans);
+      this.view.setHorizontalScroll(this.view.getHorizontalScroll() - xTrans);
+      this.view.setVerticalScroll(this.view.getVerticalScroll() - yTrans);
     }
   }
 
-  @Override
-  public void focusGained(FocusEvent e) {
-    ApplicationRegistry.EVENTS_BUS.dispatchEvent(new FocusChangeEvent(ViewType.CANVAS));
-  }
+  /**
+   * Deselects all components and sends a ViewEditEvent.
+   */
+  void deselectAll() {
+    Selection old = getSelection();
 
-  @Override
-  public void focusLost(FocusEvent e) {}
+    this.selectedCards.clear();
+    this.selectedLinks.clear();
+
+    getView().selectPanels(this.selectedCards);
+    getView().selectLinks(this.selectedLinks);
+
+    ApplicationRegistry.EVENTS_BUS.dispatchEvent(new SelectionChangeEvent(old, getSelection()));
+  }
 
   /**
    * Called when several cards are selected simultaneously.
@@ -161,9 +175,10 @@ class CanvasViewController extends MouseAdapter implements FocusListener {
     this.selectedLinks.clear();
     this.selectedCards.clear();
     this.selectedCards.addAll(ids);
-    this.canvas.selectPanels(ids);
+    getView().selectPanels(ids);
 
-    ApplicationRegistry.EVENTS_BUS.dispatchEvent(new SelectionChangeEvent(old, getSelection()));
+    if (!ids.isEmpty())
+      ApplicationRegistry.EVENTS_BUS.dispatchEvent(new SelectionChangeEvent(old, getSelection()));
   }
 
   void cardDragged(Point mouseLocation) {
@@ -181,6 +196,9 @@ class CanvasViewController extends MouseAdapter implements FocusListener {
     if (id < 0)
       throw new IllegalArgumentException("" + id);
 
+    if (!this.view.hasFocus())
+      this.view.requestFocus();
+
     Selection old = getSelection();
 
     if (keepSelection) {
@@ -195,8 +213,8 @@ class CanvasViewController extends MouseAdapter implements FocusListener {
       this.selectedLinks.clear();
     }
 
-    this.canvas.selectPanels(this.selectedCards);
-    this.canvas.selectLinks(this.selectedLinks);
+    getView().selectPanels(this.selectedCards);
+    getView().selectLinks(this.selectedLinks);
 
     ApplicationRegistry.EVENTS_BUS.dispatchEvent(new SelectionChangeEvent(old, getSelection()));
   }
@@ -213,23 +231,8 @@ class CanvasViewController extends MouseAdapter implements FocusListener {
       this.selectedCards.clear();
     }
 
-    this.canvas.selectPanels(this.selectedCards);
-    this.canvas.selectLinks(this.selectedLinks);
-
-    ApplicationRegistry.EVENTS_BUS.dispatchEvent(new SelectionChangeEvent(old, getSelection()));
-  }
-
-  /**
-   * Deselects all components and sends a ViewEditEvent.
-   */
-  private void deselectAll() {
-    Selection old = getSelection();
-
-    this.selectedCards.clear();
-    this.selectedLinks.clear();
-
-    this.canvas.selectPanels(this.selectedCards);
-    this.canvas.selectLinks(this.selectedLinks);
+    getView().selectPanels(this.selectedCards);
+    getView().selectLinks(this.selectedLinks);
 
     ApplicationRegistry.EVENTS_BUS.dispatchEvent(new SelectionChangeEvent(old, getSelection()));
   }
@@ -288,7 +291,7 @@ class CanvasViewController extends MouseAdapter implements FocusListener {
    * Resizes the panel if a component is dragged outside.
    */
   private void resizePanelIfOutside() {
-    Rectangle r = this.canvas.getBounds();
+    Rectangle r = this.view.getBounds();
     r.x = r.y = 0;
     int mouse = isOutsideRectangle(this.mouseLocation, r);
     int vAdd = 0;
@@ -305,9 +308,9 @@ class CanvasViewController extends MouseAdapter implements FocusListener {
     }
 
     if (vAdd != 0 || hAdd != 0) {
-      Dimension d = this.canvas.getSize();
-      this.canvas.setPreferredSize(new Dimension(d.width + hAdd, d.height + vAdd));
-      this.canvas.revalidate();
+      Dimension d = this.view.getSize();
+      this.view.setPreferredSize(new Dimension(d.width + hAdd, d.height + vAdd));
+      this.view.revalidate();
       repaint();
     }
   }
@@ -316,7 +319,7 @@ class CanvasViewController extends MouseAdapter implements FocusListener {
    * Scrolls if the mouse is outside the viewport.
    */
   private void scrollIfOutside() {
-    int mouse = isOutsideRectangle(this.mouseLocation, this.canvas.getVisibleRect());
+    int mouse = isOutsideRectangle(this.mouseLocation, this.view.getVisibleRect());
     int vTrans = 0;
     int hTrans = 0;
     final int step = 16;
@@ -337,12 +340,16 @@ class CanvasViewController extends MouseAdapter implements FocusListener {
     }
 
     if (vTrans != 0)
-      this.canvas.setVerticalScroll(this.canvas.getVerticalScroll() + vTrans);
+      this.view.setVerticalScroll(this.view.getVerticalScroll() + vTrans);
     if (hTrans != 0)
-      this.canvas.setHorizontalScroll(this.canvas.getHorizontalScroll() + hTrans);
+      this.view.setHorizontalScroll(this.view.getHorizontalScroll() + hTrans);
   }
 
   private void repaint() {
-    this.canvas.repaint();
+    this.view.repaint();
+  }
+
+  private CanvasView getView() {
+    return (CanvasView) this.view;
   }
 }

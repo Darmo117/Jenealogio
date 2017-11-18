@@ -18,30 +18,23 @@
  */
 package net.darmo_creations.jenealogio.gui.components.side_view;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.swing.JLabel;
 import javax.swing.JMenuItem;
-import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.KeyStroke;
-import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.MatteBorder;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
 import net.darmo_creations.jenealogio.gui.components.NamedTreeNode;
-import net.darmo_creations.jenealogio.gui.components.View;
+import net.darmo_creations.jenealogio.gui.components.view.View;
 import net.darmo_creations.jenealogio.model.family.Family;
 import net.darmo_creations.jenealogio.model.family.FamilyMember;
 import net.darmo_creations.jenealogio.model.family.Relationship;
@@ -50,7 +43,7 @@ import net.darmo_creations.jenealogio.util.Pair;
 import net.darmo_creations.jenealogio.util.Selection;
 import net.darmo_creations.utils.I18n;
 
-public class SideView extends JPanel implements View {
+public class SideView extends View {
   private static final long serialVersionUID = -1739589891038892474L;
 
   private JTree tree;
@@ -61,7 +54,7 @@ public class SideView extends JPanel implements View {
   private Family family;
 
   public SideView() {
-    super(new BorderLayout());
+    super(I18n.getLocalizedString("label.tree_explorer.text"), new SideViewController());
 
     NamedTreeNode root = new NamedTreeNode("root", "Root");
     this.membersNode = new NamedTreeNode("members", I18n.getLocalizedString("node.members.text"));
@@ -69,15 +62,13 @@ public class SideView extends JPanel implements View {
     root.add(this.membersNode);
     root.add(this.relationsNode);
 
-    SideViewController controller = new SideViewController(this);
-
     this.treeModel = new DefaultTreeModel(root);
     this.tree = new JTree(this.treeModel);
     this.tree.setRootVisible(false);
     this.tree.setShowsRootHandles(true);
     this.tree.setBorder(new EmptyBorder(5, 5, 5, 5));
-    this.tree.addMouseListener(controller);
-    this.tree.addTreeSelectionListener(controller);
+    this.tree.addMouseListener(getController());
+    this.tree.addTreeSelectionListener(getController());
     this.tree.setLargeModel(true);
     this.tree.setCellRenderer(new DefaultTreeCellRenderer() {
       private static final long serialVersionUID = -489015910861060922L;
@@ -120,13 +111,9 @@ public class SideView extends JPanel implements View {
         return c;
       }
     });
-    this.tree.addFocusListener(controller);
+    this.tree.addFocusListener(this.controller);
 
-    JLabel topLbl = new JLabel(I18n.getLocalizedString("label.tree_explorer.text"));
-    topLbl.setBorder(new CompoundBorder(new MatteBorder(0, 0, 2, 0, Color.GRAY), new EmptyBorder(5, 5, 5, 5)));
-    add(topLbl, BorderLayout.NORTH);
-
-    add(new JScrollPane(this.tree), BorderLayout.CENTER);
+    setViewport(this.tree);
 
     initMenu();
   }
@@ -188,6 +175,11 @@ public class SideView extends JPanel implements View {
   }
 
   @Override
+  public void deselectAll() {
+    // TODO Auto-generated method stub
+  }
+
+  @Override
   public Selection getSelection() {
     TreePath[] treePaths = this.tree.getSelectionPaths();
     List<Long> members = new ArrayList<>();
@@ -212,5 +204,9 @@ public class SideView extends JPanel implements View {
 
   JPopupMenu getPopupMenu() {
     return this.popupMenu;
+  }
+
+  private SideViewController getController() {
+    return (SideViewController) this.controller;
   }
 }

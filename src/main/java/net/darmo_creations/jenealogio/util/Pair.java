@@ -65,4 +65,9 @@ public class Pair<T, U> {
     }
     return false;
   }
+
+  @Override
+  public String toString() {
+    return "<" + this.v1 + ", " + this.v2 + ">";
+  }
 }

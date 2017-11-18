@@ -20,9 +20,6 @@ package net.darmo_creations.jenealogio.gui.components.side_view;
 
 import java.awt.Component;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Arrays;
 import java.util.Collections;
@@ -40,10 +37,10 @@ import net.darmo_creations.gui_framework.ApplicationRegistry;
 import net.darmo_creations.gui_framework.events.UserEvent;
 import net.darmo_creations.jenealogio.events.CardDoubleClickEvent;
 import net.darmo_creations.jenealogio.events.EventType;
-import net.darmo_creations.jenealogio.events.FocusChangeEvent;
 import net.darmo_creations.jenealogio.events.LinkDoubleClickEvent;
 import net.darmo_creations.jenealogio.events.SelectionChangeEvent;
 import net.darmo_creations.jenealogio.gui.components.NamedTreeNode;
+import net.darmo_creations.jenealogio.gui.components.view.ViewController;
 import net.darmo_creations.jenealogio.model.ViewType;
 import net.darmo_creations.jenealogio.model.family.FamilyMember;
 import net.darmo_creations.jenealogio.model.family.Relationship;
@@ -51,12 +48,12 @@ import net.darmo_creations.jenealogio.util.Images;
 import net.darmo_creations.jenealogio.util.Selection;
 import net.darmo_creations.utils.I18n;
 
-public class SideViewController extends MouseAdapter implements TreeSelectionListener, FocusListener {
-  private SideView view;
+public class SideViewController extends ViewController implements TreeSelectionListener {
   private Selection lastSelection;
 
-  public SideViewController(SideView view) {
-    this.view = view;
+  public SideViewController() {
+    super(ViewType.SIDE);
+
     this.lastSelection = new Selection(Collections.emptyList(), Collections.emptyList());
   }
 
@@ -67,7 +64,7 @@ public class SideViewController extends MouseAdapter implements TreeSelectionLis
 
     if (treePaths != null) {
       List<TreePath> paths = Arrays.asList(treePaths);
-      JPopupMenu popupMenu = this.view.getPopupMenu();
+      JPopupMenu popupMenu = getView().getPopupMenu();
       boolean gotoEnabled = paths.size() == 1;
       boolean canDelete = paths.stream().allMatch(p -> {
         Object obj = ((NamedTreeNode) p.getLastPathComponent()).getUserObject();
@@ -91,16 +88,11 @@ public class SideViewController extends MouseAdapter implements TreeSelectionLis
               Object o = ((NamedTreeNode) paths.get(0).getLastPathComponent()).getUserObject();
               if (o instanceof FamilyMember) {
                 FamilyMember m = (FamilyMember) o;
-                // i.addActionListener(l -> ApplicationRegistry.EVENTS_BUS.dispatchEvent(new
-                // CardEvent.Clicked(m.getId(), false, true)));
+                // TODO
               }
               else if (o instanceof Relationship) {
                 Relationship r = (Relationship) o;
-                // i.addActionListener(l -> {
-                // ApplicationRegistry.EVENTS_BUS.dispatchEvent(new CardEvent.Clicked(-1, false));
-                // ApplicationRegistry.EVENTS_BUS.dispatchEvent(new
-                // LinkEvent.Clicked(r.getPartner1(), r.getPartner2(), true));
-                // });
+                // TODO
               }
             }
             break;
@@ -126,11 +118,16 @@ public class SideViewController extends MouseAdapter implements TreeSelectionLis
 
   @Override
   public void mouseClicked(MouseEvent e) {
+    super.mouseClicked(e);
+
+    if (!(e.getSource() instanceof JTree))
+      return;
+
     JTree tree = ((JTree) e.getComponent());
     TreePath selPath = tree.getPathForLocation(e.getX(), e.getY());
 
     if (SwingUtilities.isRightMouseButton(e)) {
-      this.view.getPopupMenu().show(tree, e.getX(), e.getY());
+      getView().getPopupMenu().show(tree, e.getX(), e.getY());
     }
     else if (selPath != null && SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2) {
       NamedTreeNode clickedNode = (NamedTreeNode) selPath.getLastPathComponent();
@@ -149,11 +146,7 @@ public class SideViewController extends MouseAdapter implements TreeSelectionLis
     }
   }
 
-  @Override
-  public void focusGained(FocusEvent e) {
-    ApplicationRegistry.EVENTS_BUS.dispatchEvent(new FocusChangeEvent(ViewType.SIDE));
+  private SideView getView() {
+    return (SideView) this.view;
   }
-
-  @Override
-  public void focusLost(FocusEvent e) {}
 }

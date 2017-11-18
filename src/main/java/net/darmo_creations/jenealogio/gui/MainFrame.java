@@ -34,7 +34,6 @@ import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
@@ -51,6 +50,7 @@ import net.darmo_creations.jenealogio.controllers.MainController;
 import net.darmo_creations.jenealogio.events.EventType;
 import net.darmo_creations.jenealogio.gui.components.canvas_view.CanvasView;
 import net.darmo_creations.jenealogio.gui.components.side_view.SideView;
+import net.darmo_creations.jenealogio.gui.components.view.View;
 import net.darmo_creations.jenealogio.gui.dialog.CardDetailsDialog;
 import net.darmo_creations.jenealogio.gui.dialog.LinkDetailsDialog;
 import net.darmo_creations.jenealogio.gui.dialog.card.CardDialog;
@@ -62,7 +62,6 @@ import net.darmo_creations.jenealogio.model.family.Family;
 import net.darmo_creations.jenealogio.model.family.FamilyMember;
 import net.darmo_creations.jenealogio.model.family.Relationship;
 import net.darmo_creations.jenealogio.util.Images;
-import net.darmo_creations.jenealogio.util.Selection;
 import net.darmo_creations.utils.FilesUtil;
 import net.darmo_creations.utils.I18n;
 
@@ -124,11 +123,9 @@ public class MainFrame extends ApplicationFrame<MainController> {
     this.sideView = new SideView();
     splitPane.setLeftComponent(this.sideView);
 
-    JScrollPane canvasPane = new JScrollPane();
-    this.canvasView = new CanvasView(canvasPane);
+    this.canvasView = new CanvasView();
     this.canvasView.addDragAndDropListener(controller);
-    canvasPane.setViewportView(this.canvasView);
-    splitPane.setRightComponent(canvasPane);
+    splitPane.setRightComponent(this.canvasView);
 
     add(splitPane, BorderLayout.CENTER);
   }
@@ -142,10 +139,7 @@ public class MainFrame extends ApplicationFrame<MainController> {
   @Override
   protected JMenuBar initJMenuBar(Map<UserEvent.Type, ActionListener> listeners, WritableConfig config) {
     for (EventType type : EventType.values())
-      listeners.put(type, e -> {
-        System.out.println(type); // DEBUG
-        ApplicationRegistry.EVENTS_BUS.dispatchEvent(new UserEvent(type));
-      });
+      listeners.put(type, e -> ApplicationRegistry.EVENTS_BUS.dispatchEvent(new UserEvent(type)));
 
     JMenuBar menuBar = super.initJMenuBar(listeners, config);
     JMenuItem i;
@@ -416,17 +410,17 @@ public class MainFrame extends ApplicationFrame<MainController> {
   }
 
   /**
-   * Returns the selection from the given view.
+   * Returns the desired view.
    * 
-   * @param view the view
-   * @return the selection
+   * @param type the view type
+   * @return the view
    */
-  public Selection getSelection(ViewType view) {
-    switch (view) {
+  public View getView(ViewType type) {
+    switch (type) {
       case CANVAS:
-        return this.canvasView.getSelection();
+        return this.canvasView;
       case SIDE:
-        return this.sideView.getSelection();
+        return this.sideView;
     }
 
     throw new NullPointerException();
