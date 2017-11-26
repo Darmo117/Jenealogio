@@ -59,7 +59,7 @@ import net.darmo_creations.jenealogio.util.Selection;
 import net.darmo_creations.utils.FilesUtil;
 import net.darmo_creations.utils.I18n;
 import net.darmo_creations.utils.UndoRedoManager;
-import net.darmo_creations.utils.events.SubsribeEvent;
+import net.darmo_creations.utils.events.SubscribeEvent;
 import net.darmo_creations.utils.swing.drag_and_drop.DragAndDropListener;
 import net.darmo_creations.utils.version.VersionException;
 
@@ -117,7 +117,7 @@ public class MainController extends ApplicationController<MainFrame> implements 
    * @param e the event
    */
   @Override
-  @SubsribeEvent
+  @SubscribeEvent
   public void onUserEvent(UserEvent e) {
     super.onUserEvent(e);
 
@@ -189,7 +189,7 @@ public class MainController extends ApplicationController<MainFrame> implements 
       e.setCanceled();
   }
 
-  @SubsribeEvent
+  @SubscribeEvent
   public void onFocusChanged(FocusChangeEvent e) {
     this.currentView = e.getView();
     System.out.println(this.currentView);
@@ -201,7 +201,7 @@ public class MainController extends ApplicationController<MainFrame> implements 
    * 
    * @param e the event
    */
-  @SubsribeEvent
+  @SubscribeEvent
   public void onCardDoubleClicked(CardDoubleClickEvent e) {
     this.family.getMember(e.getMemberId()).ifPresent(m -> this.frame.showDetailsDialog(m, this.family.getRelations(m.getId())));
   }
@@ -211,7 +211,7 @@ public class MainController extends ApplicationController<MainFrame> implements 
    * 
    * @param e the event
    */
-  @SubsribeEvent
+  @SubscribeEvent
   public void onSelectionChanged(SelectionChangeEvent e) {
     System.out.println(e); // DEBUG
     Selection old = e.getLastSelection();
@@ -237,7 +237,7 @@ public class MainController extends ApplicationController<MainFrame> implements 
     updateFrameMenus();
   }
 
-  @SubsribeEvent
+  @SubscribeEvent
   public void onViewEdit(ViewEditEvent e) {
     this.saved = false;
     System.out.println(e); // DEBUG
@@ -250,7 +250,7 @@ public class MainController extends ApplicationController<MainFrame> implements 
    * 
    * @param e the event
    */
-  @SubsribeEvent
+  @SubscribeEvent
   public void onLinkDoubleClicked(LinkDoubleClickEvent e) {
     showDetails(e.getPartner1Id(), e.getPartner2Id());
   }
