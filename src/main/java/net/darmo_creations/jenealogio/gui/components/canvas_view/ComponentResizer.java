@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.darmo_creations.jenealogio.gui.components.canvas_view.member_panel;
+package net.darmo_creations.jenealogio.gui.components.canvas_view;
 
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -113,8 +113,8 @@ public class ComponentResizer extends MouseAdapter {
     setDragInsets(dragInsets);
     setSnapSize(snapSize);
     this.panel = component;
-    this.panel.addMouseListener(this);
-    this.panel.addMouseMotionListener(this);
+    this.panel.getParent().addMouseListener(this);
+    this.panel.getParent().addMouseMotionListener(this);
   }
 
   /**
@@ -234,13 +234,13 @@ public class ComponentResizer extends MouseAdapter {
       this.direction += SOUTH;
 
     if (this.direction == 0) {
-      this.panel.setCursor(this.sourceCursor);
+      this.panel.getParent().setCursor(this.sourceCursor);
       this.onBorder = false;
     }
     else {
       int cursorType = cursors.get(this.direction);
       Cursor cursor = Cursor.getPredefinedCursor(cursorType);
-      this.panel.setCursor(cursor);
+      this.panel.getParent().setCursor(cursor);
       this.onBorder = true;
     }
   }
@@ -248,14 +248,14 @@ public class ComponentResizer extends MouseAdapter {
   @Override
   public void mouseEntered(MouseEvent e) {
     if (!this.resizing) {
-      this.sourceCursor = this.panel.getCursor();
+      this.sourceCursor = this.panel.getParent().getCursor();
     }
   }
 
   @Override
   public void mouseExited(MouseEvent e) {
     if (!this.resizing) {
-      this.panel.setCursor(this.sourceCursor);
+      this.panel.getParent().setCursor(this.sourceCursor);
     }
   }
 
@@ -274,13 +274,13 @@ public class ComponentResizer extends MouseAdapter {
     this.resizing = true;
 
     this.pressed = e.getPoint();
-    SwingUtilities.convertPointToScreen(this.pressed, this.panel);
+    SwingUtilities.convertPointToScreen(this.pressed, this.panel.getParent());
     this.bounds = this.panel.getBounds();
 
     // Making sure autoscrolls is false will allow for smoother resizing
     // of components
-    this.autoscrolls = this.panel.getAutoscrolls();
-    this.panel.setAutoscrolls(false);
+    this.autoscrolls = this.panel.getParent().getAutoscrolls();
+    this.panel.getParent().setAutoscrolls(false);
   }
 
   /**
@@ -293,8 +293,8 @@ public class ComponentResizer extends MouseAdapter {
 
     this.resizing = false;
 
-    this.panel.setCursor(this.sourceCursor);
-    this.panel.setAutoscrolls(this.autoscrolls);
+    this.panel.getParent().setCursor(this.sourceCursor);
+    this.panel.getParent().setAutoscrolls(this.autoscrolls);
     if (this.dragging) {
       this.dragging = false;
       ApplicationRegistry.EVENTS_BUS.dispatchEvent(new ViewEditEvent());
@@ -314,7 +314,7 @@ public class ComponentResizer extends MouseAdapter {
 
     if (this.resizing) {
       Point dragged = e.getPoint();
-      SwingUtilities.convertPointToScreen(dragged, this.panel);
+      SwingUtilities.convertPointToScreen(dragged, this.panel.getParent());
 
       changeBounds(this.panel, this.direction, this.bounds, this.pressed, dragged);
     }
@@ -364,7 +364,7 @@ public class ComponentResizer extends MouseAdapter {
 
     Rectangle newBounds = new Rectangle(x, y, width, height);
     source.setBounds(newBounds);
-    source.validate();
+    source.getParent().repaint();
 
     if (!bounds.equals(newBounds)) {
       if (!this.dragging)

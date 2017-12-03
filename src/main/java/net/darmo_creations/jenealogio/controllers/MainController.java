@@ -192,7 +192,6 @@ public class MainController extends ApplicationController<MainFrame> implements 
   @SubscribeEvent
   public void onFocusChanged(FocusChangeEvent e) {
     this.currentView = e.getView();
-    System.out.println(this.currentView);
     updateFrameMenus();
   }
 

@@ -18,17 +18,13 @@
  */
 package net.darmo_creations.jenealogio.gui.components.canvas_view;
 
-import java.awt.BasicStroke;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.RenderingHints;
 import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DropTarget;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,13 +39,9 @@ import java.util.stream.Collectors;
 
 import javax.swing.JPanel;
 import javax.swing.Scrollable;
-import javax.swing.SwingUtilities;
 
-import net.darmo_creations.gui_framework.ApplicationRegistry;
 import net.darmo_creations.gui_framework.config.WritableConfig;
 import net.darmo_creations.jenealogio.config.ConfigTags;
-import net.darmo_creations.jenealogio.events.CardDoubleClickEvent;
-import net.darmo_creations.jenealogio.gui.components.canvas_view.member_panel.FamilyMemberPanel;
 import net.darmo_creations.jenealogio.gui.components.view.View;
 import net.darmo_creations.jenealogio.model.family.Family;
 import net.darmo_creations.jenealogio.util.Pair;
@@ -74,7 +66,6 @@ public class CanvasView extends View implements Scrollable, DragAndDropTarget {
 
   private WritableConfig config;
   private DropTarget dropTarget;
-  private MouseAdapter doubleClickController;
   private Map<Long, FamilyMemberPanel> panels;
   private List<Link> links;
 
@@ -83,21 +74,11 @@ public class CanvasView extends View implements Scrollable, DragAndDropTarget {
   public CanvasView() {
     super(I18n.getLocalizedString("label.canvas.text"), new CanvasViewController());
 
-    this.doubleClickController = new MouseAdapter() {
-      @Override
-      public void mouseClicked(MouseEvent e) {
-        if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2 && e.getComponent() instanceof FamilyMemberPanel) {
-          FamilyMemberPanel p = (FamilyMemberPanel) e.getComponent();
-          ApplicationRegistry.EVENTS_BUS.dispatchEvent(new CardDoubleClickEvent(p.getMemberId()));
-        }
-      }
-    };
-
     this.canvas = new Canvas();
     this.canvas.setLayout(null);
     this.canvas.setPreferredSize(DEFAULT_SIZE);
-    this.canvas.addMouseListener(getController());
-    this.canvas.addMouseMotionListener(getController());
+    this.canvas.addMouseListener(this.controller);
+    this.canvas.addMouseMotionListener(this.controller);
     this.canvas.addFocusListener(this.controller);
     setViewport(this.canvas);
 
@@ -154,8 +135,8 @@ public class CanvasView extends View implements Scrollable, DragAndDropTarget {
    */
   public void refresh(Family family, Map<Long, Point> positions, Map<Long, Dimension> sizes, WritableConfig config) {
     this.config = config;
-    Set<Long> updatedOrAdded = new HashSet<>();
-    Set<Long> keysToDelete = new HashSet<>(this.panels.keySet());
+    Set<Long> updatedOrAddedPanels = new HashSet<>();
+    Set<Long> panelsToDelete = new HashSet<>(this.panels.keySet());
 
     // Add/update members
     family.getAllMembers().forEach(member -> {
@@ -164,7 +145,7 @@ public class CanvasView extends View implements Scrollable, DragAndDropTarget {
       if (this.panels.containsKey(id)) {
         FamilyMemberPanel panel = this.panels.get(id);
 
-        panel.setInfo(member, this.config);
+        panel.setInfo(member);
         if (positions != null && positions.containsKey(member.getId())) {
           panel.setBounds(new Rectangle(positions.get(member.getId()), panel.getSize()));
         }
@@ -173,7 +154,7 @@ public class CanvasView extends View implements Scrollable, DragAndDropTarget {
         }
       }
       else {
-        FamilyMemberPanel panel = new FamilyMemberPanel(member, this.config);
+        FamilyMemberPanel panel = new FamilyMemberPanel(this, member);
         ComponentDragController dragController = new ComponentDragController(this, panel);
 
         if (positions != null && positions.containsKey(member.getId())) {
@@ -184,10 +165,8 @@ public class CanvasView extends View implements Scrollable, DragAndDropTarget {
         if (sizes != null && sizes.containsKey(member.getId())) {
           panel.setSize(sizes.get(member.getId()));
         }
-        panel.setName("member-" + id);
-        panel.addMouseListener(dragController);
-        panel.addMouseListener(this.doubleClickController);
-        panel.addMouseMotionListener(dragController);
+        // this.canvas.addMouseListener(dragController);
+        // this.canvas.addMouseMotionListener(dragController);
         this.panels.put(id, panel);
 
         final int gap = 50;
@@ -199,29 +178,24 @@ public class CanvasView extends View implements Scrollable, DragAndDropTarget {
           size.height += panelBounds.y + panelBounds.height - size.height + gap;
         if (!size.equals(this.canvas.getPreferredSize()))
           this.canvas.setPreferredSize(size);
-
-        this.canvas.add(panel);
       }
-      updatedOrAdded.add(id);
+      updatedOrAddedPanels.add(id);
     });
 
     // Delete members removed from the model
-    keysToDelete.removeAll(updatedOrAdded);
-    keysToDelete.forEach(id -> {
-      this.canvas.remove(this.panels.get(id));
-      this.panels.remove(id);
-    });
+    panelsToDelete.removeAll(updatedOrAddedPanels);
+    panelsToDelete.forEach(id -> this.panels.remove(id));
 
     List<Link> updatedOrAddedLinks = new ArrayList<>();
     // Add/update links
     family.getAllRelations().forEach(relation -> {
-      long id1 = relation.getPartner1();
-      long id2 = relation.getPartner2();
-      Map<Long, Boolean> children = new HashMap<>();
+      Pair<Long, Rectangle> id1 = new Pair<>(relation.getPartner1(), this.panels.get(relation.getPartner1()).getBounds());
+      Pair<Long, Rectangle> id2 = new Pair<>(relation.getPartner2(), this.panels.get(relation.getPartner2()).getBounds());
+      Map<Long, Pair<Boolean, Rectangle>> children = new HashMap<>();
       for (Long id : relation.getChildren()) {
-        children.put(id, relation.isAdopted(id));
+        children.put(id, new Pair<>(relation.isAdopted(id), this.panels.get(id).getBounds()));
       }
-      Link link = new Link(id1, id2, children, relation.isWedding(), relation.hasEnded());
+      Link link = new Link(this, id1, id2, children, relation.isWedding(), relation.hasEnded());
 
       if (this.links.contains(link)) {
         Link l = this.links.get(this.links.indexOf(link));
@@ -229,6 +203,7 @@ public class CanvasView extends View implements Scrollable, DragAndDropTarget {
         l.setWedding(link.isWedding());
         l.setEnded(relation.hasEnded());
         l.setChildren(link.getChildren());
+        l.updateLinkCoords(this.panels.get(link.getParent1()).getBounds(), this.panels.get(link.getParent2()).getBounds());
       }
       else {
         this.links.add(link);
@@ -237,9 +212,7 @@ public class CanvasView extends View implements Scrollable, DragAndDropTarget {
     });
 
     // Delete links removed from the model
-    List<Link> linksToDelete = new ArrayList<>(this.links);
-    linksToDelete.removeAll(updatedOrAddedLinks);
-    this.links.removeAll(linksToDelete);
+    this.links.retainAll(updatedOrAddedLinks);
 
     revalidate();
     repaint();
@@ -287,53 +260,22 @@ public class CanvasView extends View implements Scrollable, DragAndDropTarget {
    * @param r the zone
    * @return all panels inside the zone
    */
-  List<Long> getPanelsInsideRectangle(Rectangle r) {
+  List<FamilyMemberPanel> getPanelsInsideRectangle(Rectangle r) {
     if (r != null)
-      return this.panels.entrySet().stream().filter(e -> r.contains(e.getValue().getBounds())).map(e -> e.getKey()).collect(
+      return this.panels.entrySet().stream().filter(e -> r.contains(e.getValue().getBounds())).map(e -> e.getValue()).collect(
           Collectors.toList());
     return Collections.emptyList();
   }
 
-  /**
-   * Selects the given panels.
-   * 
-   * @param ids panels' IDs
-   */
-  void selectPanels(List<Long> ids) {
-    this.panels.forEach((id, p) -> p.setSelected(false));
+  void selectObjects(List<GraphicalObject> objects) {
+    this.panels.forEach((id, p) -> p.deselect());
+    this.links.forEach(l -> l.deselect());
 
-    if (!ids.isEmpty()) {
-      long last = ids.get(ids.size() - 1);
-
-      this.panels.get(last).setSelected(true);
-      this.panels.entrySet().stream().filter(e -> ids.contains(e.getKey()) && e.getKey() != last).forEach(
-          e -> e.getValue().setSelectedBackground(true));
+    if (!objects.isEmpty()) {
+      objects.forEach(o -> o.setSelectedBackground());
+      objects.get(objects.size() - 1).setSelected();
     }
-    revalidate();
     repaint();
-  }
-
-  /**
-   * Selects the given links.
-   */
-  void selectLinks(List<Pair<Long, Long>> links) {
-    this.links.forEach(l -> l.setSelected(false));
-
-    if (!links.isEmpty())
-      this.links.stream().filter(l -> links.contains(new Pair<>(l.getParent1(), l.getParent2()))
-          || links.contains(new Pair<>(l.getParent2(), l.getParent1()))).forEach(l -> l.setSelected(true));
-    revalidate();
-    repaint();
-  }
-
-  /**
-   * Called when a panel is clicked.
-   * 
-   * @param id
-   * @param keepSelection
-   */
-  void panelClicked(long id, boolean keepSelection) {
-    getController().panelClicked(id, keepSelection);
   }
 
   /**
@@ -343,7 +285,8 @@ public class CanvasView extends View implements Scrollable, DragAndDropTarget {
     getController().cardDragged(mouseLocation);
     this.panels.entrySet().stream().filter(
         e -> e.getKey() != id && (e.getValue().isSelectedBackground() || e.getValue().isSelected())).forEach(
-            e -> e.getValue().setLocation(e.getValue().getLocation().x + translation.x, e.getValue().getLocation().y + translation.y));
+            e -> e.getValue().setLocation(
+                new Point(e.getValue().getLocation().x + translation.x, e.getValue().getLocation().y + translation.y)));
   }
 
   public Rectangle getCanvasBounds() {
@@ -358,26 +301,35 @@ public class CanvasView extends View implements Scrollable, DragAndDropTarget {
     return this.canvas.getLocationOnScreen();
   }
 
-  /**
-   * @return an array containing the two partners' IDs from the currently hovered link
-   */
-  Optional<Pair<Long, Long>> getHoveredLinkPartners() {
+  public boolean isMouseOverObject(Point mouseLocation) {
+    return getHoveredPanel(mouseLocation).isPresent() || getHoveredLink(mouseLocation).isPresent();
+  }
+
+  Optional<FamilyMemberPanel> getHoveredPanel(Point mouseLocation) {
+    for (Map.Entry<Long, FamilyMemberPanel> m : this.panels.entrySet()) {
+      if (m.getValue().getBounds().contains(mouseLocation))
+        return Optional.of(m.getValue());
+    }
+    return Optional.empty();
+  }
+
+  Optional<Link> getHoveredLink(Point mouseLocation) {
     for (Link link : this.links) {
       Rectangle r1 = this.panels.get(link.getParent1()).getBounds();
       Rectangle r2 = this.panels.get(link.getParent2()).getBounds();
       Point p1 = new Point(r1.x + r1.width / 2, r1.y + r1.height / 2);
       Point p2 = new Point(r2.x + r2.width / 2, r2.y + r2.height / 2);
 
-      if (isMouseOnLink(p1, p2)) {
-        return Optional.of(new Pair<>(link.getParent1(), link.getParent2()));
-      }
+      if (isMouseOnSegment(mouseLocation, p1, p2))
+        return Optional.of(link);
     }
     return Optional.empty();
   }
 
   /**
-   * Tells is the mouse is over a link.
+   * Tells is the mouse is over a segment.
    * 
+   * @param mouseLocation mouse's location
    * @param p1 one end
    * @param p2 the other end
    * @return true if and only if the cursor is within a distance of {@link #HOVER_DISTANCE} pixels
@@ -389,18 +341,16 @@ public class CanvasView extends View implements Scrollable, DragAndDropTarget {
    *      "https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line#Line_defined_by_two_points">distance
    *      between a point and a line</a>
    */
-  private boolean isMouseOnLink(Point p1, Point p2) {
-    Point m = getController().getMouseLocation();
+  private boolean isMouseOnSegment(Point mouseLocation, Point p1, Point p2) {
     double dx = p2.getX() - p1.getX();
     double dy = p2.getY() - p1.getY();
-    double innerProduct = (m.getX() - p1.getX()) * dx + (m.getY() - p1.getY()) * dy;
+    double innerProduct = (mouseLocation.getX() - p1.getX()) * dx + (mouseLocation.getY() - p1.getY()) * dy;
     boolean mouseInSegmentRange = 0 <= innerProduct && innerProduct <= dx * dx + dy * dy;
 
     double a = p2.getY() - p1.getY();
     double b = -(p2.getX() - p1.getX());
     double c = -a * p1.getX() - b * p1.getY();
-    Point p = getController().getMouseLocation();
-    double d = Math.abs(a * p.getX() + b * p.getY() + c) / Math.hypot(a, b);
+    double d = Math.abs(a * mouseLocation.getX() + b * mouseLocation.getY() + c) / Math.hypot(a, b);
 
     return mouseInSegmentRange && d <= HOVER_DISTANCE;
   }
@@ -435,8 +385,7 @@ public class CanvasView extends View implements Scrollable, DragAndDropTarget {
     Optional<Link> link = this.links.stream().filter(l -> l.getParent1() == id1 && l.getParent2() == id2).findAny();
 
     if (link.isPresent()) {
-      Point[] points = getLinkCoords(link.get());
-      Point middle = points[2];
+      Point middle = link.get().getMiddle();
       Rectangle v = this.canvas.getVisibleRect();
       Rectangle r = new Rectangle(v.getSize());
 
@@ -444,16 +393,6 @@ public class CanvasView extends View implements Scrollable, DragAndDropTarget {
       r.y = middle.y - v.height / 2;
       this.canvas.scrollRectToVisible(r);
     }
-  }
-
-  private Point[] getLinkCoords(Link link) {
-    Rectangle r1 = this.panels.get(link.getParent1()).getBounds();
-    Rectangle r2 = this.panels.get(link.getParent2()).getBounds();
-    Point p1 = new Point(r1.x + r1.width / 2, r1.y + r1.height / 2);
-    Point p2 = new Point(r2.x + r2.width / 2, r2.y + r2.height / 2);
-    Point middle = new Point((p1.x + p2.x) / 2, (p1.y + p2.y) / 2);
-
-    return new Point[]{p1, p2, middle};
   }
 
   @Override
@@ -537,142 +476,22 @@ public class CanvasView extends View implements Scrollable, DragAndDropTarget {
     protected void paintComponent(Graphics g) {
       super.paintComponent(g);
       Graphics2D g2d = (Graphics2D) g;
-      g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
       if (CanvasView.this.config != null) {
-        // Selection
-        Optional<Rectangle> optStart = CanvasView.this.getController().getSelectionRectangle();
-        if (optStart.isPresent()) {
-          Rectangle r = optStart.get();
+        Optional<Rectangle> selection = CanvasView.this.getController().getSelectionRectangle();
 
-          g2d.setColor(CanvasView.this.config.getValue(ConfigTags.SELECTION_BACKGROUND_COLOR));
+        if (selection.isPresent()) {
+          Rectangle r = selection.get();
+
+          g2d.setColor(CanvasView.this.config.getValue(ConfigTags.ZONE_SELECTION_BACKGROUND_COLOR));
           g2d.fillRect(r.x, r.y, r.width, r.height);
-          g2d.setColor(CanvasView.this.config.getValue(ConfigTags.SELECTION_BORDER_COLOR));
+          g2d.setColor(CanvasView.this.config.getValue(ConfigTags.ZONE_SELECTION_BORDER_COLOR));
           g2d.drawRect(r.x, r.y, r.width, r.height);
         }
 
-        // Links
-        CanvasView.this.links.forEach(link -> {
-          final int width = link.isWedding() ? 2 : 1;
-          if (link.hasEnded())
-            g2d.setStroke(new BasicStroke(width, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[]{9}, 0));
-          else
-            g2d.setStroke(new BasicStroke(width));
-
-          // Link between parents
-          Point[] points = getLinkCoords(link);
-          Point p1 = points[0];
-          Point p2 = points[1];
-          Point middle = points[2];
-
-          if (isMouseOnLink(p1, p2))
-            g2d.setColor(CanvasView.this.config.getValue(ConfigTags.LINK_HOVERED_COLOR));
-          else
-            g2d.setColor(link.isSelected() ? CanvasView.this.config.getValue(ConfigTags.LINK_SELECTED_COLOR)
-                : CanvasView.this.config.getValue(ConfigTags.LINK_COLOR));
-          g2d.drawLine(p1.x, p1.y, p2.x, p2.y);
-
-          g2d.setStroke(new BasicStroke(width));
-          // Links to children
-          link.getChildren().forEach((id, adopted) -> {
-            Rectangle r = CanvasView.this.panels.get(id).getBounds();
-            Point p = new Point(r.x + r.width / 2, r.y + r.height / 2);
-
-            g2d.setColor(CanvasView.this.config.getValue(adopted ? ConfigTags.LINK_ADOPTED_CHILD_COLOR : ConfigTags.LINK_CHILD_COLOR));
-            g2d.drawLine(middle.x, middle.y, p.x, p.y);
-          });
-        });
+        CanvasView.this.links.forEach(link -> link.paintComponent(g2d, CanvasView.this.config));
+        CanvasView.this.panels.forEach((id, p) -> p.paintComponent(g2d, CanvasView.this.config));
       }
-    }
-  }
-
-  /**
-   * This class represents a link between two cards.
-   *
-   * @author Damien Vergnet
-   */
-  private class Link {
-    private final long parent1, parent2;
-    private boolean wedding;
-    private boolean ended;
-    private Map<Long, Boolean> children;
-    private boolean selected;
-
-    /**
-     * Creates a link between {@code parent1} and {@code parent2}.
-     * 
-     * @param parent1 one parent
-     * @param parent2 the other parent
-     * @param children the children
-     */
-    public Link(long parent1, long parent2, Map<Long, Boolean> children, boolean wedding, boolean ended) {
-      this.parent1 = parent1;
-      this.parent2 = parent2;
-      this.children = new HashMap<>(children);
-      this.wedding = wedding;
-      this.ended = ended;
-      this.selected = false;
-    }
-
-    public long getParent1() {
-      return this.parent1;
-    }
-
-    public long getParent2() {
-      return this.parent2;
-    }
-
-    public Map<Long, Boolean> getChildren() {
-      return this.children;
-    }
-
-    public void setChildren(Map<Long, Boolean> children) {
-      this.children = children;
-    }
-
-    public boolean isWedding() {
-      return this.wedding;
-    }
-
-    public void setWedding(boolean wedding) {
-      this.wedding = wedding;
-    }
-
-    public boolean hasEnded() {
-      return this.ended;
-    }
-
-    public void setEnded(boolean ended) {
-      this.ended = ended;
-    }
-
-    public boolean isSelected() {
-      return this.selected;
-    }
-
-    public void setSelected(boolean selected) {
-      this.selected = selected;
-    }
-
-    @Override
-    public int hashCode() {
-      final int prime = 31;
-      int result = 1;
-
-      result = prime * result + (int) (this.parent1 ^ (this.parent1 >>> 32));
-      result = prime * result + (int) (this.parent2 ^ (this.parent2 >>> 32));
-
-      return result;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (o instanceof Link) {
-        Link l = (Link) o;
-        return l.getParent1() == getParent1() && l.getParent2() == getParent2();
-      }
-
-      return false;
     }
   }
 }

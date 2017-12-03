@@ -25,10 +25,12 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.swing.SwingUtilities;
 
 import net.darmo_creations.gui_framework.ApplicationRegistry;
+import net.darmo_creations.jenealogio.events.CardDoubleClickEvent;
 import net.darmo_creations.jenealogio.events.LinkDoubleClickEvent;
 import net.darmo_creations.jenealogio.events.SelectionChangeEvent;
 import net.darmo_creations.jenealogio.gui.components.view.ViewController;
@@ -47,9 +49,7 @@ class CanvasViewController extends ViewController {
   private Rectangle selection;
 
   /** All currently selected cards */
-  private List<Long> selectedCards;
-  /** The currently selected links */
-  private List<Pair<Long, Long>> selectedLinks;
+  private List<GraphicalObject> selectedObjects;
 
   CanvasViewController() {
     super(ViewType.CANVAS);
@@ -58,15 +58,7 @@ class CanvasViewController extends ViewController {
     this.selectionStart = null;
     this.selection = null;
 
-    this.selectedCards = new ArrayList<>();
-    this.selectedLinks = new ArrayList<>();
-  }
-
-  /**
-   * @return the last location of the mouse
-   */
-  Point getMouseLocation() {
-    return (Point) this.mouseLocation.clone();
+    this.selectedObjects = new ArrayList<>();
   }
 
   /**
@@ -80,18 +72,21 @@ class CanvasViewController extends ViewController {
    * Returns the current selection.
    */
   public Selection getSelection() {
-    return new Selection(this.selectedCards, this.selectedLinks);
+    return new Selection(getSelectedPanels(), getSelectedLinks());
   }
 
   @Override
   public void mousePressed(MouseEvent e) {
     super.mousePressed(e);
 
-    this.view.requestFocus();
-    if (SwingUtilities.isLeftMouseButton(e)) {
+    if (!this.view.hasFocus())
+      this.view.requestFocus();
+
+    if (SwingUtilities.isLeftMouseButton(e) && !getView().isMouseOverObject(this.mouseLocation)) {
       this.selectionStart = e.getPoint();
       this.selection = new Rectangle(this.selectionStart);
-      deselectAll();
+      if (!getView().getHoveredPanel(this.mouseLocation).isPresent() && !getView().getHoveredLink(this.mouseLocation).isPresent())
+        deselectAll();
     }
   }
 
@@ -99,10 +94,10 @@ class CanvasViewController extends ViewController {
   public void mouseReleased(MouseEvent e) {
     super.mouseReleased(e);
 
-    if (SwingUtilities.isLeftMouseButton(e)) {
-      cardsSelected(getView().getPanelsInsideRectangle(this.selection));
+    if (SwingUtilities.isLeftMouseButton(e) && this.selection != null) {
+      objectsSelected(getView().getPanelsInsideRectangle(this.selection));
       this.selection = null;
-      repaint();
+      this.view.repaint();
     }
   }
 
@@ -114,14 +109,24 @@ class CanvasViewController extends ViewController {
     super.mouseClicked(e);
 
     if (SwingUtilities.isLeftMouseButton(e)) {
-      Optional<Pair<Long, Long>> l = getView().getHoveredLinkPartners();
+      Optional<FamilyMemberPanel> p = getView().getHoveredPanel(this.mouseLocation);
+      boolean ctrlDown = e.isControlDown();
 
-      if (l.isPresent()) {
-        boolean ctrlDown = e.isControlDown();
-        Pair<Long, Long> ids = l.get();
-        linkClicked(ids.getValue1(), ids.getValue2(), ctrlDown);
+      if (p.isPresent()) {
+        FamilyMemberPanel member = p.get();
+        objectClicked(member, ctrlDown);
         if (!ctrlDown && e.getClickCount() == 2)
-          ApplicationRegistry.EVENTS_BUS.dispatchEvent(new LinkDoubleClickEvent(ids.getValue1(), ids.getValue2()));
+          ApplicationRegistry.EVENTS_BUS.dispatchEvent(new CardDoubleClickEvent(member.getId()));
+      }
+      else {
+        Optional<Link> l = getView().getHoveredLink(this.mouseLocation);
+
+        if (l.isPresent()) {
+          Link link = l.get();
+          objectClicked(link, ctrlDown);
+          if (!ctrlDown && e.getClickCount() == 2)
+            ApplicationRegistry.EVENTS_BUS.dispatchEvent(new LinkDoubleClickEvent(link.getParent1(), link.getParent2()));
+        }
       }
     }
   }
@@ -129,7 +134,6 @@ class CanvasViewController extends ViewController {
   @Override
   public void mouseMoved(MouseEvent e) {
     super.mouseMoved(e);
-
     updateMouseLocation(e);
   }
 
@@ -156,29 +160,8 @@ class CanvasViewController extends ViewController {
    */
   void deselectAll() {
     Selection old = getSelection();
-
-    this.selectedCards.clear();
-    this.selectedLinks.clear();
-
-    getView().selectPanels(this.selectedCards);
-    getView().selectLinks(this.selectedLinks);
-
-    ApplicationRegistry.EVENTS_BUS.dispatchEvent(new SelectionChangeEvent(old, getSelection()));
-  }
-
-  /**
-   * Called when several cards are selected simultaneously.
-   */
-  void cardsSelected(List<Long> ids) {
-    Selection old = getSelection();
-
-    this.selectedLinks.clear();
-    this.selectedCards.clear();
-    this.selectedCards.addAll(ids);
-    getView().selectPanels(ids);
-
-    if (!ids.isEmpty())
-      ApplicationRegistry.EVENTS_BUS.dispatchEvent(new SelectionChangeEvent(old, getSelection()));
+    this.selectedObjects.clear();
+    updateSelection(old);
   }
 
   void cardDragged(Point mouseLocation) {
@@ -188,53 +171,51 @@ class CanvasViewController extends ViewController {
   }
 
   /**
-   * Called when a card is clicked.
+   * Called when several objects are selected.
    * 
-   * @param e the event
+   * @param object the object
    */
-  void panelClicked(long id, boolean keepSelection) {
-    if (id < 0)
-      throw new IllegalArgumentException("" + id);
-
-    if (!this.view.hasFocus())
-      this.view.requestFocus();
-
+  private void objectsSelected(List<? extends GraphicalObject> object) {
     Selection old = getSelection();
 
-    if (keepSelection) {
-      if (this.selectedCards.contains(id))
-        this.selectedCards.remove(id);
-      else
-        this.selectedCards.add(id);
-    }
-    else {
-      this.selectedCards.clear();
-      this.selectedCards.add(id);
-      this.selectedLinks.clear();
-    }
+    this.selectedObjects.clear();
+    this.selectedObjects.addAll(object);
 
-    getView().selectPanels(this.selectedCards);
-    getView().selectLinks(this.selectedLinks);
-
-    ApplicationRegistry.EVENTS_BUS.dispatchEvent(new SelectionChangeEvent(old, getSelection()));
+    updateSelection(old);
   }
 
-  private void linkClicked(long id1, long id2, boolean keepSelection) {
+  /**
+   * Called when an object is clicked.
+   * 
+   * @param object the object
+   * @param keepSelection if true, the previous selection will be kept
+   */
+  private void objectClicked(GraphicalObject object, boolean keepSelection) {
     Selection old = getSelection();
 
     if (keepSelection) {
-      this.selectedLinks.add(new Pair<>(id1, id2));
+      if (this.selectedObjects.contains(object)) {
+        this.selectedObjects.remove(object);
+      }
+      else {
+        this.selectedObjects.add(object);
+      }
     }
     else {
-      this.selectedLinks.clear();
-      this.selectedLinks.add(new Pair<>(id1, id2));
-      this.selectedCards.clear();
+      this.selectedObjects.clear();
+      this.selectedObjects.add(object);
     }
 
-    getView().selectPanels(this.selectedCards);
-    getView().selectLinks(this.selectedLinks);
+    updateSelection(old);
+  }
 
-    ApplicationRegistry.EVENTS_BUS.dispatchEvent(new SelectionChangeEvent(old, getSelection()));
+  private void updateSelection(Selection old) {
+    Selection current = getSelection();
+
+    if (!current.equals(old)) {
+      getView().selectObjects(this.selectedObjects);
+      ApplicationRegistry.EVENTS_BUS.dispatchEvent(new SelectionChangeEvent(old, current));
+    }
   }
 
   private void updateMouseLocation(MouseEvent e) {
@@ -262,7 +243,18 @@ class CanvasViewController extends ViewController {
       }
       scrollIfOutside();
     }
-    repaint();
+    this.view.repaint();
+  }
+
+  private List<Long> getSelectedPanels() {
+    return this.selectedObjects.stream().filter(o -> o instanceof FamilyMemberPanel).map(m -> m.getId()).collect(Collectors.toList());
+  }
+
+  private List<Pair<Long, Long>> getSelectedLinks() {
+    return this.selectedObjects.stream().filter(o -> o instanceof Link).map(o -> {
+      Link l = (Link) o;
+      return new Pair<>(l.getParent1(), l.getParent2());
+    }).collect(Collectors.toList());
   }
 
   private static final int INSIDE = 0;
@@ -311,7 +303,7 @@ class CanvasViewController extends ViewController {
       Dimension d = getView().getCanvasBounds().getSize();
       getView().setCanvasPreferredSize(new Dimension(d.width + hAdd, d.height + vAdd));
       this.view.revalidate();
-      repaint();
+      this.view.repaint();
     }
   }
 
@@ -343,10 +335,6 @@ class CanvasViewController extends ViewController {
       this.view.setVerticalScroll(this.view.getVerticalScroll() + vTrans);
     if (hTrans != 0)
       this.view.setHorizontalScroll(this.view.getHorizontalScroll() + hTrans);
-  }
-
-  private void repaint() {
-    this.view.repaint();
   }
 
   private CanvasView getView() {

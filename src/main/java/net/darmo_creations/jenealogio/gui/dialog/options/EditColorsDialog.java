@@ -156,8 +156,8 @@ public class EditColorsDialog extends AbstractDialog {
     NamedTreeNode selection = new NamedTreeNode("selection", I18n.getLocalizedString("node.colors.selection.text"));
     root.add(selection);
     selection.add(
-        new NamedTreeNode(ConfigTags.SELECTION_BORDER_COLOR.getName(), I18n.getLocalizedString("node.colors.selection.border.text")));
-    selection.add(new NamedTreeNode(ConfigTags.SELECTION_BACKGROUND_COLOR.getName(),
+        new NamedTreeNode(ConfigTags.ZONE_SELECTION_BORDER_COLOR.getName(), I18n.getLocalizedString("node.colors.selection.border.text")));
+    selection.add(new NamedTreeNode(ConfigTags.ZONE_SELECTION_BACKGROUND_COLOR.getName(),
         I18n.getLocalizedString("node.colors.selection.background.text")));
 
     return root;

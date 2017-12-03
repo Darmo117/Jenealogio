@@ -27,7 +27,6 @@ import javax.swing.SwingUtilities;
 
 import net.darmo_creations.gui_framework.ApplicationRegistry;
 import net.darmo_creations.jenealogio.events.ViewEditEvent;
-import net.darmo_creations.jenealogio.gui.components.canvas_view.member_panel.FamilyMemberPanel;
 
 /**
  * This controller handles dragging events inside the DisplayPanel.
@@ -73,15 +72,6 @@ class ComponentDragController extends MouseAdapter {
   }
 
   @Override
-  public void mouseClicked(MouseEvent e) {
-    if (SwingUtilities.isLeftMouseButton(e)) {
-      int modifiers = e.getModifiers();
-      boolean isCtrlDown = (modifiers & MouseEvent.CTRL_MASK) != 0;
-      this.canvasView.panelClicked(this.memberPanel.getMemberId(), isCtrlDown);
-    }
-  }
-
-  @Override
   public void mouseDragged(MouseEvent e) {
     if (!this.memberPanel.isMouseOnBorder() && SwingUtilities.isLeftMouseButton(e)) {
       Rectangle containerBounds = this.canvasView.getCanvasBounds();
@@ -102,7 +92,7 @@ class ComponentDragController extends MouseAdapter {
         Point middle = new Point(newLocation.x + this.memberPanel.getWidth() / 2, newLocation.y + this.memberPanel.getHeight() / 2);
 
         this.memberPanel.setLocation(newLocation);
-        this.canvasView.cardDragged(this.memberPanel.getMemberId(), translation, middle);
+        this.canvasView.cardDragged(this.memberPanel.getId(), translation, middle);
       }
     }
   }

@@ -61,4 +61,24 @@ public class Selection {
   public String toString() {
     return "Selection [members=" + this.members + ",relations=" + this.relations + "]";
   }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+
+    result = prime * result + ((this.members == null) ? 0 : this.members.hashCode());
+    result = prime * result + ((this.relations == null) ? 0 : this.relations.hashCode());
+
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (o instanceof Selection) {
+      Selection s = (Selection) o;
+      return s.members.equals(this.members) && s.relations.equals(this.relations);
+    }
+    return false;
+  }
 }
