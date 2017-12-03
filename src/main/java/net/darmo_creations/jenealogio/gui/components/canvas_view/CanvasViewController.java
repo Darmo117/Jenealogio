@@ -164,8 +164,10 @@ class CanvasViewController extends ViewController {
     updateSelection(old);
   }
 
-  void cardDragged(Point mouseLocation) {
+  void cardDragged(Point translation, Point mouseLocation) {
     this.mouseLocation = mouseLocation;
+    this.selectedObjects.stream().filter(o -> o instanceof FamilyMemberPanel).map(o -> (FamilyMemberPanel) o).forEach(
+        m -> m.setLocation(new Point(m.getLocation().x + translation.x, m.getLocation().y + translation.y)));
     resizePanelIfOutside();
     scrollIfOutside();
   }

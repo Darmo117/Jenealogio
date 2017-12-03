@@ -22,6 +22,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Optional;
 
 import javax.swing.SwingUtilities;
 
@@ -29,7 +30,7 @@ import net.darmo_creations.gui_framework.ApplicationRegistry;
 import net.darmo_creations.jenealogio.events.ViewEditEvent;
 
 /**
- * This controller handles dragging events inside the DisplayPanel.
+ * This controller handles dragging events inside the canvas.
  * 
  * @author Damien Vergnet
  */
@@ -38,61 +39,59 @@ class ComponentDragController extends MouseAdapter {
   static final int GRID_STEP = 10;
 
   private CanvasView canvasView;
-  private FamilyMemberPanel memberPanel;
   /** The point where the mouse grabbed in the panel. */
   private Point grabPoint;
-  private boolean dragging;
+  private FamilyMemberPanel draggedPanel;
 
   /**
    * Creates a controller with the given container and component.
    * 
-   * @param canvas the container
-   * @param memberPanel the component this controller is monitoring
+   * @param canvas the canvas
    */
-  ComponentDragController(CanvasView canvas, FamilyMemberPanel memberPanel) {
+  ComponentDragController(CanvasView canvas) {
     this.canvasView = canvas;
-    this.memberPanel = memberPanel;
     this.grabPoint = null;
-    this.dragging = false;
+    this.draggedPanel = null;
   }
 
   @Override
   public void mousePressed(MouseEvent e) {
-    if (SwingUtilities.isLeftMouseButton(e)) {
-      this.grabPoint = new Point(e.getX(), e.getY());
+    Optional<FamilyMemberPanel> p = this.canvasView.getHoveredPanel(e.getPoint());
+
+    if (SwingUtilities.isLeftMouseButton(e) && p.isPresent()) {
+      this.draggedPanel = p.get();
+      Point panelLoc = this.draggedPanel.getLocation();
+      this.grabPoint = e.getPoint();
+      this.grabPoint.x -= panelLoc.x;
+      this.grabPoint.y -= panelLoc.y;
     }
   }
 
   @Override
   public void mouseReleased(MouseEvent e) {
-    if (this.dragging && SwingUtilities.isLeftMouseButton(e)) {
-      this.dragging = false;
+    if (this.draggedPanel != null && SwingUtilities.isLeftMouseButton(e)) {
+      this.grabPoint = null;
+      this.draggedPanel = null;
       ApplicationRegistry.EVENTS_BUS.dispatchEvent(new ViewEditEvent());
     }
   }
 
   @Override
   public void mouseDragged(MouseEvent e) {
-    if (!this.memberPanel.isMouseOnBorder() && SwingUtilities.isLeftMouseButton(e)) {
+    if (this.draggedPanel != null && !this.draggedPanel.isMouseOnBorder() && SwingUtilities.isLeftMouseButton(e)) {
       Rectangle containerBounds = this.canvasView.getCanvasBounds();
-      if (this.grabPoint == null)
-        mousePressed(e);
       int newX = Math.max(containerBounds.x, e.getXOnScreen() - getXOffset() - this.grabPoint.x);
       int newY = Math.max(containerBounds.y, e.getYOnScreen() - getYOffset() - this.grabPoint.y);
       newX = (newX / GRID_STEP) * GRID_STEP;
       newY = (newY / GRID_STEP) * GRID_STEP;
-      Point oldLocation = this.memberPanel.getLocation();
+      Point oldLocation = this.draggedPanel.getLocation();
       Point newLocation = new Point(newX, newY);
 
       if (!oldLocation.equals(newLocation)) {
-        if (!this.dragging)
-          this.dragging = true;
-
         Point translation = new Point(newLocation.x - oldLocation.x, newLocation.y - oldLocation.y);
-        Point middle = new Point(newLocation.x + this.memberPanel.getWidth() / 2, newLocation.y + this.memberPanel.getHeight() / 2);
+        Point middle = new Point(newLocation.x + this.draggedPanel.getWidth() / 2, newLocation.y + this.draggedPanel.getHeight() / 2);
 
-        this.memberPanel.setLocation(newLocation);
-        this.canvasView.cardDragged(this.memberPanel.getId(), translation, middle);
+        this.canvasView.cardDragged(this.draggedPanel.getId(), translation, middle);
       }
     }
   }

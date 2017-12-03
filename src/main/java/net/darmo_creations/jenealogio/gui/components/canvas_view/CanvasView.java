@@ -80,6 +80,11 @@ public class CanvasView extends View implements Scrollable, DragAndDropTarget {
     this.canvas.addMouseListener(this.controller);
     this.canvas.addMouseMotionListener(this.controller);
     this.canvas.addFocusListener(this.controller);
+
+    ComponentDragController dragController = new ComponentDragController(this);
+    this.canvas.addMouseListener(dragController);
+    this.canvas.addMouseMotionListener(dragController);
+
     setViewport(this.canvas);
 
     this.panels = new HashMap<>();
@@ -155,7 +160,6 @@ public class CanvasView extends View implements Scrollable, DragAndDropTarget {
       }
       else {
         FamilyMemberPanel panel = new FamilyMemberPanel(this, member);
-        ComponentDragController dragController = new ComponentDragController(this, panel);
 
         if (positions != null && positions.containsKey(member.getId())) {
           panel.setBounds(new Rectangle(positions.get(member.getId()), panel.getSize()));
@@ -165,8 +169,6 @@ public class CanvasView extends View implements Scrollable, DragAndDropTarget {
         if (sizes != null && sizes.containsKey(member.getId())) {
           panel.setSize(sizes.get(member.getId()));
         }
-        // this.canvas.addMouseListener(dragController);
-        // this.canvas.addMouseMotionListener(dragController);
         this.panels.put(id, panel);
 
         final int gap = 50;
@@ -282,11 +284,8 @@ public class CanvasView extends View implements Scrollable, DragAndDropTarget {
    * Called when a card is dragged.
    */
   void cardDragged(long id, Point translation, Point mouseLocation) {
-    getController().cardDragged(mouseLocation);
-    this.panels.entrySet().stream().filter(
-        e -> e.getKey() != id && (e.getValue().isSelectedBackground() || e.getValue().isSelected())).forEach(
-            e -> e.getValue().setLocation(
-                new Point(e.getValue().getLocation().x + translation.x, e.getValue().getLocation().y + translation.y)));
+    getController().cardDragged(translation, mouseLocation);
+    this.links.forEach(l -> l.updateLinkCoords(this.panels.get(l.getParent1()).getBounds(), this.panels.get(l.getParent2()).getBounds()));
   }
 
   public Rectangle getCanvasBounds() {
@@ -301,7 +300,7 @@ public class CanvasView extends View implements Scrollable, DragAndDropTarget {
     return this.canvas.getLocationOnScreen();
   }
 
-  public boolean isMouseOverObject(Point mouseLocation) {
+  boolean isMouseOverObject(Point mouseLocation) {
     return getHoveredPanel(mouseLocation).isPresent() || getHoveredLink(mouseLocation).isPresent();
   }
 
