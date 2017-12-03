@@ -215,6 +215,9 @@ public class ComponentResizer extends MouseAdapter {
 
   @Override
   public void mouseMoved(MouseEvent e) {
+    if (!this.panel.isSelected() && !this.panel.isSelectedBackground())
+      return;
+
     Point location = e.getPoint();
     this.direction = 0;
 
@@ -258,7 +261,7 @@ public class ComponentResizer extends MouseAdapter {
 
   @Override
   public void mousePressed(MouseEvent e) {
-    if (!SwingUtilities.isLeftMouseButton(e))
+    if (!SwingUtilities.isLeftMouseButton(e) || (!this.panel.isSelected() && !this.panel.isSelectedBackground()))
       return;
 
     // The mouseMoved event continually updates this variable
