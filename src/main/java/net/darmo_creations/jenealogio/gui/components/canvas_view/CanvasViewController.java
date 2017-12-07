@@ -18,6 +18,7 @@
  */
 package net.darmo_creations.jenealogio.gui.components.canvas_view;
 
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -33,6 +34,7 @@ import net.darmo_creations.gui_framework.ApplicationRegistry;
 import net.darmo_creations.jenealogio.events.CardDoubleClickEvent;
 import net.darmo_creations.jenealogio.events.LinkDoubleClickEvent;
 import net.darmo_creations.jenealogio.events.SelectionChangeEvent;
+import net.darmo_creations.jenealogio.events.ViewEditEvent;
 import net.darmo_creations.jenealogio.gui.components.view.ViewController;
 import net.darmo_creations.jenealogio.model.ViewType;
 import net.darmo_creations.jenealogio.util.Pair;
@@ -48,6 +50,9 @@ class CanvasViewController extends ViewController {
   private Point selectionStart;
   private Rectangle selection;
 
+  private boolean resizingComponent;
+  private GrabHandle handle;
+
   /** All currently selected cards */
   private List<GraphicalObject> selectedObjects;
 
@@ -57,6 +62,8 @@ class CanvasViewController extends ViewController {
     this.mouseLocation = new Point();
     this.selectionStart = null;
     this.selection = null;
+    this.resizingComponent = false;
+    this.handle = null;
 
     this.selectedObjects = new ArrayList<>();
   }
@@ -78,15 +85,23 @@ class CanvasViewController extends ViewController {
   @Override
   public void mousePressed(MouseEvent e) {
     super.mousePressed(e);
+    GrabHandle h = getView().isPointOnHandle(e.getPoint());
 
     if (!this.view.hasFocus())
       this.view.requestFocus();
 
-    if (SwingUtilities.isLeftMouseButton(e) && !getView().isMouseOverObject(this.mouseLocation)) {
+    if (SwingUtilities.isLeftMouseButton(e)) {
       this.selectionStart = e.getPoint();
-      this.selection = new Rectangle(this.selectionStart);
-      if (!getView().getHoveredPanel(this.mouseLocation).isPresent() && !getView().getHoveredLink(this.mouseLocation).isPresent())
-        deselectAll();
+      if (h != null) {
+        this.handle = h;
+        this.resizingComponent = true;
+        getView().resizing(true);
+      }
+      else if (!getView().isMouseOverObject(this.mouseLocation)) {
+        this.selection = new Rectangle(this.selectionStart);
+        if (!getView().getHoveredPanel(this.mouseLocation).isPresent() && !getView().getHoveredLink(this.mouseLocation).isPresent())
+          deselectAll();
+      }
     }
   }
 
@@ -94,10 +109,19 @@ class CanvasViewController extends ViewController {
   public void mouseReleased(MouseEvent e) {
     super.mouseReleased(e);
 
-    if (SwingUtilities.isLeftMouseButton(e) && this.selection != null) {
-      objectsSelected(getView().getPanelsInsideRectangle(this.selection));
-      this.selection = null;
-      this.view.repaint();
+    if (SwingUtilities.isLeftMouseButton(e)) {
+      if (this.handle != null) {
+        this.handle = null;
+        this.resizingComponent = false;
+        getView().setCursor(Cursor.getDefaultCursor());
+        getView().resizing(false);
+        ApplicationRegistry.EVENTS_BUS.dispatchEvent(new ViewEditEvent());
+      }
+      if (!getView().isResizing() && this.selection != null) {
+        objectsSelected(getView().getPanelsInsideRectangle(this.selection));
+        this.selection = null;
+        this.view.repaint();
+      }
     }
   }
 
@@ -134,6 +158,13 @@ class CanvasViewController extends ViewController {
   @Override
   public void mouseMoved(MouseEvent e) {
     super.mouseMoved(e);
+    this.handle = getView().isPointOnHandle(e.getPoint());
+
+    if (this.handle == null)
+      getView().setCursor(Cursor.getDefaultCursor());
+    else
+      getView().setCursor(this.handle.getCursor());
+
     updateMouseLocation(e);
   }
 
@@ -144,6 +175,27 @@ class CanvasViewController extends ViewController {
     Point prevLocation = this.mouseLocation;
 
     updateMouseLocation(e);
+    if (SwingUtilities.isLeftMouseButton(e)) {
+      if (this.handle != null) {
+        Point p = e.getPoint();
+        p.x -= prevLocation.x;
+        p.y -= prevLocation.y;
+
+        if (!this.resizingComponent)
+          this.resizingComponent = true;
+        if (this.handle.getDirection().isHorizontal()) {
+          p.y = 0;
+          this.handle.translate(p);
+        }
+        else if (this.handle.getDirection().isVertical()) {
+          p.x = 0;
+          this.handle.translate(p);
+        }
+        else {
+          this.handle.translate(p);
+        }
+      }
+    }
     if (SwingUtilities.isMiddleMouseButton(e)) {
       Point newLocation = this.mouseLocation;
 

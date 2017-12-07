@@ -19,9 +19,6 @@
 package net.darmo_creations.jenealogio.config;
 
 public class ConfigTags {
-  public static final ColorTag CARD_BORDER_COLOR = new ColorTag("card_border_color");
-  public static final ColorTag CARD_SELECTED_BORDER_COLOR = new ColorTag("card_selected_border_color");
-  public static final ColorTag CARD_SELECTED_BACKGROUND_BORDER_COLOR = new ColorTag("card_selected_background_border_color");
   public static final ColorTag GENDER_UNKNOWN_COLOR = new ColorTag("gender_unknown_color");
   public static final ColorTag GENDER_MALE_COLOR = new ColorTag("gender_male_color");
   public static final ColorTag GENDER_FEMALE_COLOR = new ColorTag("gender_female_color");
@@ -38,8 +35,8 @@ public class ConfigTags {
   public static final ColorTag[] COLORS_TAGS;
 
   static {
-    COLORS_TAGS = new ColorTag[]{CARD_BORDER_COLOR, CARD_SELECTED_BORDER_COLOR, CARD_SELECTED_BACKGROUND_BORDER_COLOR, GENDER_UNKNOWN_COLOR,
-      GENDER_MALE_COLOR, GENDER_FEMALE_COLOR, LINK_COLOR, LINK_CHILD_COLOR, LINK_ADOPTED_CHILD_COLOR, LINK_HOVERED_COLOR,
-      LINK_SELECTED_COLOR, LINK_SELECTED_BACKGROUND_COLOR, ZONE_SELECTION_BORDER_COLOR, ZONE_SELECTION_BACKGROUND_COLOR};
+    COLORS_TAGS = new ColorTag[]{GENDER_UNKNOWN_COLOR, GENDER_MALE_COLOR, GENDER_FEMALE_COLOR, LINK_COLOR, LINK_CHILD_COLOR,
+      LINK_ADOPTED_CHILD_COLOR, LINK_HOVERED_COLOR, LINK_SELECTED_COLOR, LINK_SELECTED_BACKGROUND_COLOR, ZONE_SELECTION_BORDER_COLOR,
+      ZONE_SELECTION_BACKGROUND_COLOR};
   }
 }

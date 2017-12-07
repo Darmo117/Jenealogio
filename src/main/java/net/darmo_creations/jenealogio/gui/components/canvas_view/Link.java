@@ -21,11 +21,10 @@ import net.darmo_creations.jenealogio.util.Pair;
  * @author Damien Vergnet
  */
 class Link extends GraphicalObject {
-  private Point end1, end2, middle;
-  private final Pair<Long, Rectangle> parent1, parent2;
+  private final FamilyMemberPanel parent1, parent2;
   private boolean wedding;
   private boolean ended;
-  private Map<Long, Pair<Boolean, Rectangle>> children;
+  private Map<Long, Pair<Boolean, FamilyMemberPanel>> children;
 
   /**
    * Creates a link between {@code parent1} and {@code parent2}.
@@ -37,30 +36,29 @@ class Link extends GraphicalObject {
    * @param wedding indicate if the link is a wedding
    * @param ended indicate if the link has ended
    */
-  public Link(JComponent parent, Pair<Long, Rectangle> parent1, Pair<Long, Rectangle> parent2, Map<Long, Pair<Boolean, Rectangle>> children,
+  public Link(JComponent parent, FamilyMemberPanel parent1, FamilyMemberPanel parent2, Map<Long, Pair<Boolean, FamilyMemberPanel>> children,
       boolean wedding, boolean ended) {
-    super(parent, parent1.getValue1() ^ parent2.getValue1());
+    super(parent, parent1.getId() ^ parent2.getId());
     this.parent1 = parent1;
     this.parent2 = parent2;
     this.children = new HashMap<>(children);
     this.wedding = wedding;
     this.ended = ended;
-    updateLinkCoords(parent1.getValue2(), parent2.getValue2());
   }
 
   public long getParent1() {
-    return this.parent1.getValue1();
+    return this.parent1.getId();
   }
 
   public long getParent2() {
-    return this.parent2.getValue1();
+    return this.parent2.getId();
   }
 
-  public Map<Long, Pair<Boolean, Rectangle>> getChildren() {
+  public Map<Long, Pair<Boolean, FamilyMemberPanel>> getChildren() {
     return this.children;
   }
 
-  public void setChildren(Map<Long, Pair<Boolean, Rectangle>> children) {
+  public void setChildren(Map<Long, Pair<Boolean, FamilyMemberPanel>> children) {
     this.children = children;
   }
 
@@ -100,24 +98,32 @@ class Link extends GraphicalObject {
     else
       g2d.setColor(config.getValue(ConfigTags.LINK_COLOR));
 
-    g2d.drawLine(this.end1.x, this.end1.y, this.end2.x, this.end2.y);
+    Point[] points = getPoints();
+    Point end1 = points[0];
+    Point middle = points[1];
+    Point end2 = points[2];
+    g2d.drawLine(end1.x, end1.y, end2.x, end2.y);
 
     // Links to children
     this.children.forEach((id, pair) -> {
       boolean adopted = pair.getValue1();
-      Rectangle r = pair.getValue2();
+      Rectangle r = pair.getValue2().getBounds();
       Point p = new Point(r.x + r.width / 2, r.y + r.height / 2);
 
       g2d.setColor(config.getValue(adopted ? ConfigTags.LINK_ADOPTED_CHILD_COLOR : ConfigTags.LINK_CHILD_COLOR));
-      g2d.drawLine(this.middle.x, this.middle.y, p.x, p.y);
+      g2d.drawLine(middle.x, middle.y, p.x, p.y);
     });
     g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_DEFAULT);
   }
 
-  public void updateLinkCoords(Rectangle parent1, Rectangle parent2) {
-    this.end1 = new Point(parent1.x + parent1.width / 2, parent1.y + parent1.height / 2);
-    this.end2 = new Point(parent2.x + parent2.width / 2, parent2.y + parent2.height / 2);
-    this.middle = new Point((this.end1.x + this.end2.x) / 2, (this.end1.y + this.end2.y) / 2);
+  private Point[] getPoints() {
+    Rectangle r1 = this.parent1.getBounds();
+    Rectangle r2 = this.parent2.getBounds();
+    Point end1 = new Point(r1.x + r1.width / 2, r1.y + r1.height / 2);
+    Point end2 = new Point(r2.x + r2.width / 2, r2.y + r2.height / 2);
+    Point middle = new Point((end1.x + end2.x) / 2, (end1.y + end2.y) / 2);
+
+    return new Point[]{end1, middle, end2};
   }
 
   @Override
@@ -126,7 +132,7 @@ class Link extends GraphicalObject {
   }
 
   public Point getMiddle() {
-    return this.middle;
+    return getPoints()[1];
   }
 
   @Override
@@ -134,8 +140,8 @@ class Link extends GraphicalObject {
     final int prime = 31;
     int result = 1;
 
-    result = prime * result + (int) (this.parent1.getValue1() ^ (this.parent1.getValue1() >>> 32));
-    result = prime * result + (int) (this.parent2.getValue1() ^ (this.parent2.getValue1() >>> 32));
+    result = prime * result + (int) (this.parent1.getId() ^ (this.parent1.getId() >>> 32));
+    result = prime * result + (int) (this.parent2.getId() ^ (this.parent2.getId() >>> 32));
 
     return result;
   }

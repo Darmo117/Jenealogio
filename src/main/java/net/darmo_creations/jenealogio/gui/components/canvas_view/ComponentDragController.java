@@ -41,6 +41,7 @@ class ComponentDragController extends MouseAdapter {
   private CanvasView canvasView;
   /** The point where the mouse grabbed in the panel. */
   private Point grabPoint;
+  private boolean dragged;
   private FamilyMemberPanel draggedPanel;
 
   /**
@@ -58,7 +59,8 @@ class ComponentDragController extends MouseAdapter {
   public void mousePressed(MouseEvent e) {
     Optional<FamilyMemberPanel> p = this.canvasView.getHoveredPanel(e.getPoint());
 
-    if (SwingUtilities.isLeftMouseButton(e) && p.isPresent()) {
+    if (SwingUtilities.isLeftMouseButton(e) && p.isPresent() && (p.get().isSelected() || p.get().isSelectedBackground())) {
+      this.dragged = false;
       this.draggedPanel = p.get();
       Point panelLoc = this.draggedPanel.getLocation();
       this.grabPoint = e.getPoint();
@@ -69,7 +71,7 @@ class ComponentDragController extends MouseAdapter {
 
   @Override
   public void mouseReleased(MouseEvent e) {
-    if (this.draggedPanel != null && SwingUtilities.isLeftMouseButton(e)) {
+    if (this.draggedPanel != null && this.dragged && SwingUtilities.isLeftMouseButton(e)) {
       this.grabPoint = null;
       this.draggedPanel = null;
       ApplicationRegistry.EVENTS_BUS.dispatchEvent(new ViewEditEvent());
@@ -78,7 +80,7 @@ class ComponentDragController extends MouseAdapter {
 
   @Override
   public void mouseDragged(MouseEvent e) {
-    if (this.draggedPanel != null && !this.draggedPanel.isMouseOnBorder() && SwingUtilities.isLeftMouseButton(e)) {
+    if (this.draggedPanel != null && !this.canvasView.isResizing() && SwingUtilities.isLeftMouseButton(e)) {
       Rectangle containerBounds = this.canvasView.getCanvasBounds();
       int newX = Math.max(containerBounds.x, e.getXOnScreen() - getXOffset() - this.grabPoint.x);
       int newY = Math.max(containerBounds.y, e.getYOnScreen() - getYOffset() - this.grabPoint.y);
@@ -88,6 +90,7 @@ class ComponentDragController extends MouseAdapter {
       Point newLocation = new Point(newX, newY);
 
       if (!oldLocation.equals(newLocation)) {
+        this.dragged = true;
         Point translation = new Point(newLocation.x - oldLocation.x, newLocation.y - oldLocation.y);
         Point middle = new Point(newLocation.x + this.draggedPanel.getWidth() / 2, newLocation.y + this.draggedPanel.getHeight() / 2);
 

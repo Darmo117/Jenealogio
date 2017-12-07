@@ -52,8 +52,7 @@ import net.darmo_creations.utils.swing.drag_and_drop.DragAndDropTarget;
 import net.darmo_creations.utils.swing.drag_and_drop.DropTargetHandler;
 
 /**
- * This panel displays the family tree and handles click events. It can notify observers of any
- * action occuring.
+ * This view displays the family tree.
  *
  * @author Damien Vergnet
  */
@@ -70,6 +69,7 @@ public class CanvasView extends View implements Scrollable, DragAndDropTarget {
   private List<Link> links;
 
   private Canvas canvas;
+  private boolean resizing;
 
   public CanvasView() {
     super(I18n.getLocalizedString("label.canvas.text"), new CanvasViewController());
@@ -90,7 +90,7 @@ public class CanvasView extends View implements Scrollable, DragAndDropTarget {
     this.panels = new HashMap<>();
     this.links = new ArrayList<>();
 
-    this.dropTarget = new DropTarget(this, DnDConstants.ACTION_COPY_OR_MOVE, null);
+    this.dropTarget = new DropTarget(this.canvas, DnDConstants.ACTION_COPY_OR_MOVE, null);
   }
 
   /**
@@ -159,7 +159,7 @@ public class CanvasView extends View implements Scrollable, DragAndDropTarget {
         }
       }
       else {
-        FamilyMemberPanel panel = new FamilyMemberPanel(this, member);
+        FamilyMemberPanel panel = new FamilyMemberPanel(this.canvas, member);
 
         if (positions != null && positions.containsKey(member.getId())) {
           panel.setBounds(new Rectangle(positions.get(member.getId()), panel.getSize()));
@@ -191,11 +191,11 @@ public class CanvasView extends View implements Scrollable, DragAndDropTarget {
     List<Link> updatedOrAddedLinks = new ArrayList<>();
     // Add/update links
     family.getAllRelations().forEach(relation -> {
-      Pair<Long, Rectangle> id1 = new Pair<>(relation.getPartner1(), this.panels.get(relation.getPartner1()).getBounds());
-      Pair<Long, Rectangle> id2 = new Pair<>(relation.getPartner2(), this.panels.get(relation.getPartner2()).getBounds());
-      Map<Long, Pair<Boolean, Rectangle>> children = new HashMap<>();
+      FamilyMemberPanel id1 = this.panels.get(relation.getPartner1());
+      FamilyMemberPanel id2 = this.panels.get(relation.getPartner2());
+      Map<Long, Pair<Boolean, FamilyMemberPanel>> children = new HashMap<>();
       for (Long id : relation.getChildren()) {
-        children.put(id, new Pair<>(relation.isAdopted(id), this.panels.get(id).getBounds()));
+        children.put(id, new Pair<>(relation.isAdopted(id), this.panels.get(id)));
       }
       Link link = new Link(this, id1, id2, children, relation.isWedding(), relation.hasEnded());
 
@@ -205,7 +205,6 @@ public class CanvasView extends View implements Scrollable, DragAndDropTarget {
         l.setWedding(link.isWedding());
         l.setEnded(relation.hasEnded());
         l.setChildren(link.getChildren());
-        l.updateLinkCoords(this.panels.get(link.getParent1()).getBounds(), this.panels.get(link.getParent2()).getBounds());
       }
       else {
         this.links.add(link);
@@ -285,7 +284,14 @@ public class CanvasView extends View implements Scrollable, DragAndDropTarget {
    */
   void cardDragged(long id, Point translation, Point mouseLocation) {
     getController().cardDragged(translation, mouseLocation);
-    this.links.forEach(l -> l.updateLinkCoords(this.panels.get(l.getParent1()).getBounds(), this.panels.get(l.getParent2()).getBounds()));
+  }
+
+  boolean isResizing() {
+    return this.resizing;
+  }
+
+  void resizing(boolean resizing) {
+    this.resizing = resizing;
   }
 
   public Rectangle getCanvasBounds() {
@@ -352,6 +358,10 @@ public class CanvasView extends View implements Scrollable, DragAndDropTarget {
     double d = Math.abs(a * mouseLocation.getX() + b * mouseLocation.getY() + c) / Math.hypot(a, b);
 
     return mouseInSegmentRange && d <= HOVER_DISTANCE;
+  }
+
+  public GrabHandle isPointOnHandle(Point point) {
+    return this.panels.values().stream().map(p -> p.isOnHandle(point)).filter(h -> h != null).findAny().orElse(null);
   }
 
   /**

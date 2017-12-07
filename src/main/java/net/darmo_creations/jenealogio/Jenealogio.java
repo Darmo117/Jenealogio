@@ -52,9 +52,6 @@ public class Jenealogio implements Application {
 
     ApplicationRegistry.setLanguages(l);
 
-    WritableConfig.registerTag(ConfigTags.CARD_BORDER_COLOR, Color.GRAY);
-    WritableConfig.registerTag(ConfigTags.CARD_SELECTED_BORDER_COLOR, Color.BLUE);
-    WritableConfig.registerTag(ConfigTags.CARD_SELECTED_BACKGROUND_BORDER_COLOR, Color.BLACK);
     WritableConfig.registerTag(ConfigTags.GENDER_UNKNOWN_COLOR, Color.GRAY);
     WritableConfig.registerTag(ConfigTags.GENDER_MALE_COLOR, new Color(117, 191, 255));
     WritableConfig.registerTag(ConfigTags.GENDER_FEMALE_COLOR, new Color(37, 177, 19));
