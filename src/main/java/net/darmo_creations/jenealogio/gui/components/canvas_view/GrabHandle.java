@@ -58,7 +58,7 @@ class GrabHandle {
   }
 
   /**
-   * Sets the location of this handle. To translate when grabbed with the mouse,use
+   * Sets the location of this handle. To translate when grabbed with the mouse, use
    * {@link #translate(Point)}.
    * 
    * @param location the new location

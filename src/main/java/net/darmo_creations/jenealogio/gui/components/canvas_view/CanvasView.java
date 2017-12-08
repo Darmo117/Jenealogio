@@ -300,6 +300,7 @@ public class CanvasView extends View implements Scrollable, DragAndDropTarget {
 
   public void setCanvasPreferredSize(Dimension size) {
     this.canvas.setPreferredSize(size);
+    this.canvas.revalidate();
   }
 
   Point getCanvasOffset() {

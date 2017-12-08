@@ -194,6 +194,8 @@ class CanvasViewController extends ViewController {
         else {
           this.handle.translate(p);
         }
+        resizePanelIfOutside();
+        scrollIfOutside();
       }
     }
     if (SwingUtilities.isMiddleMouseButton(e)) {
@@ -311,26 +313,24 @@ class CanvasViewController extends ViewController {
     }).collect(Collectors.toList());
   }
 
-  private static final int INSIDE = 0;
   private static final int LEFT = 1;
   private static final int RIGHT = 2;
   private static final int TOP = 4;
   private static final int BOTTOM = 8;
 
   private int isOutsideRectangle(Point p, Rectangle r) {
-    if (p.getX() < r.x) {
-      return LEFT;
-    }
-    else if (p.getX() > r.x + r.width) {
-      return RIGHT;
-    }
-    if (p.getY() < r.y) {
-      return TOP;
-    }
-    else if (p.getY() > r.y + r.height) {
-      return BOTTOM;
-    }
-    return INSIDE;
+    int res = 0;
+
+    if (p.getX() < r.x)
+      res = LEFT;
+    else if (p.getX() > r.x + r.width)
+      res = RIGHT;
+    if (p.getY() < r.y)
+      res |= TOP;
+    else if (p.getY() > r.y + r.height)
+      res |= BOTTOM;
+
+    return res;
   }
 
   /**
@@ -344,14 +344,10 @@ class CanvasViewController extends ViewController {
     int hAdd = 0;
     final int step = 30;
 
-    switch (mouse) {
-      case RIGHT:
-        hAdd = step;
-        break;
-      case BOTTOM:
-        vAdd = step;
-        break;
-    }
+    if ((mouse & RIGHT) != 0)
+      hAdd = step;
+    if ((mouse & BOTTOM) != 0)
+      vAdd = step;
 
     if (vAdd != 0 || hAdd != 0) {
       Dimension d = getView().getCanvasBounds().getSize();
@@ -370,25 +366,20 @@ class CanvasViewController extends ViewController {
     int hTrans = 0;
     final int step = 16;
 
-    switch (mouse) {
-      case LEFT:
-        hTrans = -step;
-        break;
-      case RIGHT:
-        hTrans = step;
-        break;
-      case TOP:
-        vTrans = -step;
-        break;
-      case BOTTOM:
-        vTrans = step;
-        break;
-    }
+    if ((mouse & LEFT) != 0)
+      hTrans = -step;
+    else if ((mouse & RIGHT) != 0)
+      hTrans = step;
+    if ((mouse & TOP) != 0)
+      vTrans = -step;
+    else if ((mouse & BOTTOM) != 0)
+      vTrans = step;
 
     if (vTrans != 0)
       this.view.setVerticalScroll(this.view.getVerticalScroll() + vTrans);
     if (hTrans != 0)
       this.view.setHorizontalScroll(this.view.getHorizontalScroll() + hTrans);
+
   }
 
   private CanvasView getView() {

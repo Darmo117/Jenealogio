@@ -59,7 +59,7 @@ class ComponentDragController extends MouseAdapter {
   public void mousePressed(MouseEvent e) {
     Optional<FamilyMemberPanel> p = this.canvasView.getHoveredPanel(e.getPoint());
 
-    if (SwingUtilities.isLeftMouseButton(e) && p.isPresent() && (p.get().isSelected() || p.get().isSelectedBackground())) {
+    if (SwingUtilities.isLeftMouseButton(e) && p.isPresent()) {
       this.dragged = false;
       this.draggedPanel = p.get();
       Point panelLoc = this.draggedPanel.getLocation();

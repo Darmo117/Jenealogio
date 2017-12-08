@@ -134,7 +134,7 @@ class FamilyMemberPanel extends GraphicalObject {
         h.draw(g2d);
   }
 
-  public void drawCenteredString(Graphics2D g2d, String text, Rectangle rect) {
+  private void drawCenteredString(Graphics2D g2d, String text, Rectangle rect) {
     g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
     FontMetrics metrics = g2d.getFontMetrics(FONT);
     int x = rect.x + (rect.width - metrics.stringWidth(text)) / 2;
@@ -180,10 +180,10 @@ class FamilyMemberPanel extends GraphicalObject {
       p.x = 0;
     if (p.y < 0)
       p.y = 0;
-    if (p.x + this.bounds.width > getParent().getWidth())
-      p.x = getParent().getWidth() - this.bounds.width;
-    if (p.y + this.bounds.height > getParent().getHeight())
-      p.y = getParent().getHeight() - this.bounds.height;
+    // if (p.x + this.bounds.width > getParent().getWidth())
+    // p.x = getParent().getWidth() - this.bounds.width;
+    // if (p.y + this.bounds.height > getParent().getHeight())
+    // p.y = getParent().getHeight() - this.bounds.height;
     this.bounds.setLocation(p);
     updateHandles();
   }
@@ -197,7 +197,8 @@ class FamilyMemberPanel extends GraphicalObject {
       size.width = getParent().getWidth() - this.bounds.x;
     if (this.bounds.y + size.height > getParent().getHeight())
       size.height = getParent().getHeight() - this.bounds.y;
-    this.bounds.setSize(size);
+
+    this.bounds.setSize(checkSize(size));
     updateHandles();
   }
 
@@ -223,18 +224,28 @@ class FamilyMemberPanel extends GraphicalObject {
       bounds.y = 0;
     }
 
-    if (bounds.x + bounds.width > getParent().getWidth())
-      bounds.x = getParent().getWidth() - this.bounds.width;
-    if (bounds.y + bounds.height > getParent().getHeight())
-      bounds.y = getParent().getHeight() - this.bounds.height;
+    // if (bounds.x + bounds.width > getParent().getWidth())
+    // bounds.x = getParent().getWidth() - this.bounds.width;
+    // if (bounds.y + bounds.height > getParent().getHeight())
+    // bounds.y = getParent().getHeight() - this.bounds.height;
+    //
+    // if (bounds.x + bounds.width > getParent().getWidth())
+    // bounds.width = getParent().getWidth() - bounds.x;
+    // if (bounds.y + bounds.height > getParent().getHeight())
+    // bounds.height = getParent().getHeight() - bounds.y;
 
-    if (bounds.x + bounds.width > getParent().getWidth())
-      bounds.width = getParent().getWidth() - bounds.x;
-    if (bounds.y + bounds.height > getParent().getHeight())
-      bounds.height = getParent().getHeight() - bounds.y;
-
+    bounds.setSize(checkSize(bounds.getSize()));
     this.bounds.setBounds(bounds);
     updateHandles();
+  }
+
+  private Dimension checkSize(Dimension size) {
+    Dimension d = new Dimension(size);
+
+    if (d.width < 20)
+      d.width = 20;
+
+    return d;
   }
 
   private void updateHandles() {
