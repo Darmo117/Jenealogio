@@ -247,6 +247,9 @@ public class MainFrame extends ApplicationFrame<MainController> {
     i.setMnemonic(I18n.getLocalizedMnemonic("item.colors"));
     i.addActionListener(listeners.get(EventType.EDIT_COLORS));
 
+    // 'Help' menu
+    ((JMenuItem) menuBar.getMenu(3).getMenuComponent(0)).setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0));
+
     return menuBar;
   }
 
