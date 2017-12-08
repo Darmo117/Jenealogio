@@ -22,14 +22,20 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
+import java.awt.font.FontRenderContext;
+import java.awt.font.LineBreakMeasurer;
+import java.awt.font.TextLayout;
 import java.awt.geom.Rectangle2D;
+import java.text.AttributedCharacterIterator;
+import java.text.AttributedString;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JComponent;
 
@@ -46,8 +52,7 @@ import net.darmo_creations.jenealogio.util.Images;
  */
 class FamilyMemberPanel extends GraphicalObject {
   private static final Dimension MINIMUM_SIZE = new Dimension(30, 30);
-
-  private static final int IMAGE_OFFSET = 8;
+  private static final int INSETS = 10;
   private static final int IMAGE_SIZE = 16;
 
   private static final Font FONT = new Font("Tahoma", Font.PLAIN, 12);
@@ -83,10 +88,10 @@ class FamilyMemberPanel extends GraphicalObject {
     this.member = member;
 
     Graphics g = getParent().getGraphics();
-    FontMetrics metrics = g.getFontMetrics(FONT);
-    Rectangle2D r = metrics.getStringBounds(member.toString(), g);
+    Rectangle2D r = g.getFontMetrics(FONT).getStringBounds(member.toString(), g);
+
     Dimension size = new Dimension((int) r.getWidth(), (int) r.getHeight());
-    size.width += 20 + (member.isDead() ? IMAGE_OFFSET + IMAGE_SIZE : 0);
+    size.width += 2 * INSETS + (member.isDead() ? IMAGE_SIZE + INSETS : 0) + 8;
     size.height = 30;
     setSize(size);
   }
@@ -124,13 +129,19 @@ class FamilyMemberPanel extends GraphicalObject {
     String text = this.member.toString();
     Rectangle textZone = this.bounds.getBounds();
 
+    textZone.x += INSETS;
+    textZone.width -= 2 * INSETS;
+
     if (this.member.isDead()) {
-      textZone.x += IMAGE_OFFSET + IMAGE_SIZE;
-      textZone.width -= IMAGE_OFFSET + IMAGE_SIZE;
-      g2d.drawImage(Images.TOMBSTONE.getImage(), this.bounds.x + IMAGE_OFFSET, this.bounds.y + (this.bounds.height - IMAGE_SIZE) / 2, null);
+      textZone.x += INSETS + IMAGE_SIZE;
+      textZone.width -= INSETS + IMAGE_SIZE;
+      g2d.drawImage(Images.TOMBSTONE.getImage(), this.bounds.x + INSETS, this.bounds.y + (this.bounds.height - IMAGE_SIZE) / 2, null);
     }
-    g2d.setColor(Color.BLACK);
-    drawCenteredString(g2d, text, textZone);
+
+    if (textZone.width >= 0) {
+      g2d.setColor(Color.BLACK);
+      drawCenteredString(g2d, text, textZone);
+    }
 
     if (isSelected() || isSelectedBackground())
       for (GrabHandle h : this.handles)
@@ -139,11 +150,32 @@ class FamilyMemberPanel extends GraphicalObject {
 
   private void drawCenteredString(Graphics2D g2d, String text, Rectangle rect) {
     g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-    FontMetrics metrics = g2d.getFontMetrics(FONT);
-    int x = rect.x + (rect.width - metrics.stringWidth(text)) / 2;
-    int y = rect.y + ((rect.height - metrics.getHeight()) / 2) + metrics.getAscent();
     g2d.setFont(FONT);
-    g2d.drawString(text, x, y);
+
+    AttributedString as = new AttributedString(text);
+    AttributedCharacterIterator aci = as.getIterator();
+    FontRenderContext frc = g2d.getFontRenderContext();
+    LineBreakMeasurer lbm = new LineBreakMeasurer(aci, frc);
+    List<TextLayout> lines = new ArrayList<>();
+    float w = rect.width;
+
+    float h = 0;
+    while (lbm.getPosition() < aci.getEndIndex()) {
+      TextLayout tl = lbm.nextLayout(w);
+      lines.add(tl);
+      h += tl.getDescent() + tl.getLeading() + tl.getAscent();
+      // Ignore lines that are out of bounds
+      if (h > rect.height)
+        break;
+    }
+
+    float y = rect.y + (rect.height - h) / 2;
+    for (TextLayout tl : lines) {
+      float x = (float) (rect.x + (w - tl.getBounds().getWidth()) / 2);
+      tl.draw(g2d, x, y + tl.getAscent());
+      y += tl.getDescent() + tl.getLeading() + tl.getAscent();
+    }
+
     g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
   }
 
