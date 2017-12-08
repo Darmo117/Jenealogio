@@ -92,6 +92,7 @@ button.cancel.text=Nuligi
 button.close.text=Fermi
 button.edit.text=Modifi
 button.default_color.text=Defaŭlta
+button.collapse_all.tooltip=Fermi ĉio
 label.tree_name.text=Nomo
 label.family_name.text=Familia nomo
 label.use_name.text=Uza nomo
@@ -117,6 +118,7 @@ label.available_children.text=Haveblaj infanoj
 label.search.text=Serĉi
 label.color.text=Koloro
 label.tree_explorer.text=Arbesplorilo
+label.canvas.text=Kanvaso
 
 label.updates_check_blocked.text=Kontrolo de ĝisdatigoj malaktivitita
 label.checking_updates.text=Kontrolanta ĝisdatigoj

@@ -92,6 +92,7 @@ button.cancel.text=Cancel
 button.close.text=Close
 button.edit.text=Edit
 button.default_color.text=Default
+button.collapse_all.tooltip=Collapse All
 label.tree_name.text=Name
 label.family_name.text=Family name
 label.use_name.text=Use name
@@ -117,6 +118,7 @@ label.available_children.text=Available children
 label.search.text=Search
 label.color.text=Color
 label.tree_explorer.text=Tree Explorer
+label.canvas.text=Canvas
 
 label.updates_check_blocked.text=Updates check disabled
 label.checking_updates.text=Checking updates

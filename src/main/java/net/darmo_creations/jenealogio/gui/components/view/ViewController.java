@@ -32,12 +32,12 @@ public class ViewController extends MouseAdapter implements FocusListener {
 
   @Override
   public void focusGained(FocusEvent e) {
-    this.view.setTopLabelFocused(true);
+    this.view.setTopFocused(true);
     ApplicationRegistry.EVENTS_BUS.dispatchEvent(new FocusChangeEvent(this.type));
   }
 
   @Override
   public void focusLost(FocusEvent e) {
-    this.view.setTopLabelFocused(false);
+    this.view.setTopFocused(false);
   }
 }

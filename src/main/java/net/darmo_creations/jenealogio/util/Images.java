@@ -59,6 +59,7 @@ public final class Images {
   public static final ImageIcon HEART;
   public static final ImageIcon HEART_BROKEN;
   public static final ImageIcon TOMBSTONE;
+  public static final ImageIcon MINUS;
   public static final ImageIcon COLOR_WHEEL;
   public static final ImageIcon MALE_SYMBOL;
   public static final ImageIcon FEMALE_SYMBOL;
@@ -108,6 +109,7 @@ public final class Images {
     HEART = ImagesUtil.getIcon("/assets/icons/heart.png");
     HEART_BROKEN = ImagesUtil.getIcon("/assets/icons/heart_broken.png");
     TOMBSTONE = ImagesUtil.getIcon("/assets/icons/tombstone.png");
+    MINUS = ImagesUtil.getIcon("/assets/icons/minus.png");
     COLOR_WHEEL = ImagesUtil.getIcon("/assets/icons/color_wheel.png");
     MALE_SYMBOL = ImagesUtil.getIcon("/assets/icons/male_symbol.png");
     FEMALE_SYMBOL = ImagesUtil.getIcon("/assets/icons/female_symbol.png");

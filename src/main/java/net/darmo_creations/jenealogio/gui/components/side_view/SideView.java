@@ -19,11 +19,13 @@
 package net.darmo_creations.jenealogio.gui.components.side_view;
 
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.swing.JButton;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JTree;
@@ -55,6 +57,18 @@ public class SideView extends View {
 
   public SideView() {
     super(I18n.getLocalizedString("label.tree_explorer.text"), new SideViewController());
+
+    JButton b = new JButton(Images.MINUS);
+    b.setPreferredSize(new Dimension(20, 20));
+    b.setFocusable(false);
+    b.setToolTipText(I18n.getLocalizedString("button.collapse_all.tooltip"));
+    b.addActionListener(e -> {
+      int row = this.tree.getRowCount() - 1;
+      while (row >= 0) {
+        this.tree.collapseRow(row--);
+      }
+    });
+    addButton(b);
 
     NamedTreeNode root = new NamedTreeNode("root", "Root");
     this.membersNode = new NamedTreeNode("members", I18n.getLocalizedString("node.members.text"));
@@ -175,9 +189,7 @@ public class SideView extends View {
   }
 
   @Override
-  public void deselectAll() {
-    // TODO Auto-generated method stub
-  }
+  public void deselectAll() {}
 
   @Override
   public Selection getSelection() {

@@ -21,9 +21,11 @@ package net.darmo_creations.jenealogio.gui.components.view;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Point;
 import java.awt.Rectangle;
 
+import javax.swing.AbstractButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -41,7 +43,7 @@ public abstract class View extends JPanel {
   private static final Color FOCUSED = new Color(180, 180, 180);
   private static final Color NOT_FOCUSED = new Color(220, 220, 220);
 
-  private JLabel topLbl;
+  private JPanel topPanel, buttonsPnl;
   private JScrollPane scrollPane;
   protected ViewController controller;
 
@@ -58,18 +60,28 @@ public abstract class View extends JPanel {
     this.scrollPane = new JScrollPane();
     this.scrollPane.addFocusListener(this.controller);
 
-    this.topLbl = new JLabel(name);
-    this.topLbl.setOpaque(true);
-    this.topLbl.setBackground(NOT_FOCUSED);
-    this.topLbl.setBorder(new CompoundBorder(new MatteBorder(0, 0, 1, 0, Color.GRAY), new EmptyBorder(5, 5, 5, 5)));
-    this.topLbl.addMouseListener(this.controller);
+    JLabel topLbl = new JLabel(name);
+    topLbl.addMouseListener(this.controller);
 
-    add(this.topLbl, BorderLayout.NORTH);
+    this.buttonsPnl = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
+    this.buttonsPnl.setOpaque(false);
+
+    this.topPanel = new JPanel(new BorderLayout());
+    this.topPanel.setBackground(NOT_FOCUSED);
+    this.topPanel.setBorder(new CompoundBorder(new MatteBorder(0, 0, 1, 0, Color.GRAY), new EmptyBorder(5, 5, 5, 5)));
+    this.topPanel.add(topLbl, BorderLayout.WEST);
+    this.topPanel.add(this.buttonsPnl, BorderLayout.EAST);
+
+    add(this.topPanel, BorderLayout.NORTH);
     add(this.scrollPane, BorderLayout.CENTER);
   }
 
-  public void setTopLabelFocused(boolean isFocused) {
-    this.topLbl.setBackground(isFocused ? FOCUSED : NOT_FOCUSED);
+  public void setTopFocused(boolean isFocused) {
+    this.topPanel.setBackground(isFocused ? FOCUSED : NOT_FOCUSED);
+  }
+
+  public void addButton(AbstractButton b) {
+    this.buttonsPnl.add(b);
   }
 
   /**
