@@ -35,7 +35,7 @@ import java.util.Objects;
  */
 class GrabHandle {
   private static final Stroke STROKE = new BasicStroke(1);
-  private static final int SIZE = 4;
+  private static final int SIZE = 6;
 
   private final FamilyMemberPanel panel;
   private final Direction direction;
@@ -64,6 +64,8 @@ class GrabHandle {
    * @param location the new location
    */
   public void setLocation(Point location) {
+    location.x -= SIZE / 2;
+    location.y -= SIZE / 2;
     this.bounds.setLocation(location);
   }
 
@@ -93,10 +95,6 @@ class GrabHandle {
     this.panel.setBounds(bounds);
   }
 
-  public int getSize() {
-    return SIZE;
-  }
-
   public Direction getDirection() {
     return this.direction;
   }
@@ -115,8 +113,8 @@ class GrabHandle {
       g.setColor(Color.WHITE);
     else
       g.setColor(Color.BLACK);
-    int x = this.bounds.x - SIZE / 2;
-    int y = this.bounds.y - SIZE / 2;
+    int x = this.bounds.x;
+    int y = this.bounds.y;
     g.fillRect(x, y, SIZE, SIZE);
     g.setColor(Color.BLACK);
     g.drawRect(x, y, SIZE, SIZE);
