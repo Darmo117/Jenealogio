@@ -45,10 +45,13 @@ import net.darmo_creations.jenealogio.util.Images;
  * @author Damien Vergnet
  */
 class FamilyMemberPanel extends GraphicalObject {
-  private static final Stroke STROKE = new BasicStroke(1);
+  private static final Dimension MINIMUM_SIZE = new Dimension(30, 30);
+
   private static final int IMAGE_OFFSET = 8;
   private static final int IMAGE_SIZE = 16;
+
   private static final Font FONT = new Font("Tahoma", Font.PLAIN, 12);
+  private static final Stroke STROKE = new BasicStroke(1);
 
   private Rectangle bounds;
   private FamilyMember member;
@@ -144,25 +147,6 @@ class FamilyMemberPanel extends GraphicalObject {
     g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
   }
 
-  private void drawTextUgly(String text, FontMetrics textMetrics, Graphics2D g2) {
-    int lineHeight = textMetrics.getHeight();
-    String textToDraw = text;
-    String[] arr = textToDraw.split(" ");
-    int nIndex = 0;
-    int startX = 319;
-    int startY = 113;
-
-    while (nIndex < arr.length) {
-      String line = arr[nIndex++];
-      while ((nIndex < arr.length) && (textMetrics.stringWidth(line + " " + arr[nIndex]) < 447)) {
-        line = line + " " + arr[nIndex];
-        nIndex++;
-      }
-      g2.drawString(line, startX, startY);
-      startY = startY + lineHeight;
-    }
-  }
-
   public GrabHandle isOnHandle(Point point) {
     for (GrabHandle h : this.handles) {
       if (h.getBounds().contains(point))
@@ -176,14 +160,6 @@ class FamilyMemberPanel extends GraphicalObject {
   }
 
   public void setLocation(Point p) {
-    if (p.x < 0)
-      p.x = 0;
-    if (p.y < 0)
-      p.y = 0;
-    // if (p.x + this.bounds.width > getParent().getWidth())
-    // p.x = getParent().getWidth() - this.bounds.width;
-    // if (p.y + this.bounds.height > getParent().getHeight())
-    // p.y = getParent().getHeight() - this.bounds.height;
     this.bounds.setLocation(p);
     updateHandles();
   }
@@ -193,13 +169,19 @@ class FamilyMemberPanel extends GraphicalObject {
   }
 
   public void setSize(Dimension size) {
-    if (this.bounds.x + size.width > getParent().getWidth())
-      size.width = getParent().getWidth() - this.bounds.x;
-    if (this.bounds.y + size.height > getParent().getHeight())
-      size.height = getParent().getHeight() - this.bounds.y;
+    Dimension d = new Dimension(size);
 
-    this.bounds.setSize(checkSize(size));
+    if (d.width < MINIMUM_SIZE.width)
+      d.width = MINIMUM_SIZE.width;
+    if (d.height < MINIMUM_SIZE.height)
+      d.height = MINIMUM_SIZE.height;
+
+    this.bounds.setSize(d);
     updateHandles();
+  }
+
+  public Dimension getMinimumSize() {
+    return MINIMUM_SIZE;
   }
 
   public int getWidth() {
@@ -215,37 +197,15 @@ class FamilyMemberPanel extends GraphicalObject {
   }
 
   public void setBounds(Rectangle bounds) {
-    if (bounds.x < 0) {
-      bounds.width += bounds.x;
-      bounds.x = 0;
-    }
-    if (bounds.y < 0) {
-      bounds.height += bounds.y;
-      bounds.y = 0;
-    }
+    Rectangle r = new Rectangle(bounds);
 
-    // if (bounds.x + bounds.width > getParent().getWidth())
-    // bounds.x = getParent().getWidth() - this.bounds.width;
-    // if (bounds.y + bounds.height > getParent().getHeight())
-    // bounds.y = getParent().getHeight() - this.bounds.height;
-    //
-    // if (bounds.x + bounds.width > getParent().getWidth())
-    // bounds.width = getParent().getWidth() - bounds.x;
-    // if (bounds.y + bounds.height > getParent().getHeight())
-    // bounds.height = getParent().getHeight() - bounds.y;
+    if (r.width < MINIMUM_SIZE.width)
+      r.width = MINIMUM_SIZE.width;
+    if (r.height < MINIMUM_SIZE.height)
+      r.height = MINIMUM_SIZE.height;
 
-    bounds.setSize(checkSize(bounds.getSize()));
-    this.bounds.setBounds(bounds);
+    this.bounds.setBounds(r);
     updateHandles();
-  }
-
-  private Dimension checkSize(Dimension size) {
-    Dimension d = new Dimension(size);
-
-    if (d.width < 20)
-      d.width = 20;
-
-    return d;
   }
 
   private void updateHandles() {

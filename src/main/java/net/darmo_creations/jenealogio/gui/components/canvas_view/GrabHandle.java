@@ -76,20 +76,25 @@ class GrabHandle {
    */
   public void translate(Point p) {
     Rectangle bounds = this.panel.getBounds();
+    Dimension minSize = this.panel.getMinimumSize();
 
     if (this.direction == Direction.NORTH || this.direction == Direction.NORTH_EAST || this.direction == Direction.NORTH_WEST) {
+      if (p.y > 0 && bounds.height - p.y < minSize.height || p.y < 0 && bounds.y + p.y < 0)
+        p.y = 0;
       bounds.y += p.y;
       bounds.height += -p.y;
     }
-    if (this.direction == Direction.SOUTH || this.direction == Direction.SOUTH_EAST || this.direction == Direction.SOUTH_WEST) {
+    else if (this.direction == Direction.SOUTH || this.direction == Direction.SOUTH_EAST || this.direction == Direction.SOUTH_WEST) {
       bounds.height += p.y;
     }
-    if (this.direction == Direction.EAST || this.direction == Direction.NORTH_EAST || this.direction == Direction.SOUTH_EAST) {
-      bounds.width += p.x;
-    }
     if (this.direction == Direction.WEST || this.direction == Direction.NORTH_WEST || this.direction == Direction.SOUTH_WEST) {
+      if (p.x > 0 && bounds.width - p.x < minSize.width || p.x < 0 && bounds.x + p.x < 0)
+        p.x = 0;
       bounds.x += p.x;
       bounds.width += -p.x;
+    }
+    else if (this.direction == Direction.EAST || this.direction == Direction.NORTH_EAST || this.direction == Direction.SOUTH_EAST) {
+      bounds.width += p.x;
     }
 
     this.panel.setBounds(bounds);

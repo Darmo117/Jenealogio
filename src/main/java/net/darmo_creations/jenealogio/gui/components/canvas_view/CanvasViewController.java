@@ -198,6 +198,7 @@ class CanvasViewController extends ViewController {
         scrollIfOutside();
       }
     }
+
     if (SwingUtilities.isMiddleMouseButton(e)) {
       Point newLocation = this.mouseLocation;
 
