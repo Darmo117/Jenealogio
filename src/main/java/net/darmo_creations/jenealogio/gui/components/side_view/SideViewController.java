@@ -87,13 +87,8 @@ public class SideViewController extends ViewController implements TreeSelectionL
 
             if (gotoEnabled) {
               Object o = ((NamedTreeNode) paths.get(0).getLastPathComponent()).getUserObject();
-              if (o instanceof FamilyMember) {
-                FamilyMember m = (FamilyMember) o;
-                ApplicationRegistry.EVENTS_BUS.dispatchEvent(new GoToObjectEvent(m));
-              }
-              else if (o instanceof Relationship) {
-                Relationship r = (Relationship) o;
-                ApplicationRegistry.EVENTS_BUS.dispatchEvent(new GoToObjectEvent(r));
+              if (o instanceof FamilyMember || o instanceof Relationship) {
+                ApplicationRegistry.EVENTS_BUS.dispatchEvent(new GoToObjectEvent(o));
               }
             }
             break;
