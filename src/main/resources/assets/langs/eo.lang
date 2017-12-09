@@ -1,6 +1,6 @@
 # Dialogoj
-dialog.add_card.title=Aldoni slipo
-dialog.update_card.title=Modifi slipo
+dialog.add_card.title=Aldoni karto
+dialog.update_card.title=Modifi karto
 dialog.add_link.title=Aldoni ligilo
 dialog.update_link.title=Modifi ligilo
 dialog.new_tree.title=Nova arbo
@@ -84,6 +84,10 @@ item.help.text=Helpo
 item.help.mnemonic=h
 item.about.text=Pri
 item.about.mnemonic=p
+
+item.go_to.text=Iri tien
+item.delete_card.text=Forigi tiu karto
+item.delete_link.text=Forigi tiu ligilio
 
 # Butonoj/Etikedoj
 button.choose_image.text=Elekti bildo…

@@ -85,6 +85,10 @@ item.help.mnemonic=h
 item.about.text=About
 item.about.mnemonic=a
 
+item.go_to.text=Go To
+item.delete_card.text=Delete Card
+item.delete_link.text=Delete Link
+
 # Buttons/Labels
 button.choose_image.text=Choose an image…
 button.validate.text=Validate

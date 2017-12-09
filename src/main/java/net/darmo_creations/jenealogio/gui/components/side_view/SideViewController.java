@@ -37,6 +37,7 @@ import net.darmo_creations.gui_framework.ApplicationRegistry;
 import net.darmo_creations.gui_framework.events.UserEvent;
 import net.darmo_creations.jenealogio.events.CardDoubleClickEvent;
 import net.darmo_creations.jenealogio.events.EventType;
+import net.darmo_creations.jenealogio.events.GoToObjectEvent;
 import net.darmo_creations.jenealogio.events.LinkDoubleClickEvent;
 import net.darmo_creations.jenealogio.events.SelectionChangeEvent;
 import net.darmo_creations.jenealogio.gui.components.NamedTreeNode;
@@ -88,11 +89,11 @@ public class SideViewController extends ViewController implements TreeSelectionL
               Object o = ((NamedTreeNode) paths.get(0).getLastPathComponent()).getUserObject();
               if (o instanceof FamilyMember) {
                 FamilyMember m = (FamilyMember) o;
-                // TODO
+                ApplicationRegistry.EVENTS_BUS.dispatchEvent(new GoToObjectEvent(m));
               }
               else if (o instanceof Relationship) {
                 Relationship r = (Relationship) o;
-                // TODO
+                ApplicationRegistry.EVENTS_BUS.dispatchEvent(new GoToObjectEvent(r));
               }
             }
             break;
@@ -101,10 +102,15 @@ public class SideViewController extends ViewController implements TreeSelectionL
 
             if (canDelete) {
               Object o = ((NamedTreeNode) paths.get(0).getLastPathComponent()).getUserObject();
+
+              if (o instanceof FamilyMember)
+                i.setText(I18n.getLocalizedString("item.delete_card.text"));
+              else if (o instanceof Relationship)
+                i.setText(I18n.getLocalizedString("item.delete_link.text"));
+
               if (o instanceof FamilyMember || o instanceof Relationship) {
                 i.addActionListener(l -> ApplicationRegistry.EVENTS_BUS.dispatchEvent(new UserEvent(EventType.DELETE_OBJECT)));
-                i.setText(I18n.getLocalizedString("item.delete_card.text"));
-                i.setIcon(Images.DELETE_BIG);
+                i.setIcon(Images.DELETE);
               }
             }
             break;
