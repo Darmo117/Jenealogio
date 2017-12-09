@@ -596,6 +596,8 @@ public class MainController extends ApplicationController<MainFrame> implements 
 
     try {
       Images.writeImage(this.frame.exportToImage(), path);
+      JOptionPane.showMessageDialog(this.frame, I18n.getLocalizedString("popup.image_export_success.text"),
+          I18n.getLocalizedString("popup.image_export_success.title"), JOptionPane.INFORMATION_MESSAGE);
     }
     catch (IOException ex) {
       this.frame.showErrorDialog(I18n.getLocalizedString("popup.image_export_error.text"));

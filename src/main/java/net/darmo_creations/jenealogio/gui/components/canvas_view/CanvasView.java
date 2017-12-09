@@ -223,7 +223,7 @@ public class CanvasView extends View implements DragAndDropTarget {
    * @return the topmost leftmost point of the tree
    */
   private Point getTopLeftPoint() {
-    Point point = new Point(4000, 4000);
+    Point point = new Point(this.canvas.getBounds().width, this.canvas.getBounds().height);
 
     getController().getPanels().forEach(p -> {
       Point l = p.getLocation();
