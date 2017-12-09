@@ -122,7 +122,10 @@ class FamilyMemberPanel extends GraphicalObject {
       g2d.setColor(config.getValue(ConfigTags.GENDER_UNKNOWN_COLOR));
 
     g2d.fillRect(this.bounds.x, this.bounds.y, this.bounds.width, this.bounds.height);
-    g2d.setColor(Color.BLACK);
+    if (isSelected() || isSelectedBackground())
+      g2d.setColor(Color.BLACK);
+    else
+      g2d.setColor(Color.GRAY);
     g2d.setStroke(STROKE);
     g2d.drawRect(this.bounds.x, this.bounds.y, this.bounds.width, this.bounds.height);
 
