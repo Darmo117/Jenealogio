@@ -192,7 +192,14 @@ class FamilyMemberPanel extends GraphicalObject {
   }
 
   public void setLocation(Point p) {
-    this.bounds.setLocation(p);
+    Point p1 = new Point(p);
+
+    if (p1.x < 0)
+      p1.x = 0;
+    if (p1.y < 0)
+      p1.y = 0;
+
+    this.bounds.setLocation(p1);
     updateHandles();
   }
 
@@ -231,6 +238,10 @@ class FamilyMemberPanel extends GraphicalObject {
   public void setBounds(Rectangle bounds) {
     Rectangle r = new Rectangle(bounds);
 
+    if (r.x < 0)
+      r.x = 0;
+    if (r.y < 0)
+      r.y = 0;
     if (r.width < MINIMUM_SIZE.width)
       r.width = MINIMUM_SIZE.width;
     if (r.height < MINIMUM_SIZE.height)
