@@ -120,4 +120,16 @@ abstract class GraphicalObject {
    * @param config the config
    */
   public abstract void paintComponent(Graphics g, WritableConfig config);
+
+  @Override
+  public boolean equals(Object o) {
+    if (o instanceof GraphicalObject)
+      return this.id == ((GraphicalObject) o).getId();
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    return Long.hashCode(this.id);
+  }
 }

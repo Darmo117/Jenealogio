@@ -24,21 +24,32 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.swing.SwingUtilities;
 
 import net.darmo_creations.gui_framework.ApplicationRegistry;
 import net.darmo_creations.jenealogio.events.CardDoubleClickEvent;
+import net.darmo_creations.jenealogio.events.GoToObjectEvent;
 import net.darmo_creations.jenealogio.events.LinkDoubleClickEvent;
 import net.darmo_creations.jenealogio.events.SelectionChangeEvent;
 import net.darmo_creations.jenealogio.events.ViewEditEvent;
 import net.darmo_creations.jenealogio.gui.components.view.ViewController;
 import net.darmo_creations.jenealogio.model.ViewType;
+import net.darmo_creations.jenealogio.model.family.Family;
+import net.darmo_creations.jenealogio.model.family.FamilyMember;
+import net.darmo_creations.jenealogio.model.family.Relationship;
 import net.darmo_creations.jenealogio.util.Pair;
 import net.darmo_creations.jenealogio.util.Selection;
+import net.darmo_creations.utils.events.SubscribeEvent;
 
 /**
  * This controller handles cards and links selection and notifies the DisplayPanel.
@@ -46,6 +57,9 @@ import net.darmo_creations.jenealogio.util.Selection;
  * @author Damien Vergnet
  */
 class CanvasViewController extends ViewController {
+  /** The maximum distance away from a link the mouse must be to count as a hover. */
+  private static final int HOVER_DISTANCE = 5;
+
   private Point mouseLocation;
   private Point selectionStart;
   private Rectangle selection;
@@ -53,6 +67,8 @@ class CanvasViewController extends ViewController {
   private boolean resizingComponent;
   private GrabHandle handle;
 
+  private Map<Long, FamilyMemberPanel> panels;
+  private List<Link> links;
   /** All currently selected cards */
   private List<GraphicalObject> selectedObjects;
 
@@ -65,27 +81,15 @@ class CanvasViewController extends ViewController {
     this.resizingComponent = false;
     this.handle = null;
 
+    this.panels = new HashMap<>();
+    this.links = new ArrayList<>();
     this.selectedObjects = new ArrayList<>();
-  }
-
-  /**
-   * @return selection's starting position
-   */
-  Optional<Rectangle> getSelectionRectangle() {
-    return Optional.ofNullable(this.selection);
-  }
-
-  /**
-   * Returns the current selection.
-   */
-  public Selection getSelection() {
-    return new Selection(getSelectedPanels(), getSelectedLinks());
   }
 
   @Override
   public void mousePressed(MouseEvent e) {
     super.mousePressed(e);
-    GrabHandle h = getView().isPointOnHandle(e.getPoint());
+    GrabHandle h = isPointOnHandle(e.getPoint());
 
     if (!this.view.hasFocus())
       this.view.requestFocus();
@@ -97,9 +101,9 @@ class CanvasViewController extends ViewController {
         this.resizingComponent = true;
         getView().resizing(true);
       }
-      else if (!getView().isMouseOverObject(this.mouseLocation)) {
+      else if (!isMouseOverObject(this.mouseLocation)) {
         this.selection = new Rectangle(this.selectionStart);
-        if (!getView().getHoveredPanel(this.mouseLocation).isPresent() && !getView().getHoveredLink(this.mouseLocation).isPresent())
+        if (!getHoveredPanel(this.mouseLocation).isPresent() && !getHoveredLink(this.mouseLocation).isPresent())
           deselectAll();
       }
     }
@@ -118,7 +122,7 @@ class CanvasViewController extends ViewController {
         ApplicationRegistry.EVENTS_BUS.dispatchEvent(new ViewEditEvent());
       }
       if (!getView().isResizing() && this.selection != null) {
-        objectsSelected(getView().getPanelsInsideRectangle(this.selection));
+        objectsSelected(getPanelsInsideRectangle(this.selection));
         this.selection = null;
         this.view.repaint();
       }
@@ -133,7 +137,7 @@ class CanvasViewController extends ViewController {
     super.mouseClicked(e);
 
     if (SwingUtilities.isLeftMouseButton(e)) {
-      Optional<FamilyMemberPanel> p = getView().getHoveredPanel(this.mouseLocation);
+      Optional<FamilyMemberPanel> p = getHoveredPanel(this.mouseLocation);
       boolean ctrlDown = e.isControlDown();
 
       if (p.isPresent()) {
@@ -143,7 +147,7 @@ class CanvasViewController extends ViewController {
           ApplicationRegistry.EVENTS_BUS.dispatchEvent(new CardDoubleClickEvent(member.getId()));
       }
       else {
-        Optional<Link> l = getView().getHoveredLink(this.mouseLocation);
+        Optional<Link> l = getHoveredLink(this.mouseLocation);
 
         if (l.isPresent()) {
           Link link = l.get();
@@ -158,7 +162,7 @@ class CanvasViewController extends ViewController {
   @Override
   public void mouseMoved(MouseEvent e) {
     super.mouseMoved(e);
-    this.handle = getView().isPointOnHandle(e.getPoint());
+    this.handle = isPointOnHandle(e.getPoint());
 
     if (this.handle == null)
       getView().setCursor(Cursor.getDefaultCursor());
@@ -210,6 +214,116 @@ class CanvasViewController extends ViewController {
     }
   }
 
+  private GrabHandle isPointOnHandle(Point point) {
+    return this.panels.values().stream().map(p -> p.isOnHandle(point)).filter(h -> h != null).findAny().orElse(null);
+  }
+
+  @SubscribeEvent
+  public void onGoToObject(GoToObjectEvent e) {
+    Object o = e.getObject();
+    GraphicalObject obj = null;
+
+    if (o instanceof FamilyMember) {
+      Optional<FamilyMemberPanel> m = this.panels.entrySet().stream().map(entry -> entry.getValue()).filter(
+          p -> p.getId() == ((FamilyMember) o).getId()).findAny();
+      if (m.isPresent())
+        obj = m.get();
+    }
+    else if (o instanceof Relationship) {
+      Relationship r = (Relationship) o;
+      Optional<Link> link = this.links.stream().filter(
+          l -> l.getParent1() == r.getPartner1() || l.getParent2() == r.getPartner2()).findAny();
+      if (link.isPresent())
+        obj = link.get();
+    }
+
+    scrollToObject(obj);
+  }
+
+  void reset() {
+    deselectAll();
+    this.panels.clear();
+    this.links.clear();
+  }
+
+  void refresh(Family family, Map<Long, Point> positions, Map<Long, Dimension> sizes) {
+    Set<Long> updatedOrAddedPanels = new HashSet<>();
+    Set<Long> panelsToDelete = new HashSet<>(this.panels.keySet());
+
+    // Add/update members
+    family.getAllMembers().forEach(member -> {
+      long id = member.getId();
+
+      if (this.panels.containsKey(id)) {
+        FamilyMemberPanel panel = this.panels.get(id);
+
+        panel.setInfo(member);
+        if (positions != null && positions.containsKey(member.getId())) {
+          panel.setBounds(new Rectangle(positions.get(member.getId()), panel.getSize()));
+        }
+        if (sizes != null && sizes.containsKey(member.getId())) {
+          panel.setSize(sizes.get(member.getId()));
+        }
+      }
+      else {
+        FamilyMemberPanel panel = new FamilyMemberPanel(this.view, member);
+
+        if (positions != null && positions.containsKey(member.getId())) {
+          panel.setBounds(new Rectangle(positions.get(member.getId()), panel.getSize()));
+        }
+        else
+          panel.setBounds(new Rectangle(panel.getSize()));
+        if (sizes != null && sizes.containsKey(member.getId())) {
+          panel.setSize(sizes.get(member.getId()));
+        }
+        this.panels.put(id, panel);
+
+        final int gap = 50;
+        Dimension size = this.view.getPreferredSize();
+        Rectangle panelBounds = panel.getBounds();
+        if (panelBounds.x + panelBounds.width > size.width)
+          size.width += panelBounds.x + panelBounds.width - size.width + gap;
+        if (panelBounds.y + panelBounds.height > size.height)
+          size.height += panelBounds.y + panelBounds.height - size.height + gap;
+        if (!size.equals(this.view.getPreferredSize()))
+          this.view.setPreferredSize(size);
+      }
+      updatedOrAddedPanels.add(id);
+    });
+
+    // Delete members removed from the model
+    panelsToDelete.removeAll(updatedOrAddedPanels);
+    panelsToDelete.forEach(id -> this.panels.remove(id));
+
+    List<Link> updatedOrAddedLinks = new ArrayList<>();
+    // Add/update links
+    family.getAllRelations().forEach(relation -> {
+      FamilyMemberPanel id1 = this.panels.get(relation.getPartner1());
+      FamilyMemberPanel id2 = this.panels.get(relation.getPartner2());
+      Map<Long, Pair<Boolean, FamilyMemberPanel>> children = new HashMap<>();
+      for (Long id : relation.getChildren()) {
+        children.put(id, new Pair<>(relation.isAdopted(id), this.panels.get(id)));
+      }
+      Link link = new Link(this.view, id1, id2, children, relation.isWedding(), relation.hasEnded());
+
+      if (this.links.contains(link)) {
+        Link l = this.links.get(this.links.indexOf(link));
+
+        l.setWedding(link.isWedding());
+        l.setEnded(relation.hasEnded());
+        l.setChildren(link.getChildren());
+      }
+      else {
+        this.links.add(link);
+      }
+      updatedOrAddedLinks.add(link);
+    });
+
+    // Delete links removed from the model
+    this.links.retainAll(updatedOrAddedLinks);
+
+  }
+
   /**
    * Deselects all components and sends a ViewEditEvent.
    */
@@ -217,6 +331,131 @@ class CanvasViewController extends ViewController {
     Selection old = getSelection();
     this.selectedObjects.clear();
     updateSelection(old);
+  }
+
+  /**
+   * @return selection's starting position
+   */
+  Optional<Rectangle> getSelectionRectangle() {
+    return Optional.ofNullable(this.selection);
+  }
+
+  /**
+   * Returns the current selection.
+   */
+  Selection getSelection() {
+    return new Selection(getSelectedPanels(), getSelectedLinks());
+  }
+
+  Stream<FamilyMemberPanel> getPanels() {
+    return this.panels.values().stream();
+  }
+
+  Stream<Link> getLinks() {
+    return this.links.stream();
+  }
+
+  Map<Long, Point> getCardsPositions() {
+    Map<Long, Point> points = new HashMap<>();
+
+    for (Long id : this.panels.keySet()) {
+      points.put(id, this.panels.get(id).getLocation());
+    }
+
+    return points;
+  }
+
+  Map<Long, Dimension> getCardsSizes() {
+    Map<Long, Dimension> sizes = new HashMap<>();
+
+    for (Long id : this.panels.keySet()) {
+      sizes.put(id, this.panels.get(id).getSize());
+    }
+
+    return sizes;
+  }
+
+  /**
+   * Scrolls to the card with the given ID.
+   * 
+   * @param id the ID
+   */
+  private void scrollToObject(GraphicalObject obj) {
+    if (this.panels.containsValue(obj)) {
+      FamilyMemberPanel p = (FamilyMemberPanel) obj;
+      Rectangle r = p.getBounds();
+      Rectangle v = getView().getCanvasVisibleRect();
+      Rectangle r1 = new Rectangle(v.getSize());
+
+      // Centers the component in the panel.
+      r1.x = r.x - (v.width - r.width) / 2;
+      r1.y = r.y - (v.height - r.height) / 2;
+      getView().scrollRectToVisible(r1);
+    }
+    else if (obj instanceof Link) {
+      Link l = (Link) obj;
+      Point middle = l.getMiddle();
+      Rectangle v = getView().getCanvasVisibleRect();
+      Rectangle r = new Rectangle(v.getSize());
+
+      r.x = middle.x - v.width / 2;
+      r.y = middle.y - v.height / 2;
+      getView().scrollRectToVisible(r);
+    }
+  }
+
+  Optional<FamilyMemberPanel> getHoveredPanel(Point mouseLocation) {
+    for (FamilyMemberPanel m : this.panels.values()) {
+      if (m.getBounds().contains(mouseLocation))
+        return Optional.of(m);
+    }
+    return Optional.empty();
+  }
+
+  Optional<Link> getHoveredLink(Point mouseLocation) {
+    for (Link link : this.links) {
+      Rectangle r1 = this.panels.get(link.getParent1()).getBounds();
+      Rectangle r2 = this.panels.get(link.getParent2()).getBounds();
+      Point p1 = new Point(r1.x + r1.width / 2, r1.y + r1.height / 2);
+      Point p2 = new Point(r2.x + r2.width / 2, r2.y + r2.height / 2);
+
+      if (isMouseOnSegment(mouseLocation, p1, p2))
+        return Optional.of(link);
+    }
+    return Optional.empty();
+  }
+
+  private boolean isMouseOverObject(Point mouseLocation) {
+    return getHoveredPanel(mouseLocation).isPresent() || getHoveredLink(mouseLocation).isPresent();
+  }
+
+  /**
+   * Tells is the mouse is over a segment.
+   * 
+   * @param mouseLocation mouse's location
+   * @param p1 one end
+   * @param p2 the other end
+   * @return true if and only if the cursor is within a distance of {@link #HOVER_DISTANCE} pixels
+   *         from the link
+   * @see <a href=
+   *      "https://stackoverflow.com/questions/17581738/check-if-a-point-projected-on-a-line-segment-is-not-outside-it">detect
+   *      if point is in segment range</a>
+   * @see <a href=
+   *      "https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line#Line_defined_by_two_points">distance
+   *      between a point and a line</a>
+   */
+  private boolean isMouseOnSegment(Point mouseLocation, Point p1, Point p2) {
+    double dx = p2.getX() - p1.getX();
+    double dy = p2.getY() - p1.getY();
+    double innerProduct = (mouseLocation.getX() - p1.getX()) * dx + (mouseLocation.getY() - p1.getY()) * dy;
+    boolean mouseInSegmentRange = 0 <= innerProduct && innerProduct <= dx * dx + dy * dy;
+
+    double a = p2.getY() - p1.getY();
+    double b = -(p2.getX() - p1.getX());
+    double c = -a * p1.getX() - b * p1.getY();
+    double d = Math.abs(a * mouseLocation.getX() + b * mouseLocation.getY() + c) / Math.hypot(a, b);
+
+    return mouseInSegmentRange && d <= HOVER_DISTANCE;
   }
 
   void cardDragged(Point translation, Point mouseLocation) {
@@ -270,9 +509,20 @@ class CanvasViewController extends ViewController {
     Selection current = getSelection();
 
     if (!current.equals(old)) {
-      getView().selectObjects(this.selectedObjects);
+      selectObjects(this.selectedObjects);
       ApplicationRegistry.EVENTS_BUS.dispatchEvent(new SelectionChangeEvent(old, current));
     }
+  }
+
+  private void selectObjects(List<GraphicalObject> objects) {
+    this.panels.forEach((id, p) -> p.deselect());
+    this.links.forEach(l -> l.deselect());
+
+    if (!objects.isEmpty()) {
+      objects.forEach(o -> o.setSelectedBackground());
+      objects.get(objects.size() - 1).setSelected();
+    }
+    getView().repaint();
   }
 
   private void updateMouseLocation(MouseEvent e) {
@@ -312,6 +562,19 @@ class CanvasViewController extends ViewController {
       Link l = (Link) o;
       return new Pair<>(l.getParent1(), l.getParent2());
     }).collect(Collectors.toList());
+  }
+
+  /**
+   * Returns all panels that are fully inside the given zone.
+   * 
+   * @param r the zone
+   * @return all panels inside the zone
+   */
+  private List<FamilyMemberPanel> getPanelsInsideRectangle(Rectangle r) {
+    if (r != null)
+      return this.panels.entrySet().stream().filter(e -> r.contains(e.getValue().getBounds())).map(e -> e.getValue()).collect(
+          Collectors.toList());
+    return Collections.emptyList();
   }
 
   private static final int LEFT = 1;
