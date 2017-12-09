@@ -18,6 +18,7 @@
  */
 package net.darmo_creations.jenealogio.gui.components.canvas_view;
 
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -38,7 +39,7 @@ import java.util.TooManyListenersException;
 import java.util.stream.Collectors;
 
 import javax.swing.JPanel;
-import javax.swing.Scrollable;
+import javax.swing.JScrollPane;
 
 import net.darmo_creations.gui_framework.config.WritableConfig;
 import net.darmo_creations.jenealogio.config.ConfigTags;
@@ -56,7 +57,7 @@ import net.darmo_creations.utils.swing.drag_and_drop.DropTargetHandler;
  *
  * @author Damien Vergnet
  */
-public class CanvasView extends View implements Scrollable, DragAndDropTarget {
+public class CanvasView extends View implements DragAndDropTarget {
   private static final long serialVersionUID = 8747904983365363275L;
 
   private static final Dimension DEFAULT_SIZE = new Dimension(4000, 4000);
@@ -86,6 +87,14 @@ public class CanvasView extends View implements Scrollable, DragAndDropTarget {
     this.canvas.addMouseMotionListener(dragController);
 
     setViewport(this.canvas);
+
+    for (Component c : getComponents()) {
+      if (c instanceof JScrollPane) {
+        JScrollPane s = (JScrollPane) c;
+        s.getHorizontalScrollBar().setUnitIncrement(16);
+        s.getVerticalScrollBar().setUnitIncrement(16);
+      }
+    }
 
     this.panels = new HashMap<>();
     this.links = new ArrayList<>();
@@ -403,31 +412,6 @@ public class CanvasView extends View implements Scrollable, DragAndDropTarget {
       r.y = middle.y - v.height / 2;
       this.canvas.scrollRectToVisible(r);
     }
-  }
-
-  @Override
-  public Dimension getPreferredScrollableViewportSize() {
-    return this.canvas.getPreferredSize();
-  }
-
-  @Override
-  public int getScrollableUnitIncrement(Rectangle visibleRect, int orientation, int direction) {
-    return 16;
-  }
-
-  @Override
-  public int getScrollableBlockIncrement(Rectangle visibleRect, int orientation, int direction) {
-    return 25;
-  }
-
-  @Override
-  public boolean getScrollableTracksViewportWidth() {
-    return false;
-  }
-
-  @Override
-  public boolean getScrollableTracksViewportHeight() {
-    return false;
   }
 
   /**
