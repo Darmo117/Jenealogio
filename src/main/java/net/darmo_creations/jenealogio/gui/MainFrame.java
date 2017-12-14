@@ -89,6 +89,8 @@ public class MainFrame extends ApplicationFrame<MainController> {
 
   public MainFrame(WritableConfig config) {
     super(config, true, true, true, true, new Dimension(800, 600), true);
+    setPreferredSize(getMinimumSize());
+    pack();
   }
 
   @Override
