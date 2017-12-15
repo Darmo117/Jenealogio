@@ -533,11 +533,9 @@ public class MainController extends ApplicationController<MainFrame> implements 
       int choice = this.frame.showConfirmDialog(I18n.getLocalizedString(key));
 
       if (choice == JOptionPane.YES_OPTION) {
-        System.out.println(this.family);
-        System.out.println(selection.getRelations());
-        selection.getMembers().forEach(id -> this.family.removeMember(id));
+        // Do not swap lines or it won't work properly.
         selection.getRelations().forEach(r -> this.family.removeRelation(r.getValue1(), r.getValue2()));
-        System.out.println(this.family);
+        selection.getMembers().forEach(id -> this.family.removeMember(id));
 
         this.saved = false;
 
