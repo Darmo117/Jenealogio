@@ -15,5 +15,6 @@ public enum EventType implements UserEvent.Type {
   EDIT_OBJECT,
   DELETE_OBJECT,
   EDIT_COLORS,
+  TOGGLE_GRID,
   EXPORT_IMAGE;
 }

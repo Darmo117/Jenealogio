@@ -18,7 +18,10 @@
  */
 package net.darmo_creations.jenealogio.config;
 
+import net.darmo_creations.gui_framework.config.tags.BooleanTag;
+
 public class ConfigTags {
+  public static final BooleanTag GRID_ENABLED = new BooleanTag("grid_enabled");
   public static final ColorTag GENDER_UNKNOWN_COLOR = new ColorTag("gender_unknown_color");
   public static final ColorTag GENDER_MALE_COLOR = new ColorTag("gender_male_color");
   public static final ColorTag GENDER_FEMALE_COLOR = new ColorTag("gender_female_color");

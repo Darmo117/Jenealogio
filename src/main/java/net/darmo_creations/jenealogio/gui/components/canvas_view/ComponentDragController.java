@@ -35,9 +35,6 @@ import net.darmo_creations.jenealogio.events.ViewEditEvent;
  * @author Damien Vergnet
  */
 class ComponentDragController extends MouseAdapter {
-  /** Grid size in pixels */
-  static final int GRID_STEP = 10;
-
   private CanvasView canvasView;
   /** The point where the mouse grabbed in the panel. */
   private Point grabPoint;
@@ -84,8 +81,8 @@ class ComponentDragController extends MouseAdapter {
       Rectangle containerBounds = this.canvasView.getCanvasBounds();
       int newX = Math.max(containerBounds.x, e.getXOnScreen() - getXOffset() - this.grabPoint.x);
       int newY = Math.max(containerBounds.y, e.getYOnScreen() - getYOffset() - this.grabPoint.y);
-      newX = (newX / GRID_STEP) * GRID_STEP;
-      newY = (newY / GRID_STEP) * GRID_STEP;
+      newX = (newX / CanvasView.GRID_STEP) * CanvasView.GRID_STEP;
+      newY = (newY / CanvasView.GRID_STEP) * CanvasView.GRID_STEP;
       Point oldLocation = this.draggedPanel.getLocation();
       Point newLocation = new Point(newX, newY);
 

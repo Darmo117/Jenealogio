@@ -18,6 +18,7 @@
  */
 package net.darmo_creations.jenealogio.gui.components.canvas_view;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -56,6 +57,10 @@ public class CanvasView extends View implements DragAndDropTarget {
   private static final long serialVersionUID = 8747904983365363275L;
 
   private static final Dimension DEFAULT_SIZE = new Dimension(4000, 4000);
+  private static final Color GRID_COLOR = new Color(220, 220, 220);
+
+  /** Grid size in pixels */
+  public static final int GRID_STEP = 10;
 
   private WritableConfig config;
   private DropTarget dropTarget;
@@ -257,7 +262,15 @@ public class CanvasView extends View implements DragAndDropTarget {
       Graphics2D g2d = (Graphics2D) g;
 
       if (CanvasView.this.config != null) {
-        Optional<Rectangle> selection = CanvasView.this.getController().getSelectionRectangle();
+        if (CanvasView.this.config.getValue(ConfigTags.GRID_ENABLED)) {
+          g2d.setColor(GRID_COLOR);
+          for (int i = 0; i < getWidth(); i += GRID_STEP * 2)
+            g2d.drawLine(i, 0, i, getHeight());
+          for (int i = 0; i < getHeight(); i += GRID_STEP * 2)
+            g2d.drawLine(0, i, getWidth(), i);
+        }
+
+        Optional<Rectangle> selection = getController().getSelectionRectangle();
 
         if (selection.isPresent()) {
           Rectangle r = selection.get();

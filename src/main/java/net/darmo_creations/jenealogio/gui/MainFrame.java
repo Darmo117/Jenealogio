@@ -30,6 +30,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -45,6 +46,7 @@ import net.darmo_creations.gui_framework.controllers.OneExtensionFileFilter;
 import net.darmo_creations.gui_framework.events.UserEvent;
 import net.darmo_creations.gui_framework.gui.ApplicationFrame;
 import net.darmo_creations.jenealogio.Jenealogio;
+import net.darmo_creations.jenealogio.config.ConfigTags;
 import net.darmo_creations.jenealogio.controllers.MainController;
 import net.darmo_creations.jenealogio.events.EventType;
 import net.darmo_creations.jenealogio.gui.components.canvas_view.CanvasView;
@@ -249,6 +251,10 @@ public class MainFrame extends ApplicationFrame<MainController> {
     i.setIcon(Images.COLOR_WHEEL);
     i.setMnemonic(I18n.getLocalizedMnemonic("item.colors"));
     i.addActionListener(listeners.get(EventType.EDIT_COLORS));
+    menuBar.getMenu(2).add(
+        i = new JCheckBoxMenuItem(I18n.getLocalizedString("item.show_grid.text"), config.getValue(ConfigTags.GRID_ENABLED)), 1);
+    i.setMnemonic(I18n.getLocalizedMnemonic("item.show_grid"));
+    i.addActionListener(listeners.get(EventType.TOGGLE_GRID));
 
     // 'Help' menu
     ((JMenuItem) menuBar.getMenu(3).getMenuComponent(0)).setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0));

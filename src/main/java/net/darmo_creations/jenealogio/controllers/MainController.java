@@ -32,6 +32,7 @@ import javax.swing.JOptionPane;
 
 import net.darmo_creations.gui_framework.ApplicationRegistry;
 import net.darmo_creations.gui_framework.config.WritableConfig;
+import net.darmo_creations.gui_framework.config.tags.BooleanTag;
 import net.darmo_creations.gui_framework.controllers.ApplicationController;
 import net.darmo_creations.gui_framework.events.UserEvent;
 import net.darmo_creations.jenealogio.Jenealogio;
@@ -174,6 +175,9 @@ public class MainController extends ApplicationController<MainFrame> implements 
           break;
         case EDIT_COLORS:
           editColors();
+          break;
+        case TOGGLE_GRID:
+          toggleGrid();
           break;
         case EXPORT_IMAGE:
           exportImage();
@@ -560,6 +564,13 @@ public class MainController extends ApplicationController<MainFrame> implements 
       if (this.fileOpen)
         refreshFrame(false);
     }
+  }
+
+  private void toggleGrid() {
+    BooleanTag tag = ConfigTags.GRID_ENABLED;
+    this.config.setValue(tag, !this.config.getValue(tag));
+    if (this.fileOpen)
+      refreshFrame(false);
   }
 
   /**
