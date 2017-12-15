@@ -441,7 +441,7 @@ public class MainController extends ApplicationController<MainFrame> implements 
       this.saved = false;
       this.family.addMember(member.get());
       Map<Long, CardState> cardsStates = this.frame.getCardsStates();
-      cardsStates.put(this.family.getGlobalId() - 1, new CardState(this.frame.getDisplayMiddlePoint(), null, null));
+      cardsStates.put(this.family.getGlobalId() - 1, new CardState(this.frame.getDisplayMiddlePoint(), null));
       this.frame.getView(this.currentView).deselectAll();
       this.frame.refreshDisplay(this.family, cardsStates, this.config);
       addEdit();

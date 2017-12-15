@@ -18,7 +18,6 @@
  */
 package net.darmo_creations.jenealogio.model;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
 
@@ -30,12 +29,10 @@ import java.awt.Point;
 public final class CardState {
   private final Point location;
   private final Dimension size;
-  private final Color bgColor;
 
-  public CardState(Point location, Dimension size, Color bgColor) {
+  public CardState(Point location, Dimension size) {
     this.location = location;
     this.size = size;
-    this.bgColor = bgColor;
   }
 
   public Point getLocation() {
@@ -44,9 +41,5 @@ public final class CardState {
 
   public Dimension getSize() {
     return this.size;
-  }
-
-  public Color getBgColor() {
-    return this.bgColor;
   }
 }

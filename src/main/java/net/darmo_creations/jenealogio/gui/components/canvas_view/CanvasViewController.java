@@ -372,7 +372,7 @@ class CanvasViewController extends ViewController {
     Map<Long, CardState> states = new HashMap<>();
 
     for (Map.Entry<Long, FamilyMemberPanel> e : this.panels.entrySet()) {
-      states.put(e.getKey(), new CardState(e.getValue().getLocation(), e.getValue().getSize(), null));
+      states.put(e.getKey(), new CardState(e.getValue().getLocation(), e.getValue().getSize()));
     }
 
     return states;

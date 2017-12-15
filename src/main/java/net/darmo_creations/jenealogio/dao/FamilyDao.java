@@ -134,7 +134,7 @@ public class FamilyDao {
           int h = (int) (long) dimensionObj.get("h");
           size = new Dimension(w, h);
         }
-        states.put(id, new CardState(pos, size, null));
+        states.put(id, new CardState(pos, size));
 
         members.add(new FamilyMember(id, image, familyName, useName, firstName, otherNames, gender, birthDate, birthLocation, deathDate,
             deathLocation, dead, comment));
