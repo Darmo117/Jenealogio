@@ -46,6 +46,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
 import net.darmo_creations.jenealogio.Jenealogio;
+import net.darmo_creations.jenealogio.model.CardState;
 import net.darmo_creations.jenealogio.model.FamilyEdit;
 import net.darmo_creations.jenealogio.model.date.Date;
 import net.darmo_creations.jenealogio.model.date.DateBuilder;
@@ -92,8 +93,7 @@ public class FamilyDao {
       Set<FamilyMember> members = new HashSet<>();
       Set<Relationship> weddings = new HashSet<>();
       Family family = new Family((Long) obj.get("global_id"), (String) obj.get("name"), members, weddings);
-      Map<Long, Point> locations = new HashMap<>();
-      Map<Long, Dimension> sizes = new HashMap<>();
+      Map<Long, CardState> states = new HashMap<>();
 
       Long rawVersion = (Long) obj.get("version");
       Version version = new Version(rawVersion != null ? (int) (long) rawVersion : 0);
@@ -125,14 +125,16 @@ public class FamilyDao {
         JSONObject positionObj = (JSONObject) memberObj.get("position");
         int x = (int) (long) positionObj.get("x");
         int y = (int) (long) positionObj.get("y");
-        locations.put(id, new Point(x, y));
+        Point pos = new Point(x, y);
 
         JSONObject dimensionObj = (JSONObject) memberObj.get("size");
+        Dimension size = null;
         if (dimensionObj != null) {
           int w = (int) (long) dimensionObj.get("w");
           int h = (int) (long) dimensionObj.get("h");
-          sizes.put(id, new Dimension(w, h));
+          size = new Dimension(w, h);
         }
+        states.put(id, new CardState(pos, size, null));
 
         members.add(new FamilyMember(id, image, familyName, useName, firstName, otherNames, gender, birthDate, birthLocation, deathDate,
             deathLocation, dead, comment));
@@ -191,7 +193,7 @@ public class FamilyDao {
         weddings.add(new Relationship(date, location, isWedding, hasEnded, endDate, partner1, partner2, children, adoptions));
       }
 
-      return new FamilyEdit(family, locations, sizes);
+      return new FamilyEdit(family, states);
     }
     catch (NullPointerException | ClassCastException | NoSuchElementException | DateTimeParseException
         | org.json.simple.parser.ParseException ex) {
@@ -258,8 +260,7 @@ public class FamilyDao {
   public void save(String file, final FamilyEdit edit) throws IOException {
     JSONObject obj = new JSONObject();
     Family family = edit.getFamily();
-    Map<Long, Point> locations = edit.getLocations();
-    Map<Long, Dimension> sizes = edit.getSizes();
+    Map<Long, CardState> states = edit.getStates();
 
     String comment = String.format(
         "This is a save file for Jenealogio v%1$s. "
@@ -288,12 +289,14 @@ public class FamilyDao {
       memberObj.put("comment", m.getComment().orElse(""));
       memberObj.put("image", base64Encode(m.getImage()));
       JSONObject posObj = new JSONObject();
-      posObj.put("x", locations.get(m.getId()).x);
-      posObj.put("y", locations.get(m.getId()).y);
+      Point pos = states.get(m.getId()).getLocation();
+      posObj.put("x", pos.x);
+      posObj.put("y", pos.y);
       memberObj.put("position", posObj);
       JSONObject dimObj = new JSONObject();
-      dimObj.put("w", sizes.get(m.getId()).width);
-      dimObj.put("h", sizes.get(m.getId()).height);
+      Dimension size = states.get(m.getId()).getSize();
+      dimObj.put("w", size.width);
+      dimObj.put("h", size.height);
       memberObj.put("size", dimObj);
 
       membersObj.add(memberObj);

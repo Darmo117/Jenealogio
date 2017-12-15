@@ -141,8 +141,6 @@ public class EditColorsDialog extends AbstractDialog {
     NamedTreeNode links = new NamedTreeNode("links", I18n.getLocalizedString("node.colors.links.text"));
     root.add(links);
     links.add(new NamedTreeNode(ConfigTags.LINK_COLOR.getName(), I18n.getLocalizedString("node.colors.links.link.text")));
-    links.add(new NamedTreeNode(ConfigTags.LINK_HOVERED_COLOR.getName(), I18n.getLocalizedString("node.colors.links.hovered.text")));
-    links.add(new NamedTreeNode(ConfigTags.LINK_SELECTED_COLOR.getName(), I18n.getLocalizedString("node.colors.links.selected.text")));
     links.add(new NamedTreeNode(ConfigTags.LINK_CHILD_COLOR.getName(), I18n.getLocalizedString("node.colors.links.child.text")));
     links.add(
         new NamedTreeNode(ConfigTags.LINK_ADOPTED_CHILD_COLOR.getName(), I18n.getLocalizedString("node.colors.links.child.adopted.text")));

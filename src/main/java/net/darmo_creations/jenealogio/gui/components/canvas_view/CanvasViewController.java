@@ -43,6 +43,7 @@ import net.darmo_creations.jenealogio.events.LinkDoubleClickEvent;
 import net.darmo_creations.jenealogio.events.SelectionChangeEvent;
 import net.darmo_creations.jenealogio.events.ViewEditEvent;
 import net.darmo_creations.jenealogio.gui.components.view.ViewController;
+import net.darmo_creations.jenealogio.model.CardState;
 import net.darmo_creations.jenealogio.model.ViewType;
 import net.darmo_creations.jenealogio.model.family.Family;
 import net.darmo_creations.jenealogio.model.family.FamilyMember;
@@ -162,14 +163,20 @@ class CanvasViewController extends ViewController {
   @Override
   public void mouseMoved(MouseEvent e) {
     super.mouseMoved(e);
-    this.handle = isPointOnHandle(e.getPoint());
+    updateMouseLocation(e);
+
+    this.panels.forEach((id, p) -> p.setHovered(false));
+    this.links.forEach(l -> l.setHovered(false));
+
+    getHoveredLink(this.mouseLocation).ifPresent(l -> l.setHovered(true));
+    getHoveredPanel(this.mouseLocation).ifPresent(p -> p.setHovered(true));
+
+    this.handle = isPointOnHandle(this.mouseLocation);
 
     if (this.handle == null)
       getView().setCursor(Cursor.getDefaultCursor());
     else
       getView().setCursor(this.handle.getCursor());
-
-    updateMouseLocation(e);
   }
 
   @Override
@@ -246,36 +253,42 @@ class CanvasViewController extends ViewController {
     this.links.clear();
   }
 
-  void refresh(Family family, Map<Long, Point> positions, Map<Long, Dimension> sizes) {
+  void refresh(Family family, Map<Long, CardState> cardsStates) {
     Set<Long> updatedOrAddedPanels = new HashSet<>();
     Set<Long> panelsToDelete = new HashSet<>(this.panels.keySet());
 
     // Add/update members
     family.getAllMembers().forEach(member -> {
       long id = member.getId();
+      CardState state = cardsStates.get(id);
 
       if (this.panels.containsKey(id)) {
         FamilyMemberPanel panel = this.panels.get(id);
 
         panel.setInfo(member);
-        if (positions != null && positions.containsKey(member.getId())) {
-          panel.setBounds(new Rectangle(positions.get(member.getId()), panel.getSize()));
-        }
-        if (sizes != null && sizes.containsKey(member.getId())) {
-          panel.setSize(sizes.get(member.getId()));
+        if (state != null) {
+          Point pos = state.getLocation();
+          Dimension size = state.getSize();
+
+          if (pos != null)
+            panel.setBounds(new Rectangle(pos, panel.getSize()));
+          if (size != null)
+            panel.setSize(size);
         }
       }
       else {
         FamilyMemberPanel panel = new FamilyMemberPanel(this.view, member);
 
-        if (positions != null && positions.containsKey(member.getId())) {
-          panel.setBounds(new Rectangle(positions.get(member.getId()), panel.getSize()));
+        if (state != null) {
+          Point pos = state.getLocation();
+          Dimension size = state.getSize();
+
+          if (pos != null)
+            panel.setBounds(new Rectangle(pos, panel.getSize()));
+          if (size != null)
+            panel.setSize(size);
         }
-        else
-          panel.setBounds(new Rectangle(panel.getSize()));
-        if (sizes != null && sizes.containsKey(member.getId())) {
-          panel.setSize(sizes.get(member.getId()));
-        }
+
         this.panels.put(id, panel);
 
         final int gap = 50;
@@ -355,24 +368,14 @@ class CanvasViewController extends ViewController {
     return this.links.stream();
   }
 
-  Map<Long, Point> getCardsPositions() {
-    Map<Long, Point> points = new HashMap<>();
+  Map<Long, CardState> getCardsStates() {
+    Map<Long, CardState> states = new HashMap<>();
 
-    for (Long id : this.panels.keySet()) {
-      points.put(id, this.panels.get(id).getLocation());
+    for (Map.Entry<Long, FamilyMemberPanel> e : this.panels.entrySet()) {
+      states.put(e.getKey(), new CardState(e.getValue().getLocation(), e.getValue().getSize(), null));
     }
 
-    return points;
-  }
-
-  Map<Long, Dimension> getCardsSizes() {
-    Map<Long, Dimension> sizes = new HashMap<>();
-
-    for (Long id : this.panels.keySet()) {
-      sizes.put(id, this.panels.get(id).getSize());
-    }
-
-    return sizes;
+    return states;
   }
 
   /**

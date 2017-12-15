@@ -18,8 +18,6 @@
  */
 package net.darmo_creations.jenealogio.model;
 
-import java.awt.Dimension;
-import java.awt.Point;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,19 +30,17 @@ import net.darmo_creations.jenealogio.model.family.Family;
  */
 public final class FamilyEdit {
   private final Family family;
-  private final Map<Long, Point> locations;
-  private final Map<Long, Dimension> sizes;
+  private final Map<Long, CardState> cardsStates;
 
   /**
    * Creates an edit.
    * 
    * @param family the family
-   * @param locations locations for all cards
+   * @param cardsStates states of all cards
    */
-  public FamilyEdit(final Family family, final Map<Long, Point> locations, final Map<Long, Dimension> sizes) {
+  public FamilyEdit(final Family family, final Map<Long, CardState> cardsStates) {
     this.family = family.clone();
-    this.locations = new HashMap<>(locations);
-    this.sizes = new HashMap<>(sizes);
+    this.cardsStates = new HashMap<>(cardsStates);
   }
 
   /**
@@ -57,15 +53,8 @@ public final class FamilyEdit {
   /**
    * @return locations for all cards
    */
-  public Map<Long, Point> getLocations() {
-    return new HashMap<>(this.locations);
-  }
-
-  /**
-   * @return sizes for all cards
-   */
-  public Map<Long, Dimension> getSizes() {
-    return new HashMap<>(this.sizes);
+  public Map<Long, CardState> getStates() {
+    return new HashMap<>(this.cardsStates);
   }
 
   @Override
@@ -73,7 +62,7 @@ public final class FamilyEdit {
     final int prime = 31;
     int result = 1;
     result = prime * result + ((this.family == null) ? 0 : this.family.hashCode());
-    result = prime * result + ((this.locations == null) ? 0 : this.locations.hashCode());
+    result = prime * result + ((this.cardsStates == null) ? 0 : this.cardsStates.hashCode());
     return result;
   }
 
@@ -92,11 +81,11 @@ public final class FamilyEdit {
     }
     else if (!this.family.equals(other.family))
       return false;
-    if (this.locations == null) {
-      if (other.locations != null)
+    if (this.cardsStates == null) {
+      if (other.cardsStates != null)
         return false;
     }
-    else if (!this.locations.equals(other.locations))
+    else if (!this.cardsStates.equals(other.cardsStates))
       return false;
     return true;
   }

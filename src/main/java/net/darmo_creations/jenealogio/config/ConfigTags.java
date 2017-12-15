@@ -25,9 +25,6 @@ public class ConfigTags {
   public static final ColorTag LINK_COLOR = new ColorTag("link_color");
   public static final ColorTag LINK_CHILD_COLOR = new ColorTag("link_child_color");
   public static final ColorTag LINK_ADOPTED_CHILD_COLOR = new ColorTag("link_adopted_child_color");
-  public static final ColorTag LINK_HOVERED_COLOR = new ColorTag("link_hovered_color");
-  public static final ColorTag LINK_SELECTED_COLOR = new ColorTag("link_selected_color");
-  public static final ColorTag LINK_SELECTED_BACKGROUND_COLOR = new ColorTag("link_selected_background_color");
   public static final ColorTag ZONE_SELECTION_BORDER_COLOR = new ColorTag("panel_selection_border_color");
   public static final ColorTag ZONE_SELECTION_BACKGROUND_COLOR = new ColorTag("panel_selection_background_color");
 
@@ -36,7 +33,6 @@ public class ConfigTags {
 
   static {
     COLORS_TAGS = new ColorTag[]{GENDER_UNKNOWN_COLOR, GENDER_MALE_COLOR, GENDER_FEMALE_COLOR, LINK_COLOR, LINK_CHILD_COLOR,
-      LINK_ADOPTED_CHILD_COLOR, LINK_HOVERED_COLOR, LINK_SELECTED_COLOR, LINK_SELECTED_BACKGROUND_COLOR, ZONE_SELECTION_BORDER_COLOR,
-      ZONE_SELECTION_BACKGROUND_COLOR};
+      LINK_ADOPTED_CHILD_COLOR, ZONE_SELECTION_BORDER_COLOR, ZONE_SELECTION_BACKGROUND_COLOR};
   }
 }

@@ -1,6 +1,7 @@
 package net.darmo_creations.jenealogio.gui.components.canvas_view;
 
 import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -89,12 +90,10 @@ class Link extends GraphicalObject {
     else
       g2d.setStroke(new BasicStroke(width));
 
-    if (isHovered())
-      g2d.setColor(config.getValue(ConfigTags.LINK_HOVERED_COLOR));
-    else if (isSelected())
-      g2d.setColor(config.getValue(ConfigTags.LINK_SELECTED_COLOR));
+    if (isSelected())
+      g2d.setColor(Color.BLACK);
     else if (isSelectedBackground())
-      g2d.setColor(config.getValue(ConfigTags.LINK_SELECTED_BACKGROUND_COLOR));
+      g2d.setColor(Color.DARK_GRAY);
     else
       g2d.setColor(config.getValue(ConfigTags.LINK_COLOR));
 

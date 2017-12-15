@@ -39,6 +39,7 @@ import net.darmo_creations.gui_framework.ApplicationRegistry;
 import net.darmo_creations.gui_framework.config.WritableConfig;
 import net.darmo_creations.jenealogio.config.ConfigTags;
 import net.darmo_creations.jenealogio.gui.components.view.View;
+import net.darmo_creations.jenealogio.model.CardState;
 import net.darmo_creations.jenealogio.model.family.Family;
 import net.darmo_creations.jenealogio.util.Selection;
 import net.darmo_creations.utils.I18n;
@@ -122,7 +123,7 @@ public class CanvasView extends View implements DragAndDropTarget {
    * @param family the model
    */
   public void refresh(Family family, WritableConfig config) {
-    refresh(family, Collections.emptyMap(), Collections.emptyMap(), config);
+    refresh(family, Collections.emptyMap(), config);
   }
 
   /**
@@ -130,11 +131,12 @@ public class CanvasView extends View implements DragAndDropTarget {
    * map.
    * 
    * @param family the model
-   * @param positions the positions
+   * @param cardsStates states for all cards
+   * @param config the config
    */
-  public void refresh(Family family, Map<Long, Point> positions, Map<Long, Dimension> sizes, WritableConfig config) {
+  public void refresh(Family family, Map<Long, CardState> cardsStates, WritableConfig config) {
     this.config = config;
-    getController().refresh(family, positions, sizes);
+    getController().refresh(family, cardsStates);
     revalidate();
     repaint();
   }
@@ -150,17 +152,10 @@ public class CanvasView extends View implements DragAndDropTarget {
   }
 
   /**
-   * @return the positions of all panels
+   * @return the states of all panels
    */
-  public Map<Long, Point> getCardsPositions() {
-    return getController().getCardsPositions();
-  }
-
-  /**
-   * @return the sizes of all cards
-   */
-  public Map<Long, Dimension> getCardsSizes() {
-    return getController().getCardsSizes();
+  public Map<Long, CardState> getCardsStates() {
+    return getController().getCardsStates();
   }
 
   /**
