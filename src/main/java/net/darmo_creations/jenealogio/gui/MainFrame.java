@@ -431,6 +431,14 @@ public class MainFrame extends ApplicationFrame<MainController> {
   }
 
   /**
+   * Deselects all objects in all views.
+   */
+  public void deselectAll() {
+    this.canvasView.deselectAll();
+    this.sideView.deselectAll();
+  }
+
+  /**
    * @return the positions of all cards
    */
   public Map<Long, Point> getCardsPositions() {

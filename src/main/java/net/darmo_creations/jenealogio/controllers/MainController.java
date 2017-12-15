@@ -212,12 +212,11 @@ public class MainController extends ApplicationController<MainFrame> implements 
    */
   @SubscribeEvent
   public void onSelectionChanged(SelectionChangeEvent e) {
-    System.out.println(e); // DEBUG
     Selection old = e.getLastSelection();
     Selection current = e.getNewSelection();
 
     if (this.addingLink) {
-      if (!current.getMembers().isEmpty() && current.getRelations().isEmpty()) {
+      if (old.getMembers().size() == 1 && current.getMembers().size() == 1) {
         List<Long> previous = old.getMembers();
         List<Long> cur = current.getMembers();
 
@@ -229,8 +228,6 @@ public class MainController extends ApplicationController<MainFrame> implements 
         }
         toggleAddLink();
       }
-      else
-        toggleAddLink();
     }
 
     updateFrameMenus();
@@ -239,7 +236,6 @@ public class MainController extends ApplicationController<MainFrame> implements 
   @SubscribeEvent
   public void onViewEdit(ViewEditEvent e) {
     this.saved = false;
-    System.out.println(e); // DEBUG
     addEdit();
     updateFrameMenus();
   }
@@ -476,7 +472,7 @@ public class MainController extends ApplicationController<MainFrame> implements 
   private void toggleAddLink() {
     this.addingLink = !this.addingLink;
     this.frame.setAddLinkSelected(this.addingLink);
-    // TODO deselect everything.
+    this.frame.deselectAll();
   }
 
   /**

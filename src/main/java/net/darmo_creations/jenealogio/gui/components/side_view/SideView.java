@@ -189,7 +189,9 @@ public class SideView extends View {
   }
 
   @Override
-  public void deselectAll() {}
+  public void deselectAll() {
+    this.tree.clearSelection();
+  }
 
   @Override
   public Selection getSelection() {
