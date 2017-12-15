@@ -138,8 +138,6 @@ public class EditColorsDialog extends AbstractDialog {
     genders.add(new NamedTreeNode(ConfigTags.GENDER_UNKNOWN_COLOR.getName(), I18n.getLocalizedString("node.colors.genders.unknown.text")));
     genders.add(new NamedTreeNode(ConfigTags.GENDER_FEMALE_COLOR.getName(), I18n.getLocalizedString("node.colors.genders.female.text")));
     genders.add(new NamedTreeNode(ConfigTags.GENDER_MALE_COLOR.getName(), I18n.getLocalizedString("node.colors.genders.male.text")));
-    NamedTreeNode cards = new NamedTreeNode("cards", I18n.getLocalizedString("node.colors.cards.text"));
-    root.add(cards);
     NamedTreeNode links = new NamedTreeNode("links", I18n.getLocalizedString("node.colors.links.text"));
     root.add(links);
     links.add(new NamedTreeNode(ConfigTags.LINK_COLOR.getName(), I18n.getLocalizedString("node.colors.links.link.text")));
