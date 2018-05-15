@@ -41,7 +41,7 @@ public class Jenealogio implements Application {
   /** Extension for tree files */
   public static final String TREE_FILE_EXT = "gtree";
   /** Image file extensions a tree can be exported into */
-  public static final String[] IMAGE_FILES_EXTS = {"bmp", "png", "jpg", "jpeg", "gif"};
+  public static final String[] IMAGE_FILES_EXTS = { "bmp", "png", "jpg", "jpeg", "gif" };
 
   @Override
   public void preInit() {

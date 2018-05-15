@@ -172,7 +172,7 @@ public final class Images {
 
       return result;
     }
-    catch (IOException __) {
+    catch (IOException ex) {
       return 0;
     }
   }
