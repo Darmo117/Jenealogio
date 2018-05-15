@@ -373,7 +373,7 @@ public class MainController extends ApplicationController<MainFrame> implements 
         loadFile(fileName, true);
       }
     }
-    catch (IOException | ParseException __) {
+    catch (IOException | ParseException ex) {
       this.frame.showErrorDialog(I18n.getLocalizedString("popup.open_file_error.text"));
     }
     updateFrameMenus();
@@ -533,12 +533,8 @@ public class MainController extends ApplicationController<MainFrame> implements 
       int choice = this.frame.showConfirmDialog(I18n.getLocalizedString(key));
 
       if (choice == JOptionPane.YES_OPTION) {
-        // Do not swap lines or it won't work properly.
-        System.out.println(this.family);
-        System.out.println(selection);
         selection.getRelations().forEach(r -> this.family.removeRelation(r.getValue1(), r.getValue2()));
         selection.getMembers().forEach(id -> this.family.removeMember(id));
-        System.out.println(this.family);
 
         this.saved = false;
 

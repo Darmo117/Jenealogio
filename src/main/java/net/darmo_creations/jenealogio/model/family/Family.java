@@ -18,8 +18,10 @@
  */
 package net.darmo_creations.jenealogio.model.family;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
@@ -40,9 +42,9 @@ public class Family implements Cloneable {
   /** This family's name */
   private String name;
   /** Members */
-  private Set<FamilyMember> members;
+  private List<FamilyMember> members;
   /** Relationships */
-  private Set<Relationship> relations;
+  private List<Relationship> relations;
 
   /**
    * Creates a family with no members and no relations.
@@ -64,8 +66,8 @@ public class Family implements Cloneable {
   public Family(long globalId, String name, Set<FamilyMember> members, Set<Relationship> relations) {
     this.globalId = globalId;
     setName(name);
-    this.members = new HashSet<>(Objects.requireNonNull(members));
-    this.relations = new HashSet<>(Objects.requireNonNull(relations));
+    this.members = new ArrayList<>(Objects.requireNonNull(members));
+    this.relations = new ArrayList<>(Objects.requireNonNull(relations));
   }
 
   /**
@@ -139,19 +141,15 @@ public class Family implements Cloneable {
   public void removeMember(long id) {
     checkMemberExists(id);
 
-    // FIXME il doit y avoir un problème avec le hashcode des relations
     for (Iterator<Relationship> it = this.relations.iterator(); it.hasNext();) {
       Relationship relation = it.next();
       if (relation.isInRelationship(id)) {
-        System.out.println(relation);
         it.remove();
       }
       else if (relation.isChild(id)) {
-        System.out.println(id);
         relation.removeChild(id);
       }
     }
-    System.out.println(this.relations);
     this.members.removeIf(m -> m.getId() == id);
   }
 
