@@ -20,11 +20,14 @@ package net.darmo_creations.jenealogio.model.family;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
+import net.darmo_creations.jenealogio.util.StringUtil;
 
 /**
  * A family has members and each member can be in relationships.
@@ -61,8 +64,8 @@ public class Family implements Cloneable {
   public Family(long globalId, String name, Set<FamilyMember> members, Set<Relationship> relations) {
     this.globalId = globalId;
     setName(name);
-    this.members = Objects.requireNonNull(members);
-    this.relations = Objects.requireNonNull(relations);
+    this.members = new HashSet<>(Objects.requireNonNull(members));
+    this.relations = new HashSet<>(Objects.requireNonNull(relations));
   }
 
   /**
@@ -78,7 +81,9 @@ public class Family implements Cloneable {
    * @param name the new name
    */
   public void setName(String name) {
-    this.name = Objects.requireNonNull(name);
+    if (StringUtil.nullFromEmpty(name) == null)
+      throw new IllegalArgumentException("empty family name");
+    this.name = name;
   }
 
   /**
@@ -110,18 +115,19 @@ public class Family implements Cloneable {
     this.members.add(member.clone(getNextMemberId()));
   }
 
+  private long getNextMemberId() {
+    return this.globalId++;
+  }
+
   /**
    * Updates an existing member. If the member does not exist in this family, nothing will happen.
    * 
    * @param member the member's updated data
    */
   public void updateMember(FamilyMember member) {
-    Predicate<FamilyMember> p = m -> m.getId() == member.getId();
-
-    if (this.members.stream().anyMatch(p)) {
-      this.members.removeIf(p);
-      this.members.add(member.clone());
-    }
+    checkMemberExists(member.getId());
+    this.members.removeIf(m -> m.getId() == member.getId());
+    this.members.add(member.clone());
   }
 
   /**
@@ -131,13 +137,21 @@ public class Family implements Cloneable {
    * @param id the ID of the member to remove
    */
   public void removeMember(long id) {
+    checkMemberExists(id);
+
+    // FIXME il doit y avoir un problème avec le hashcode des relations
     for (Iterator<Relationship> it = this.relations.iterator(); it.hasNext();) {
       Relationship relation = it.next();
-      if (relation.isInRelationship(id))
+      if (relation.isInRelationship(id)) {
+        System.out.println(relation);
         it.remove();
-      else if (relation.isChild(id))
+      }
+      else if (relation.isChild(id)) {
+        System.out.println(id);
         relation.removeChild(id);
+      }
     }
+    System.out.println(this.relations);
     this.members.removeIf(m -> m.getId() == id);
   }
 
@@ -181,9 +195,13 @@ public class Family implements Cloneable {
    * @param relation the new relation
    */
   public void addRelation(Relationship relation) {
-    if (!areInRelation(relation.getPartner1(), relation.getPartner2())) {
-      this.relations.add(relation.clone());
-    }
+    checkMemberExists(relation.getPartner1());
+    checkMemberExists(relation.getPartner2());
+    relation.getChildren().forEach(id -> checkMemberExists(id));
+    if (areInRelation(relation.getPartner1(), relation.getPartner2()))
+      throw new IllegalArgumentException(
+          "partners " + relation.getPartner1() + " and " + relation.getPartner2() + " are already in a relationship");
+    this.relations.add(relation.clone());
   }
 
   /**
@@ -195,13 +213,12 @@ public class Family implements Cloneable {
     Predicate<Relationship> p = r -> r.isInRelationship(relation.getPartner1()) && r.isInRelationship(relation.getPartner2());
 
     if (this.relations.stream().anyMatch(p)) {
-      relation.getChildren().forEach(id -> {
-        if (!getMember(id).isPresent())
-          throw new IllegalStateException("member ID '" + id + "' does not exist");
-      });
+      relation.getChildren().forEach(id -> checkMemberExists(id));
       this.relations.removeIf(p);
       this.relations.add(relation.clone());
     }
+    else
+      throw new NoSuchElementException("No relations exist for the IDs " + relation.getPartner1() + " and " + relation.getPartner2());
   }
 
   /**
@@ -287,18 +304,8 @@ public class Family implements Cloneable {
     return all;
   }
 
-  /**
-   * @return the global member ID
-   */
   public long getGlobalId() {
     return this.globalId;
-  }
-
-  /**
-   * @return the next member ID
-   */
-  private long getNextMemberId() {
-    return this.globalId++;
   }
 
   @Override
@@ -354,5 +361,10 @@ public class Family implements Cloneable {
     else if (!this.relations.equals(other.relations))
       return false;
     return true;
+  }
+
+  private void checkMemberExists(long id) {
+    if (this.members.stream().allMatch(m -> m.getId() != id))
+      throw new NoSuchElementException("member ID " + id + " does not exist");
   }
 }

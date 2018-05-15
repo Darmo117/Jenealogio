@@ -92,7 +92,6 @@ public class FamilyDao {
       JSONObject obj = (JSONObject) p.parse(jsonString);
       Set<FamilyMember> members = new HashSet<>();
       Set<Relationship> weddings = new HashSet<>();
-      Family family = new Family((Long) obj.get("global_id"), (String) obj.get("name"), members, weddings);
       Map<Long, CardState> states = new HashMap<>();
 
       Long rawVersion = (Long) obj.get("version");
@@ -193,6 +192,7 @@ public class FamilyDao {
         weddings.add(new Relationship(date, location, isWedding, hasEnded, endDate, partner1, partner2, children, adoptions));
       }
 
+      Family family = new Family((Long) obj.get("global_id"), (String) obj.get("name"), members, weddings);
       return new FamilyEdit(family, states);
     }
     catch (NullPointerException | ClassCastException | NoSuchElementException | DateTimeParseException
@@ -202,7 +202,7 @@ public class FamilyDao {
   }
 
   /**
-   * Returns nul if the given string is empty ({@code "".equals(s)}).
+   * Returns null if the given string is empty ({@code "".equals(s)}).
    * 
    * @param s the string
    * @return null if the string is empty; s otherwise

@@ -42,4 +42,37 @@ public final class CardState {
   public Dimension getSize() {
     return this.size;
   }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((this.location == null) ? 0 : this.location.hashCode());
+    result = prime * result + ((this.size == null) ? 0 : this.size.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    CardState other = (CardState) obj;
+    if (this.location == null) {
+      if (other.location != null)
+        return false;
+    }
+    else if (!this.location.equals(other.location))
+      return false;
+    if (this.size == null) {
+      if (other.size != null)
+        return false;
+    }
+    else if (!this.size.equals(other.size))
+      return false;
+    return true;
+  }
 }

@@ -45,7 +45,8 @@ public class AdoptionListEntry {
   }
 
   public void setAdopted(boolean adopted) {
-    this.adopted = adopted;
+    if (this.adoptionDate == null)
+      this.adopted = adopted;
   }
 
   public Date getAdoptionDate() {
@@ -54,5 +55,7 @@ public class AdoptionListEntry {
 
   public void setAdoptionDate(Date adoptionDate) {
     this.adoptionDate = adoptionDate;
+    if (adoptionDate != null && !this.adopted)
+      this.adopted = true;
   }
 }

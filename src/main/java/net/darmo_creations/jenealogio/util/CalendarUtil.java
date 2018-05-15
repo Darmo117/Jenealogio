@@ -18,6 +18,7 @@
  */
 package net.darmo_creations.jenealogio.util;
 
+import java.time.Period;
 import java.util.Calendar;
 import java.util.Optional;
 
@@ -60,6 +61,63 @@ public final class CalendarUtil {
 
       return Optional.of(I18n.getFormattedDate(y, m, dd));
     }
+    return Optional.empty();
+  }
+
+  public static Optional<Period> getPeriod(Date start, Date end) {
+    if (!start.isIncomplete() && !end.isIncomplete()) {
+      int endMonth = end.getMonth();
+      int startMonth = start.getMonth();
+      int endDay = end.getDate();
+      int startDay = start.getDate();
+      int years = end.getYear() - start.getYear();
+      int months = 0;
+      int days = 0;
+
+      if (startMonth > endMonth || startMonth == endMonth && startDay > endDay) {
+        years = years == 0 ? 0 : years - 1;
+        months = 12 - (startMonth - endMonth);
+        if (startDay > endDay) {
+          if (months > 0)
+            months--;
+          days = start.getDaysNbInMonth() - (startDay - endDay);
+        }
+        else {
+          days = endDay - startDay;
+        }
+      }
+      else {
+        months = endMonth - startMonth;
+        if (startDay > endDay) {
+          if (months > 0)
+            months--;
+          days = start.getDaysNbInMonth() - (startDay - endDay);
+        }
+        else
+          days = endDay - startDay;
+      }
+
+      return Optional.of(Period.of(years, months, days));
+    }
+    else if (start.isYearSet() && start.isMonthSet() && end.isYearSet() && end.isMonthSet()) {
+      int endMonth = end.getMonth();
+      int startMonth = start.getMonth();
+      int years = end.getYear() - start.getYear();
+      int months = 0;
+
+      if (startMonth > endMonth) {
+        years = years == 0 ? 0 : years - 1;
+        months = 12 - (startMonth - endMonth);
+      }
+      else
+        months = endMonth - startMonth;
+
+      return Optional.of(Period.of(years, months, 0));
+    }
+    else if (start.isYearSet() && end.isYearSet()) {
+      return Optional.of(Period.ofYears(end.getYear() - start.getYear()));
+    }
+
     return Optional.empty();
   }
 

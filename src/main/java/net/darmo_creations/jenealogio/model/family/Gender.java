@@ -60,9 +60,6 @@ public enum Gender {
     return this.code;
   }
 
-  /**
-   * @return the unlocalized name
-   */
   public String getUnlocalizedName() {
     return this.name;
   }

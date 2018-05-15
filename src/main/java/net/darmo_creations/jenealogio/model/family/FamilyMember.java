@@ -26,6 +26,7 @@ import java.util.Optional;
 import net.darmo_creations.jenealogio.model.date.Date;
 import net.darmo_creations.jenealogio.util.CalendarUtil;
 import net.darmo_creations.jenealogio.util.Images;
+import net.darmo_creations.jenealogio.util.StringUtil;
 import net.darmo_creations.utils.Nullable;
 
 /**
@@ -141,7 +142,7 @@ public class FamilyMember implements Comparable<FamilyMember>, Cloneable {
    * 
    * @param image the new profile image
    */
-  void setImage(@Nullable BufferedImage image) {
+  public void setImage(@Nullable BufferedImage image) {
     this.image = image != null ? Images.deepCopy(image) : null;
   }
 
@@ -157,8 +158,8 @@ public class FamilyMember implements Comparable<FamilyMember>, Cloneable {
    * 
    * @param familyName the new family name
    */
-  void setFamilyName(@Nullable String familyName) {
-    this.familyName = familyName;
+  public void setFamilyName(@Nullable String familyName) {
+    this.familyName = StringUtil.nullFromEmpty(familyName);
   }
 
   /**
@@ -174,7 +175,7 @@ public class FamilyMember implements Comparable<FamilyMember>, Cloneable {
    * @param useName the new use name
    */
   public void setUseName(@Nullable String useName) {
-    this.useName = useName;
+    this.useName = StringUtil.nullFromEmpty(useName);
   }
 
   /**
@@ -189,8 +190,8 @@ public class FamilyMember implements Comparable<FamilyMember>, Cloneable {
    * 
    * @param firstName the new first name
    */
-  void setFirstName(@Nullable String firstName) {
-    this.firstName = firstName;
+  public void setFirstName(@Nullable String firstName) {
+    this.firstName = StringUtil.nullFromEmpty(firstName);
   }
 
   /**
@@ -206,7 +207,7 @@ public class FamilyMember implements Comparable<FamilyMember>, Cloneable {
    * @param firstName the new other names
    */
   public void setOtherNames(@Nullable String otherNames) {
-    this.otherNames = otherNames;
+    this.otherNames = StringUtil.nullFromEmpty(otherNames);
   }
 
   /**
@@ -235,7 +236,7 @@ public class FamilyMember implements Comparable<FamilyMember>, Cloneable {
    * 
    * @param gender the new gender
    */
-  void setGender(Gender gender) {
+  public void setGender(Gender gender) {
     this.gender = Objects.requireNonNull(gender);
   }
 
@@ -251,7 +252,8 @@ public class FamilyMember implements Comparable<FamilyMember>, Cloneable {
    * 
    * @param birthDate the new birth date
    */
-  void setBirthDate(@Nullable Date birthDate) {
+  public void setBirthDate(@Nullable Date birthDate) {
+    checkDatesOrder(birthDate, this.deathDate);
     this.birthDate = birthDate != null ? birthDate.clone() : null;
   }
 
@@ -273,60 +275,7 @@ public class FamilyMember implements Comparable<FamilyMember>, Cloneable {
     Date currentDate = isDead() ? getDeathDate().get() : CalendarUtil.getCurrentDate();
     Date birthDate = getBirthDate().get();
 
-    if (!birthDate.isIncomplete() && !currentDate.isIncomplete()) {
-      int currentMonth = currentDate.getMonth();
-      int birthMonth = birthDate.getMonth();
-      int currentDay = currentDate.getDate();
-      int birthDay = birthDate.getDate();
-      int years = currentDate.getYear() - birthDate.getYear();
-      int months = 0;
-      int days = 0;
-
-      if (birthMonth > currentMonth || birthMonth == currentMonth && birthDay > currentDay) {
-        years = years == 0 ? 0 : years - 1;
-        months = 12 - (birthMonth - currentMonth);
-        if (birthDay > currentDay) {
-          if (months > 0)
-            months--;
-          days = birthDate.getDaysNbInMonth() - (birthDay - currentDay);
-        }
-        else {
-          days = currentDay - birthDay;
-        }
-      }
-      else {
-        months = currentMonth - birthMonth;
-        if (birthDay > currentDay) {
-          if (months > 0)
-            months--;
-          days = birthDate.getDaysNbInMonth() - (birthDay - currentDay);
-        }
-        else
-          days = currentDay - birthDay;
-      }
-
-      return Optional.of(Period.of(years, months, days));
-    }
-    else if (birthDate.isYearSet() && birthDate.isMonthSet() && currentDate.isYearSet() && currentDate.isMonthSet()) {
-      int currentMonth = currentDate.getMonth();
-      int birthMonth = birthDate.getMonth();
-      int years = currentDate.getYear() - birthDate.getYear();
-      int months = 0;
-
-      if (birthMonth > currentMonth) {
-        years = years == 0 ? 0 : years - 1;
-        months = 12 - (birthMonth - currentMonth);
-      }
-      else
-        months = currentMonth - birthMonth;
-
-      return Optional.of(Period.of(years, months, 0));
-    }
-    else if (birthDate.isYearSet() && currentDate.isYearSet()) {
-      return Optional.of(Period.ofYears(currentDate.getYear() - birthDate.getYear()));
-    }
-
-    return Optional.empty();
+    return CalendarUtil.getPeriod(birthDate, currentDate);
   }
 
   /**
@@ -359,8 +308,8 @@ public class FamilyMember implements Comparable<FamilyMember>, Cloneable {
    * 
    * @param birthLocation the new birth location
    */
-  void setBirthLocation(@Nullable String birthLocation) {
-    this.birthLocation = birthLocation;
+  public void setBirthLocation(@Nullable String birthLocation) {
+    this.birthLocation = StringUtil.nullFromEmpty(birthLocation);
   }
 
   /**
@@ -375,9 +324,10 @@ public class FamilyMember implements Comparable<FamilyMember>, Cloneable {
    * 
    * @param deathDate the new death date
    */
-  void setDeathDate(@Nullable Date deathDate) {
+  public void setDeathDate(@Nullable Date deathDate) {
+    checkDatesOrder(this.birthDate, deathDate);
     this.deathDate = deathDate != null ? deathDate.clone() : null;
-    updateDeath();
+    updateDead();
   }
 
   /**
@@ -392,16 +342,9 @@ public class FamilyMember implements Comparable<FamilyMember>, Cloneable {
    * 
    * @param deathLocation the new death location
    */
-  void setDeathLocation(@Nullable String deathLocation) {
-    this.deathLocation = deathLocation;
-    updateDeath();
-  }
-
-  /**
-   * Updates the {@code dead} boolean.
-   */
-  private void updateDeath() {
-    this.dead = getDeathDate().isPresent() || getDeathLocation().isPresent();
+  public void setDeathLocation(@Nullable String deathLocation) {
+    this.deathLocation = StringUtil.nullFromEmpty(deathLocation);
+    updateDead();
   }
 
   /**
@@ -417,9 +360,18 @@ public class FamilyMember implements Comparable<FamilyMember>, Cloneable {
    * 
    * @param dead true if the person is dead; false otherwise
    */
-  void setDead(boolean dead) {
+  public void setDead(boolean dead) {
     if (!getDeathDate().isPresent() && !getDeathLocation().isPresent())
       this.dead = dead;
+  }
+
+  private void updateDead() {
+    this.dead = getDeathDate().isPresent() || getDeathLocation().isPresent();
+  }
+
+  private void checkDatesOrder(Date birth, Date death) {
+    if (birth != null && death != null && birth.after(death))
+      throw new IllegalStateException("birth date before death");
   }
 
   /**
@@ -434,8 +386,8 @@ public class FamilyMember implements Comparable<FamilyMember>, Cloneable {
    * 
    * @param comment the new comment
    */
-  void setComment(@Nullable String comment) {
-    this.comment = comment;
+  public void setComment(@Nullable String comment) {
+    this.comment = StringUtil.nullFromEmpty(comment);
   }
 
   @Override
@@ -466,7 +418,7 @@ public class FamilyMember implements Comparable<FamilyMember>, Cloneable {
       return true;
     if (obj == null)
       return false;
-    if (getClass() != obj.getClass())
+    if (!(obj instanceof FamilyMember))
       return false;
     FamilyMember other = (FamilyMember) obj;
     if (this.birthDate == null) {
@@ -549,6 +501,11 @@ public class FamilyMember implements Comparable<FamilyMember>, Cloneable {
     return getFirstName().orElse("?") + " " + getFamilyName().orElse("?");
   }
 
+  @Override
+  public int compareTo(FamilyMember f) {
+    return Long.compare(getId(), f.getId());
+  }
+
   /**
    * Copies this member and sets the copy's ID.
    * 
@@ -558,11 +515,6 @@ public class FamilyMember implements Comparable<FamilyMember>, Cloneable {
   FamilyMember clone(long id) {
     return new FamilyMember(id, getImage().orElse(null), this.familyName, this.useName, this.firstName, this.otherNames, this.gender,
         getBirthDate().orElse(null), this.birthLocation, getDeathDate().orElse(null), this.deathLocation, this.dead, this.comment);
-  }
-
-  @Override
-  public int compareTo(FamilyMember f) {
-    return Long.compare(getId(), f.getId());
   }
 
   @Override

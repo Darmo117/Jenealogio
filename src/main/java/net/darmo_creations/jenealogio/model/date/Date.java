@@ -28,6 +28,19 @@ import java.util.Calendar;
  * @author Damien Vergnet
  */
 public final class Date implements Comparable<Date>, Cloneable {
+  public static Date getDate(Integer year, Integer month, Integer day) {
+    DateBuilder builder = new DateBuilder();
+
+    if (year != null)
+      builder.setYear(year);
+    if (month != null)
+      builder.setMonth(month);
+    if (day != null)
+      builder.setDate(day);
+
+    return builder.getDate();
+  }
+
   private int year, month, day, nbOfDaysInMonth;
   private boolean yearSet, monthSet, daySet;
 

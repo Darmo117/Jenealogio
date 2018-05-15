@@ -1,5 +1,5 @@
 /*
- * Copyright © 2017 Damien Vergnet
+ * Copyright © 2018 Damien Vergnet
  * 
  * This file is part of Jenealogio.
  *
@@ -16,25 +16,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.darmo_creations.jenealogio.config;
+package net.darmo_creations.jenealogio.model.family;
 
-import java.awt.Color;
-import java.util.Objects;
-
-import net.darmo_creations.gui_framework.config.tags.AbstractTag;
-
-public class ColorTag extends AbstractTag<Color> {
-  public ColorTag(String name) {
-    super(name, Color.class);
-  }
-
-  @Override
-  protected String serializeValueGeneric(Color value) {
-    return "" + value.getRGB();
-  }
-
-  @Override
-  public Color deserializeValue(String value) {
-    return new Color(Integer.parseInt(Objects.requireNonNull(value)));
+public class FamilyMemberMock extends FamilyMember {
+  public FamilyMemberMock() {
+    super(null, "Mock", null, "John", null, Gender.UNKNOW, null, null, null, null, false, null);
   }
 }

@@ -57,7 +57,7 @@ public final class DateBuilder {
   public Date getDate() {
     if (this.yearSet || this.monthSet || this.dateSet)
       return new Date(this);
-    return null;
+    throw new IllegalStateException("empty date");
   }
 
   Calendar getCalendar() {

@@ -534,8 +534,11 @@ public class MainController extends ApplicationController<MainFrame> implements 
 
       if (choice == JOptionPane.YES_OPTION) {
         // Do not swap lines or it won't work properly.
+        System.out.println(this.family);
+        System.out.println(selection);
         selection.getRelations().forEach(r -> this.family.removeRelation(r.getValue1(), r.getValue2()));
         selection.getMembers().forEach(id -> this.family.removeMember(id));
+        System.out.println(this.family);
 
         this.saved = false;
 

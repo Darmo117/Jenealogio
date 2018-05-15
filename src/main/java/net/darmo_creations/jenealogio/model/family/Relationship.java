@@ -26,6 +26,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import net.darmo_creations.jenealogio.model.date.Date;
+import net.darmo_creations.jenealogio.util.StringUtil;
 import net.darmo_creations.utils.Nullable;
 
 /**
@@ -64,8 +65,8 @@ public final class Relationship implements Comparable<Relationship>, Cloneable {
     setDate(date != null ? date.clone() : null);
     setLocation(location);
     setWedding(isWedding);
-    setPartner1(partner1);
-    setPartner2(partner2);
+    this.partner1 = partner1;
+    this.partner2 = partner2;
     setEndDate(endDate != null ? endDate.clone() : null);
     setHasEnded(hasEnded);
     this.children = new HashSet<>();
@@ -88,7 +89,7 @@ public final class Relationship implements Comparable<Relationship>, Cloneable {
    * 
    * @param date the new date
    */
-  void setDate(@Nullable Date date) {
+  public void setDate(@Nullable Date date) {
     this.date = date;
   }
 
@@ -104,8 +105,8 @@ public final class Relationship implements Comparable<Relationship>, Cloneable {
    * 
    * @param location the new location
    */
-  void setLocation(@Nullable String location) {
-    this.location = location;
+  public void setLocation(@Nullable String location) {
+    this.location = StringUtil.nullFromEmpty(location);
   }
 
   /**
@@ -120,7 +121,7 @@ public final class Relationship implements Comparable<Relationship>, Cloneable {
    * 
    * @param isWedding true if it is a wedding
    */
-  void setWedding(boolean isWedding) {
+  public void setWedding(boolean isWedding) {
     this.isWedding = isWedding;
   }
 
@@ -136,7 +137,7 @@ public final class Relationship implements Comparable<Relationship>, Cloneable {
    * 
    * @param hasEnded the new value
    */
-  void setHasEnded(boolean hasEnded) {
+  public void setHasEnded(boolean hasEnded) {
     if (this.endDate == null)
       this.hasEnded = hasEnded;
   }
@@ -153,7 +154,7 @@ public final class Relationship implements Comparable<Relationship>, Cloneable {
    * 
    * @param endDate the new date
    */
-  void setEndDate(@Nullable Date endDate) {
+  public void setEndDate(@Nullable Date endDate) {
     this.hasEnded = endDate != null;
     this.endDate = endDate;
   }
@@ -166,28 +167,10 @@ public final class Relationship implements Comparable<Relationship>, Cloneable {
   }
 
   /**
-   * Sets the first partner.
-   * 
-   * @param id the new partner
-   */
-  void setPartner1(long id) {
-    this.partner1 = id;
-  }
-
-  /**
    * @return the second partner's ID
    */
   public long getPartner2() {
     return this.partner2;
-  }
-
-  /**
-   * Sets the second partner.
-   * 
-   * @param id the second partner
-   */
-  void setPartner2(long id) {
-    this.partner2 = id;
   }
 
   /**
@@ -237,6 +220,8 @@ public final class Relationship implements Comparable<Relationship>, Cloneable {
    * @param id the child's ID
    */
   public void setNotAdopted(long id) {
+    if (!this.children.contains(id))
+      throw new NoSuchElementException("child ID " + id + " is not present in this relationship");
     this.adoptions.remove(id);
   }
 
@@ -246,6 +231,8 @@ public final class Relationship implements Comparable<Relationship>, Cloneable {
    * @param id the child ID to delete
    */
   public void removeChild(long id) {
+    if (!this.children.contains(id))
+      throw new NoSuchElementException("child ID " + id + " is not present in this relationship");
     this.children.remove(id);
     this.adoptions.remove(id);
   }
@@ -285,6 +272,9 @@ public final class Relationship implements Comparable<Relationship>, Cloneable {
     final int prime = 31;
     int result = 1;
 
+    long partner1 = Math.min(this.partner1, this.partner2);
+    long partner2 = Math.max(this.partner1, this.partner2);
+
     result = prime * result + this.adoptions.hashCode();
     result = prime * result + this.children.hashCode();
     result = prime * result + ((this.date == null) ? 0 : this.date.hashCode());
@@ -292,8 +282,8 @@ public final class Relationship implements Comparable<Relationship>, Cloneable {
     result = prime * result + (this.hasEnded ? 1231 : 1237);
     result = prime * result + (this.isWedding ? 1231 : 1237);
     result = prime * result + ((this.location == null) ? 0 : this.location.hashCode());
-    result = prime * result + (int) (this.partner1 ^ (this.partner1 >>> 32));
-    result = prime * result + (int) (this.partner2 ^ (this.partner2 >>> 32));
+    result = prime * result + (int) (partner1 ^ (partner1 >>> 32));
+    result = prime * result + (int) (partner2 ^ (partner2 >>> 32));
 
     return result;
   }
@@ -341,9 +331,8 @@ public final class Relationship implements Comparable<Relationship>, Cloneable {
     }
     else if (!this.location.equals(other.location))
       return false;
-    if (this.partner1 != other.partner1)
-      return false;
-    if (this.partner2 != other.partner2)
+    if (!(this.partner1 == other.partner1 && this.partner2 == other.partner2
+        || this.partner1 == other.partner2 && this.partner2 == other.partner1))
       return false;
     return true;
   }
@@ -359,7 +348,7 @@ public final class Relationship implements Comparable<Relationship>, Cloneable {
     if (getDate().isPresent() && r.getDate().isPresent()) {
       return getDate().get().compareTo(r.getDate().get());
     }
-    else if ((!getDate().isPresent() || !r.getDate().isPresent()) && getEndDate().isPresent() && r.getEndDate().isPresent()) {
+    else if (getEndDate().isPresent() && r.getEndDate().isPresent()) {
       return getEndDate().get().compareTo(r.getEndDate().get());
     }
     return 0;

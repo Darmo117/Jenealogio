@@ -1,5 +1,5 @@
 /*
- * Copyright © 2017 Damien Vergnet
+ * Copyright © 2018 Damien Vergnet
  * 
  * This file is part of Jenealogio.
  *
@@ -16,25 +16,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.darmo_creations.jenealogio.config;
+package net.darmo_creations.jenealogio.model;
 
-import java.awt.Color;
-import java.util.Objects;
+import static org.junit.Assert.*;
 
-import net.darmo_creations.gui_framework.config.tags.AbstractTag;
+import java.awt.Dimension;
+import java.awt.Point;
 
-public class ColorTag extends AbstractTag<Color> {
-  public ColorTag(String name) {
-    super(name, Color.class);
+import org.junit.Test;
+
+public class CardStateTest {
+  @Test
+  public void testEquals() {
+    assertEquals(new CardState(new Point(), new Dimension()), new CardState(new Point(), new Dimension()));
   }
 
-  @Override
-  protected String serializeValueGeneric(Color value) {
-    return "" + value.getRGB();
-  }
-
-  @Override
-  public Color deserializeValue(String value) {
-    return new Color(Integer.parseInt(Objects.requireNonNull(value)));
+  @Test
+  public void testHashcode() {
+    assertEquals(new CardState(new Point(), new Dimension()).hashCode(), new CardState(new Point(), new Dimension()).hashCode());
   }
 }

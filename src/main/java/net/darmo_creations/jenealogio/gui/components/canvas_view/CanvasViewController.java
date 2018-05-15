@@ -311,13 +311,13 @@ class CanvasViewController extends ViewController {
     List<Link> updatedOrAddedLinks = new ArrayList<>();
     // Add/update links
     family.getAllRelations().forEach(relation -> {
-      FamilyMemberPanel id1 = this.panels.get(relation.getPartner1());
-      FamilyMemberPanel id2 = this.panels.get(relation.getPartner2());
+      FamilyMemberPanel partner1 = this.panels.get(relation.getPartner1());
+      FamilyMemberPanel partner2 = this.panels.get(relation.getPartner2());
       Map<Long, Pair<Boolean, FamilyMemberPanel>> children = new HashMap<>();
-      for (Long id : relation.getChildren()) {
-        children.put(id, new Pair<>(relation.isAdopted(id), this.panels.get(id)));
-      }
-      Link link = new Link(this.view, id1, id2, children, relation.isWedding(), relation.hasEnded());
+
+      relation.getChildren().forEach(id -> children.put(id, new Pair<>(relation.isAdopted(id), this.panels.get(id))));
+
+      Link link = new Link(this.view, partner1, partner2, children, relation.isWedding(), relation.hasEnded());
 
       if (this.links.contains(link)) {
         Link l = this.links.get(this.links.indexOf(link));
