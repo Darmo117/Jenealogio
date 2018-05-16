@@ -34,6 +34,8 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import net.darmo_creations.gui_framework.ApplicationRegistry;
+import net.darmo_creations.jenealogio.events.EditObjectEvent;
 import net.darmo_creations.jenealogio.gui.MainFrame;
 import net.darmo_creations.jenealogio.gui.components.AdoptionListRenderer;
 import net.darmo_creations.jenealogio.gui.components.DetailsPanel;
@@ -55,6 +57,7 @@ import net.darmo_creations.utils.swing.dialog.DefaultDialogController;
 public class LinkDetailsDialog extends AbstractDialog {
   private static final long serialVersionUID = 4772771687761193691L;
 
+  private long partner1, partner2;
   private JLabel weddingLbl;
   private JLabel partnersLbl;
   private JLabel dateLbl, locationLbl;
@@ -170,11 +173,12 @@ public class LinkDetailsDialog extends AbstractDialog {
       public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand().equals("edit")) {
           this.dialog.setVisible(false);
-          // TODO
-          // ApplicationRegistry.EVENTS_BUS.dispatchEvent(new UserEvent(EventType.EDIT_LINK));
-          return;
+          ApplicationRegistry.EVENTS_BUS.dispatchEvent(
+              new EditObjectEvent.Relation(LinkDetailsDialog.this.partner1, LinkDetailsDialog.this.partner2));
         }
-        super.actionPerformed(e);
+        else {
+          super.actionPerformed(e);
+        }
       }
     });
 
@@ -193,6 +197,9 @@ public class LinkDetailsDialog extends AbstractDialog {
     FamilyMember partner1 = family.getMember(relation.getPartner1()).orElseThrow(supplier);
     FamilyMember partner2 = family.getMember(relation.getPartner2()).orElseThrow(supplier);
     String partners = String.format("<html>%s<br/>%s</html>", partner1, partner2).replace(" ", "&nbsp;");
+
+    this.partner1 = partner1.getId();
+    this.partner2 = partner2.getId();
 
     setTitle(partner1 + "/" + partner2);
     String key = relation.isWedding() ? "yes" : "no";

@@ -54,6 +54,7 @@ public class DetailsPanel extends JPanel {
 
   public static final String UNKNOWN_DATA = "?";
 
+  private long memberId;
   private JLabel nameLbl;
   private JLabel otherNamesLbl;
   private JLabel birthLbl;
@@ -140,6 +141,7 @@ public class DetailsPanel extends JPanel {
     String birth = formatDateAndLocation(member.getBirthDate(), member.getBirthLocation());
     String death = formatDateAndLocation(member.getDeathDate(), member.getDeathLocation());
 
+    this.memberId = member.getId();
     this.nameLbl.setText(name);
     this.nameLbl.setIcon(member.isDead() ? Images.TOMBSTONE : null);
     this.otherNamesLbl.setText(member.getOtherNames().orElse(""));
@@ -149,6 +151,10 @@ public class DetailsPanel extends JPanel {
     this.ageLbl.setText(getAge(member.getAge()));
     this.commentLbl.setText(member.getComment().orElse(""));
     revalidate();
+  }
+
+  public long getMemberId() {
+    return this.memberId;
   }
 
   /**

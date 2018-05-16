@@ -40,6 +40,7 @@ import net.darmo_creations.jenealogio.config.ColorTag;
 import net.darmo_creations.jenealogio.config.ConfigTags;
 import net.darmo_creations.jenealogio.dao.FamilyDao;
 import net.darmo_creations.jenealogio.events.CardDoubleClickEvent;
+import net.darmo_creations.jenealogio.events.EditObjectEvent;
 import net.darmo_creations.jenealogio.events.EventType;
 import net.darmo_creations.jenealogio.events.FocusChangeEvent;
 import net.darmo_creations.jenealogio.events.LinkDoubleClickEvent;
@@ -168,10 +169,10 @@ public class MainController extends ApplicationController<MainFrame> implements 
           toggleAddLink();
           break;
         case EDIT_OBJECT:
-          editObject();
+          editSelectedObject();
           break;
         case DELETE_OBJECT:
-          deleteObjects();
+          deleteSelectedObjects();
           break;
         case EDIT_COLORS:
           editColors();
@@ -184,6 +185,16 @@ public class MainController extends ApplicationController<MainFrame> implements 
           break;
       }
     }
+  }
+
+  @SubscribeEvent
+  public void onEditMember(EditObjectEvent.Member e) {
+    editMember(e.getId());
+  }
+
+  @SubscribeEvent
+  public void onEditRelation(EditObjectEvent.Relation e) {
+    editRelation(e.getPartner1(), e.getPartner2());
   }
 
   private void handleSaveError(UserEvent e) {
@@ -480,52 +491,61 @@ public class MainController extends ApplicationController<MainFrame> implements 
   /**
    * Opens up and "edit" dialog then updates the model.
    */
-  private void editObject() {
+  private void editSelectedObject() {
     Selection selection = this.frame.getView(this.currentView).getSelection();
 
     if (selection.size() == 1) {
       if (!selection.getMembers().isEmpty()) {
-        Optional<FamilyMember> opt = this.family.getMember(selection.getMembers().get(0));
-
-        if (opt.isPresent()) {
-          Optional<FamilyMember> member = this.frame.showUpdateCardDialog(opt.get());
-
-          if (member.isPresent()) {
-            this.family.updateMember(member.get());
-            addEdit();
-            this.saved = false;
-            refreshFrame(false);
-            updateFrameMenus();
-          }
-        }
-        else
-          this.frame.showErrorDialog(I18n.getLocalizedString("popup.nonexistant_object.text"));
+        ApplicationRegistry.EVENTS_BUS.dispatchEvent(new EditObjectEvent.Member(selection.getMembers().get(0)));
       }
       else if (!selection.getRelations().isEmpty()) {
         Pair<Long, Long> link = selection.getRelations().get(0);
-        Optional<Relationship> opt = this.family.getRelation(link.getValue1(), link.getValue2());
-
-        if (opt.isPresent()) {
-          Optional<Relationship> relation = this.frame.showUpdateLinkDialog(opt.get(), this.family);
-
-          if (relation.isPresent()) {
-            this.family.updateRelation(relation.get());
-            addEdit();
-            this.saved = false;
-            refreshFrame(false);
-            updateFrameMenus();
-          }
-        }
-        else
-          this.frame.showErrorDialog(I18n.getLocalizedString("popup.nonexistant_object.text"));
+        ApplicationRegistry.EVENTS_BUS.dispatchEvent(new EditObjectEvent.Relation(link.getValue1(), link.getValue2()));
       }
     }
+  }
+
+  private void editMember(long id) {
+    Optional<FamilyMember> opt = this.family.getMember(id);
+
+    if (opt.isPresent()) {
+      Optional<FamilyMember> member = this.frame.showUpdateCardDialog(opt.get());
+
+      if (member.isPresent()) {
+        this.family.updateMember(member.get());
+        addEdit();
+        this.saved = false;
+        refreshFrame(false);
+        updateFrameMenus();
+      }
+    }
+    else
+      this.frame.showErrorDialog(I18n.getLocalizedString("popup.nonexistant_object.text"));
+  }
+
+  private void editRelation(long id1, long id2) {
+    Optional<Relationship> opt = this.family.getRelation(id1, id2);
+
+    if (opt.isPresent()) {
+      Optional<Relationship> relation = this.frame.showUpdateLinkDialog(opt.get(), this.family);
+
+      if (relation.isPresent()) {
+        this.family.updateRelation(relation.get());
+        addEdit();
+        this.saved = false;
+        refreshFrame(false);
+        updateFrameMenus();
+      }
+    }
+    else
+      this.frame.showErrorDialog(I18n.getLocalizedString("popup.nonexistant_object.text"));
+
   }
 
   /**
    * Deletes the selected object(s). Asks the user to confirm the action.
    */
-  private void deleteObjects() {
+  private void deleteSelectedObjects() {
     Selection selection = this.frame.getView(this.currentView).getSelection();
 
     if (!selection.isEmpty()) {
