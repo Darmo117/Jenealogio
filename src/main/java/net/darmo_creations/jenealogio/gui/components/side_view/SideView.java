@@ -166,11 +166,7 @@ public class SideView extends View {
     });
     members.forEach(m -> this.membersNode.add(new NamedTreeNode("" + m.getId(), m, false)));
 
-    List<Relationship> relations = new ArrayList<>(family.getAllRelations());
-    relations.sort((r1, r2) -> {
-      return 0; // TODO trouver un critère de tri
-    });
-    relations.forEach(r -> this.relationsNode.add(new NamedTreeNode(r.getPartner1() + "_" + r.getPartner2(), r, false)));
+    family.getAllRelations().forEach(r -> this.relationsNode.add(new NamedTreeNode(r.getPartner1() + "_" + r.getPartner2(), r, false)));
 
     this.treeModel.reload(this.membersNode);
     this.treeModel.reload(this.relationsNode);
