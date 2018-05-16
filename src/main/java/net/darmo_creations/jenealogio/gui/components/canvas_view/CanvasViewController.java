@@ -61,7 +61,7 @@ class CanvasViewController extends ViewController {
   /** The maximum distance away from a link the mouse must be to count as a hover. */
   private static final int HOVER_DISTANCE = 5;
 
-  private Point mouseLocation;
+  private Point mouseLocation, absoluteMouseLocation;
   private Point selectionStart;
   private Rectangle selection;
 
@@ -77,6 +77,7 @@ class CanvasViewController extends ViewController {
     super(ViewType.CANVAS);
 
     this.mouseLocation = new Point();
+    this.absoluteMouseLocation = new Point();
     this.selectionStart = null;
     this.selection = null;
     this.resizingComponent = false;
@@ -184,6 +185,7 @@ class CanvasViewController extends ViewController {
     super.mouseDragged(e);
 
     Point prevLocation = this.mouseLocation;
+    Point prevAbsoluteLocation = this.absoluteMouseLocation;
 
     updateMouseLocation(e);
     if (SwingUtilities.isLeftMouseButton(e)) {
@@ -211,10 +213,10 @@ class CanvasViewController extends ViewController {
     }
 
     if (SwingUtilities.isMiddleMouseButton(e)) {
-      Point newLocation = this.mouseLocation;
+      Point newLocation = this.absoluteMouseLocation;
 
-      int xTrans = newLocation.x - prevLocation.x;
-      int yTrans = newLocation.y - prevLocation.y;
+      int xTrans = newLocation.x - prevAbsoluteLocation.x;
+      int yTrans = newLocation.y - prevAbsoluteLocation.y;
 
       this.view.setHorizontalScroll(this.view.getHorizontalScroll() - xTrans);
       this.view.setVerticalScroll(this.view.getVerticalScroll() - yTrans);
@@ -530,6 +532,8 @@ class CanvasViewController extends ViewController {
 
   private void updateMouseLocation(MouseEvent e) {
     this.mouseLocation = e.getPoint();
+    this.absoluteMouseLocation = e.getLocationOnScreen();
+
     // Selection computation
     if (this.selection != null) {
       int width = this.mouseLocation.x - this.selectionStart.x;
