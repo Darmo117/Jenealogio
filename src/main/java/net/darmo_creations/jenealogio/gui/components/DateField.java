@@ -142,15 +142,22 @@ public class DateField extends JPanel {
    */
   public Optional<Date> getDate() {
     DateBuilder builder = new DateBuilder();
+    boolean oneSet = false;
 
-    if (this.yearFld.getText().matches("^\\d{4}$"))
+    if (this.yearFld.getText().matches("^\\d{4}$")) {
       builder.setYear(Integer.parseInt(this.yearFld.getText()));
-    if (this.monthFld.getText().matches("^\\d{2}$"))
+      oneSet = true;
+    }
+    if (this.monthFld.getText().matches("^\\d{2}$")) {
       builder.setMonth(Integer.parseInt(this.monthFld.getText()));
-    if (this.dateFld.getText().matches("^\\d{2}$"))
+      oneSet = true;
+    }
+    if (this.dateFld.getText().matches("^\\d{2}$")) {
       builder.setDate(Integer.parseInt(this.dateFld.getText()));
+      oneSet = true;
+    }
 
-    return Optional.ofNullable(builder.getDate());
+    return oneSet ? Optional.ofNullable(builder.getDate()) : Optional.empty();
   }
 
   @Override
