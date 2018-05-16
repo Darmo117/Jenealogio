@@ -34,12 +34,8 @@ public final class CardDoubleClickEvent extends AbstractEvent {
    * @param memberId target member ID
    */
   public CardDoubleClickEvent(long memberId) {
+    super(false);
     this.memberId = memberId;
-  }
-
-  @Override
-  public boolean isCancelable() {
-    return false;
   }
 
   /**

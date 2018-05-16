@@ -274,7 +274,7 @@ public class LinkDialog extends AbstractDialog {
    * @return the created/updated link or nothing if the dialog was canceled
    */
   public Optional<Relationship> getLink() {
-    if (!isCanceled())
+    if (!isCancelled())
       return Optional.of(this.controller.getLink());
     return Optional.empty();
   }

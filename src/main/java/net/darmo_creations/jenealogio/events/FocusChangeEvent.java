@@ -30,15 +30,11 @@ public class FocusChangeEvent extends AbstractEvent {
   private ViewType view;
 
   public FocusChangeEvent(ViewType view) {
+    super(false);
     this.view = view;
   }
 
   public ViewType getView() {
     return this.view;
-  }
-
-  @Override
-  public boolean isCancelable() {
-    return false;
   }
 }

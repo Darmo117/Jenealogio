@@ -20,20 +20,17 @@ package net.darmo_creations.jenealogio;
 
 import java.awt.Color;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
 import net.darmo_creations.gui_framework.Application;
-import net.darmo_creations.gui_framework.ApplicationRegistry;
 import net.darmo_creations.gui_framework.config.Language;
 import net.darmo_creations.gui_framework.config.WritableConfig;
 import net.darmo_creations.jenealogio.config.ConfigTags;
 import net.darmo_creations.jenealogio.gui.MainFrame;
 import net.darmo_creations.utils.version.Version;
 
-public class Jenealogio implements Application {
+public class Jenealogio extends Application {
   public static final Version CURRENT_VERSION = new Version(1, 6, 0, true);
   /** Version 1.3d */
   public static final Version V1_3D = new Version(1, 3, 0, true);
@@ -45,12 +42,7 @@ public class Jenealogio implements Application {
 
   @Override
   public void preInit() {
-    List<Language> l = new ArrayList<>();
-    l.add(new Language("English", Locale.US));
-    l.add(new Language("Français", Locale.FRANCE));
-    l.add(new Language("Esperanto", new Locale("eo")));
-
-    ApplicationRegistry.setLanguages(l);
+    setLanguages(new Language("English", Locale.US), new Language("Français", Locale.FRANCE), new Language("Esperanto", new Locale("eo")));
 
     WritableConfig.registerTag(ConfigTags.GRID_ENABLED, true);
     WritableConfig.registerTag(ConfigTags.GENDER_UNKNOWN_COLOR, Color.GRAY);
@@ -84,18 +76,8 @@ public class Jenealogio implements Application {
   }
 
   @Override
-  public boolean checkUpdates() {
-    return true;
-  }
-
-  @Override
-  public Optional<String> getRssUpdatesLink() {
-    return Optional.of("https://github.com/Darmo117/Jenealogio/releases.atom");
-  }
-
-  @Override
-  public boolean hasHelpDocumentation() {
-    return true;
+  public String getRssUpdatesLink() {
+    return "https://github.com/Darmo117/Jenealogio/releases.atom";
   }
 
   @Override
@@ -104,13 +86,8 @@ public class Jenealogio implements Application {
   }
 
   @Override
-  public boolean hasAboutDialog() {
-    return true;
-  }
-
-  @Override
-  public Optional<String> getAboutFilePath() {
-    return Optional.of("/assets/about.html");
+  public String getAboutFilePath() {
+    return "/assets/about.html";
   }
 
   @Override
@@ -121,5 +98,9 @@ public class Jenealogio implements Application {
   @Override
   public Optional<String> getLicenseIcon() {
     return Optional.of("/assets/icons/gplv3-127x51.png");
+  }
+
+  public static void main(String[] args) {
+    launch(args);
   }
 }

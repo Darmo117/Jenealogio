@@ -532,7 +532,7 @@ public class MainFrame extends ApplicationFrame<MainController> {
    */
   public Optional<String> showCreateTreeDialog() {
     this.treeDialog.setInfo(null);
-    this.treeDialog.setCanceled(false);
+    this.treeDialog.setCancelled(false);
     this.treeDialog.setVisible(true);
 
     return this.treeDialog.getTreeName();
@@ -546,7 +546,7 @@ public class MainFrame extends ApplicationFrame<MainController> {
    */
   public Optional<String> showEditTreeDialog(String currentName) {
     this.treeDialog.setInfo(currentName);
-    this.treeDialog.setCanceled(false);
+    this.treeDialog.setCancelled(false);
     this.treeDialog.setVisible(true);
 
     return this.treeDialog.getTreeName();

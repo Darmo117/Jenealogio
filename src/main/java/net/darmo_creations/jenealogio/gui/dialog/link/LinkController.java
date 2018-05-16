@@ -92,7 +92,7 @@ class LinkController extends DefaultDialogController<LinkDialog> implements List
     Set<FamilyMember> children = relation.getChildren().stream().map(id -> family.getMember(id).get()).collect(Collectors.toSet());
     this.dialog.setChildren(children, adoptions);
 
-    this.dialog.setCanceled(false);
+    this.dialog.setCancelled(false);
     this.dialog.setAddButtonEnabled(false);
     this.dialog.setDeleteButtonEnabled(false);
     this.dialog.setAdoptionFieldsEnabled(false, false, null, false);

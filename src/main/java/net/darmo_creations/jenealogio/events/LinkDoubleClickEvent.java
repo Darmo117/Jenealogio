@@ -35,13 +35,9 @@ public final class LinkDoubleClickEvent extends AbstractEvent {
    * @param partner2Id ID of partner 2
    */
   public LinkDoubleClickEvent(long partner1Id, long partner2Id) {
+    super(false);
     this.partner1Id = partner1Id;
     this.partner2Id = partner2Id;
-  }
-
-  @Override
-  public boolean isCancelable() {
-    return false;
   }
 
   /**

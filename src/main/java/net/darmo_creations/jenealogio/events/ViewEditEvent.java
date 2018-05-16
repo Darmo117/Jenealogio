@@ -26,8 +26,7 @@ import net.darmo_creations.utils.events.AbstractEvent;
  * @author Damien Vergnet
  */
 public class ViewEditEvent extends AbstractEvent {
-  @Override
-  public boolean isCancelable() {
-    return false;
+  public ViewEditEvent() {
+    super(false);
   }
 }

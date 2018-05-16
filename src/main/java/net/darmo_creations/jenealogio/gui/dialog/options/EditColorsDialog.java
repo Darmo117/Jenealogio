@@ -188,7 +188,7 @@ public class EditColorsDialog extends AbstractDialog {
    * @return the new config or nothing if the dialog was canceled
    */
   public Optional<WritableConfig> getConfig() {
-    return Optional.ofNullable(isCanceled() ? null : this.controller.getConfig());
+    return Optional.ofNullable(isCancelled() ? null : this.controller.getConfig());
   }
 
   /**

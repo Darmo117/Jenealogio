@@ -93,7 +93,7 @@ class CardController extends DefaultDialogController<CardDialog> implements Docu
       this.dialog.setValidateButtonEnabled(false);
     }
 
-    this.dialog.setCanceled(false);
+    this.dialog.setCancelled(false);
   }
 
   @Override

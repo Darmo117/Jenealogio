@@ -29,15 +29,11 @@ public class GoToObjectEvent extends AbstractEvent {
   private final Object object;
 
   public GoToObjectEvent(Object object) {
+    super(false);
     this.object = object;
   }
 
   public Object getObject() {
     return this.object;
-  }
-
-  @Override
-  public boolean isCancelable() {
-    return false;
   }
 }

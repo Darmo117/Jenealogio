@@ -121,7 +121,7 @@ public class MainController extends ApplicationController<MainFrame> implements 
   public void onUserEvent(UserEvent e) {
     super.onUserEvent(e);
 
-    if (e.isCanceled()) {
+    if (e.isCancelled()) {
       return;
     }
 
@@ -189,7 +189,7 @@ public class MainController extends ApplicationController<MainFrame> implements 
   private void handleSaveError(UserEvent e) {
     int choice = this.frame.showConfirmDialog(I18n.getLocalizedString("popup.save_file_error.text"));
     if (choice == JOptionPane.NO_OPTION)
-      e.setCanceled();
+      e.setCancelled();
   }
 
   @SubscribeEvent
@@ -278,7 +278,7 @@ public class MainController extends ApplicationController<MainFrame> implements 
       if (choice == JOptionPane.YES_OPTION) {
         UserEvent event = new UserEvent(EventType.SAVE);
         ApplicationRegistry.EVENTS_BUS.dispatchEvent(event);
-        if (event.isCanceled())
+        if (event.isCancelled())
           return false;
       }
       else if (choice == JOptionPane.CANCEL_OPTION || choice == JOptionPane.CLOSED_OPTION)
@@ -698,11 +698,11 @@ public class MainController extends ApplicationController<MainFrame> implements 
       if (choice == JOptionPane.YES_OPTION) {
         UserEvent event = new UserEvent(EventType.SAVE);
         ApplicationRegistry.EVENTS_BUS.dispatchEvent(event);
-        if (event.isCanceled())
-          e.setCanceled();
+        if (event.isCancelled())
+          e.setCancelled();
       }
       else if (choice == JOptionPane.CLOSED_OPTION)
-        e.setCanceled();
+        e.setCancelled();
     }
   }
 }

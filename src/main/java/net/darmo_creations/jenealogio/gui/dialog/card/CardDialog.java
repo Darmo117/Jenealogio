@@ -526,7 +526,7 @@ public class CardDialog extends AbstractDialog {
 
   @Override
   public void setVisible(boolean b) {
-    if (!isCanceled() && !b) {
+    if (!isCancelled() && !b) {
       if (!checkDates())
         showErrorDialog(I18n.getLocalizedString("popup.birth_date_error.text"));
       else
@@ -587,7 +587,7 @@ public class CardDialog extends AbstractDialog {
    * @return the card or nothing if the dialog was canceled
    */
   public Optional<FamilyMember> getCard() {
-    if (!isCanceled()) {
+    if (!isCancelled()) {
       FamilyMember member = new FamilyMember(getId(), this.image, getFamilyName(), getUseName(), getFirstName(), getOtherNames(),
           getGender(), getBirthDate(), getBirthLocation(), getDeathDate(), getDeathLocation(), isDead(), getComment());
 

@@ -32,13 +32,9 @@ public class SelectionChangeEvent extends AbstractEvent {
   private final Selection lastSelection, newSelection;
 
   public SelectionChangeEvent(Selection lastSelection, Selection newSelection) {
+    super(false);
     this.lastSelection = Objects.requireNonNull(lastSelection);
     this.newSelection = Objects.requireNonNull(newSelection);
-  }
-
-  @Override
-  public boolean isCancelable() {
-    return false;
   }
 
   public Selection getLastSelection() {

@@ -99,7 +99,7 @@ public class TreeDialog extends AbstractDialog {
   public Optional<String> getTreeName() {
     String text = this.nameFld.getText().trim();
 
-    if (!isCanceled() && text.length() > 0)
+    if (!isCancelled() && text.length() > 0)
       return Optional.of(text);
     return Optional.empty();
   }

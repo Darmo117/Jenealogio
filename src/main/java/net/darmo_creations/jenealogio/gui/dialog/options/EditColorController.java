@@ -58,7 +58,7 @@ class EditColorController extends DefaultDialogController<EditColorsDialog> impl
    * @param config the new config
    */
   void setConfig(WritableConfig config) {
-    this.dialog.setCanceled(false);
+    this.dialog.setCancelled(false);
     this.config = config;
     if (this.selectedNode != null)
       this.dialog.setButtonColor(getColorForNode());
