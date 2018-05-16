@@ -26,8 +26,8 @@ task createZip(type: Zip) {
   from '/'
   include 'LICENSE'
   from 'build/libs/'
-  include 'Jenealogio-' + version + '.jar'
-  archiveName 'Jenealogio-' + version + '.zip'
+  include rootProject.name + '-' + version + '.jar'
+  archiveName rootProject.name + '-' + version + '.zip'
   destinationDir(file('/'))
 }
 
