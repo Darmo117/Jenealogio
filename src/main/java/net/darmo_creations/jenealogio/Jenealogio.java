@@ -34,6 +34,8 @@ public class Jenealogio extends Application {
   public static final Version CURRENT_VERSION = new Version(1, 6, 0, true);
   /** Version 1.3d */
   public static final Version V1_3D = new Version(1, 3, 0, true);
+  /** Version 1.6d */
+  public static final Version V1_6D = new Version(1, 6, 0, true);
 
   /** Extension for tree files */
   public static final String TREE_FILE_EXT = "gtree";

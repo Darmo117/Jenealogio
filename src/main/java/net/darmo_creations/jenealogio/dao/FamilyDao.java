@@ -93,7 +93,7 @@ public class FamilyDao {
       JSONObject obj = (JSONObject) p.parse(jsonString);
       Set<FamilyMember> members = new HashSet<>();
       Set<Relationship> weddings = new HashSet<>();
-      CanvasState states = new CanvasState();
+      CanvasState state = new CanvasState();
 
       Long rawVersion = (Long) obj.get("version");
       Version version = new Version(rawVersion != null ? (int) (long) rawVersion : 0);
@@ -102,103 +102,194 @@ public class FamilyDao {
         throw new VersionException(Jenealogio.CURRENT_VERSION, version);
       }
 
-      // Members loading
-      JSONArray membersObj = (JSONArray) obj.get("members");
-      for (Object o : membersObj) {
-        JSONObject memberObj = (JSONObject) o;
-        long id = (Long) memberObj.get("id");
-        BufferedImage image = base64Decode((String) memberObj.get("image"));
-        String familyName = getNullIfEmpty((String) memberObj.get("name"));
-        String useName = getNullIfEmpty((String) memberObj.get("use_name"));
-        String firstName = getNullIfEmpty((String) memberObj.get("first_name"));
-        String otherNames = getNullIfEmpty((String) memberObj.get("other_names"));
-        Gender gender = Gender.fromCode((String) memberObj.get("gender"));
-        Date birthDate = getDate((String) memberObj.get("birth_date"));
-        String birthLocation = getNullIfEmpty((String) memberObj.get("birth_location"));
-        Date deathDate = getDate((String) memberObj.get("death_date"));
-        String deathLocation = getNullIfEmpty((String) memberObj.get("death_location"));
-        Boolean dead = (Boolean) memberObj.get("dead");
-        // This boolean may not be present in older save versions.
-        dead = dead == null ? false : dead;
-        String comment = getNullIfEmpty((String) memberObj.get("comment"));
-
-        JSONObject positionObj = (JSONObject) memberObj.get("position");
-        int x = (int) (long) positionObj.get("x");
-        int y = (int) (long) positionObj.get("y");
-        Point pos = new Point(x, y);
-
-        JSONObject dimensionObj = (JSONObject) memberObj.get("size");
-        Dimension size = null;
-        if (dimensionObj != null) {
-          int w = (int) (long) dimensionObj.get("w");
-          int h = (int) (long) dimensionObj.get("h");
-          size = new Dimension(w, h);
-        }
-        states.addCardState(id, new CardState(pos, size));
-
-        members.add(new FamilyMember(id, image, familyName, useName, firstName, otherNames, gender, birthDate, birthLocation, deathDate,
-            deathLocation, dead, comment));
-      }
-
-      // Relations loading
-      JSONArray relationsObj;
-      boolean before1_3d = version.before(Jenealogio.V1_3D);
-
-      if (before1_3d) {
-        relationsObj = (JSONArray) obj.get("weddings");
-      }
-      else {
-        relationsObj = (JSONArray) obj.get("relations");
-      }
-
-      for (Object o : relationsObj) {
-        JSONObject relationObj = (JSONObject) o;
-        Date date = getDate((String) relationObj.get("date"));
-        String location = getNullIfEmpty((String) relationObj.get("location"));
-        boolean isWedding = true;
-        boolean hasEnded = false;
-        Date endDate = null;
-
-        if (!before1_3d) {
-          String type = getNullIfEmpty((String) relationObj.get("type"));
-          isWedding = "wedding".equalsIgnoreCase(type);
-          String s = (String) relationObj.get("end_date");
-          if (s != null)
-            endDate = getDate(s);
-          if (endDate == null)
-            hasEnded = (Boolean) relationObj.get("has_ended");
-          else
-            hasEnded = true;
-        }
-
-        String partnerKey = before1_3d ? "spouse" : "partner";
-        long partner1 = (Long) relationObj.get(partnerKey + 1);
-        long partner2 = (Long) relationObj.get(partnerKey + 2);
-        Set<Long> children = new HashSet<>();
-        JSONArray childrenObj = (JSONArray) relationObj.get("children");
-
-        for (int i = 0; i < childrenObj.size(); i++) {
-          children.add((Long) childrenObj.get((Integer) i));
-        }
-
-        Map<Long, Date> adoptions = new HashMap<>();
-        JSONObject adoptionsObj = (JSONObject) relationObj.get("adoptions");
-        if (adoptionsObj != null) {
-          for (Object id : adoptionsObj.keySet()) {
-            Optional<String> s = Optional.of((String) adoptionsObj.get(id));
-            adoptions.put(Long.parseLong("" + id), getDate(s.orElse("")));
-          }
-        }
-
-        weddings.add(new Relationship(date, location, isWedding, hasEnded, endDate, partner1, partner2, children, adoptions));
-      }
+      if (version.before(Jenealogio.V1_6D))
+        loadOld(version, obj, members, weddings, state);
+      else
+        load(version, obj, members, weddings, state);
 
       Family family = new Family((Long) obj.get("global_id"), (String) obj.get("name"), members, weddings);
-      return new FamilyEdit(family, states);
+      return new FamilyEdit(family, state);
     }
     catch (NullPointerException | ClassCastException | NoSuchElementException | DateTimeParseException
         | org.json.simple.parser.ParseException ex) {
-      throw new ParseException("corrupted file", -1);
+      throw new ParseException("Corrupted file", -1);
+    }
+  }
+
+  /**
+   * Loading function prior to v1.6d.
+   */
+  private void loadOld(final Version version, final JSONObject obj, Set<FamilyMember> members, Set<Relationship> weddings,
+      CanvasState state) {
+    // Members loading
+    JSONArray membersObj = (JSONArray) obj.get("members");
+    for (Object o : membersObj) {
+      JSONObject memberObj = (JSONObject) o;
+      long id = (Long) memberObj.get("id");
+      BufferedImage image = base64Decode((String) memberObj.get("image"));
+      String familyName = getNullIfEmpty((String) memberObj.get("name"));
+      String useName = getNullIfEmpty((String) memberObj.get("use_name"));
+      String firstName = getNullIfEmpty((String) memberObj.get("first_name"));
+      String otherNames = getNullIfEmpty((String) memberObj.get("other_names"));
+      Gender gender = Gender.fromCode((String) memberObj.get("gender"));
+      Date birthDate = getDate((String) memberObj.get("birth_date"));
+      String birthLocation = getNullIfEmpty((String) memberObj.get("birth_location"));
+      Date deathDate = getDate((String) memberObj.get("death_date"));
+      String deathLocation = getNullIfEmpty((String) memberObj.get("death_location"));
+      Boolean dead = (Boolean) memberObj.get("dead");
+      // This boolean may not be present in older save versions.
+      dead = dead == null ? false : dead;
+      String comment = getNullIfEmpty((String) memberObj.get("comment"));
+
+      JSONObject positionObj = (JSONObject) memberObj.get("position");
+      int x = (int) (long) positionObj.get("x");
+      int y = (int) (long) positionObj.get("y");
+      Point pos = new Point(x, y);
+
+      state.addCardState(id, new CardState(pos, null));
+
+      members.add(new FamilyMember(id, image, familyName, useName, firstName, otherNames, gender, birthDate, birthLocation, deathDate,
+          deathLocation, dead, comment));
+    }
+
+    // Relations loading
+    JSONArray relationsObj;
+    boolean before1_3d = version.before(Jenealogio.V1_3D);
+
+    if (before1_3d) {
+      relationsObj = (JSONArray) obj.get("weddings");
+    }
+    else {
+      relationsObj = (JSONArray) obj.get("relations");
+    }
+
+    for (Object o : relationsObj) {
+      JSONObject relationObj = (JSONObject) o;
+      Date date = getDate((String) relationObj.get("date"));
+      String location = getNullIfEmpty((String) relationObj.get("location"));
+      boolean isWedding = true;
+      boolean hasEnded = false;
+      Date endDate = null;
+
+      if (!before1_3d) {
+        String type = getNullIfEmpty((String) relationObj.get("type"));
+        isWedding = "wedding".equalsIgnoreCase(type);
+        String s = (String) relationObj.get("end_date");
+        if (s != null)
+          endDate = getDate(s);
+        if (endDate == null)
+          hasEnded = (Boolean) relationObj.get("has_ended");
+        else
+          hasEnded = true;
+      }
+
+      String partnerKey = before1_3d ? "spouse" : "partner";
+      long partner1 = (Long) relationObj.get(partnerKey + 1);
+      long partner2 = (Long) relationObj.get(partnerKey + 2);
+      Set<Long> children = new HashSet<>();
+      JSONArray childrenObj = (JSONArray) relationObj.get("children");
+
+      for (int i = 0; i < childrenObj.size(); i++) {
+        children.add((Long) childrenObj.get((Integer) i));
+      }
+
+      Map<Long, Date> adoptions = new HashMap<>();
+      JSONObject adoptionsObj = (JSONObject) relationObj.get("adoptions");
+      if (adoptionsObj != null) {
+        for (Object id : adoptionsObj.keySet()) {
+          Optional<String> s = Optional.of((String) adoptionsObj.get(id));
+          adoptions.put(Long.parseLong("" + id), getDate(s.orElse("")));
+        }
+      }
+
+      weddings.add(new Relationship(date, location, isWedding, hasEnded, endDate, partner1, partner2, children, adoptions));
+    }
+  }
+
+  /**
+   * Loading function for v1.6d+.
+   */
+  private void load(final Version version, final JSONObject obj, Set<FamilyMember> members, Set<Relationship> weddings, CanvasState state) {
+    JSONArray membersObj = (JSONArray) obj.get("members");
+    for (Object o : membersObj) {
+      JSONObject memberObj = (JSONObject) o;
+      long id = (Long) memberObj.get("id");
+      BufferedImage image = base64Decode((String) memberObj.get("image"));
+      String familyName = getNullIfEmpty((String) memberObj.get("name"));
+      String useName = getNullIfEmpty((String) memberObj.get("use_name"));
+      String firstName = getNullIfEmpty((String) memberObj.get("first_name"));
+      String otherNames = getNullIfEmpty((String) memberObj.get("other_names"));
+      Gender gender = Gender.fromCode((String) memberObj.get("gender"));
+      Date birthDate = getDate((String) memberObj.get("birth_date"));
+      String birthLocation = getNullIfEmpty((String) memberObj.get("birth_location"));
+      Date deathDate = getDate((String) memberObj.get("death_date"));
+      String deathLocation = getNullIfEmpty((String) memberObj.get("death_location"));
+      boolean dead = (Boolean) memberObj.get("dead");
+      String comment = getNullIfEmpty((String) memberObj.get("comment"));
+
+      members.add(new FamilyMember(id, image, familyName, useName, firstName, otherNames, gender, birthDate, birthLocation, deathDate,
+          deathLocation, dead, comment));
+    }
+
+    JSONArray relationsObj = (JSONArray) obj.get("relations");
+    for (Object o : relationsObj) {
+      JSONObject relationObj = (JSONObject) o;
+      Date date = getDate((String) relationObj.get("date"));
+      String location = getNullIfEmpty((String) relationObj.get("location"));
+      boolean isWedding = true;
+      boolean hasEnded = false;
+      Date endDate = null;
+
+      String type = getNullIfEmpty((String) relationObj.get("type"));
+      isWedding = "wedding".equalsIgnoreCase(type);
+      String s = (String) relationObj.get("end_date");
+      if (s != null)
+        endDate = getDate(s);
+      if (endDate == null)
+        hasEnded = (Boolean) relationObj.get("has_ended");
+      else
+        hasEnded = true;
+
+      long partner1 = (Long) relationObj.get("partner1");
+      long partner2 = (Long) relationObj.get("partner2");
+      Set<Long> children = new HashSet<>();
+      JSONArray childrenObj = (JSONArray) relationObj.get("children");
+
+      for (int i = 0; i < childrenObj.size(); i++) {
+        children.add((Long) childrenObj.get((Integer) i));
+      }
+
+      Map<Long, Date> adoptions = new HashMap<>();
+      JSONObject adoptionsObj = (JSONObject) relationObj.get("adoptions");
+      if (adoptionsObj != null) {
+        for (Object id : adoptionsObj.keySet()) {
+          Optional<String> opt = Optional.of((String) adoptionsObj.get(id));
+          adoptions.put(Long.parseLong("" + id), getDate(opt.orElse("")));
+        }
+      }
+
+      weddings.add(new Relationship(date, location, isWedding, hasEnded, endDate, partner1, partner2, children, adoptions));
+    }
+
+    JSONObject canvasStateObj = (JSONObject) obj.get("canvas_state");
+    JSONArray cardStatesObj = (JSONArray) canvasStateObj.get("cards");
+
+    for (Object o : cardStatesObj) {
+      JSONObject item = (JSONObject) o;
+
+      long id = (Long) item.get("id");
+
+      JSONObject positionObj = (JSONObject) item.get("position");
+      int x = (int) (long) positionObj.get("x");
+      int y = (int) (long) positionObj.get("y");
+      Point pos = new Point(x, y);
+
+      JSONObject dimensionObj = (JSONObject) item.get("size");
+      int w = (int) (long) dimensionObj.get("w");
+      int h = (int) (long) dimensionObj.get("h");
+      Dimension size = new Dimension(w, h);
+
+      state.addCardState(id, new CardState(pos, size));
     }
   }
 
@@ -261,7 +352,7 @@ public class FamilyDao {
   public void save(String file, final FamilyEdit edit) throws IOException {
     JSONObject obj = new JSONObject();
     Family family = edit.getFamily();
-    CanvasState states = edit.getCanvasState();
+    CanvasState state = edit.getCanvasState();
 
     String comment = String.format(
         "This is a save file for Jenealogio v%1$s. "
@@ -272,6 +363,7 @@ public class FamilyDao {
     obj.put("global_id", family.getGlobalId());
     obj.put("name", family.getName());
 
+    // Members
     JSONArray membersObj = new JSONArray();
     for (FamilyMember m : family.getAllMembers()) {
       JSONObject memberObj = new JSONObject();
@@ -290,22 +382,11 @@ public class FamilyDao {
       memberObj.put("comment", m.getComment().orElse(""));
       memberObj.put("image", base64Encode(m.getImage()));
 
-      JSONObject posObj = new JSONObject();
-      Point pos = states.getCardStates().get(m.getId()).getLocation();
-      posObj.put("x", pos.x);
-      posObj.put("y", pos.y);
-      memberObj.put("position", posObj);
-
-      JSONObject dimObj = new JSONObject();
-      Dimension size = states.getCardStates().get(m.getId()).getSize();
-      dimObj.put("w", size.width);
-      dimObj.put("h", size.height);
-      memberObj.put("size", dimObj);
-
       membersObj.add(memberObj);
     }
     obj.put("members", membersObj);
 
+    // Relations
     JSONArray relationsObj = new JSONArray();
     for (Relationship r : family.getAllRelations()) {
       JSONObject relationObj = new JSONObject();
@@ -334,6 +415,33 @@ public class FamilyDao {
       relationsObj.add(relationObj);
     }
     obj.put("relations", relationsObj);
+
+    // Canvas state
+    JSONObject canvasStateObj = new JSONObject();
+
+    JSONArray cardStatesObj = new JSONArray();
+    for (Map.Entry<Long, CardState> entry : state.getCardStates().entrySet()) {
+      JSONObject cardObj = new JSONObject();
+
+      cardObj.put("id", entry.getKey());
+
+      JSONObject posObj = new JSONObject();
+      Point pos = entry.getValue().getLocation();
+      posObj.put("x", pos.x);
+      posObj.put("y", pos.y);
+      cardObj.put("position", posObj);
+
+      JSONObject dimObj = new JSONObject();
+      Dimension size = entry.getValue().getSize();
+      dimObj.put("w", size.width);
+      dimObj.put("h", size.height);
+      cardObj.put("size", dimObj);
+
+      cardStatesObj.add(cardObj);
+    }
+    canvasStateObj.put("cards", cardStatesObj);
+
+    obj.put("canvas_state", canvasStateObj);
 
     Files.write(Paths.get(file), Arrays.asList(obj.toJSONString()));
   }
