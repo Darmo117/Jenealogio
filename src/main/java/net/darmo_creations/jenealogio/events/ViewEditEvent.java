@@ -25,7 +25,7 @@ import net.darmo_creations.utils.events.AbstractEvent;
  *
  * @author Damien Vergnet
  */
-public class ViewEditEvent extends AbstractEvent {
+public final class ViewEditEvent extends AbstractEvent {
   public ViewEditEvent() {
     super(false);
   }

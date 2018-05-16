@@ -25,7 +25,7 @@ import net.darmo_creations.utils.events.AbstractEvent;
  *
  * @author Damien Vergnet
  */
-public class GoToObjectEvent extends AbstractEvent {
+public final class GoToObjectEvent extends AbstractEvent {
   private final Object object;
 
   public GoToObjectEvent(Object object) {

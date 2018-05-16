@@ -28,7 +28,7 @@ import net.darmo_creations.utils.events.AbstractEvent;
  *
  * @author Damien Vergnet
  */
-public class SelectionChangeEvent extends AbstractEvent {
+public final class SelectionChangeEvent extends AbstractEvent {
   private final Selection lastSelection, newSelection;
 
   public SelectionChangeEvent(Selection lastSelection, Selection newSelection) {

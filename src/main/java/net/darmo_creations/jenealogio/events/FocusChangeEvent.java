@@ -26,7 +26,7 @@ import net.darmo_creations.utils.events.AbstractEvent;
  *
  * @author Damien Vergnet
  */
-public class FocusChangeEvent extends AbstractEvent {
+public final class FocusChangeEvent extends AbstractEvent {
   private ViewType view;
 
   public FocusChangeEvent(ViewType view) {
