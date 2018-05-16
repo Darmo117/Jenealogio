@@ -37,19 +37,19 @@ class GrabHandle {
   private static final Stroke STROKE = new BasicStroke(1);
   private static final int SIZE = 6;
 
-  private final FamilyMemberPanel panel;
+  private final GraphicalObject panel;
   private final Direction direction;
   private Rectangle bounds;
   private boolean backgroundSelected;
 
-  public GrabHandle(FamilyMemberPanel panel, Point location, Direction direction) {
+  public GrabHandle(GraphicalObject panel, Point location, Direction direction) {
     this.panel = panel;
     this.bounds = new Rectangle(location, new Dimension(SIZE, SIZE));
     this.backgroundSelected = false;
     this.direction = Objects.requireNonNull(direction);
   }
 
-  public FamilyMemberPanel getPanel() {
+  public GraphicalObject getObject() {
     return this.panel;
   }
 
@@ -72,32 +72,10 @@ class GrabHandle {
   /**
    * Moves this handle and resizes the associated component.
    * 
-   * @param p translation amount
+   * @param translation translation amount
    */
-  public void translate(Point p) {
-    Rectangle bounds = this.panel.getBounds();
-    Dimension minSize = this.panel.getMinimumSize();
-
-    if (this.direction == Direction.NORTH || this.direction == Direction.NORTH_EAST || this.direction == Direction.NORTH_WEST) {
-      if (p.y > 0 && bounds.height - p.y < minSize.height || p.y < 0 && bounds.y + p.y < 0)
-        p.y = 0;
-      bounds.y += p.y;
-      bounds.height += -p.y;
-    }
-    else if (this.direction == Direction.SOUTH || this.direction == Direction.SOUTH_EAST || this.direction == Direction.SOUTH_WEST) {
-      bounds.height += p.y;
-    }
-    if (this.direction == Direction.WEST || this.direction == Direction.NORTH_WEST || this.direction == Direction.SOUTH_WEST) {
-      if (p.x > 0 && bounds.width - p.x < minSize.width || p.x < 0 && bounds.x + p.x < 0)
-        p.x = 0;
-      bounds.x += p.x;
-      bounds.width += -p.x;
-    }
-    else if (this.direction == Direction.EAST || this.direction == Direction.NORTH_EAST || this.direction == Direction.SOUTH_EAST) {
-      bounds.width += p.x;
-    }
-
-    this.panel.setBounds(bounds);
+  public void translate(Dimension translation) {
+    this.panel.handleMoved(this.direction, translation);
   }
 
   public Direction getDirection() {
@@ -133,7 +111,9 @@ class GrabHandle {
     SOUTH_EAST(Cursor.SE_RESIZE_CURSOR),
     SOUTH_WEST(Cursor.SW_RESIZE_CURSOR),
     EAST(Cursor.E_RESIZE_CURSOR),
-    WEST(Cursor.W_RESIZE_CURSOR);
+    WEST(Cursor.W_RESIZE_CURSOR),
+
+    ALL(Cursor.MOVE_CURSOR);
 
     private final Cursor cursor;
 

@@ -191,21 +191,22 @@ class CanvasViewController extends ViewController {
     if (SwingUtilities.isLeftMouseButton(e)) {
       if (this.handle != null) {
         Point p = e.getPoint();
-        p.x -= prevLocation.x;
-        p.y -= prevLocation.y;
+        Dimension amount = new Dimension(p.x, p.y);
+        amount.width -= prevLocation.x;
+        amount.height -= prevLocation.y;
 
         if (!this.resizingComponent)
           this.resizingComponent = true;
         if (this.handle.getDirection().isHorizontal()) {
-          p.y = 0;
-          this.handle.translate(p);
+          amount.height = 0;
+          this.handle.translate(amount);
         }
         else if (this.handle.getDirection().isVertical()) {
-          p.x = 0;
-          this.handle.translate(p);
+          amount.width = 0;
+          this.handle.translate(amount);
         }
         else {
-          this.handle.translate(p);
+          this.handle.translate(amount);
         }
         resizePanelIfOutside();
         scrollIfOutside();

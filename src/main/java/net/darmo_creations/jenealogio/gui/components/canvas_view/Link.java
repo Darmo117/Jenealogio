@@ -2,6 +2,7 @@ package net.darmo_creations.jenealogio.gui.components.canvas_view;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -14,6 +15,7 @@ import javax.swing.JComponent;
 
 import net.darmo_creations.gui_framework.config.WritableConfig;
 import net.darmo_creations.jenealogio.config.ConfigTags;
+import net.darmo_creations.jenealogio.gui.components.canvas_view.GrabHandle.Direction;
 import net.darmo_creations.jenealogio.util.Pair;
 
 /**
@@ -45,6 +47,9 @@ class Link extends GraphicalObject {
     this.children = new HashMap<>(children);
     this.wedding = wedding;
     this.ended = ended;
+    this.handles = new GrabHandle[0];
+    // { new GrabHandle(this, new Point(), GrabHandle.Direction.ALL),
+    // new GrabHandle(this, new Point(), GrabHandle.Direction.ALL) };
   }
 
   public long getParent1() {
@@ -80,13 +85,18 @@ class Link extends GraphicalObject {
   }
 
   @Override
-  public void paintComponent(Graphics g, WritableConfig config) {
+  public void handleMoved(Direction direction, Dimension translation) {
+    // TODO Auto-generated method stub
+  }
+
+  @Override
+  public void paint(Graphics g, WritableConfig config) {
     Graphics2D g2d = (Graphics2D) g;
 
     g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
     final int width = isWedding() ? 2 : 1;
     if (hasEnded())
-      g2d.setStroke(new BasicStroke(width, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[]{9}, 0));
+      g2d.setStroke(new BasicStroke(width, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[] { 9 }, 0));
     else
       g2d.setStroke(new BasicStroke(width));
 
@@ -122,7 +132,7 @@ class Link extends GraphicalObject {
     Point end2 = new Point(r2.x + r2.width / 2, r2.y + r2.height / 2);
     Point middle = new Point((end1.x + end2.x) / 2, (end1.y + end2.y) / 2);
 
-    return new Point[]{end1, middle, end2};
+    return new Point[] { end1, middle, end2 };
   }
 
   @Override
@@ -153,5 +163,12 @@ class Link extends GraphicalObject {
     }
 
     return false;
+  }
+
+  enum Side {
+    TOP,
+    BOTTOM,
+    LEFT,
+    RIGHT;
   }
 }

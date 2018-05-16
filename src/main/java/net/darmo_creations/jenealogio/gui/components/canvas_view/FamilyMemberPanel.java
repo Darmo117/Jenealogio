@@ -41,6 +41,7 @@ import javax.swing.JComponent;
 
 import net.darmo_creations.gui_framework.config.WritableConfig;
 import net.darmo_creations.jenealogio.config.ConfigTags;
+import net.darmo_creations.jenealogio.gui.components.canvas_view.GrabHandle.Direction;
 import net.darmo_creations.jenealogio.model.family.FamilyMember;
 import net.darmo_creations.jenealogio.util.Images;
 
@@ -60,7 +61,6 @@ class FamilyMemberPanel extends GraphicalObject {
 
   private Rectangle bounds;
   private FamilyMember member;
-  private GrabHandle[] handles;
 
   /**
    * Creates a panel for the given person.
@@ -111,7 +111,33 @@ class FamilyMemberPanel extends GraphicalObject {
   }
 
   @Override
-  public void paintComponent(Graphics g, WritableConfig config) {
+  public void handleMoved(Direction direction, Dimension translation) {
+    if (direction == Direction.NORTH || direction == Direction.NORTH_EAST || direction == Direction.NORTH_WEST) {
+      if (translation.height > 0 && this.bounds.height - translation.height < getMinimumSize().height
+          || translation.height < 0 && this.bounds.y + translation.height < 0)
+        translation.height = 0;
+      this.bounds.y += translation.height;
+      this.bounds.height += -translation.height;
+    }
+    else if (direction == Direction.SOUTH || direction == Direction.SOUTH_EAST || direction == Direction.SOUTH_WEST) {
+      this.bounds.height += translation.height;
+    }
+    if (direction == Direction.WEST || direction == Direction.NORTH_WEST || direction == Direction.SOUTH_WEST) {
+      if (translation.width > 0 && this.bounds.width - translation.width < getMinimumSize().width
+          || translation.width < 0 && this.bounds.x + translation.width < 0)
+        translation.width = 0;
+      this.bounds.x += translation.width;
+      this.bounds.width += -translation.width;
+    }
+    else if (direction == Direction.EAST || direction == Direction.NORTH_EAST || direction == Direction.SOUTH_EAST) {
+      this.bounds.width += translation.width;
+    }
+    capBounds();
+    updateHandles();
+  }
+
+  @Override
+  public void paint(Graphics g, WritableConfig config) {
     Graphics2D g2d = (Graphics2D) g;
 
     if (this.member.isMan())
@@ -145,10 +171,6 @@ class FamilyMemberPanel extends GraphicalObject {
       g2d.setColor(Color.BLACK);
       drawCenteredString(g2d, text, textZone);
     }
-
-    if (isSelected() || isSelectedBackground())
-      for (GrabHandle h : this.handles)
-        h.draw(g2d);
   }
 
   private void drawCenteredString(Graphics2D g2d, String text, Rectangle rect) {
@@ -180,14 +202,6 @@ class FamilyMemberPanel extends GraphicalObject {
     }
 
     g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
-  }
-
-  public GrabHandle isOnHandle(Point point) {
-    for (GrabHandle h : this.handles) {
-      if (h.getBounds().contains(point))
-        return h;
-    }
-    return null;
   }
 
   public Point getLocation() {
@@ -239,19 +253,20 @@ class FamilyMemberPanel extends GraphicalObject {
   }
 
   public void setBounds(Rectangle bounds) {
-    Rectangle r = new Rectangle(bounds);
-
-    if (r.x < 0)
-      r.x = 0;
-    if (r.y < 0)
-      r.y = 0;
-    if (r.width < MINIMUM_SIZE.width)
-      r.width = MINIMUM_SIZE.width;
-    if (r.height < MINIMUM_SIZE.height)
-      r.height = MINIMUM_SIZE.height;
-
-    this.bounds.setBounds(r);
+    this.bounds.setBounds(bounds);
+    capBounds();
     updateHandles();
+  }
+
+  private void capBounds() {
+    if (this.bounds.x < 0)
+      this.bounds.x = 0;
+    if (this.bounds.y < 0)
+      this.bounds.y = 0;
+    if (this.bounds.width < MINIMUM_SIZE.width)
+      this.bounds.width = MINIMUM_SIZE.width;
+    if (this.bounds.height < MINIMUM_SIZE.height)
+      this.bounds.height = MINIMUM_SIZE.height;
   }
 
   private void updateHandles() {
