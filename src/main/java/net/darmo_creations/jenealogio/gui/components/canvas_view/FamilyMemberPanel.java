@@ -209,14 +209,8 @@ class FamilyMemberPanel extends GraphicalObject {
   }
 
   public void setLocation(Point p) {
-    Point p1 = new Point(p);
-
-    if (p1.x < 0)
-      p1.x = 0;
-    if (p1.y < 0)
-      p1.y = 0;
-
-    this.bounds.setLocation(p1);
+    this.bounds.setLocation(p);
+    capBounds();
     updateHandles();
   }
 
@@ -225,14 +219,8 @@ class FamilyMemberPanel extends GraphicalObject {
   }
 
   public void setSize(Dimension size) {
-    Dimension d = new Dimension(size);
-
-    if (d.width < MINIMUM_SIZE.width)
-      d.width = MINIMUM_SIZE.width;
-    if (d.height < MINIMUM_SIZE.height)
-      d.height = MINIMUM_SIZE.height;
-
-    this.bounds.setSize(d);
+    this.bounds.setSize(size);
+    capBounds();
     updateHandles();
   }
 
@@ -256,6 +244,17 @@ class FamilyMemberPanel extends GraphicalObject {
     this.bounds.setBounds(bounds);
     capBounds();
     updateHandles();
+  }
+
+  public CardState getState() {
+    return new CardState(getLocation(), getSize());
+  }
+
+  public void setState(CardState state) {
+    if (state.getLocation() != null)
+      setLocation(state.getLocation());
+    if (state.getSize() != null)
+      setSize(state.getSize());
   }
 
   private void capBounds() {

@@ -43,7 +43,6 @@ import net.darmo_creations.jenealogio.events.LinkDoubleClickEvent;
 import net.darmo_creations.jenealogio.events.SelectionChangeEvent;
 import net.darmo_creations.jenealogio.events.ViewEditEvent;
 import net.darmo_creations.jenealogio.gui.components.view.ViewController;
-import net.darmo_creations.jenealogio.model.CardState;
 import net.darmo_creations.jenealogio.model.ViewType;
 import net.darmo_creations.jenealogio.model.family.Family;
 import net.darmo_creations.jenealogio.model.family.FamilyMember;
@@ -256,40 +255,28 @@ class CanvasViewController extends ViewController {
     this.links.clear();
   }
 
-  void refresh(Family family, Map<Long, CardState> cardsStates) {
+  void refresh(Family family, CanvasState canvasStates) {
     Set<Long> updatedOrAddedPanels = new HashSet<>();
     Set<Long> panelsToDelete = new HashSet<>(this.panels.keySet());
 
     // Add/update members
     family.getAllMembers().forEach(member -> {
       long id = member.getId();
-      CardState state = cardsStates.get(id);
+      CardState state = canvasStates.getCardStates().get(id);
 
       if (this.panels.containsKey(id)) {
         FamilyMemberPanel panel = this.panels.get(id);
 
         panel.setInfo(member);
         if (state != null) {
-          Point pos = state.getLocation();
-          Dimension size = state.getSize();
-
-          if (pos != null)
-            panel.setBounds(new Rectangle(pos, panel.getSize()));
-          if (size != null)
-            panel.setSize(size);
+          panel.setState(state);
         }
       }
       else {
         FamilyMemberPanel panel = new FamilyMemberPanel(this.view, member);
 
         if (state != null) {
-          Point pos = state.getLocation();
-          Dimension size = state.getSize();
-
-          if (pos != null)
-            panel.setBounds(new Rectangle(pos, panel.getSize()));
-          if (size != null)
-            panel.setSize(size);
+          panel.setState(state);
         }
 
         this.panels.put(id, panel);
@@ -371,11 +358,11 @@ class CanvasViewController extends ViewController {
     return this.links.stream();
   }
 
-  Map<Long, CardState> getCardsStates() {
-    Map<Long, CardState> states = new HashMap<>();
+  CanvasState getState() {
+    CanvasState states = new CanvasState();
 
     for (Map.Entry<Long, FamilyMemberPanel> e : this.panels.entrySet()) {
-      states.put(e.getKey(), new CardState(e.getValue().getLocation(), e.getValue().getSize()));
+      states.addCardState(e.getKey(), e.getValue().getState());
     }
 
     return states;

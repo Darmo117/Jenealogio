@@ -18,9 +18,7 @@
  */
 package net.darmo_creations.jenealogio.model;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import net.darmo_creations.jenealogio.gui.components.canvas_view.CanvasState;
 import net.darmo_creations.jenealogio.model.family.Family;
 
 /**
@@ -30,17 +28,11 @@ import net.darmo_creations.jenealogio.model.family.Family;
  */
 public final class FamilyEdit {
   private final Family family;
-  private final Map<Long, CardState> cardsStates;
+  private final CanvasState canvasState;
 
-  /**
-   * Creates an edit.
-   * 
-   * @param family the family
-   * @param cardsStates states of all cards
-   */
-  public FamilyEdit(final Family family, final Map<Long, CardState> cardsStates) {
+  public FamilyEdit(final Family family, final CanvasState canvasStates) {
     this.family = family.clone();
-    this.cardsStates = new HashMap<>(cardsStates);
+    this.canvasState = canvasStates.clone();
   }
 
   /**
@@ -53,8 +45,8 @@ public final class FamilyEdit {
   /**
    * @return locations for all cards
    */
-  public Map<Long, CardState> getStates() {
-    return new HashMap<>(this.cardsStates);
+  public CanvasState getCanvasState() {
+    return this.canvasState.clone();
   }
 
   @Override
@@ -62,7 +54,7 @@ public final class FamilyEdit {
     final int prime = 31;
     int result = 1;
     result = prime * result + ((this.family == null) ? 0 : this.family.hashCode());
-    result = prime * result + ((this.cardsStates == null) ? 0 : this.cardsStates.hashCode());
+    result = prime * result + ((this.canvasState == null) ? 0 : this.canvasState.hashCode());
     return result;
   }
 
@@ -81,11 +73,11 @@ public final class FamilyEdit {
     }
     else if (!this.family.equals(other.family))
       return false;
-    if (this.cardsStates == null) {
-      if (other.cardsStates != null)
+    if (this.canvasState == null) {
+      if (other.canvasState != null)
         return false;
     }
-    else if (!this.cardsStates.equals(other.cardsStates))
+    else if (!this.canvasState.equals(other.canvasState))
       return false;
     return true;
   }

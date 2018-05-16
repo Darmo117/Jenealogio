@@ -46,7 +46,8 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
 import net.darmo_creations.jenealogio.Jenealogio;
-import net.darmo_creations.jenealogio.model.CardState;
+import net.darmo_creations.jenealogio.gui.components.canvas_view.CanvasState;
+import net.darmo_creations.jenealogio.gui.components.canvas_view.CardState;
 import net.darmo_creations.jenealogio.model.FamilyEdit;
 import net.darmo_creations.jenealogio.model.date.Date;
 import net.darmo_creations.jenealogio.model.date.DateBuilder;
@@ -92,7 +93,7 @@ public class FamilyDao {
       JSONObject obj = (JSONObject) p.parse(jsonString);
       Set<FamilyMember> members = new HashSet<>();
       Set<Relationship> weddings = new HashSet<>();
-      Map<Long, CardState> states = new HashMap<>();
+      CanvasState states = new CanvasState();
 
       Long rawVersion = (Long) obj.get("version");
       Version version = new Version(rawVersion != null ? (int) (long) rawVersion : 0);
@@ -133,7 +134,7 @@ public class FamilyDao {
           int h = (int) (long) dimensionObj.get("h");
           size = new Dimension(w, h);
         }
-        states.put(id, new CardState(pos, size));
+        states.addCardState(id, new CardState(pos, size));
 
         members.add(new FamilyMember(id, image, familyName, useName, firstName, otherNames, gender, birthDate, birthLocation, deathDate,
             deathLocation, dead, comment));
@@ -260,7 +261,7 @@ public class FamilyDao {
   public void save(String file, final FamilyEdit edit) throws IOException {
     JSONObject obj = new JSONObject();
     Family family = edit.getFamily();
-    Map<Long, CardState> states = edit.getStates();
+    CanvasState states = edit.getCanvasState();
 
     String comment = String.format(
         "This is a save file for Jenealogio v%1$s. "
@@ -288,13 +289,15 @@ public class FamilyDao {
       memberObj.put("dead", m.isDead());
       memberObj.put("comment", m.getComment().orElse(""));
       memberObj.put("image", base64Encode(m.getImage()));
+
       JSONObject posObj = new JSONObject();
-      Point pos = states.get(m.getId()).getLocation();
+      Point pos = states.getCardStates().get(m.getId()).getLocation();
       posObj.put("x", pos.x);
       posObj.put("y", pos.y);
       memberObj.put("position", posObj);
+
       JSONObject dimObj = new JSONObject();
-      Dimension size = states.get(m.getId()).getSize();
+      Dimension size = states.getCardStates().get(m.getId()).getSize();
       dimObj.put("w", size.width);
       dimObj.put("h", size.height);
       memberObj.put("size", dimObj);

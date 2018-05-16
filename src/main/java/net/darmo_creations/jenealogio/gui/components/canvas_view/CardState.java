@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.darmo_creations.jenealogio.model;
+package net.darmo_creations.jenealogio.gui.components.canvas_view;
 
 import java.awt.Dimension;
 import java.awt.Point;
@@ -26,21 +26,24 @@ import java.awt.Point;
  *
  * @author Damien Vergnet
  */
-public final class CardState {
+public final class CardState implements Cloneable {
   private final Point location;
   private final Dimension size;
 
-  public CardState(Point location, Dimension size) {
-    this.location = location;
-    this.size = size;
+  public CardState(final Point location, final Dimension size) {
+    this.location = (Point) location.clone();
+    if (size != null)
+      this.size = (Dimension) size.clone();
+    else
+      this.size = null;
   }
 
   public Point getLocation() {
-    return this.location;
+    return (Point) this.location.clone();
   }
 
   public Dimension getSize() {
-    return this.size;
+    return this.size != null ? (Dimension) this.size.clone() : null;
   }
 
   @Override
@@ -74,5 +77,15 @@ public final class CardState {
     else if (!this.size.equals(other.size))
       return false;
     return true;
+  }
+
+  @Override
+  public CardState clone() {
+    try {
+      return (CardState) super.clone();
+    }
+    catch (CloneNotSupportedException e) {
+      throw new Error(e);
+    }
   }
 }

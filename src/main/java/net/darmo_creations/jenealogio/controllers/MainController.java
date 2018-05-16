@@ -47,8 +47,9 @@ import net.darmo_creations.jenealogio.events.LinkDoubleClickEvent;
 import net.darmo_creations.jenealogio.events.SelectionChangeEvent;
 import net.darmo_creations.jenealogio.events.ViewEditEvent;
 import net.darmo_creations.jenealogio.gui.MainFrame;
+import net.darmo_creations.jenealogio.gui.components.canvas_view.CanvasState;
 import net.darmo_creations.jenealogio.gui.components.canvas_view.CanvasView;
-import net.darmo_creations.jenealogio.model.CardState;
+import net.darmo_creations.jenealogio.gui.components.canvas_view.CardState;
 import net.darmo_creations.jenealogio.model.FamilyEdit;
 import net.darmo_creations.jenealogio.model.ViewType;
 import net.darmo_creations.jenealogio.model.family.Family;
@@ -313,7 +314,7 @@ public class MainController extends ApplicationController<MainFrame> implements 
         this.alreadySaved = false;
         this.saved = false;
         this.frame.resetDisplay();
-        this.lastSavedEdit = new FamilyEdit(this.family, this.frame.getCardsStates());
+        this.lastSavedEdit = new FamilyEdit(this.family, this.frame.getCanvasState());
         addEdit();
         updateFrameMenus();
       }
@@ -375,7 +376,7 @@ public class MainController extends ApplicationController<MainFrame> implements 
       this.alreadySaved = true;
       this.saved = true;
       this.frame.resetDisplay();
-      this.frame.refreshDisplay(this.family, this.lastSavedEdit.getStates(), this.config);
+      this.frame.refreshDisplay(this.family, this.lastSavedEdit.getCanvasState(), this.config);
     }
     catch (VersionException ex) {
       int choice = this.frame.showConfirmDialog(I18n.getLocalizedString("popup.version_warning.text"));
@@ -429,7 +430,7 @@ public class MainController extends ApplicationController<MainFrame> implements 
       return true;
 
     try {
-      FamilyEdit newSave = new FamilyEdit(this.family, this.frame.getCardsStates());
+      FamilyEdit newSave = new FamilyEdit(this.family, this.frame.getCanvasState());
 
       this.familyDao.save(this.fileName, newSave);
       this.lastSavedEdit = newSave;
@@ -455,10 +456,10 @@ public class MainController extends ApplicationController<MainFrame> implements 
     if (member.isPresent()) {
       this.saved = false;
       this.family.addMember(member.get());
-      Map<Long, CardState> cardsStates = this.frame.getCardsStates();
-      cardsStates.put(this.family.getGlobalId() - 1, new CardState(this.frame.getDisplayMiddlePoint(), null));
+      CanvasState canvasStates = this.frame.getCanvasState();
+      canvasStates.addCardState(this.family.getGlobalId() - 1, new CardState(this.frame.getDisplayMiddlePoint(), null));
       this.frame.getView(this.currentView).deselectAll();
-      this.frame.refreshDisplay(this.family, cardsStates, this.config);
+      this.frame.refreshDisplay(this.family, canvasStates, this.config);
       addEdit();
       updateFrameMenus();
     }
@@ -668,7 +669,7 @@ public class MainController extends ApplicationController<MainFrame> implements 
    * Adds the current family object (after cloning it) to the undo manager.
    */
   private void addEdit() {
-    this.undoRedoManager.addEdit(new FamilyEdit(this.family, this.frame.getCardsStates()));
+    this.undoRedoManager.addEdit(new FamilyEdit(this.family, this.frame.getCanvasState()));
   }
 
   /**
@@ -702,7 +703,7 @@ public class MainController extends ApplicationController<MainFrame> implements 
       this.saved = false;
     this.family = edit.getFamily();
     this.frame.getView(this.currentView).deselectAll();
-    this.frame.refreshDisplay(this.family, edit.getStates(), this.config);
+    this.frame.refreshDisplay(this.family, edit.getCanvasState(), this.config);
     updateFrameMenus();
   }
 

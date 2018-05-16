@@ -22,11 +22,12 @@ import static org.junit.Assert.*;
 
 import java.awt.Dimension;
 import java.awt.Point;
-import java.util.Collections;
 
 import org.junit.Before;
 import org.junit.Test;
 
+import net.darmo_creations.jenealogio.gui.components.canvas_view.CanvasState;
+import net.darmo_creations.jenealogio.gui.components.canvas_view.CardState;
 import net.darmo_creations.jenealogio.model.family.Family;
 
 public class FamilyEditTest {
@@ -34,8 +35,13 @@ public class FamilyEditTest {
 
   @Before
   public void setUp() throws Exception {
-    this.edit1 = new FamilyEdit(new Family("test"), Collections.singletonMap(1L, new CardState(new Point(), new Dimension())));
-    this.edit2 = new FamilyEdit(new Family("test"), Collections.singletonMap(1L, new CardState(new Point(), new Dimension())));
+    CanvasState state1 = new CanvasState();
+    state1.addCardState(1, new CardState(new Point(), new Dimension()));
+    CanvasState state2 = new CanvasState();
+    state2.addCardState(1, new CardState(new Point(), new Dimension()));
+
+    this.edit1 = new FamilyEdit(new Family("test"), state1);
+    this.edit2 = new FamilyEdit(new Family("test"), state2);
   }
 
   @Test
@@ -45,13 +51,14 @@ public class FamilyEditTest {
 
   @Test
   public void testNotEqualsDifferentFamily() {
-    assertNotEquals(new FamilyEdit(new Family("test2"), Collections.singletonMap(1L, new CardState(new Point(), new Dimension()))),
-        this.edit1);
+    CanvasState state = new CanvasState();
+    state.addCardState(1, new CardState(new Point(), new Dimension()));
+    assertNotEquals(new FamilyEdit(new Family("test2"), state), this.edit1);
   }
 
   @Test
   public void testNotEqualsDifferentStates() {
-    assertNotEquals(new FamilyEdit(new Family("test"), Collections.emptyMap()), this.edit1);
+    assertNotEquals(new FamilyEdit(new Family("test"), new CanvasState()), this.edit1);
   }
 
   @Test
@@ -66,6 +73,8 @@ public class FamilyEditTest {
 
   @Test
   public void getStates() {
-    assertEquals(Collections.singletonMap(1L, new CardState(new Point(), new Dimension())), this.edit1.getStates());
+    CanvasState state = new CanvasState();
+    state.addCardState(1L, new CardState(new Point(), new Dimension()));
+    assertEquals(state, this.edit1.getCanvasState());
   }
 }

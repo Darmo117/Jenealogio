@@ -49,6 +49,7 @@ import net.darmo_creations.jenealogio.Jenealogio;
 import net.darmo_creations.jenealogio.config.ConfigTags;
 import net.darmo_creations.jenealogio.controllers.MainController;
 import net.darmo_creations.jenealogio.events.EventType;
+import net.darmo_creations.jenealogio.gui.components.canvas_view.CanvasState;
 import net.darmo_creations.jenealogio.gui.components.canvas_view.CanvasView;
 import net.darmo_creations.jenealogio.gui.components.side_view.SideView;
 import net.darmo_creations.jenealogio.gui.components.view.View;
@@ -58,7 +59,6 @@ import net.darmo_creations.jenealogio.gui.dialog.card.CardDialog;
 import net.darmo_creations.jenealogio.gui.dialog.link.LinkDialog;
 import net.darmo_creations.jenealogio.gui.dialog.options.EditColorsDialog;
 import net.darmo_creations.jenealogio.gui.dialog.tree_creation.TreeDialog;
-import net.darmo_creations.jenealogio.model.CardState;
 import net.darmo_creations.jenealogio.model.ViewType;
 import net.darmo_creations.jenealogio.model.family.Family;
 import net.darmo_creations.jenealogio.model.family.FamilyMember;
@@ -412,10 +412,10 @@ public class MainFrame extends ApplicationFrame<MainController> {
    * Refreshes the tree display using the given cards positions.
    * 
    * @param family the tree
-   * @param cardsStates states for all cards
+   * @param canvasStates canvas state
    */
-  public void refreshDisplay(Family family, Map<Long, CardState> cardsStates, WritableConfig config) {
-    this.canvasView.refresh(family, cardsStates, config);
+  public void refreshDisplay(Family family, CanvasState canvasStates, WritableConfig config) {
+    this.canvasView.refresh(family, canvasStates, config);
     this.sideView.refresh(family);
     this.canvasView.requestFocus();
   }
@@ -446,10 +446,10 @@ public class MainFrame extends ApplicationFrame<MainController> {
   }
 
   /**
-   * @return the states of all cards
+   * Returns canvas state.
    */
-  public Map<Long, CardState> getCardsStates() {
-    return this.canvasView.getCardsStates();
+  public CanvasState getCanvasState() {
+    return this.canvasView.getState();
   }
 
   /**

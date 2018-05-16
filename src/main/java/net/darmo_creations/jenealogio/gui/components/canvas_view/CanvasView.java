@@ -28,8 +28,6 @@ import java.awt.Rectangle;
 import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DropTarget;
 import java.awt.image.BufferedImage;
-import java.util.Collections;
-import java.util.Map;
 import java.util.Optional;
 import java.util.TooManyListenersException;
 
@@ -40,7 +38,6 @@ import net.darmo_creations.gui_framework.ApplicationRegistry;
 import net.darmo_creations.gui_framework.config.WritableConfig;
 import net.darmo_creations.jenealogio.config.ConfigTags;
 import net.darmo_creations.jenealogio.gui.components.view.View;
-import net.darmo_creations.jenealogio.model.CardState;
 import net.darmo_creations.jenealogio.model.family.Family;
 import net.darmo_creations.jenealogio.util.Selection;
 import net.darmo_creations.utils.I18n;
@@ -128,7 +125,7 @@ public class CanvasView extends View implements DragAndDropTarget {
    * @param family the model
    */
   public void refresh(Family family, WritableConfig config) {
-    refresh(family, Collections.emptyMap(), config);
+    refresh(family, new CanvasState(), config);
   }
 
   /**
@@ -136,12 +133,12 @@ public class CanvasView extends View implements DragAndDropTarget {
    * map.
    * 
    * @param family the model
-   * @param cardsStates states for all cards
+   * @param canvasStates canvas state
    * @param config the config
    */
-  public void refresh(Family family, Map<Long, CardState> cardsStates, WritableConfig config) {
+  public void refresh(Family family, CanvasState canvasStates, WritableConfig config) {
     this.config = config;
-    getController().refresh(family, cardsStates);
+    getController().refresh(family, canvasStates);
     revalidate();
     repaint();
   }
@@ -157,10 +154,10 @@ public class CanvasView extends View implements DragAndDropTarget {
   }
 
   /**
-   * @return the states of all panels
+   * Returns the states of all components in this canvas.
    */
-  public Map<Long, CardState> getCardsStates() {
-    return getController().getCardsStates();
+  public CanvasState getState() {
+    return getController().getState();
   }
 
   /**

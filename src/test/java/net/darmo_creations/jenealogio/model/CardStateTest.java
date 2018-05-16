@@ -25,6 +25,8 @@ import java.awt.Point;
 
 import org.junit.Test;
 
+import net.darmo_creations.jenealogio.gui.components.canvas_view.CardState;
+
 public class CardStateTest {
   @Test
   public void testEquals() {
