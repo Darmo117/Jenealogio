@@ -588,8 +588,21 @@ public class CardDialog extends AbstractDialog {
    */
   public Optional<FamilyMember> getCard() {
     if (!isCancelled()) {
-      FamilyMember member = new FamilyMember(getId(), this.image, getFamilyName(), getUseName(), getFirstName(), getOtherNames(),
-          getGender(), getBirthDate(), getBirthLocation(), getDeathDate(), getDeathLocation(), isDead(), getComment());
+      // #f:0
+      FamilyMember member = new FamilyMember(getId())
+          .setImage(this.image)
+          .setFamilyName(getFamilyName())
+          .setUseName(getUseName())
+          .setFirstName(getFirstName())
+          .setOtherNames(getOtherNames())
+          .setGender(getGender())
+          .setBirthDate(getBirthDate())
+          .setBirthLocation(getBirthLocation())
+          .setDeathDate(getDeathDate())
+          .setDeathLocation(getDeathLocation())
+          .setDead(isDead())
+          .setComment(getComment());
+      // #f:1
 
       return Optional.of(member);
     }

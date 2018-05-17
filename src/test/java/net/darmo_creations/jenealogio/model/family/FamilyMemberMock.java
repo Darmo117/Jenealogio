@@ -20,6 +20,7 @@ package net.darmo_creations.jenealogio.model.family;
 
 public class FamilyMemberMock extends FamilyMember {
   public FamilyMemberMock() {
-    super(null, "Mock", null, "John", null, Gender.UNKNOW, null, null, null, null, false, null);
+    setFamilyName("Mock");
+    setFirstName("John");
   }
 }

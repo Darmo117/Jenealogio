@@ -137,8 +137,6 @@ public class FamilyDao {
       Date deathDate = getDate((String) memberObj.get("death_date"));
       String deathLocation = getNullIfEmpty((String) memberObj.get("death_location"));
       Boolean dead = (Boolean) memberObj.get("dead");
-      // This boolean may not be present in older save versions.
-      dead = dead == null ? false : dead;
       String comment = getNullIfEmpty((String) memberObj.get("comment"));
 
       JSONObject positionObj = (JSONObject) memberObj.get("position");
@@ -148,8 +146,24 @@ public class FamilyDao {
 
       state.addCardState(id, new CardState(pos, null));
 
-      members.add(new FamilyMember(id, image, familyName, useName, firstName, otherNames, gender, birthDate, birthLocation, deathDate,
-          deathLocation, dead, comment));
+      // #f:0
+      FamilyMember member = new FamilyMember(id)
+          .setImage(image)
+          .setFamilyName(familyName)
+          .setUseName(useName)
+          .setFirstName(firstName)
+          .setOtherNames(otherNames)
+          .setGender(gender)
+          .setBirthDate(birthDate)
+          .setBirthLocation(birthLocation)
+          .setDeathDate(deathDate)
+          .setDeathLocation(deathLocation)
+          .setComment(comment);
+      // #f:1
+      // This boolean may not be present in older save versions.
+      if (dead != null)
+        member.setDead(dead);
+      members.add(member);
     }
 
     // Relations loading
@@ -227,8 +241,22 @@ public class FamilyDao {
       boolean dead = (Boolean) memberObj.get("dead");
       String comment = getNullIfEmpty((String) memberObj.get("comment"));
 
-      members.add(new FamilyMember(id, image, familyName, useName, firstName, otherNames, gender, birthDate, birthLocation, deathDate,
-          deathLocation, dead, comment));
+      // #f:0
+      FamilyMember member = new FamilyMember(id)
+          .setImage(image)
+          .setFamilyName(familyName)
+          .setUseName(useName)
+          .setFirstName(firstName)
+          .setOtherNames(otherNames)
+          .setGender(gender)
+          .setBirthDate(birthDate)
+          .setBirthLocation(birthLocation)
+          .setDeathDate(deathDate)
+          .setDeathLocation(deathLocation)
+          .setDead(dead)
+          .setComment(comment);
+      // #f:1
+      members.add(member);
     }
 
     JSONArray relationsObj = (JSONArray) obj.get("relations");

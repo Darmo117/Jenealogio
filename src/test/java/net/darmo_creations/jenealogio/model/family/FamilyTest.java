@@ -37,10 +37,10 @@ public class FamilyTest {
   public void setUp() throws Exception {
     this.family = new Family("test");
     Set<FamilyMember> members = new HashSet<>();
-    members.add(new FamilyMemberMock().clone(0));
-    members.add(new FamilyMemberMock().clone(1));
-    members.add(new FamilyMemberMock().clone(2));
-    members.add(new FamilyMemberMock().clone(3));
+    members.add(new FamilyMemberMock().copy(0));
+    members.add(new FamilyMemberMock().copy(1));
+    members.add(new FamilyMemberMock().copy(2));
+    members.add(new FamilyMemberMock().copy(3));
     this.family2 = new Family(0, "test2", members,
         Collections.singleton(new Relationship(null, null, false, false, null, 0, 1, Collections.singleton(3L), Collections.emptyMap())));
   }
@@ -112,7 +112,7 @@ public class FamilyTest {
 
   @Test
   public void testMemberEqualsButNotSame() {
-    FamilyMember m = new FamilyMemberMock().clone(0);
+    FamilyMember m = new FamilyMemberMock().copy(0);
     this.family.addMember(m);
     assertNotSame(m, this.family.getMember(0).get());
     assertEquals(m, this.family.getMember(0).get());
@@ -126,8 +126,8 @@ public class FamilyTest {
 
   @Test
   public void testAddMemberIgnoresId() {
-    this.family.addMember(new FamilyMemberMock().clone(0));
-    this.family.addMember(new FamilyMemberMock().clone(0));
+    this.family.addMember(new FamilyMemberMock().copy(0));
+    this.family.addMember(new FamilyMemberMock().copy(0));
     assertEquals(2, this.family.getAllMembers().size());
   }
 
@@ -135,7 +135,7 @@ public class FamilyTest {
   public void testUpdateMember() {
     FamilyMember m = new FamilyMemberMock();
     this.family.addMember(m);
-    m = m.clone(0);
+    m = m.copy(0);
     m.setFamilyName("Mick");
     this.family.updateMember(m);
     assertEquals("Mick", this.family.getMember(0).get().getFamilyName().get());
@@ -143,7 +143,7 @@ public class FamilyTest {
 
   @Test(expected = NoSuchElementException.class)
   public void updateNonExistantMember() {
-    this.family.updateMember(new FamilyMemberMock().clone(0));
+    this.family.updateMember(new FamilyMemberMock().copy(0));
   }
 
   @Test

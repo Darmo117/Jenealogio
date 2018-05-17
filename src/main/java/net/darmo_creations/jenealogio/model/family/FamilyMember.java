@@ -65,62 +65,19 @@ public class FamilyMember implements Comparable<FamilyMember>, Cloneable {
 
   /**
    * Creates a new member with no ID.
-   * 
-   * @param image the profile image
-   * @param familyName the family name
-   * @param useName the use name (e.g.: after marriage)
-   * @param firstName the first name
-   * @param otherNames other names
-   * @param gender the gender (can be <code>Gender.UNKNOWN</code>)
-   * @param birthDate the birthday
-   * @param birthLocation the birth location
-   * @param deathDate the death date
-   * @param deathLocation the death location
-   * @param dead if both the death date and death location are null, tells that if the person is
-   *          dead or not; otherwise, if either the date or location is not null, it is ignored
-   * @param comment a comment
    */
-  public FamilyMember(@Nullable BufferedImage image, @Nullable String familyName, @Nullable String useName, @Nullable String firstName,
-      @Nullable String otherNames, Gender gender, @Nullable Date birthDate, @Nullable String birthLocation, @Nullable Date deathDate,
-      @Nullable String deathLocation, boolean dead, @Nullable String comment) {
-    this(-1, image, familyName, useName, firstName, otherNames, gender, birthDate, birthLocation, deathDate, deathLocation, dead, comment);
+  public FamilyMember() {
+    this(-1);
   }
 
   /**
    * Creates a new member with the given ID.
    * 
    * @param id internal ID
-   * @param image the profile image
-   * @param familyName the family name
-   * @param useName the use name (e.g.: after marriage)
-   * @param firstName the first name
-   * @param otherNames other names
-   * @param gender the gender (can be <code>Gender.UNKNOWN</code>)
-   * @param birthDate the birthday
-   * @param birthLocation the birth location
-   * @param deathDate the death date
-   * @param deathLocation the death location
-   * @param dead if both the death date and death location are null, tells that if the person is
-   *          dead or not; otherwise, if either the date or location is not null, it is ignored
-   * @param comment a comment
    */
-  public FamilyMember(long id, @Nullable BufferedImage image, @Nullable String familyName, @Nullable String useName,
-      @Nullable String firstName, @Nullable String otherNames, Gender gender, @Nullable Date birthDate, @Nullable String birthLocation,
-      @Nullable Date deathDate, @Nullable String deathLocation, boolean dead, @Nullable String comment) {
+  public FamilyMember(long id) {
     this.id = id;
-    setImage(image);
-    setFamilyName(familyName);
-    setUseName(useName);
-    setFirstName(firstName);
-    setOtherNames(otherNames);
-    setGender(gender);
-    setBirthDate(birthDate);
-    setBirthLocation(birthLocation);
-    setDeathDate(deathDate);
-    setDeathLocation(deathLocation);
-    if (!isDead())
-      setDead(dead);
-    setComment(comment);
+    this.gender = Gender.UNKNOW;
   }
 
   /**
@@ -141,9 +98,11 @@ public class FamilyMember implements Comparable<FamilyMember>, Cloneable {
    * Sets the profile image. May be null.
    * 
    * @param image the new profile image
+   * @return this object
    */
-  public void setImage(@Nullable BufferedImage image) {
+  public FamilyMember setImage(@Nullable BufferedImage image) {
     this.image = image != null ? Images.deepCopy(image) : null;
+    return this;
   }
 
   /**
@@ -157,9 +116,11 @@ public class FamilyMember implements Comparable<FamilyMember>, Cloneable {
    * Sets the family name. May be null.
    * 
    * @param familyName the new family name
+   * @return this object
    */
-  public void setFamilyName(@Nullable String familyName) {
+  public FamilyMember setFamilyName(@Nullable String familyName) {
     this.familyName = StringUtil.nullFromEmpty(familyName);
+    return this;
   }
 
   /**
@@ -173,9 +134,11 @@ public class FamilyMember implements Comparable<FamilyMember>, Cloneable {
    * Sets the use name. May be null.
    * 
    * @param useName the new use name
+   * @return this object
    */
-  public void setUseName(@Nullable String useName) {
+  public FamilyMember setUseName(@Nullable String useName) {
     this.useName = StringUtil.nullFromEmpty(useName);
+    return this;
   }
 
   /**
@@ -189,9 +152,11 @@ public class FamilyMember implements Comparable<FamilyMember>, Cloneable {
    * Sets the first name. May be null.
    * 
    * @param firstName the new first name
+   * @return this object
    */
-  public void setFirstName(@Nullable String firstName) {
+  public FamilyMember setFirstName(@Nullable String firstName) {
     this.firstName = StringUtil.nullFromEmpty(firstName);
+    return this;
   }
 
   /**
@@ -205,9 +170,11 @@ public class FamilyMember implements Comparable<FamilyMember>, Cloneable {
    * Sets the other names. May be null.
    * 
    * @param firstName the new other names
+   * @return this object
    */
-  public void setOtherNames(@Nullable String otherNames) {
+  public FamilyMember setOtherNames(@Nullable String otherNames) {
     this.otherNames = StringUtil.nullFromEmpty(otherNames);
+    return this;
   }
 
   /**
@@ -235,9 +202,11 @@ public class FamilyMember implements Comparable<FamilyMember>, Cloneable {
    * Sets the gender. Cannot be null.
    * 
    * @param gender the new gender
+   * @return this object
    */
-  public void setGender(Gender gender) {
+  public FamilyMember setGender(Gender gender) {
     this.gender = Objects.requireNonNull(gender);
+    return this;
   }
 
   /**
@@ -251,10 +220,12 @@ public class FamilyMember implements Comparable<FamilyMember>, Cloneable {
    * Sets the birth date. May be null.
    * 
    * @param birthDate the new birth date
+   * @return this object
    */
-  public void setBirthDate(@Nullable Date birthDate) {
+  public FamilyMember setBirthDate(@Nullable Date birthDate) {
     checkDatesOrder(birthDate, this.deathDate);
     this.birthDate = birthDate != null ? birthDate.clone() : null;
+    return this;
   }
 
   /**
@@ -307,9 +278,11 @@ public class FamilyMember implements Comparable<FamilyMember>, Cloneable {
    * Sets the birth location. May be null.
    * 
    * @param birthLocation the new birth location
+   * @return this object
    */
-  public void setBirthLocation(@Nullable String birthLocation) {
+  public FamilyMember setBirthLocation(@Nullable String birthLocation) {
     this.birthLocation = StringUtil.nullFromEmpty(birthLocation);
+    return this;
   }
 
   /**
@@ -323,11 +296,13 @@ public class FamilyMember implements Comparable<FamilyMember>, Cloneable {
    * Sets the death date. May be null. Updates the {@code dead} boolean.
    * 
    * @param deathDate the new death date
+   * @return this object
    */
-  public void setDeathDate(@Nullable Date deathDate) {
+  public FamilyMember setDeathDate(@Nullable Date deathDate) {
     checkDatesOrder(this.birthDate, deathDate);
     this.deathDate = deathDate != null ? deathDate.clone() : null;
     updateDead();
+    return this;
   }
 
   /**
@@ -341,10 +316,12 @@ public class FamilyMember implements Comparable<FamilyMember>, Cloneable {
    * Sets the death location. May be null. Updates the {@code dead} boolean.
    * 
    * @param deathLocation the new death location
+   * @return this object
    */
-  public void setDeathLocation(@Nullable String deathLocation) {
+  public FamilyMember setDeathLocation(@Nullable String deathLocation) {
     this.deathLocation = StringUtil.nullFromEmpty(deathLocation);
     updateDead();
+    return this;
   }
 
   /**
@@ -359,10 +336,12 @@ public class FamilyMember implements Comparable<FamilyMember>, Cloneable {
    * do nothing.
    * 
    * @param dead true if the person is dead; false otherwise
+   * @return this object
    */
-  public void setDead(boolean dead) {
+  public FamilyMember setDead(boolean dead) {
     if (!getDeathDate().isPresent() && !getDeathLocation().isPresent())
       this.dead = dead;
+    return this;
   }
 
   private void updateDead() {
@@ -385,9 +364,11 @@ public class FamilyMember implements Comparable<FamilyMember>, Cloneable {
    * Sets the comment. May be null.
    * 
    * @param comment the new comment
+   * @return this object
    */
-  public void setComment(@Nullable String comment) {
+  public FamilyMember setComment(@Nullable String comment) {
     this.comment = StringUtil.nullFromEmpty(comment);
+    return this;
   }
 
   @Override
@@ -507,18 +488,34 @@ public class FamilyMember implements Comparable<FamilyMember>, Cloneable {
   }
 
   /**
-   * Copies this member and sets the copy's ID.
+   * Returns a copy of this object with the given ID.
    * 
    * @param id the copy's ID
    * @return the copied person
    */
-  FamilyMember clone(long id) {
-    return new FamilyMember(id, getImage().orElse(null), this.familyName, this.useName, this.firstName, this.otherNames, this.gender,
-        getBirthDate().orElse(null), this.birthLocation, getDeathDate().orElse(null), this.deathLocation, this.dead, this.comment);
+  FamilyMember copy(long id) {
+    FamilyMember m = new FamilyMember(id);
+
+    m.image = getImage().orElse(null);
+    m.birthDate = getBirthDate().orElse(null);
+    m.deathDate = getDeathDate().orElse(null);
+
+    return m;
   }
 
   @Override
   public FamilyMember clone() {
-    return clone(getId());
+    try {
+      FamilyMember m = (FamilyMember) super.clone();
+
+      m.image = getImage().orElse(null);
+      m.birthDate = getBirthDate().orElse(null);
+      m.deathDate = getDeathDate().orElse(null);
+
+      return m;
+    }
+    catch (CloneNotSupportedException e) {
+      throw new Error(e);
+    }
   }
 }

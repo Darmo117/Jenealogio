@@ -33,7 +33,10 @@ public class FamilyMemberTest {
   @Before
   public void setUp() throws Exception {
     this.m1 = new FamilyMemberMock();
-    this.m2 = new FamilyMember(1, null, "Smith", null, "Richard", "Oliver", Gender.MAN, null, "London", null, "Manchester", true, "Blop!");
+    // #f:0
+    this.m2 = new FamilyMember(1).setFamilyName("Smith").setFirstName("Richard").setOtherNames("Oliver").setGender(Gender.MAN)
+        .setBirthLocation("London").setDeathLocation("Manchester").setDead(true).setComment("Blop!");
+    // #f:1
   }
 
   @Test
@@ -261,8 +264,8 @@ public class FamilyMemberTest {
   @Test
   public void testYoungerThan() {
     this.m1.setBirthDate(Date.getDate(2000, 1, 2));
-    FamilyMember p1 = new FamilyMember(null, null, null, null, null, Gender.UNKNOW, Date.getDate(2000, 1, 1), null, null, null, false,
-        null);
+    FamilyMember p1 = new FamilyMember().setBirthDate(Date.getDate(2000, 1, 1));
+
     Optional<Integer> opt = this.m1.compareBirthdays(p1);
     if (opt.isPresent())
       assertEquals(1, (int) opt.get());
@@ -273,8 +276,8 @@ public class FamilyMemberTest {
   @Test
   public void testOlderThan() {
     this.m1.setBirthDate(Date.getDate(2000, 1, 1));
-    FamilyMember p1 = new FamilyMember(null, null, null, null, null, Gender.UNKNOW, Date.getDate(2000, 1, 2), null, null, null, false,
-        null);
+    FamilyMember p1 = new FamilyMember().setBirthDate(Date.getDate(2000, 1, 2));
+
     Optional<Integer> opt = this.m1.compareBirthdays(p1);
     if (opt.isPresent())
       assertEquals(-1, (int) opt.get());
@@ -285,8 +288,8 @@ public class FamilyMemberTest {
   @Test
   public void testSameAge() {
     this.m1.setBirthDate(Date.getDate(2000, 1, 1));
-    FamilyMember p1 = new FamilyMember(null, null, null, null, null, Gender.UNKNOW, Date.getDate(2000, 1, 1), null, null, null, false,
-        null);
+    FamilyMember p1 = new FamilyMember().setBirthDate(Date.getDate(2000, 1, 1));
+
     Optional<Integer> opt = this.m1.compareBirthdays(p1);
     if (opt.isPresent())
       assertEquals(0, (int) opt.get());
@@ -297,7 +300,8 @@ public class FamilyMemberTest {
   @Test
   public void testAgeNoBirthDate() {
     this.m1.setBirthDate(Date.getDate(2000, 1, 1));
-    FamilyMember p1 = new FamilyMember(null, null, null, null, null, Gender.UNKNOW, null, null, null, null, false, null);
+    FamilyMember p1 = new FamilyMember();
+
     assertFalse(this.m1.compareBirthdays(p1).isPresent());
   }
 
