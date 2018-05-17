@@ -113,7 +113,8 @@ public class FamilyMember implements Comparable<FamilyMember>, Cloneable {
   }
 
   /**
-   * Sets the family name. May be null.
+   * Sets the family name. May be null. Passing an empty or whitespace-only string will set the
+   * property to null.
    * 
    * @param familyName the new family name
    * @return this object
@@ -131,7 +132,8 @@ public class FamilyMember implements Comparable<FamilyMember>, Cloneable {
   }
 
   /**
-   * Sets the use name. May be null.
+   * Sets the use name. May be null. Passing an empty or whitespace-only string will set the
+   * property to null.
    * 
    * @param useName the new use name
    * @return this object
@@ -149,7 +151,8 @@ public class FamilyMember implements Comparable<FamilyMember>, Cloneable {
   }
 
   /**
-   * Sets the first name. May be null.
+   * Sets the first name. May be null. Passing an empty or whitespace-only string will set the
+   * property to null.
    * 
    * @param firstName the new first name
    * @return this object
@@ -167,7 +170,8 @@ public class FamilyMember implements Comparable<FamilyMember>, Cloneable {
   }
 
   /**
-   * Sets the other names. May be null.
+   * Sets the other names. May be null. Passing an empty or whitespace-only string will set the
+   * property to null.
    * 
    * @param firstName the new other names
    * @return this object
@@ -213,7 +217,7 @@ public class FamilyMember implements Comparable<FamilyMember>, Cloneable {
    * @return the birth date
    */
   public Optional<Date> getBirthDate() {
-    return Optional.ofNullable(this.birthDate != null ? this.birthDate.clone() : null);
+    return Optional.ofNullable(this.birthDate);
   }
 
   /**
@@ -224,7 +228,7 @@ public class FamilyMember implements Comparable<FamilyMember>, Cloneable {
    */
   public FamilyMember setBirthDate(@Nullable Date birthDate) {
     checkDatesOrder(birthDate, this.deathDate);
-    this.birthDate = birthDate != null ? birthDate.clone() : null;
+    this.birthDate = birthDate;
     return this;
   }
 
@@ -275,7 +279,8 @@ public class FamilyMember implements Comparable<FamilyMember>, Cloneable {
   }
 
   /**
-   * Sets the birth location. May be null.
+   * Sets the birth location. May be null. Passing an empty or whitespace-only string will set the
+   * property to null.
    * 
    * @param birthLocation the new birth location
    * @return this object
@@ -289,18 +294,19 @@ public class FamilyMember implements Comparable<FamilyMember>, Cloneable {
    * @return the death date
    */
   public Optional<Date> getDeathDate() {
-    return Optional.ofNullable(this.deathDate != null ? this.deathDate.clone() : null);
+    return Optional.ofNullable(this.deathDate);
   }
 
   /**
-   * Sets the death date. May be null. Updates the {@code dead} boolean.
+   * Sets the death date. May be null. Updates the {@code dead} property. Passing an empty or
+   * whitespace-only string will set the property to null.
    * 
    * @param deathDate the new death date
    * @return this object
    */
   public FamilyMember setDeathDate(@Nullable Date deathDate) {
     checkDatesOrder(this.birthDate, deathDate);
-    this.deathDate = deathDate != null ? deathDate.clone() : null;
+    this.deathDate = deathDate;
     updateDead();
     return this;
   }
@@ -313,7 +319,8 @@ public class FamilyMember implements Comparable<FamilyMember>, Cloneable {
   }
 
   /**
-   * Sets the death location. May be null. Updates the {@code dead} boolean.
+   * Sets the death location. May be null. Updates the {@code dead} property. Passing an empty or
+   * whitespace-only string will set the property to null.
    * 
    * @param deathLocation the new death location
    * @return this object
@@ -361,7 +368,8 @@ public class FamilyMember implements Comparable<FamilyMember>, Cloneable {
   }
 
   /**
-   * Sets the comment. May be null.
+   * Sets the comment. May be null. Passing an empty or whitespace-only string will set the property
+   * to null.
    * 
    * @param comment the new comment
    * @return this object
@@ -495,11 +503,7 @@ public class FamilyMember implements Comparable<FamilyMember>, Cloneable {
    */
   FamilyMember copy(long id) {
     FamilyMember m = new FamilyMember(id);
-
     m.image = getImage().orElse(null);
-    m.birthDate = getBirthDate().orElse(null);
-    m.deathDate = getDeathDate().orElse(null);
-
     return m;
   }
 
@@ -507,11 +511,7 @@ public class FamilyMember implements Comparable<FamilyMember>, Cloneable {
   public FamilyMember clone() {
     try {
       FamilyMember m = (FamilyMember) super.clone();
-
       m.image = getImage().orElse(null);
-      m.birthDate = getBirthDate().orElse(null);
-      m.deathDate = getDeathDate().orElse(null);
-
       return m;
     }
     catch (CloneNotSupportedException e) {

@@ -22,12 +22,12 @@ import java.util.Calendar;
 
 /**
  * This class represents a date that can be incomplete. It uses an instance of
- * {@link java.util.Calendar} to handle data. <b>N.B.</b>: unlike the Calendar class, January is 1
- * not 0, and so on.
+ * {@link java.util.Calendar} to handle data. <b>N.B.</b>: unlike Calendar class, January is 1 not
+ * 0, and so on.
  * 
  * @author Damien Vergnet
  */
-public final class Date implements Comparable<Date>, Cloneable {
+public final class Date implements Comparable<Date> {
   public static Date getDate(Integer year, Integer month, Integer day) {
     DateBuilder builder = new DateBuilder();
 
@@ -247,15 +247,5 @@ public final class Date implements Comparable<Date>, Cloneable {
     if (this.yearSet != other.yearSet)
       return false;
     return true;
-  }
-
-  @Override
-  public Date clone() {
-    try {
-      return (Date) super.clone();
-    }
-    catch (CloneNotSupportedException e) {
-      throw new Error(e);
-    }
   }
 }
