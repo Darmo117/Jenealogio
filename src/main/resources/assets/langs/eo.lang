@@ -94,7 +94,8 @@ item.delete_card.text=Forigi tiu karto
 item.delete_link.text=Forigi tiu ligilio
 
 # Butonoj/Etikedoj
-button.choose_image.text=Elekti bildo…
+button.choose_image.text=Selekti bildo…
+button.delete_image.text=Forigi bildo
 button.validate.text=Validigi
 button.cancel.text=Nuligi
 button.close.text=Fermi

@@ -94,7 +94,8 @@ item.delete_card.text=Delete Card
 item.delete_link.text=Delete Link
 
 # Buttons/Labels
-button.choose_image.text=Choose an image…
+button.choose_image.text=Select Image…
+button.delete_image.text=Detete Image
 button.validate.text=Validate
 button.cancel.text=Cancel
 button.close.text=Close

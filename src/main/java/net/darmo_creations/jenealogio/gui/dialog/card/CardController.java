@@ -43,8 +43,6 @@ import net.darmo_creations.utils.swing.dialog.DefaultDialogController;
 class CardController extends DefaultDialogController<CardDialog> implements DocumentListener, ItemListener {
   /**
    * Creates a controller.
-   * 
-   * @param dialog the dialog
    */
   CardController(CardDialog dialog) {
     super(dialog);
@@ -102,6 +100,10 @@ class CardController extends DefaultDialogController<CardDialog> implements Docu
     switch (e.getActionCommand()) {
       case "choose-image":
         setImage();
+        break;
+      case "delete-image":
+        this.dialog.setImage(Optional.empty());
+        break;
     }
   }
 

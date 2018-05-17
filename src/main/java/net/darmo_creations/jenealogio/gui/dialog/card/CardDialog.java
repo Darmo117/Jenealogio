@@ -117,6 +117,11 @@ public class CardDialog extends AbstractDialog {
     imageBtn.addActionListener(this.controller);
     imageBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
     imageBtn.setFocusPainted(false);
+    JButton deleteImageBtn = new JButton(I18n.getLocalizedString("button.delete_image.text"));
+    deleteImageBtn.setActionCommand("delete-image");
+    deleteImageBtn.addActionListener(this.controller);
+    deleteImageBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
+    deleteImageBtn.setFocusPainted(false);
 
     this.familyNameFld = new JTextField();
     this.familyNameFld.getDocument().addDocumentListener(this.controller);
@@ -156,6 +161,7 @@ public class CardDialog extends AbstractDialog {
     imagePnl.setLayout(new BoxLayout(imagePnl, BoxLayout.PAGE_AXIS));
     imagePnl.add(this.imageLbl);
     imagePnl.add(imageBtn);
+    imagePnl.add(deleteImageBtn);
 
     JPanel fieldsPnl = new JPanel(new GridBagLayout());
     GridBagConstraints gbc = new GridBagConstraints();

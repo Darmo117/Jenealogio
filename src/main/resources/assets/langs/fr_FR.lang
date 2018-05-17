@@ -95,6 +95,7 @@ item.delete_link.text=Supprimer le lien
 
 # Boutons/Labels
 button.choose_image.text=Choisir une image…
+button.delete_image.text=Supprimer l'image
 button.validate.text=Valider
 button.cancel.text=Annuler
 button.close.text=Fermer
