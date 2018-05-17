@@ -41,8 +41,9 @@ public class FamilyTest {
     members.add(new FamilyMemberMock().copy(1));
     members.add(new FamilyMemberMock().copy(2));
     members.add(new FamilyMemberMock().copy(3));
-    this.family2 = new Family(0, "test2", members,
-        Collections.singleton(new Relationship(null, null, false, false, null, 0, 1, Collections.singleton(3L), Collections.emptyMap())));
+    Relationship r = new Relationship(0, 1);
+    r.addChild(3);
+    this.family2 = new Family(0, "test2", members, Collections.singleton(r));
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -177,7 +178,7 @@ public class FamilyTest {
 
   @Test
   public void testRelationEqualsButNotSame() {
-    Relationship r = new Relationship(null, null, false, false, null, 2, 3, Collections.emptySet(), Collections.emptyMap());
+    Relationship r = new Relationship(2, 3);
     this.family2.addRelation(r);
     assertNotSame(r, this.family2.getRelation(2, 3).get());
     assertEquals(r, this.family2.getRelation(2, 3).get());
@@ -190,24 +191,26 @@ public class FamilyTest {
 
   @Test
   public void testAddRelation() {
-    Relationship r = new Relationship(null, null, false, false, null, 2, 3, Collections.emptySet(), Collections.emptyMap());
+    Relationship r = new Relationship(2, 3);
     this.family2.addRelation(r);
     assertEquals(2, this.family2.getAllRelations().size());
   }
 
   @Test(expected = NoSuchElementException.class)
   public void testAddRelationWithWrongParentIdError() {
-    this.family2.addRelation(new Relationship(null, null, false, false, null, 0, 10, Collections.emptySet(), Collections.emptyMap()));
+    this.family2.addRelation(new Relationship(0, 10));
   }
 
   @Test(expected = NoSuchElementException.class)
   public void testAddRelationWithWrongChildIdError() {
-    this.family2.addRelation(new Relationship(null, null, false, false, null, 0, 1, Collections.singleton(6L), Collections.emptyMap()));
+    Relationship r = new Relationship(0, 1);
+    r.addChild(6);
+    this.family2.addRelation(r);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testAddRelationWithSameParentIdsError() {
-    this.family2.addRelation(new Relationship(null, null, false, false, null, 0, 1, Collections.emptySet(), Collections.emptyMap()));
+    this.family2.addRelation(new Relationship(0, 1));
   }
 
   @Test
@@ -220,17 +223,15 @@ public class FamilyTest {
 
   @Test
   public void testUpdateRelationIdsSwapped() {
-    Relationship r = new Relationship(null, null, false, false, null, 2, 3, Collections.emptySet(), Collections.emptyMap());
-    this.family2.addRelation(r);
-    r = new Relationship(null, null, false, false, null, 3, 2, Collections.emptySet(), Collections.emptyMap());
+    this.family2.addRelation(new Relationship(2, 3));
+    Relationship r = new Relationship(3, 2).setDate(Date.getDate(2010, 1, 1));
     this.family2.updateRelation(r);
     assertEquals(r, this.family2.getRelation(2, 3).get());
   }
 
   @Test(expected = NoSuchElementException.class)
   public void updateNonExistingRelation() {
-    Relationship r = new Relationship(null, null, false, false, null, 2, 3, Collections.emptySet(), Collections.emptyMap());
-    this.family2.updateRelation(r);
+    this.family2.updateRelation(new Relationship(2, 3));
   }
 
   @Test(expected = NoSuchElementException.class)

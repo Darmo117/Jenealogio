@@ -19,7 +19,6 @@
 package net.darmo_creations.jenealogio.gui.dialog.link;
 
 import java.awt.event.ActionEvent;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -61,7 +60,7 @@ class LinkController extends DefaultDialogController<LinkDialog> implements List
    * @param family the family
    */
   void reset(long partner1, long partner2, Family family) {
-    reset(new Relationship(null, null, true, false, null, partner1, partner2, Collections.emptySet(), Collections.emptyMap()), family);
+    reset(new Relationship(partner1, partner2).setWedding(true), family);
   }
 
   /**
@@ -102,9 +101,18 @@ class LinkController extends DefaultDialogController<LinkDialog> implements List
    * @return the link
    */
   Relationship getLink() {
-    return new Relationship(this.dialog.getDate(), this.dialog.getRelationshipLocation(), this.dialog.isWeddingChecked(),
-        this.dialog.isEndedChecked(), this.dialog.getEndDate(), this.partner1.getId(), this.partner2.getId(), this.dialog.getChildren(),
-        this.dialog.getAdoptedChildren());
+    // #f:0
+    Relationship r = new Relationship(this.partner1.getId(), this.partner2.getId())
+        .setDate(this.dialog.getDate())
+        .setLocation(this.dialog.getRelationshipLocation())
+        .setWedding(this.dialog.isWeddingChecked())
+        .setHasEnded(this.dialog.isEndedChecked())
+        .setEndDate(this.dialog.getEndDate());
+    // #f:1
+    this.dialog.getChildren().forEach(id -> r.addChild(id));
+    this.dialog.getAdoptedChildren().forEach((id, date) -> r.setAdopted(id, date));
+
+    return r;
   }
 
   @Override

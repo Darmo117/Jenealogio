@@ -200,11 +200,20 @@ public class FamilyDao {
       String partnerKey = before1_3d ? "spouse" : "partner";
       long partner1 = (Long) relationObj.get(partnerKey + 1);
       long partner2 = (Long) relationObj.get(partnerKey + 2);
-      Set<Long> children = new HashSet<>();
+
+      // #f:0
+      Relationship r = new Relationship(partner1, partner2)
+          .setDate(date)
+          .setLocation(location)
+          .setWedding(isWedding)
+          .setHasEnded(hasEnded)
+          .setEndDate(endDate);
+      // #f:1
+
       JSONArray childrenObj = (JSONArray) relationObj.get("children");
 
       for (int i = 0; i < childrenObj.size(); i++) {
-        children.add((Long) childrenObj.get((Integer) i));
+        r.addChild((Long) childrenObj.get(i));
       }
 
       Map<Long, Date> adoptions = new HashMap<>();
@@ -216,7 +225,7 @@ public class FamilyDao {
         }
       }
 
-      weddings.add(new Relationship(date, location, isWedding, hasEnded, endDate, partner1, partner2, children, adoptions));
+      weddings.add(r);
     }
   }
 
@@ -280,23 +289,31 @@ public class FamilyDao {
 
       long partner1 = (Long) relationObj.get("partner1");
       long partner2 = (Long) relationObj.get("partner2");
-      Set<Long> children = new HashSet<>();
+
+      // #f:0
+      Relationship r = new Relationship(partner1, partner2)
+          .setDate(date)
+          .setLocation(location)
+          .setWedding(isWedding)
+          .setHasEnded(hasEnded)
+          .setEndDate(endDate);
+      // #f:1
+
       JSONArray childrenObj = (JSONArray) relationObj.get("children");
 
       for (int i = 0; i < childrenObj.size(); i++) {
-        children.add((Long) childrenObj.get((Integer) i));
+        r.addChild((Long) childrenObj.get(i));
       }
 
-      Map<Long, Date> adoptions = new HashMap<>();
       JSONObject adoptionsObj = (JSONObject) relationObj.get("adoptions");
       if (adoptionsObj != null) {
         for (Object id : adoptionsObj.keySet()) {
           Optional<String> opt = Optional.of((String) adoptionsObj.get(id));
-          adoptions.put(Long.parseLong("" + id), getDate(opt.orElse("")));
+          r.setAdopted(Long.parseLong("" + id), getDate(opt.orElse("")));
         }
       }
 
-      weddings.add(new Relationship(date, location, isWedding, hasEnded, endDate, partner1, partner2, children, adoptions));
+      weddings.add(r);
     }
 
     JSONObject canvasStateObj = (JSONObject) obj.get("canvas_state");

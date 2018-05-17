@@ -37,7 +37,7 @@ import net.darmo_creations.utils.Nullable;
 public final class Relationship implements Comparable<Relationship>, Cloneable {
   private Date date;
   private String location;
-  private long partner1, partner2;
+  private final long partner1, partner2;
   private Set<Long> children;
   private Map<Long, Date> adoptions;
   private boolean isWedding;
@@ -45,36 +45,18 @@ public final class Relationship implements Comparable<Relationship>, Cloneable {
   private Date endDate;
 
   /**
-   * Creates a new relation. The two partners must be different or else an IllegalArgumentException
-   * will be thrown.
+   * Creates a new relation. The two partners must be different or else an exception will be thrown.
    * 
-   * @param date the start date
-   * @param location the location when it started
-   * @param isWedding is it a wedding?
-   * @param hasEnded has it ended?
-   * @param endDate the date when it ended
    * @param partner1 one partner
    * @param partner2 the other partner
-   * @param children list of children
-   * @param adoptions adopted children; any ID that is not in the set will be ignored
    */
-  public Relationship(@Nullable Date date, @Nullable String location, boolean isWedding, boolean hasEnded, @Nullable Date endDate,
-      long partner1, long partner2, Set<Long> children, Map<Long, Date> adoptions) {
+  public Relationship(long partner1, long partner2) {
     if (partner1 == partner2)
       throw new IllegalArgumentException("partners must be different");
-    setDate(date != null ? date.clone() : null);
-    setLocation(location);
-    setWedding(isWedding);
     this.partner1 = partner1;
     this.partner2 = partner2;
-    setEndDate(endDate != null ? endDate.clone() : null);
-    setHasEnded(hasEnded);
     this.children = new HashSet<>();
     this.adoptions = new HashMap<>();
-    for (Long id : children)
-      addChild(id);
-    for (Map.Entry<Long, Date> entry : adoptions.entrySet())
-      setAdopted(entry.getKey(), entry.getValue());
   }
 
   /**
@@ -88,9 +70,11 @@ public final class Relationship implements Comparable<Relationship>, Cloneable {
    * Sets the relation's start date. May be null.
    * 
    * @param date the new date
+   * @return this object
    */
-  public void setDate(@Nullable Date date) {
+  public Relationship setDate(@Nullable Date date) {
     this.date = date;
+    return this;
   }
 
   /**
@@ -104,9 +88,11 @@ public final class Relationship implements Comparable<Relationship>, Cloneable {
    * Sets the relation's location when it started. May be null.
    * 
    * @param location the new location
+   * @return this object
    */
-  public void setLocation(@Nullable String location) {
+  public Relationship setLocation(@Nullable String location) {
     this.location = StringUtil.nullFromEmpty(location);
+    return this;
   }
 
   /**
@@ -120,9 +106,11 @@ public final class Relationship implements Comparable<Relationship>, Cloneable {
    * Sets the relationship's type.
    * 
    * @param isWedding true if it is a wedding
+   * @return this object
    */
-  public void setWedding(boolean isWedding) {
+  public Relationship setWedding(boolean isWedding) {
     this.isWedding = isWedding;
+    return this;
   }
 
   /**
@@ -136,10 +124,12 @@ public final class Relationship implements Comparable<Relationship>, Cloneable {
    * Sets if the relation has ended. If an end date is already set, this will do nothing.
    * 
    * @param hasEnded the new value
+   * @return this object
    */
-  public void setHasEnded(boolean hasEnded) {
+  public Relationship setHasEnded(boolean hasEnded) {
     if (this.endDate == null)
       this.hasEnded = hasEnded;
+    return this;
   }
 
   /**
@@ -153,10 +143,12 @@ public final class Relationship implements Comparable<Relationship>, Cloneable {
    * Sets the end date. It will also update the hasEnded property.
    * 
    * @param endDate the new date
+   * @return this object
    */
-  public void setEndDate(@Nullable Date endDate) {
+  public Relationship setEndDate(@Nullable Date endDate) {
     this.hasEnded = endDate != null;
     this.endDate = endDate;
+    return this;
   }
 
   /**
@@ -339,8 +331,17 @@ public final class Relationship implements Comparable<Relationship>, Cloneable {
 
   @Override
   public Relationship clone() {
-    return new Relationship(getDate().orElse(null), this.location, this.isWedding, this.hasEnded, getEndDate().orElse(null), this.partner1,
-        this.partner2, this.children, this.adoptions);
+    try {
+      Relationship r = (Relationship) super.clone();
+
+      r.children = getChildren();
+      r.adoptions = new HashMap<>(this.adoptions);
+
+      return r;
+    }
+    catch (CloneNotSupportedException e) {
+      throw new Error(e);
+    }
   }
 
   @Override

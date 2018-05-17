@@ -33,7 +33,7 @@ public class RelationshipTest {
 
   @Before
   public void setUp() {
-    this.relation = new Relationship(null, null, false, false, null, 1, 2, Collections.emptySet(), Collections.emptyMap());
+    this.relation = new Relationship(1, 2);
   }
 
   @Test
@@ -152,21 +152,22 @@ public class RelationshipTest {
 
   @Test
   public void testEquals() {
-    Relationship r = new Relationship(null, null, false, false, null, 1, 2, Collections.emptySet(), Collections.emptyMap());
+    Relationship r = new Relationship(1, 2);
     assertEquals(r, this.relation);
   }
 
   @Test
   public void testEqualsParentsSwapped() {
-    Relationship r1 = new Relationship(null, null, false, false, null, 1, 2, Collections.emptySet(), Collections.emptyMap());
-    Relationship r2 = new Relationship(null, null, false, false, null, 2, 1, Collections.emptySet(), Collections.emptyMap());
+    Relationship r1 = new Relationship(1, 2);
+    Relationship r2 = new Relationship(2, 1);
     assertEquals(r1, r2);
   }
 
   @Test
   public void testEqualsWithChildren() {
     this.relation.addChild(3);
-    Relationship r = new Relationship(null, null, false, false, null, 1, 2, Collections.singleton(3L), Collections.emptyMap());
+    Relationship r = new Relationship(1, 2);
+    r.addChild(3);
     assertEquals(r, this.relation);
   }
 
@@ -174,20 +175,21 @@ public class RelationshipTest {
   public void testEqualsWithAdoptions() {
     this.relation.addChild(3);
     this.relation.setAdopted(3, Date.getDate(2000, 1, 1));
-    Relationship r = new Relationship(null, null, false, false, null, 1, 2, Collections.singleton(3L),
-        Collections.singletonMap(3L, Date.getDate(2000, 1, 1)));
+    Relationship r = new Relationship(1, 2);
+    r.addChild(3);
+    r.setAdopted(3, Date.getDate(2000, 1, 1));
     assertEquals(r, this.relation);
   }
 
   @Test
   public void testHashcode() {
-    Relationship r = new Relationship(null, null, false, false, null, 1, 2, Collections.emptySet(), Collections.emptyMap());
+    Relationship r = new Relationship(1, 2);
     assertEquals(r.hashCode(), this.relation.hashCode());
   }
 
   @Test
   public void testHashcodeParentsSwapped() {
-    Relationship r = new Relationship(null, null, false, false, null, 2, 1, Collections.emptySet(), Collections.emptyMap());
+    Relationship r = new Relationship(2, 1);
     assertEquals(r.hashCode(), this.relation.hashCode());
   }
 
@@ -198,75 +200,66 @@ public class RelationshipTest {
 
   @Test
   public void testCompareDateBefore() {
-    Relationship r = new Relationship(Date.getDate(2001, 1, 1), null, false, false, null, 1, 2, Collections.emptySet(),
-        Collections.emptyMap());
+    Relationship r = new Relationship(1, 2).setDate(Date.getDate(2001, 1, 1));
     this.relation.setDate(Date.getDate(2000, 1, 1));
     assertTrue(this.relation.compareTo(r) < 0);
   }
 
   @Test
   public void testCompareDateAfter() {
-    Relationship r = new Relationship(Date.getDate(1999, 1, 1), null, false, false, null, 1, 2, Collections.emptySet(),
-        Collections.emptyMap());
+    Relationship r = new Relationship(1, 2).setDate(Date.getDate(1999, 1, 1));
     this.relation.setDate(Date.getDate(2000, 1, 1));
     assertTrue(this.relation.compareTo(r) > 0);
   }
 
   @Test
   public void testCompareDateSame() {
-    Relationship r = new Relationship(Date.getDate(2000, 1, 1), null, false, false, null, 1, 2, Collections.emptySet(),
-        Collections.emptyMap());
+    Relationship r = new Relationship(1, 2).setDate(Date.getDate(2000, 1, 1));
     this.relation.setDate(Date.getDate(2000, 1, 1));
     assertEquals(0, this.relation.compareTo(r));
   }
 
   @Test
   public void testCompareDateNull() {
-    Relationship r = new Relationship(Date.getDate(2000, 1, 1), null, false, false, null, 1, 2, Collections.emptySet(),
-        Collections.emptyMap());
+    Relationship r = new Relationship(1, 2).setDate(Date.getDate(2000, 1, 1));
     assertEquals(0, this.relation.compareTo(r));
   }
 
   @Test
   public void testCompareDateBothNull() {
-    Relationship r = new Relationship(null, null, false, false, null, 1, 2, Collections.emptySet(), Collections.emptyMap());
-    assertEquals(0, this.relation.compareTo(r));
+    assertEquals(0, this.relation.compareTo(new Relationship(1, 2)));
   }
 
   @Test
   public void testCompareEndDateBefore() {
-    Relationship r = new Relationship(null, null, false, false, Date.getDate(2001, 1, 1), 1, 2, Collections.emptySet(),
-        Collections.emptyMap());
+    Relationship r = new Relationship(1, 2).setEndDate(Date.getDate(2001, 1, 1));
     this.relation.setEndDate(Date.getDate(2000, 1, 1));
     assertTrue(this.relation.compareTo(r) < 0);
   }
 
   @Test
   public void testCompareEndDateAfter() {
-    Relationship r = new Relationship(null, null, false, false, Date.getDate(1999, 1, 1), 1, 2, Collections.emptySet(),
-        Collections.emptyMap());
+    Relationship r = new Relationship(1, 2).setEndDate(Date.getDate(1999, 1, 1));
     this.relation.setEndDate(Date.getDate(2000, 1, 1));
     assertTrue(this.relation.compareTo(r) > 0);
   }
 
   @Test
   public void testCompareEndDateSame() {
-    Relationship r = new Relationship(null, null, false, false, Date.getDate(2000, 1, 1), 1, 2, Collections.emptySet(),
-        Collections.emptyMap());
+    Relationship r = new Relationship(1, 2).setEndDate(Date.getDate(2000, 1, 1));
     this.relation.setEndDate(Date.getDate(2000, 1, 1));
     assertEquals(0, this.relation.compareTo(r));
   }
 
   @Test
   public void testCompareEndDateNull() {
-    Relationship r = new Relationship(null, null, false, false, Date.getDate(2000, 1, 1), 1, 2, Collections.emptySet(),
-        Collections.emptyMap());
+    Relationship r = new Relationship(1, 2).setEndDate(Date.getDate(2000, 1, 1));
     assertEquals(0, this.relation.compareTo(r));
   }
 
   @Test
   public void testCompareEndDateBothNull() {
-    Relationship r = new Relationship(null, null, false, false, null, 1, 2, Collections.emptySet(), Collections.emptyMap());
+    Relationship r = new Relationship(1, 2);
     assertEquals(0, this.relation.compareTo(r));
   }
 }
