@@ -146,7 +146,8 @@ public final class Relationship implements Comparable<Relationship>, Cloneable {
    * @return this object
    */
   public Relationship setEndDate(@Nullable Date endDate) {
-    this.hasEnded = endDate != null;
+    if (endDate != null)
+      this.hasEnded = true;
     this.endDate = endDate;
     return this;
   }
