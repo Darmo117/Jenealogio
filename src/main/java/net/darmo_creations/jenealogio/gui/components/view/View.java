@@ -37,7 +37,7 @@ import javax.swing.border.MatteBorder;
 
 import net.darmo_creations.jenealogio.util.Selection;
 
-public abstract class View extends JPanel {
+public abstract class View<T extends ViewController<?>> extends JPanel {
   private static final long serialVersionUID = -3403502478246185990L;
 
   private static final Color FOCUSED = new Color(180, 180, 180);
@@ -45,16 +45,15 @@ public abstract class View extends JPanel {
 
   private JPanel topPanel, buttonsPnl;
   private JScrollPane scrollPane;
-  protected ViewController controller;
+  protected final T controller;
 
   /**
    * Initializes the view.
    */
-  public View(String name, ViewController controller) {
+  public View(String name, T controller) {
     super(new BorderLayout());
 
     this.controller = controller;
-    this.controller.setView(this);
     addFocusListener(this.controller);
 
     this.scrollPane = new JScrollPane();

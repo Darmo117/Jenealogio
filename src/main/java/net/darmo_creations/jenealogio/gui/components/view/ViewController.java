@@ -12,15 +12,19 @@ import net.darmo_creations.gui_framework.ApplicationRegistry;
 import net.darmo_creations.jenealogio.events.FocusChangeEvent;
 import net.darmo_creations.jenealogio.model.ViewType;
 
-public class ViewController extends MouseAdapter implements FocusListener {
-  protected ViewType type;
-  protected View view;
+public class ViewController<T extends View<?>> extends MouseAdapter implements FocusListener {
+  private ViewType type;
+  private T view;
 
   public ViewController(ViewType type) {
     this.type = Objects.requireNonNull(type);
   }
 
-  public void setView(View view) {
+  public T getView() {
+    return this.view;
+  }
+
+  public void setView(T view) {
     this.view = view;
   }
 

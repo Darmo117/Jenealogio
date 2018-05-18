@@ -56,7 +56,7 @@ import net.darmo_creations.utils.events.SubscribeEvent;
  * 
  * @author Damien Vergnet
  */
-class CanvasViewController extends ViewController {
+class CanvasViewController extends ViewController<CanvasView> {
   /** The maximum distance away from a link the mouse must be to count as a hover. */
   private static final int HOVER_DISTANCE = 5;
 
@@ -92,8 +92,8 @@ class CanvasViewController extends ViewController {
     super.mousePressed(e);
     GrabHandle h = isPointOnHandle(e.getPoint());
 
-    if (!this.view.hasFocus())
-      this.view.requestFocus();
+    if (!getView().hasFocus())
+      getView().requestFocus();
 
     if (SwingUtilities.isLeftMouseButton(e)) {
       this.selectionStart = e.getPoint();
@@ -125,7 +125,7 @@ class CanvasViewController extends ViewController {
       if (!getView().isComponentResizing() && this.selection != null) {
         objectsSelected(getPanelsInsideRectangle(this.selection));
         this.selection = null;
-        this.view.repaint();
+        getView().repaint();
       }
     }
   }
@@ -218,8 +218,8 @@ class CanvasViewController extends ViewController {
       int xTrans = newLocation.x - prevAbsoluteLocation.x;
       int yTrans = newLocation.y - prevAbsoluteLocation.y;
 
-      this.view.setHorizontalScroll(this.view.getHorizontalScroll() - xTrans);
-      this.view.setVerticalScroll(this.view.getVerticalScroll() - yTrans);
+      getView().setHorizontalScroll(getView().getHorizontalScroll() - xTrans);
+      getView().setVerticalScroll(getView().getVerticalScroll() - yTrans);
     }
   }
 
@@ -273,7 +273,7 @@ class CanvasViewController extends ViewController {
         }
       }
       else {
-        FamilyMemberPanel panel = new FamilyMemberPanel(this.view, member);
+        FamilyMemberPanel panel = new FamilyMemberPanel(getView(), member);
 
         if (state != null) {
           panel.setState(state);
@@ -282,14 +282,14 @@ class CanvasViewController extends ViewController {
         this.panels.put(id, panel);
 
         final int gap = 50;
-        Dimension size = this.view.getPreferredSize();
+        Dimension size = getView().getPreferredSize();
         Rectangle panelBounds = panel.getBounds();
         if (panelBounds.x + panelBounds.width > size.width)
           size.width += panelBounds.x + panelBounds.width - size.width + gap;
         if (panelBounds.y + panelBounds.height > size.height)
           size.height += panelBounds.y + panelBounds.height - size.height + gap;
-        if (!size.equals(this.view.getPreferredSize()))
-          this.view.setPreferredSize(size);
+        if (!size.equals(getView().getPreferredSize()))
+          getView().setPreferredSize(size);
       }
       updatedOrAddedPanels.add(id);
     });
@@ -307,7 +307,7 @@ class CanvasViewController extends ViewController {
 
       relation.getChildren().forEach(id -> children.put(id, new Pair<>(relation.isAdopted(id), this.panels.get(id))));
 
-      Link link = new Link(this.view, partner1, partner2, children, relation.isWedding(), relation.hasEnded());
+      Link link = new Link(getView(), partner1, partner2, children, relation.isWedding(), relation.hasEnded());
 
       if (this.links.contains(link)) {
         Link l = this.links.get(this.links.indexOf(link));
@@ -545,7 +545,7 @@ class CanvasViewController extends ViewController {
       }
       scrollIfOutside();
     }
-    this.view.repaint();
+    getView().repaint();
   }
 
   private List<Long> getSelectedPanels() {
@@ -611,8 +611,8 @@ class CanvasViewController extends ViewController {
     if (vAdd != 0 || hAdd != 0) {
       Dimension d = getView().getCanvasBounds().getSize();
       getView().setCanvasPreferredSize(new Dimension(d.width + hAdd, d.height + vAdd));
-      this.view.revalidate();
-      this.view.repaint();
+      getView().revalidate();
+      getView().repaint();
     }
   }
 
@@ -620,7 +620,7 @@ class CanvasViewController extends ViewController {
    * Scrolls if the mouse is outside the viewport.
    */
   private void scrollIfOutside() {
-    int mouse = isOutsideRectangle(this.mouseLocation, this.view.getViewportVisibleRect());
+    int mouse = isOutsideRectangle(this.mouseLocation, getView().getViewportVisibleRect());
     int vTrans = 0;
     int hTrans = 0;
     final int step = 16;
@@ -635,13 +635,9 @@ class CanvasViewController extends ViewController {
       vTrans = step;
 
     if (vTrans != 0)
-      this.view.setVerticalScroll(this.view.getVerticalScroll() + vTrans);
+      getView().setVerticalScroll(getView().getVerticalScroll() + vTrans);
     if (hTrans != 0)
-      this.view.setHorizontalScroll(this.view.getHorizontalScroll() + hTrans);
+      getView().setHorizontalScroll(getView().getHorizontalScroll() + hTrans);
 
-  }
-
-  private CanvasView getView() {
-    return (CanvasView) this.view;
   }
 }

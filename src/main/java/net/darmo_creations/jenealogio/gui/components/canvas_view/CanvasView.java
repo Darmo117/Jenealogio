@@ -50,7 +50,7 @@ import net.darmo_creations.utils.swing.drag_and_drop.DropTargetHandler;
  *
  * @author Damien Vergnet
  */
-public class CanvasView extends View implements DragAndDropTarget {
+public class CanvasView extends View<CanvasViewController> implements DragAndDropTarget {
   private static final long serialVersionUID = 8747904983365363275L;
 
   private static final Dimension DEFAULT_SIZE = new Dimension(4000, 4000);
@@ -68,6 +68,8 @@ public class CanvasView extends View implements DragAndDropTarget {
   public CanvasView() {
     super(I18n.getLocalizedString("label.canvas.text"), new CanvasViewController());
 
+    this.controller.setView(this);
+    
     this.canvas = new Canvas();
     this.canvas.setLayout(null);
     this.canvas.setPreferredSize(DEFAULT_SIZE);
@@ -112,7 +114,7 @@ public class CanvasView extends View implements DragAndDropTarget {
    * Resets the panel. All internal components are destroyed.
    */
   public void reset() {
-    getController().reset();
+    this.controller.reset();
     this.canvas.removeAll();
     this.canvas.setPreferredSize(DEFAULT_SIZE);
     revalidate();
@@ -138,26 +140,26 @@ public class CanvasView extends View implements DragAndDropTarget {
    */
   public void refresh(Family family, CanvasState canvasStates, WritableConfig config) {
     this.config = config;
-    getController().refresh(family, canvasStates);
+    this.controller.refresh(family, canvasStates);
     revalidate();
     repaint();
   }
 
   @Override
   public void deselectAll() {
-    getController().deselectAll();
+    this.controller.deselectAll();
   }
 
   @Override
   public Selection getSelection() {
-    return getController().getSelection();
+    return this.controller.getSelection();
   }
 
   /**
    * Returns the states of all components in this canvas.
    */
   public CanvasState getState() {
-    return getController().getState();
+    return this.controller.getState();
   }
 
   /**
@@ -179,7 +181,7 @@ public class CanvasView extends View implements DragAndDropTarget {
    * Called when a card is dragged.
    */
   void cardDragged(long id, Point translation, Point mouseLocation) {
-    getController().cardDragged(translation, mouseLocation);
+    this.controller.cardDragged(translation, mouseLocation);
   }
 
   boolean isComponentResizing() {
@@ -208,7 +210,7 @@ public class CanvasView extends View implements DragAndDropTarget {
   }
 
   Optional<FamilyMemberPanel> getHoveredPanel(Point mouseLocation) {
-    return getController().getHoveredPanel(mouseLocation);
+    return this.controller.getHoveredPanel(mouseLocation);
   }
 
   @Override
@@ -222,7 +224,7 @@ public class CanvasView extends View implements DragAndDropTarget {
   private Point getTopLeftPoint() {
     Point point = new Point(this.canvas.getBounds().width, this.canvas.getBounds().height);
 
-    getController().getPanels().forEach(p -> {
+    this.controller.getPanels().forEach(p -> {
       Point l = p.getLocation();
       point.x = Math.min(point.x, l.x);
       point.y = Math.min(point.y, l.y);
@@ -237,17 +239,13 @@ public class CanvasView extends View implements DragAndDropTarget {
   private Point getBottomRightPoint() {
     Point point = new Point();
 
-    getController().getPanels().forEach(p -> {
+    this.controller.getPanels().forEach(p -> {
       Rectangle r = p.getBounds();
       point.x = Math.max(point.x, r.x + r.width);
       point.y = Math.max(point.y, r.y + r.height);
     });
 
     return point;
-  }
-
-  private CanvasViewController getController() {
-    return (CanvasViewController) this.controller;
   }
 
   private class Canvas extends JPanel {
@@ -267,7 +265,7 @@ public class CanvasView extends View implements DragAndDropTarget {
             g2d.drawLine(0, i, getWidth(), i);
         }
 
-        Optional<Rectangle> selection = getController().getSelectionRectangle();
+        Optional<Rectangle> selection = CanvasView.this.controller.getSelectionRectangle();
 
         if (selection.isPresent()) {
           Rectangle r = selection.get();
@@ -278,8 +276,8 @@ public class CanvasView extends View implements DragAndDropTarget {
           g2d.drawRect(r.x, r.y, r.width, r.height);
         }
 
-        getController().getLinks().forEach(l -> l.paintComponent(g2d, CanvasView.this.config));
-        getController().getPanels().forEach(p -> p.paintComponent(g2d, CanvasView.this.config));
+        CanvasView.this.controller.getLinks().forEach(l -> l.paintComponent(g2d, CanvasView.this.config));
+        CanvasView.this.controller.getPanels().forEach(p -> p.paintComponent(g2d, CanvasView.this.config));
       }
     }
   }

@@ -49,7 +49,7 @@ import net.darmo_creations.jenealogio.util.Images;
 import net.darmo_creations.jenealogio.util.Selection;
 import net.darmo_creations.utils.I18n;
 
-public class SideViewController extends ViewController implements TreeSelectionListener {
+public class SideViewController extends ViewController<SideView> implements TreeSelectionListener {
   private Selection lastSelection;
 
   public SideViewController() {
@@ -113,8 +113,8 @@ public class SideViewController extends ViewController implements TreeSelectionL
       }
     }
 
-    ApplicationRegistry.EVENTS_BUS.dispatchEvent(new SelectionChangeEvent(this.lastSelection, this.view.getSelection()));
-    this.lastSelection = this.view.getSelection();
+    ApplicationRegistry.EVENTS_BUS.dispatchEvent(new SelectionChangeEvent(this.lastSelection, getView().getSelection()));
+    this.lastSelection = getView().getSelection();
   }
 
   @Override
@@ -145,9 +145,5 @@ public class SideViewController extends ViewController implements TreeSelectionL
         }
       }
     }
-  }
-
-  private SideView getView() {
-    return (SideView) this.view;
   }
 }

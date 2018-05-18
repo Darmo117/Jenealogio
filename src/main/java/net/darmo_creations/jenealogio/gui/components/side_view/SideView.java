@@ -45,7 +45,7 @@ import net.darmo_creations.jenealogio.util.Pair;
 import net.darmo_creations.jenealogio.util.Selection;
 import net.darmo_creations.utils.I18n;
 
-public class SideView extends View {
+public class SideView extends View<SideViewController> {
   private static final long serialVersionUID = -1739589891038892474L;
 
   private JTree tree;
@@ -58,6 +58,8 @@ public class SideView extends View {
   public SideView() {
     super(I18n.getLocalizedString("label.tree_explorer.text"), new SideViewController());
 
+    this.controller.setView(this);
+    
     JButton b = new JButton(Images.MINUS);
     b.setPreferredSize(new Dimension(20, 20));
     b.setFocusable(false);
@@ -81,8 +83,8 @@ public class SideView extends View {
     this.tree.setRootVisible(false);
     this.tree.setShowsRootHandles(true);
     this.tree.setBorder(new EmptyBorder(5, 5, 5, 5));
-    this.tree.addMouseListener(getController());
-    this.tree.addTreeSelectionListener(getController());
+    this.tree.addMouseListener(this.controller);
+    this.tree.addTreeSelectionListener(this.controller);
     this.tree.setLargeModel(true);
     this.tree.setCellRenderer(new DefaultTreeCellRenderer() {
       private static final long serialVersionUID = -489015910861060922L;
@@ -214,9 +216,5 @@ public class SideView extends View {
 
   JPopupMenu getPopupMenu() {
     return this.popupMenu;
-  }
-
-  private SideViewController getController() {
-    return (SideViewController) this.controller;
   }
 }
