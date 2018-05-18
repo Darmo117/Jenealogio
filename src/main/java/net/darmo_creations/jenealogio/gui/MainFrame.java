@@ -50,7 +50,7 @@ import net.darmo_creations.jenealogio.config.ConfigTags;
 import net.darmo_creations.jenealogio.controllers.MainController;
 import net.darmo_creations.jenealogio.events.EventType;
 import net.darmo_creations.jenealogio.gui.components.canvas_view.CanvasState;
-import net.darmo_creations.jenealogio.gui.components.canvas_view.CanvasView;
+import net.darmo_creations.jenealogio.gui.components.canvas_view2.FamilyTreeView;
 import net.darmo_creations.jenealogio.gui.components.side_view.SideView;
 import net.darmo_creations.jenealogio.gui.components.view.View;
 import net.darmo_creations.jenealogio.gui.dialog.CardDetailsDialog;
@@ -87,7 +87,7 @@ public class MainFrame extends ApplicationFrame<MainController> {
   private JMenuItem editTreeItem, saveItem, saveAsItem, exportImageItem, undoItem, redoItem, addCardItem, addLinkItem, editItem, deleteItem;
   private JButton saveBtn, saveAsBtn, undoBtn, redoBtn, addCardBtn, editBtn, deleteBtn;
   private JToggleButton addLinkBtn;
-  private CanvasView canvasView;
+  private FamilyTreeView canvasView;
   private SideView sideView;
 
   public MainFrame(WritableConfig config) {
@@ -127,7 +127,7 @@ public class MainFrame extends ApplicationFrame<MainController> {
     this.sideView = new SideView();
     splitPane.setLeftComponent(this.sideView);
 
-    this.canvasView = new CanvasView();
+    this.canvasView = new FamilyTreeView();
     this.canvasView.addDragAndDropListener(controller);
     splitPane.setRightComponent(this.canvasView);
 
@@ -426,7 +426,7 @@ public class MainFrame extends ApplicationFrame<MainController> {
    * @param type the view type
    * @return the view
    */
-  public View getView(ViewType type) {
+  public View<?> getView(ViewType type) {
     switch (type) {
       case CANVAS:
         return this.canvasView;

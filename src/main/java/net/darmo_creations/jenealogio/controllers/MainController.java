@@ -48,7 +48,6 @@ import net.darmo_creations.jenealogio.events.SelectionChangeEvent;
 import net.darmo_creations.jenealogio.events.ViewEditEvent;
 import net.darmo_creations.jenealogio.gui.MainFrame;
 import net.darmo_creations.jenealogio.gui.components.canvas_view.CanvasState;
-import net.darmo_creations.jenealogio.gui.components.canvas_view.CanvasView;
 import net.darmo_creations.jenealogio.gui.components.canvas_view.CardState;
 import net.darmo_creations.jenealogio.model.FamilyEdit;
 import net.darmo_creations.jenealogio.model.ViewType;
@@ -267,7 +266,7 @@ public class MainController extends ApplicationController<MainFrame> implements 
 
   @Override
   public boolean acceptFiles(List<File> files, Component c) {
-    if (!(c instanceof CanvasView) || files.size() != 1)
+    if (files.size() != 1)
       return false;
     return FilesUtil.hasExtension(files.get(0), Jenealogio.TREE_FILE_EXT);
   }

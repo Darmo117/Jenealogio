@@ -28,14 +28,12 @@ public class ViewController<T extends View<?>> extends MouseAdapter implements F
 
   @Override
   public void mouseClicked(MouseEvent e) {
-    System.out.println(e); // DEBUG
     if (!this.view.hasFocus())
       this.view.requestFocus();
   }
 
   @Override
   public void focusGained(FocusEvent e) {
-    System.out.println(this.type); // DEBUG
     this.view.setTopFocused(true);
     ApplicationRegistry.EVENTS_BUS.dispatchEvent(new FocusChangeEvent(this.type));
   }
