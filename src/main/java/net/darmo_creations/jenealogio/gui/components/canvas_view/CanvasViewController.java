@@ -100,7 +100,7 @@ class CanvasViewController extends ViewController {
       if (h != null) {
         this.handle = h;
         this.resizingComponent = true;
-        getView().resizing(true);
+        getView().componentResizing(true);
       }
       else if (!isMouseOverObject(this.mouseLocation)) {
         this.selection = new Rectangle(this.selectionStart);
@@ -119,10 +119,10 @@ class CanvasViewController extends ViewController {
         this.handle = null;
         this.resizingComponent = false;
         getView().setCursor(Cursor.getDefaultCursor());
-        getView().resizing(false);
+        getView().componentResizing(false);
         ApplicationRegistry.EVENTS_BUS.dispatchEvent(new ViewEditEvent());
       }
-      if (!getView().isResizing() && this.selection != null) {
+      if (!getView().isComponentResizing() && this.selection != null) {
         objectsSelected(getPanelsInsideRectangle(this.selection));
         this.selection = null;
         this.view.repaint();

@@ -77,7 +77,7 @@ class ComponentDragController extends MouseAdapter {
 
   @Override
   public void mouseDragged(MouseEvent e) {
-    if (this.draggedPanel != null && !this.canvasView.isResizing() && SwingUtilities.isLeftMouseButton(e)) {
+    if (this.draggedPanel != null && !this.canvasView.isComponentResizing() && SwingUtilities.isLeftMouseButton(e)) {
       Rectangle containerBounds = this.canvasView.getCanvasBounds();
       int newX = Math.max(containerBounds.x, e.getXOnScreen() - getXOffset() - this.grabPoint.x);
       int newY = Math.max(containerBounds.y, e.getYOnScreen() - getYOffset() - this.grabPoint.y);

@@ -63,7 +63,7 @@ public class CanvasView extends View implements DragAndDropTarget {
   private DropTarget dropTarget;
 
   private Canvas canvas;
-  private boolean resizing;
+  private boolean componentResizing;
 
   public CanvasView() {
     super(I18n.getLocalizedString("label.canvas.text"), new CanvasViewController());
@@ -182,12 +182,12 @@ public class CanvasView extends View implements DragAndDropTarget {
     getController().cardDragged(translation, mouseLocation);
   }
 
-  boolean isResizing() {
-    return this.resizing;
+  boolean isComponentResizing() {
+    return this.componentResizing;
   }
 
-  void resizing(boolean resizing) {
-    this.resizing = resizing;
+  void componentResizing(boolean resizing) {
+    this.componentResizing = resizing;
   }
 
   Rectangle getCanvasVisibleRect() {
