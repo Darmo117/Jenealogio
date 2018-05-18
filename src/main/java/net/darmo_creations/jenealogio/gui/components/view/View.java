@@ -70,6 +70,7 @@ public abstract class View<T extends ViewController<?>> extends JPanel {
     this.topPanel.setBorder(new CompoundBorder(new MatteBorder(0, 0, 1, 0, Color.GRAY), new EmptyBorder(5, 5, 5, 5)));
     this.topPanel.add(topLbl, BorderLayout.WEST);
     this.topPanel.add(this.buttonsPnl, BorderLayout.EAST);
+    this.topPanel.addMouseListener(this.controller);
 
     add(this.topPanel, BorderLayout.NORTH);
     add(this.scrollPane, BorderLayout.CENTER);
@@ -81,6 +82,7 @@ public abstract class View<T extends ViewController<?>> extends JPanel {
 
   public void addButton(AbstractButton b) {
     this.buttonsPnl.add(b);
+    b.addMouseListener(this.controller);
   }
 
   /**
