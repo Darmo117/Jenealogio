@@ -35,6 +35,8 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
 
+import net.darmo_creations.gui_framework.config.WritableConfig;
+import net.darmo_creations.jenealogio.model.family.Family;
 import net.darmo_creations.jenealogio.util.Selection;
 
 public abstract class View<T extends ViewController<?>> extends JPanel {
@@ -117,9 +119,22 @@ public abstract class View<T extends ViewController<?>> extends JPanel {
   public abstract Selection getSelection();
 
   /**
-   * Deselects all components.
+   * Deselects all internal components.
    */
   public abstract void deselectAll();
+
+  /**
+   * Resets the view.
+   */
+  public abstract void reset();
+
+  /**
+   * Refreshes the display from the given model.
+   * 
+   * @param family the model
+   * @param config global config object
+   */
+  public abstract void refresh(Family family, WritableConfig config);
 
   /**
    * @return the vertical scrollbar's value

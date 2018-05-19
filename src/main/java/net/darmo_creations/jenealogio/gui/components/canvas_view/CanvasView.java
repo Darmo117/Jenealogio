@@ -25,32 +25,25 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.dnd.DnDConstants;
-import java.awt.dnd.DropTarget;
 import java.awt.image.BufferedImage;
 import java.util.Optional;
-import java.util.TooManyListenersException;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-import net.darmo_creations.gui_framework.ApplicationRegistry;
 import net.darmo_creations.gui_framework.config.WritableConfig;
 import net.darmo_creations.jenealogio.config.ConfigTags;
-import net.darmo_creations.jenealogio.gui.components.view.View;
+import net.darmo_creations.jenealogio.gui.components.AbstractFamilyTreeView;
 import net.darmo_creations.jenealogio.model.family.Family;
 import net.darmo_creations.jenealogio.util.Selection;
 import net.darmo_creations.utils.I18n;
-import net.darmo_creations.utils.swing.drag_and_drop.DragAndDropListener;
-import net.darmo_creations.utils.swing.drag_and_drop.DragAndDropTarget;
-import net.darmo_creations.utils.swing.drag_and_drop.DropTargetHandler;
 
 /**
  * This view displays the family tree.
  *
  * @author Damien Vergnet
  */
-public class CanvasView extends View<CanvasViewController> implements DragAndDropTarget {
+public class CanvasView extends AbstractFamilyTreeView<CanvasViewController> {
   private static final long serialVersionUID = 8747904983365363275L;
 
   private static final Dimension DEFAULT_SIZE = new Dimension(4000, 4000);
@@ -60,7 +53,6 @@ public class CanvasView extends View<CanvasViewController> implements DragAndDro
   public static final int GRID_STEP = 10;
 
   private WritableConfig config;
-  private DropTarget dropTarget;
 
   private Canvas canvas;
   private boolean componentResizing;
@@ -69,7 +61,7 @@ public class CanvasView extends View<CanvasViewController> implements DragAndDro
     super(I18n.getLocalizedString("label.canvas.text"), new CanvasViewController());
 
     this.controller.setView(this);
-    
+
     this.canvas = new Canvas();
     this.canvas.setLayout(null);
     this.canvas.setPreferredSize(DEFAULT_SIZE);
@@ -91,28 +83,10 @@ public class CanvasView extends View<CanvasViewController> implements DragAndDro
       }
     }
 
-    ApplicationRegistry.EVENTS_BUS.register(this.controller);
-    this.dropTarget = new DropTarget(this.canvas, DnDConstants.ACTION_COPY_OR_MOVE, null);
+    initDropTarget(this.canvas);
   }
 
-  /**
-   * Adds a drag-and-drop listener.
-   * 
-   * @param handler the new handler
-   */
   @Override
-  public void addDragAndDropListener(DragAndDropListener l) {
-    try {
-      this.dropTarget.addDropTargetListener(new DropTargetHandler(l, this));
-    }
-    catch (TooManyListenersException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  /**
-   * Resets the panel. All internal components are destroyed.
-   */
   public void reset() {
     this.controller.reset();
     this.canvas.removeAll();
@@ -121,23 +95,12 @@ public class CanvasView extends View<CanvasViewController> implements DragAndDro
     repaint();
   }
 
-  /**
-   * Refreshes the display from the given model.
-   * 
-   * @param family the model
-   */
+  @Override
   public void refresh(Family family, WritableConfig config) {
     refresh(family, new CanvasState(), config);
   }
 
-  /**
-   * Refreshes the display from the given model and updates positions of panels specified in the
-   * map.
-   * 
-   * @param family the model
-   * @param canvasStates canvas state
-   * @param config the config
-   */
+  @Override
   public void refresh(Family family, CanvasState canvasStates, WritableConfig config) {
     this.config = config;
     this.controller.refresh(family, canvasStates);
@@ -155,18 +118,12 @@ public class CanvasView extends View<CanvasViewController> implements DragAndDro
     return this.controller.getSelection();
   }
 
-  /**
-   * Returns the states of all components in this canvas.
-   */
+  @Override
   public CanvasState getState() {
     return this.controller.getState();
   }
 
-  /**
-   * Exports this panel to an image.
-   * 
-   * @return this panel as an image
-   */
+  @Override
   public BufferedImage exportToImage() {
     BufferedImage image = new BufferedImage(this.canvas.getWidth(), this.canvas.getHeight(), BufferedImage.TYPE_INT_RGB);
     this.canvas.paint(image.createGraphics());

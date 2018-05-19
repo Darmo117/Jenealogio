@@ -35,6 +35,7 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
+import net.darmo_creations.gui_framework.config.WritableConfig;
 import net.darmo_creations.jenealogio.gui.components.NamedTreeNode;
 import net.darmo_creations.jenealogio.gui.components.view.View;
 import net.darmo_creations.jenealogio.model.family.Family;
@@ -59,7 +60,7 @@ public class SideView extends View<SideViewController> {
     super(I18n.getLocalizedString("label.tree_explorer.text"), new SideViewController());
 
     this.controller.setView(this);
-    
+
     JButton b = new JButton(Images.MINUS);
     b.setPreferredSize(new Dimension(20, 20));
     b.setFocusable(false);
@@ -147,7 +148,8 @@ public class SideView extends View<SideViewController> {
     i.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
   }
 
-  public void refresh(Family family) {
+  @Override
+  public void refresh(Family family, WritableConfig config) {
     this.family = family;
     this.membersNode.removeAllChildren();
     this.relationsNode.removeAllChildren();
@@ -177,6 +179,7 @@ public class SideView extends View<SideViewController> {
     repaint();
   }
 
+  @Override
   public void reset() {
     this.membersNode.removeAllChildren();
     this.relationsNode.removeAllChildren();

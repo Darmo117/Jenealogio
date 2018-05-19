@@ -25,6 +25,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -49,8 +51,9 @@ import net.darmo_creations.jenealogio.Jenealogio;
 import net.darmo_creations.jenealogio.config.ConfigTags;
 import net.darmo_creations.jenealogio.controllers.MainController;
 import net.darmo_creations.jenealogio.events.EventType;
+import net.darmo_creations.jenealogio.gui.components.AbstractFamilyTreeView;
 import net.darmo_creations.jenealogio.gui.components.canvas_view.CanvasState;
-import net.darmo_creations.jenealogio.gui.components.canvas_view2.FamilyTreeView;
+import net.darmo_creations.jenealogio.gui.components.canvas_view.CanvasView;
 import net.darmo_creations.jenealogio.gui.components.side_view.SideView;
 import net.darmo_creations.jenealogio.gui.components.view.View;
 import net.darmo_creations.jenealogio.gui.dialog.CardDetailsDialog;
@@ -87,8 +90,10 @@ public class MainFrame extends ApplicationFrame<MainController> {
   private JMenuItem editTreeItem, saveItem, saveAsItem, exportImageItem, undoItem, redoItem, addCardItem, addLinkItem, editItem, deleteItem;
   private JButton saveBtn, saveAsBtn, undoBtn, redoBtn, addCardBtn, editBtn, deleteBtn;
   private JToggleButton addLinkBtn;
-  private FamilyTreeView canvasView;
+  private AbstractFamilyTreeView<?> canvasView;
   private SideView sideView;
+
+  private List<View<?>> views;
 
   public MainFrame(WritableConfig config) {
     super(config, true, true, true, true, new Dimension(800, 600), true);
@@ -127,11 +132,15 @@ public class MainFrame extends ApplicationFrame<MainController> {
     this.sideView = new SideView();
     splitPane.setLeftComponent(this.sideView);
 
-    this.canvasView = new FamilyTreeView();
+    this.canvasView = new CanvasView();
     this.canvasView.addDragAndDropListener(controller);
     splitPane.setRightComponent(this.canvasView);
 
     add(splitPane, BorderLayout.CENTER);
+
+    this.views = new ArrayList<>();
+    this.views.add(this.canvasView);
+    this.views.add(this.sideView);
   }
 
   /**
@@ -394,18 +403,17 @@ public class MainFrame extends ApplicationFrame<MainController> {
    * Resets the tree display.
    */
   public void resetDisplay() {
-    this.canvasView.reset();
-    this.sideView.reset();
+    this.views.forEach(View::reset);
   }
 
   /**
    * Refreshes the tree display.
    * 
    * @param family the tree
+   * @param config main config object
    */
   public void refreshDisplay(Family family, WritableConfig config) {
-    this.canvasView.refresh(family, config);
-    this.sideView.refresh(family);
+    this.views.forEach(v -> v.refresh(family, config));
   }
 
   /**
@@ -413,10 +421,11 @@ public class MainFrame extends ApplicationFrame<MainController> {
    * 
    * @param family the tree
    * @param canvasStates canvas state
+   * @param config main config object
    */
   public void refreshDisplay(Family family, CanvasState canvasStates, WritableConfig config) {
     this.canvasView.refresh(family, canvasStates, config);
-    this.sideView.refresh(family);
+    this.sideView.refresh(family, config);
     this.canvasView.requestFocus();
   }
 
@@ -441,8 +450,7 @@ public class MainFrame extends ApplicationFrame<MainController> {
    * Deselects all objects in all views.
    */
   public void deselectAll() {
-    this.canvasView.deselectAll();
-    this.sideView.deselectAll();
+    this.views.forEach(View::deselectAll);
   }
 
   /**
