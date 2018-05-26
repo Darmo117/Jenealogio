@@ -40,8 +40,8 @@ repositories {
 dependencies {
   // The production code uses the SLF4J logging API at compile time
   compile 'org.slf4j:slf4j-api:1.7.21'
-  // JSON Simple
-  compile files('libs/json-simple-1.1.1.jar')
+  // https://mvnrepository.com/artifact/com.googlecode.json-simple/json-simple
+  compile 'com.googlecode.json-simple:json-simple:1.1.1'
   // GUI-Framework
   compile files('libs/GUI-Framework-1.5.jar')
   // JUnit
