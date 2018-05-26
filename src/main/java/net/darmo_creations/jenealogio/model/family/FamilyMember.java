@@ -501,9 +501,23 @@ public class FamilyMember implements Comparable<FamilyMember>, Cloneable {
    * @param id the copy's ID
    * @return the copied person
    */
-  FamilyMember copy(long id) {
-    FamilyMember m = new FamilyMember(id);
-    m.image = getImage().orElse(null);
+  FamilyMember withId(long id) {
+    // #f:0
+    FamilyMember m = new FamilyMember(id)
+        .setImage(getImage().orElse(null))
+        .setFamilyName(this.familyName)
+        .setUseName(this.useName)
+        .setFirstName(this.firstName)
+        .setOtherNames(this.otherNames)
+        .setGender(this.gender)
+        .setBirthDate(this.birthDate)
+        .setBirthLocation(this.birthLocation)
+        .setDeathDate(this.deathDate)
+        .setDeathLocation(this.deathLocation)
+        .setDead(this.dead)
+        .setComment(this.comment);
+    // #f:1
+
     return m;
   }
 

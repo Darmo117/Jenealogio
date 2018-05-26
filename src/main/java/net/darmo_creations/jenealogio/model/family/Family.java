@@ -114,7 +114,7 @@ public class Family implements Cloneable {
    * @param member the new member
    */
   public void addMember(FamilyMember member) {
-    this.members.add(member.copy(getNextMemberId()));
+    this.members.add(member.withId(getNextMemberId()));
   }
 
   private long getNextMemberId() {
