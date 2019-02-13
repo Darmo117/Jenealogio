@@ -18,7 +18,6 @@
  */
 package net.darmo_creations.jenealogio.gui.components.canvas_view;
 
-import java.awt.Dimension;
 import java.awt.Point;
 
 /**
@@ -28,22 +27,19 @@ import java.awt.Point;
  */
 public final class CardState implements Cloneable {
   private final Point location;
-  private final Dimension size;
+  private final boolean pixelLocation;
 
-  public CardState(final Point location, final Dimension size) {
+  public CardState(final Point location, boolean pixelLocation) {
     this.location = (Point) location.clone();
-    if (size != null)
-      this.size = (Dimension) size.clone();
-    else
-      this.size = null;
+    this.pixelLocation = pixelLocation;
   }
 
   public Point getLocation() {
     return (Point) this.location.clone();
   }
 
-  public Dimension getSize() {
-    return this.size != null ? (Dimension) this.size.clone() : null;
+  public boolean isPixelLocation() {
+    return this.pixelLocation;
   }
 
   @Override
@@ -51,7 +47,7 @@ public final class CardState implements Cloneable {
     final int prime = 31;
     int result = 1;
     result = prime * result + ((this.location == null) ? 0 : this.location.hashCode());
-    result = prime * result + ((this.size == null) ? 0 : this.size.hashCode());
+    result = prime * result + (this.pixelLocation ? 1231 : 1237);
     return result;
   }
 
@@ -70,11 +66,7 @@ public final class CardState implements Cloneable {
     }
     else if (!this.location.equals(other.location))
       return false;
-    if (this.size == null) {
-      if (other.size != null)
-        return false;
-    }
-    else if (!this.size.equals(other.size))
+    if (this.pixelLocation != other.pixelLocation)
       return false;
     return true;
   }
@@ -87,5 +79,10 @@ public final class CardState implements Cloneable {
     catch (CloneNotSupportedException e) {
       throw new Error(e);
     }
+  }
+
+  @Override
+  public String toString() {
+    return String.format("(%d, %d)[%s]", this.location.x, this.location.y, this.pixelLocation ? "pixel" : "grid");
   }
 }

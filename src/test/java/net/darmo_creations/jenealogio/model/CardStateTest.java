@@ -20,7 +20,6 @@ package net.darmo_creations.jenealogio.model;
 
 import static org.junit.Assert.*;
 
-import java.awt.Dimension;
 import java.awt.Point;
 
 import org.junit.Test;
@@ -30,11 +29,11 @@ import net.darmo_creations.jenealogio.gui.components.canvas_view.CardState;
 public class CardStateTest {
   @Test
   public void testEquals() {
-    assertEquals(new CardState(new Point(), new Dimension()), new CardState(new Point(), new Dimension()));
+    assertEquals(new CardState(new Point(), false), new CardState(new Point(), false));
   }
 
   @Test
   public void testHashcode() {
-    assertEquals(new CardState(new Point(), new Dimension()).hashCode(), new CardState(new Point(), new Dimension()).hashCode());
+    assertEquals(new CardState(new Point(), false).hashCode(), new CardState(new Point(), false).hashCode());
   }
 }

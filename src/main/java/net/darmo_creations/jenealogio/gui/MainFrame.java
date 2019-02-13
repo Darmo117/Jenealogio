@@ -461,16 +461,14 @@ public class MainFrame extends ApplicationFrame<MainController> {
   }
 
   /**
-   * @return the canvas' current middle coordinate
+   * Returns canvas viewport current middle point.
    */
-  public Point getDisplayMiddlePoint() {
+  public Point getCanvasMiddlePoint() {
     return this.canvasView.getDisplayMiddlePoint();
   }
 
   /**
    * Exports the display panel to an image.
-   * 
-   * @return the image
    */
   public BufferedImage exportToImage() {
     return this.canvasView.exportToImage();

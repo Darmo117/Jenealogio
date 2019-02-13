@@ -18,10 +18,8 @@
  */
 package net.darmo_creations.jenealogio.gui.components.canvas_view;
 
-import java.awt.Dimension;
-import java.awt.Graphics;
+import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Point;
 
 import javax.swing.JComponent;
 
@@ -37,11 +35,13 @@ abstract class GraphicalObject {
   private static final int SELECTED = 1;
   private static final int SELECTED_BG = 2;
 
+  protected static final Color SELECTION_COLOR = Color.BLACK;
+  protected static final Color BG_SELECTION_COLOR = Color.BLUE; // TODO choisir une couleur
+
   private final JComponent parent;
   private final long id;
   private int selectionMode;
   private boolean hovered;
-  protected GrabHandle[] handles;
 
   /**
    * Creates an object.
@@ -117,22 +117,6 @@ abstract class GraphicalObject {
     this.hovered = hovered;
   }
 
-  public GrabHandle isOnHandle(Point point) {
-    for (GrabHandle h : this.handles) {
-      if (h.getBounds().contains(point))
-        return h;
-    }
-    return null;
-  }
-
-  /**
-   * Called when a handle belonging to this object was moved.
-   * 
-   * @param direction handle's direction
-   * @param translation translation amount
-   */
-  public abstract void handleMoved(GrabHandle.Direction direction, Dimension translation);
-
   /**
    * Paints this object.
    * 
@@ -141,13 +125,9 @@ abstract class GraphicalObject {
    */
   public void paintComponent(Graphics2D g, WritableConfig config) {
     paint(g, config);
-
-    if (isSelected() || isSelectedBackground())
-      for (GrabHandle h : this.handles)
-        h.draw(g);
   }
 
-  protected abstract void paint(Graphics g, WritableConfig config);
+  protected abstract void paint(Graphics2D g, WritableConfig config);
 
   @Override
   public boolean equals(Object o) {

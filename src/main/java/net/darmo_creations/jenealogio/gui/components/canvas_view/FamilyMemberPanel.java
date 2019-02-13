@@ -41,7 +41,6 @@ import javax.swing.JComponent;
 
 import net.darmo_creations.gui_framework.config.WritableConfig;
 import net.darmo_creations.jenealogio.config.ConfigTags;
-import net.darmo_creations.jenealogio.gui.components.canvas_view.GrabHandle.Direction;
 import net.darmo_creations.jenealogio.model.family.FamilyMember;
 import net.darmo_creations.jenealogio.util.Images;
 
@@ -59,8 +58,11 @@ class FamilyMemberPanel extends GraphicalObject {
   private static final Font FONT = new Font("Tahoma", Font.PLAIN, 12);
   private static final Stroke STROKE = new BasicStroke(1);
 
+  private Dimension preferredSize;
   private Rectangle bounds;
   private FamilyMember member;
+  /** Not used to draw */
+  private Point locationInGrid;
 
   /**
    * Creates a panel for the given person.
@@ -71,10 +73,6 @@ class FamilyMemberPanel extends GraphicalObject {
   public FamilyMemberPanel(JComponent parent, FamilyMember member) {
     super(parent, member.getId());
     this.bounds = new Rectangle();
-    this.handles = new GrabHandle[8];
-    for (int i = 0; i < this.handles.length; i++) {
-      this.handles[i] = new GrabHandle(this, new Point(), GrabHandle.Direction.values()[i]);
-    }
     setInfo(member);
   }
 
@@ -89,71 +87,34 @@ class FamilyMemberPanel extends GraphicalObject {
 
     Graphics g = getParent().getGraphics();
     Rectangle2D r = g.getFontMetrics(FONT).getStringBounds(member.toString(), g);
+    int w = (int) r.getWidth() + 2 * INSETS + (member.isDead() ? IMAGE_SIZE + INSETS : 0) + 8;
 
-    Dimension size = new Dimension((int) r.getWidth(), (int) r.getHeight());
-    size.width += 2 * INSETS + (member.isDead() ? IMAGE_SIZE + INSETS : 0) + 8;
-    size.height = 30;
-    setSize(size);
+    this.preferredSize = new Dimension(w, 30);
+    setSize(this.preferredSize);
+  }
+
+  public Dimension getPreferredSize() {
+    return this.preferredSize;
   }
 
   @Override
-  public void setSelected() {
-    super.setSelected();
-    for (GrabHandle h : this.handles)
-      h.setBackgroundSelected(false);
-  }
-
-  @Override
-  public void setSelectedBackground() {
-    super.setSelectedBackground();
-    for (GrabHandle h : this.handles)
-      h.setBackgroundSelected(true);
-  }
-
-  @Override
-  public void handleMoved(Direction direction, Dimension translation) {
-    if (direction == Direction.NORTH || direction == Direction.NORTH_EAST || direction == Direction.NORTH_WEST) {
-      if (translation.height > 0 && this.bounds.height - translation.height < getMinimumSize().height
-          || translation.height < 0 && this.bounds.y + translation.height < 0)
-        translation.height = 0;
-      this.bounds.y += translation.height;
-      this.bounds.height += -translation.height;
-    }
-    else if (direction == Direction.SOUTH || direction == Direction.SOUTH_EAST || direction == Direction.SOUTH_WEST) {
-      this.bounds.height += translation.height;
-    }
-    if (direction == Direction.WEST || direction == Direction.NORTH_WEST || direction == Direction.SOUTH_WEST) {
-      if (translation.width > 0 && this.bounds.width - translation.width < getMinimumSize().width
-          || translation.width < 0 && this.bounds.x + translation.width < 0)
-        translation.width = 0;
-      this.bounds.x += translation.width;
-      this.bounds.width += -translation.width;
-    }
-    else if (direction == Direction.EAST || direction == Direction.NORTH_EAST || direction == Direction.SOUTH_EAST) {
-      this.bounds.width += translation.width;
-    }
-    capBounds();
-    updateHandles();
-  }
-
-  @Override
-  public void paint(Graphics g, WritableConfig config) {
-    Graphics2D g2d = (Graphics2D) g;
-
+  public void paint(Graphics2D g, WritableConfig config) {
     if (this.member.isMan())
-      g2d.setColor(config.getValue(ConfigTags.GENDER_MALE_COLOR));
+      g.setColor(config.getValue(ConfigTags.GENDER_MALE_COLOR));
     else if (this.member.isWoman())
-      g2d.setColor(config.getValue(ConfigTags.GENDER_FEMALE_COLOR));
+      g.setColor(config.getValue(ConfigTags.GENDER_FEMALE_COLOR));
     else
-      g2d.setColor(config.getValue(ConfigTags.GENDER_UNKNOWN_COLOR));
+      g.setColor(config.getValue(ConfigTags.GENDER_UNKNOWN_COLOR));
 
-    g2d.fillRect(this.bounds.x, this.bounds.y, this.bounds.width, this.bounds.height);
-    if (isSelected() || isSelectedBackground())
-      g2d.setColor(Color.BLACK);
+    g.fillRect(this.bounds.x, this.bounds.y, this.bounds.width, this.bounds.height);
+    if (isSelected())
+      g.setColor(SELECTION_COLOR);
+    else if (isSelectedBackground())
+      g.setColor(BG_SELECTION_COLOR);
     else
-      g2d.setColor(Color.GRAY);
-    g2d.setStroke(STROKE);
-    g2d.drawRect(this.bounds.x, this.bounds.y, this.bounds.width, this.bounds.height);
+      g.setColor(Color.DARK_GRAY);
+    g.setStroke(STROKE);
+    g.drawRect(this.bounds.x, this.bounds.y, this.bounds.width, this.bounds.height);
 
     String text = this.member.toString();
     Rectangle textZone = this.bounds.getBounds();
@@ -164,12 +125,12 @@ class FamilyMemberPanel extends GraphicalObject {
     if (this.member.isDead()) {
       textZone.x += INSETS + IMAGE_SIZE;
       textZone.width -= INSETS + IMAGE_SIZE;
-      g2d.drawImage(Images.TOMBSTONE.getImage(), this.bounds.x + INSETS, this.bounds.y + (this.bounds.height - IMAGE_SIZE) / 2, null);
+      g.drawImage(Images.TOMBSTONE.getImage(), this.bounds.x + INSETS, this.bounds.y + (this.bounds.height - IMAGE_SIZE) / 2, null);
     }
 
     if (textZone.width >= 0) {
-      g2d.setColor(Color.BLACK);
-      drawCenteredString(g2d, text, textZone);
+      g.setColor(Color.BLACK);
+      drawCenteredString(g, text, textZone);
     }
   }
 
@@ -204,6 +165,14 @@ class FamilyMemberPanel extends GraphicalObject {
     g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
   }
 
+  public Point getLocationInGrid() {
+    return this.locationInGrid != null ? this.locationInGrid.getLocation() : null;
+  }
+
+  public void setLocationInGrid(Point locationInGrid) {
+    this.locationInGrid = locationInGrid.getLocation();
+  }
+
   public Point getLocation() {
     return this.bounds.getLocation();
   }
@@ -211,7 +180,6 @@ class FamilyMemberPanel extends GraphicalObject {
   public void setLocation(Point p) {
     this.bounds.setLocation(p);
     capBounds();
-    updateHandles();
   }
 
   public Dimension getSize() {
@@ -221,7 +189,6 @@ class FamilyMemberPanel extends GraphicalObject {
   public void setSize(Dimension size) {
     this.bounds.setSize(size);
     capBounds();
-    updateHandles();
   }
 
   public Dimension getMinimumSize() {
@@ -243,18 +210,19 @@ class FamilyMemberPanel extends GraphicalObject {
   public void setBounds(Rectangle bounds) {
     this.bounds.setBounds(bounds);
     capBounds();
-    updateHandles();
   }
 
   public CardState getState() {
-    return new CardState(getLocation(), getSize());
+    return new CardState(getLocationInGrid(), false);
   }
 
   public void setState(CardState state) {
     if (state.getLocation() != null)
-      setLocation(state.getLocation());
-    if (state.getSize() != null)
-      setSize(state.getSize());
+      setLocationInGrid(state.getLocation());
+  }
+
+  public FamilyMember getMember() {
+    return this.member.clone();
   }
 
   private void capBounds() {
@@ -266,23 +234,5 @@ class FamilyMemberPanel extends GraphicalObject {
       this.bounds.width = MINIMUM_SIZE.width;
     if (this.bounds.height < MINIMUM_SIZE.height)
       this.bounds.height = MINIMUM_SIZE.height;
-  }
-
-  private void updateHandles() {
-    int westX = this.bounds.x;
-    int eastX = this.bounds.x + this.bounds.width;
-    int northY = this.bounds.y;
-    int southY = this.bounds.y + this.bounds.height;
-    int halfW = this.bounds.x + this.bounds.width / 2;
-    int halfH = this.bounds.y + this.bounds.height / 2;
-
-    this.handles[GrabHandle.Direction.NORTH.ordinal()].setLocation(new Point(halfW, northY));
-    this.handles[GrabHandle.Direction.NORTH_EAST.ordinal()].setLocation(new Point(eastX, northY));
-    this.handles[GrabHandle.Direction.EAST.ordinal()].setLocation(new Point(eastX, halfH));
-    this.handles[GrabHandle.Direction.SOUTH_EAST.ordinal()].setLocation(new Point(eastX, southY));
-    this.handles[GrabHandle.Direction.SOUTH.ordinal()].setLocation(new Point(halfW, southY));
-    this.handles[GrabHandle.Direction.SOUTH_WEST.ordinal()].setLocation(new Point(westX, southY));
-    this.handles[GrabHandle.Direction.WEST.ordinal()].setLocation(new Point(westX, halfH));
-    this.handles[GrabHandle.Direction.NORTH_WEST.ordinal()].setLocation(new Point(westX, northY));
   }
 }

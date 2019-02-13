@@ -18,12 +18,12 @@
  */
 package net.darmo_creations.jenealogio.gui.components.canvas_view;
 
-import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -41,7 +41,6 @@ import net.darmo_creations.jenealogio.events.CardDoubleClickEvent;
 import net.darmo_creations.jenealogio.events.GoToObjectEvent;
 import net.darmo_creations.jenealogio.events.LinkDoubleClickEvent;
 import net.darmo_creations.jenealogio.events.SelectionChangeEvent;
-import net.darmo_creations.jenealogio.events.ViewEditEvent;
 import net.darmo_creations.jenealogio.gui.components.view.ViewController;
 import net.darmo_creations.jenealogio.model.ViewType;
 import net.darmo_creations.jenealogio.model.family.Family;
@@ -60,17 +59,20 @@ class CanvasViewController extends ViewController<CanvasView> {
   /** The maximum distance away from a link the mouse must be to count as a hover. */
   private static final int HOVER_DISTANCE = 5;
 
+  private static final int DEFAULT_COLUMN_WIDTH = 100;
+  private static final int DEFAULT_ROW_HEIGHT = 32;
+
   private Point mouseLocation, absoluteMouseLocation;
   private Point selectionStart;
   private Rectangle selection;
 
-  private boolean resizingComponent;
-  private GrabHandle handle;
-
   private Map<Long, FamilyMemberPanel> panels;
   private List<Link> links;
-  /** All currently selected cards */
+  /** All currently selected cards. Lis to keep selection order. */
   private List<GraphicalObject> selectedObjects;
+
+  private GridCell[][] grid;
+  private GridCell dropTargetCell;
 
   CanvasViewController() {
     super(ViewType.CANVAS);
@@ -79,8 +81,6 @@ class CanvasViewController extends ViewController<CanvasView> {
     this.absoluteMouseLocation = new Point();
     this.selectionStart = null;
     this.selection = null;
-    this.resizingComponent = false;
-    this.handle = null;
 
     this.panels = new HashMap<>();
     this.links = new ArrayList<>();
@@ -90,19 +90,13 @@ class CanvasViewController extends ViewController<CanvasView> {
   @Override
   public void mousePressed(MouseEvent e) {
     super.mousePressed(e);
-    GrabHandle h = isPointOnHandle(e.getPoint());
 
     if (!getView().hasFocus())
       getView().requestFocus();
 
     if (SwingUtilities.isLeftMouseButton(e)) {
       this.selectionStart = e.getPoint();
-      if (h != null) {
-        this.handle = h;
-        this.resizingComponent = true;
-        getView().componentResizing(true);
-      }
-      else if (!isMouseOverObject(this.mouseLocation)) {
+      if (!isMouseOverObject(this.mouseLocation)) {
         this.selection = new Rectangle(this.selectionStart);
         if (!getHoveredPanel(this.mouseLocation).isPresent() && !getHoveredLink(this.mouseLocation).isPresent())
           deselectAll();
@@ -115,14 +109,7 @@ class CanvasViewController extends ViewController<CanvasView> {
     super.mouseReleased(e);
 
     if (SwingUtilities.isLeftMouseButton(e)) {
-      if (this.handle != null) {
-        this.handle = null;
-        this.resizingComponent = false;
-        getView().setCursor(Cursor.getDefaultCursor());
-        getView().componentResizing(false);
-        ApplicationRegistry.EVENTS_BUS.dispatchEvent(new ViewEditEvent());
-      }
-      if (!getView().isComponentResizing() && this.selection != null) {
+      if (this.selection != null) {
         objectsSelected(getPanelsInsideRectangle(this.selection));
         this.selection = null;
         getView().repaint();
@@ -170,47 +157,15 @@ class CanvasViewController extends ViewController<CanvasView> {
 
     getHoveredLink(this.mouseLocation).ifPresent(l -> l.setHovered(true));
     getHoveredPanel(this.mouseLocation).ifPresent(p -> p.setHovered(true));
-
-    this.handle = isPointOnHandle(this.mouseLocation);
-
-    if (this.handle == null)
-      getView().setCursor(Cursor.getDefaultCursor());
-    else
-      getView().setCursor(this.handle.getCursor());
   }
 
   @Override
   public void mouseDragged(MouseEvent e) {
     super.mouseDragged(e);
 
-    Point prevLocation = this.mouseLocation;
     Point prevAbsoluteLocation = this.absoluteMouseLocation;
 
     updateMouseLocation(e);
-    if (SwingUtilities.isLeftMouseButton(e)) {
-      if (this.handle != null) {
-        Point p = e.getPoint();
-        Dimension amount = new Dimension(p.x, p.y);
-        amount.width -= prevLocation.x;
-        amount.height -= prevLocation.y;
-
-        if (!this.resizingComponent)
-          this.resizingComponent = true;
-        if (this.handle.getDirection().isHorizontal()) {
-          amount.height = 0;
-          this.handle.translate(amount);
-        }
-        else if (this.handle.getDirection().isVertical()) {
-          amount.width = 0;
-          this.handle.translate(amount);
-        }
-        else {
-          this.handle.translate(amount);
-        }
-        resizePanelIfOutside();
-        scrollIfOutside();
-      }
-    }
 
     if (SwingUtilities.isMiddleMouseButton(e)) {
       Point newLocation = this.absoluteMouseLocation;
@@ -221,10 +176,6 @@ class CanvasViewController extends ViewController<CanvasView> {
       getView().setHorizontalScroll(getView().getHorizontalScroll() - xTrans);
       getView().setVerticalScroll(getView().getVerticalScroll() - yTrans);
     }
-  }
-
-  private GrabHandle isPointOnHandle(Point point) {
-    return this.panels.values().stream().map(p -> p.isOnHandle(point)).filter(h -> h != null).findAny().orElse(null);
   }
 
   @SubscribeEvent
@@ -250,6 +201,7 @@ class CanvasViewController extends ViewController<CanvasView> {
   }
 
   void reset() {
+    resetGrid();
     deselectAll();
     this.panels.clear();
     this.links.clear();
@@ -259,38 +211,60 @@ class CanvasViewController extends ViewController<CanvasView> {
     Set<Long> updatedOrAddedPanels = new HashSet<>();
     Set<Long> panelsToDelete = new HashSet<>(this.panels.keySet());
 
+    System.out.println(canvasStates.getCardStates()); // DEBUG
     // Add/update members
     family.getAllMembers().forEach(member -> {
       long id = member.getId();
       CardState state = canvasStates.getCardStates().get(id);
+      FamilyMemberPanel panel;
 
       if (this.panels.containsKey(id)) {
-        FamilyMemberPanel panel = this.panels.get(id);
-
+        panel = this.panels.get(id);
         panel.setInfo(member);
-        if (state != null) {
-          panel.setState(state);
-        }
+        getCell(panel.getLocationInGrid().y, panel.getLocationInGrid().x).setPanel(null);
       }
       else {
-        FamilyMemberPanel panel = new FamilyMemberPanel(getView(), member);
-
-        if (state != null) {
-          panel.setState(state);
-        }
+        panel = new FamilyMemberPanel(getView(), member);
 
         this.panels.put(id, panel);
 
-        final int gap = 50;
-        Dimension size = getView().getPreferredSize();
         Rectangle panelBounds = panel.getBounds();
-        if (panelBounds.x + panelBounds.width > size.width)
-          size.width += panelBounds.x + panelBounds.width - size.width + gap;
-        if (panelBounds.y + panelBounds.height > size.height)
-          size.height += panelBounds.y + panelBounds.height - size.height + gap;
-        if (!size.equals(getView().getPreferredSize()))
-          getView().setPreferredSize(size);
+        Point p = state != null ? state.getLocation() : new Point();
+        int addCol, addRow;
+
+        do {
+          addCol = 0;
+          addRow = 0;
+          Dimension size = getView().getPreferredSize();
+          if (state != null && state.isPixelLocation()) {
+            addCol = p.x + panelBounds.width > size.width ? 1 : 0;
+            addRow = p.y + panelBounds.height > size.height ? 1 : 0;
+          }
+          else {
+            int gw = getGridWidth();
+            int gh = getGridHeight();
+            if (p.x >= gw) {
+              addCol = p.x - gw + 3;
+            }
+            if (p.y >= gh) {
+              addRow = p.y - gh + 3;
+            }
+          }
+          resizeGrid(addRow, addCol);
+        } while (addCol != 0 || addRow != 0);
       }
+
+      if (state != null) {
+        panel.setState(state);
+        Point p = state.getLocation();
+        if (state.isPixelLocation()) {
+          getCellPixel(p).setPanel(panel);
+        }
+        else {
+          getCell(p.y, p.x).setPanel(panel);
+        }
+      }
+
       updatedOrAddedPanels.add(id);
     });
 
@@ -325,6 +299,7 @@ class CanvasViewController extends ViewController<CanvasView> {
     // Delete links removed from the model
     this.links.retainAll(updatedOrAddedLinks);
 
+    packGrid();
   }
 
   /**
@@ -334,6 +309,22 @@ class CanvasViewController extends ViewController<CanvasView> {
     Selection old = getSelection();
     this.selectedObjects.clear();
     updateSelection(old);
+  }
+
+  Dimension getGridSize() {
+    return new Dimension(getGridWidth(), getGridHeight());
+  }
+
+  int getGridWidth() {
+    return this.grid[0].length;
+  }
+
+  int getGridHeight() {
+    return this.grid.length;
+  }
+
+  GridCell[][] getGrid() {
+    return this.grid;
   }
 
   /**
@@ -457,6 +448,130 @@ class CanvasViewController extends ViewController<CanvasView> {
         m -> m.setLocation(new Point(m.getLocation().x + translation.x, m.getLocation().y + translation.y)));
     resizePanelIfOutside();
     scrollIfOutside();
+    setDropTargetCell(mouseLocation);
+  }
+
+  void cardDropped(long id) {
+    this.dropTargetCell.setDropTarget(false);
+
+    FamilyMemberPanel panel = this.panels.get(id);
+    Point oldLocation = panel.getLocationInGrid();
+    Point newLocation = this.dropTargetCell.getGridLocation();
+    Point translation;
+
+    if (oldLocation != null) {
+      translation = new Point(newLocation.x - oldLocation.x, newLocation.y - oldLocation.y);
+    }
+    else {
+      translation = new Point();
+    }
+
+    Map<Long, Point> newPositions = new HashMap<>();
+
+    for (GraphicalObject o : this.selectedObjects) {
+      if (o instanceof FamilyMemberPanel) {
+        FamilyMemberPanel pane = (FamilyMemberPanel) o;
+        Point p = pane.getLocationInGrid();
+
+        if (p != null) {
+          Point newP = new Point(p.x + translation.x, p.y + translation.y);
+          if (getCell(newP.y, newP.x) == null || !getCell(newP.y, newP.x).isEmpty()) {
+            packGrid();
+            return;
+          }
+          newPositions.put(pane.getId(), newP);
+        }
+      }
+    }
+
+    this.panels.values().stream().filter(p -> newPositions.containsKey(p.getId())).forEach(pane -> {
+      Point p = pane.getLocationInGrid();
+      Point newP = newPositions.get(pane.getId());
+      System.out.println(p); // DEBUG
+      if (p != null)
+        getCell(p.y, p.x).setPanel(null);
+      getCell(newP.y, newP.x).setPanel(pane);
+    });
+
+    this.dropTargetCell.setPanel(panel);
+    this.dropTargetCell = null;
+    packGrid();
+  }
+
+  private void setDropTargetCell(Point pixel) {
+    for (GridCell[] row : this.grid) {
+      for (GridCell cell : row) {
+        cell.setDropTarget(cell.getBounds().contains(pixel));
+        if (cell.isDropTarget())
+          this.dropTargetCell = cell;
+      }
+    }
+  }
+
+  private void packGrid() {
+    int[] maxRowHeights = new int[getGridHeight()];
+    int[] maxColWidths = new int[getGridWidth()];
+
+    // Fetch max height/width for each row/column
+    for (int row = 0; row < getGridHeight(); row++) {
+      for (int col = 0; col < getGridWidth(); col++) {
+        GridCell cell = getCell(row, col);
+        cell.pack();
+        if (cell.getPanel() != null) {
+          maxRowHeights[row] = Math.max(maxRowHeights[row], cell.getHeight());
+          maxColWidths[col] = Math.max(maxColWidths[col], cell.getWidth());
+        }
+      }
+    }
+
+    // Update heights
+    for (int row = 0; row < maxRowHeights.length; row++) {
+      int height = maxRowHeights[row] > 0 ? maxRowHeights[row] : DEFAULT_ROW_HEIGHT;
+      for (int col = 0; col < maxColWidths.length; col++) {
+        GridCell cell = getCell(row, col);
+        cell.setHeight(height);
+      }
+    }
+
+    // Update widths
+    for (int col = 0; col < maxColWidths.length; col++) {
+      int width = maxColWidths[col] > 0 ? maxColWidths[col] : DEFAULT_COLUMN_WIDTH;
+      for (int row = 0; row < maxRowHeights.length; row++) {
+        GridCell cell = getCell(row, col);
+        cell.setWidth(width);
+      }
+    }
+
+    // Update locations
+    for (int row = 0; row < getGridHeight(); row++) {
+      for (int col = 0; col < getGridWidth(); col++) {
+        GridCell cell = getCell(row, col);
+        Point p = cell.getGridLocation();
+        GridCell topCell = getCell(p.y - 1, p.x);
+        GridCell leftCell = getCell(p.y, p.x - 1);
+        Point pos = new Point(leftCell != null ? leftCell.getBounds().x + leftCell.getWidth() + 1 : 0,
+            topCell != null ? topCell.getBounds().y + topCell.getHeight() + 1 : 0);
+        cell.setLocation(pos);
+      }
+    }
+
+    getView().repaint();
+  }
+
+  private GridCell getCell(int row, int col) {
+    if (col < 0 || col >= getGridWidth() || row < 0 || row >= getGridHeight())
+      return null;
+    return this.grid[row][col];
+  }
+
+  private GridCell getCellPixel(Point pixel) {
+    for (GridCell[] row : this.grid) {
+      for (GridCell cell : row) {
+        if (cell.getBounds().contains(pixel))
+          return cell;
+      }
+    }
+    return null;
   }
 
   /**
@@ -609,11 +724,28 @@ class CanvasViewController extends ViewController<CanvasView> {
       vAdd = step;
 
     if (vAdd != 0 || hAdd != 0) {
-      Dimension d = getView().getCanvasBounds().getSize();
-      getView().setCanvasPreferredSize(new Dimension(d.width + hAdd, d.height + vAdd));
-      getView().revalidate();
-      getView().repaint();
+      int newCols = (int) ((hAdd + DEFAULT_COLUMN_WIDTH / 2.0) / DEFAULT_COLUMN_WIDTH);
+      int newRows = (int) ((vAdd + DEFAULT_ROW_HEIGHT / 2.0) / DEFAULT_ROW_HEIGHT);
+      resizeGrid(newRows, newCols); // FIXME scollpane not resized
     }
+  }
+
+  private void resizeGrid(int newRows, int newCols) {
+    GridCell[][] newGrid = new GridCell[getGridHeight() + newRows][getGridWidth() + newCols];
+    for (int row = 0; row < newGrid.length; row++) {
+      for (int col = 0; col < newGrid[0].length; col++) {
+        if (getCell(row, col) != null)
+          newGrid[row][col] = getCell(row, col);
+        else {
+          int id = Long.hashCode(row | (col << 32));
+          Rectangle bounds = new Rectangle(0, 0, DEFAULT_COLUMN_WIDTH, DEFAULT_ROW_HEIGHT);
+          newGrid[row][col] = new GridCell(getView(), id, new Point(col, row), bounds);
+        }
+      }
+    }
+    this.grid = newGrid;
+    setCanvasSize();
+    packGrid();
   }
 
   /**
@@ -638,6 +770,30 @@ class CanvasViewController extends ViewController<CanvasView> {
       getView().setVerticalScroll(getView().getVerticalScroll() + vTrans);
     if (hTrans != 0)
       getView().setHorizontalScroll(getView().getHorizontalScroll() + hTrans);
+  }
 
+  private void resetGrid() {
+    this.grid = new GridCell[50][30];
+    for (int row = 0; row < getGridHeight(); row++) {
+      for (int col = 0; col < getGridWidth(); col++) {
+        int id = Long.hashCode(row | (col << 32));
+        int x = col * DEFAULT_COLUMN_WIDTH;
+        int y = row * DEFAULT_ROW_HEIGHT;
+        this.grid[row][col] = new GridCell(getView(), id, new Point(col, row),
+            new Rectangle(x, y, DEFAULT_COLUMN_WIDTH, DEFAULT_ROW_HEIGHT));
+      }
+    }
+    setCanvasSize();
+  }
+
+  private void setCanvasSize() {
+    getView().setCanvasPreferredSize(getGridPixelSize());
+    getView().repaint();
+  }
+
+  private Dimension getGridPixelSize() {
+    int width = Arrays.stream(this.grid[0]).map(c -> c.getWidth()).reduce(0, Integer::sum);
+    int height = Arrays.stream(this.grid).map(c -> c[0].getHeight()).reduce(0, Integer::sum);
+    return new Dimension(width, height);
   }
 }

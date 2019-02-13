@@ -19,9 +19,6 @@
 package net.darmo_creations.jenealogio.gui.components.canvas_view;
 
 import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -33,7 +30,6 @@ import javax.swing.JComponent;
 
 import net.darmo_creations.gui_framework.config.WritableConfig;
 import net.darmo_creations.jenealogio.config.ConfigTags;
-import net.darmo_creations.jenealogio.gui.components.canvas_view.GrabHandle.Direction;
 import net.darmo_creations.jenealogio.util.Pair;
 
 /**
@@ -65,9 +61,6 @@ class Link extends GraphicalObject {
     this.children = new HashMap<>(children);
     this.wedding = wedding;
     this.ended = ended;
-    this.handles = new GrabHandle[0];
-    // { new GrabHandle(this, new Point(), GrabHandle.Direction.ALL),
-    // new GrabHandle(this, new Point(), GrabHandle.Direction.ALL) };
   }
 
   public long getParent1() {
@@ -103,33 +96,26 @@ class Link extends GraphicalObject {
   }
 
   @Override
-  public void handleMoved(Direction direction, Dimension translation) {
-    // TODO Auto-generated method stub
-  }
-
-  @Override
-  public void paint(Graphics g, WritableConfig config) {
-    Graphics2D g2d = (Graphics2D) g;
-
-    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+  public void paint(Graphics2D g, WritableConfig config) {
+    g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
     final int width = isWedding() ? 2 : 1;
     if (hasEnded())
-      g2d.setStroke(new BasicStroke(width, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[] { 9 }, 0));
+      g.setStroke(new BasicStroke(width, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[] { 9 }, 0));
     else
-      g2d.setStroke(new BasicStroke(width));
+      g.setStroke(new BasicStroke(width));
 
     if (isSelected())
-      g2d.setColor(Color.BLACK);
+      g.setColor(SELECTION_COLOR);
     else if (isSelectedBackground())
-      g2d.setColor(Color.DARK_GRAY);
+      g.setColor(BG_SELECTION_COLOR);
     else
-      g2d.setColor(config.getValue(ConfigTags.LINK_COLOR));
+      g.setColor(config.getValue(ConfigTags.LINK_COLOR));
 
     Point[] points = getPoints();
     Point end1 = points[0];
     Point middle = points[1];
     Point end2 = points[2];
-    g2d.drawLine(end1.x, end1.y, end2.x, end2.y);
+    g.drawLine(end1.x, end1.y, end2.x, end2.y);
 
     // Links to children
     this.children.forEach((id, pair) -> {
@@ -137,10 +123,10 @@ class Link extends GraphicalObject {
       Rectangle r = pair.getValue2().getBounds();
       Point p = new Point(r.x + r.width / 2, r.y + r.height / 2);
 
-      g2d.setColor(config.getValue(adopted ? ConfigTags.LINK_ADOPTED_CHILD_COLOR : ConfigTags.LINK_CHILD_COLOR));
-      g2d.drawLine(middle.x, middle.y, p.x, p.y);
+      g.setColor(config.getValue(adopted ? ConfigTags.LINK_ADOPTED_CHILD_COLOR : ConfigTags.LINK_CHILD_COLOR));
+      g.drawLine(middle.x, middle.y, p.x, p.y);
     });
-    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_DEFAULT);
+    g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_DEFAULT);
   }
 
   private Point[] getPoints() {

@@ -313,6 +313,7 @@ public class MainController extends ApplicationController<MainFrame> implements 
         this.alreadySaved = false;
         this.saved = false;
         this.frame.resetDisplay();
+        this.frame.refreshDisplay(this.family, this.config);
         this.lastSavedEdit = new FamilyEdit(this.family, this.frame.getCanvasState());
         addEdit();
         updateFrameMenus();
@@ -456,7 +457,7 @@ public class MainController extends ApplicationController<MainFrame> implements 
       this.saved = false;
       this.family.addMember(member.get());
       CanvasState canvasStates = this.frame.getCanvasState();
-      canvasStates.addCardState(this.family.getGlobalId() - 1, new CardState(this.frame.getDisplayMiddlePoint(), null));
+      canvasStates.addCardState(this.family.getGlobalId() - 1, new CardState(this.frame.getCanvasMiddlePoint(), true));
       this.frame.getView(this.currentView).deselectAll();
       this.frame.refreshDisplay(this.family, canvasStates, this.config);
       addEdit();

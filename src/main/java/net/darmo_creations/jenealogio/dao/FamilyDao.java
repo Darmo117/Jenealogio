@@ -18,7 +18,6 @@
  */
 package net.darmo_creations.jenealogio.dao;
 
-import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -144,7 +143,7 @@ public class FamilyDao {
       int y = (int) (long) positionObj.get("y");
       Point pos = new Point(x, y);
 
-      state.addCardState(id, new CardState(pos, null));
+      state.addCardState(id, new CardState(pos, true));
 
       // #f:0
       FamilyMember member = new FamilyMember(id)
@@ -329,12 +328,7 @@ public class FamilyDao {
       int y = (int) (long) positionObj.get("y");
       Point pos = new Point(x, y);
 
-      JSONObject dimensionObj = (JSONObject) item.get("size");
-      int w = (int) (long) dimensionObj.get("w");
-      int h = (int) (long) dimensionObj.get("h");
-      Dimension size = new Dimension(w, h);
-
-      state.addCardState(id, new CardState(pos, size));
+      state.addCardState(id, new CardState(pos, false));
     }
   }
 
@@ -475,12 +469,6 @@ public class FamilyDao {
       posObj.put("x", pos.x);
       posObj.put("y", pos.y);
       cardObj.put("position", posObj);
-
-      JSONObject dimObj = new JSONObject();
-      Dimension size = entry.getValue().getSize();
-      dimObj.put("w", size.width);
-      dimObj.put("h", size.height);
-      cardObj.put("size", dimObj);
 
       cardStatesObj.add(cardObj);
     }

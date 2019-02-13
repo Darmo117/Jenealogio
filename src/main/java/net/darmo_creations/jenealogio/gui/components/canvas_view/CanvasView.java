@@ -18,7 +18,6 @@
  */
 package net.darmo_creations.jenealogio.gui.components.canvas_view;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -46,16 +45,9 @@ import net.darmo_creations.utils.I18n;
 public class CanvasView extends AbstractFamilyTreeView<CanvasViewController> {
   private static final long serialVersionUID = 8747904983365363275L;
 
-  private static final Dimension DEFAULT_SIZE = new Dimension(4000, 4000);
-  private static final Color GRID_COLOR = new Color(220, 220, 220);
-
-  /** Grid size in pixels */
-  public static final int GRID_STEP = 10;
-
   private WritableConfig config;
 
   private Canvas canvas;
-  private boolean componentResizing;
 
   public CanvasView() {
     super(I18n.getLocalizedString("label.canvas.text"), new CanvasViewController());
@@ -64,7 +56,6 @@ public class CanvasView extends AbstractFamilyTreeView<CanvasViewController> {
 
     this.canvas = new Canvas();
     this.canvas.setLayout(null);
-    this.canvas.setPreferredSize(DEFAULT_SIZE);
     this.canvas.addMouseListener(this.controller);
     this.canvas.addMouseMotionListener(this.controller);
     this.canvas.addFocusListener(this.controller);
@@ -90,7 +81,6 @@ public class CanvasView extends AbstractFamilyTreeView<CanvasViewController> {
   public void reset() {
     this.controller.reset();
     this.canvas.removeAll();
-    this.canvas.setPreferredSize(DEFAULT_SIZE);
     revalidate();
     repaint();
   }
@@ -137,16 +127,15 @@ public class CanvasView extends AbstractFamilyTreeView<CanvasViewController> {
   /**
    * Called when a card is dragged.
    */
-  void cardDragged(long id, Point translation, Point mouseLocation) {
+  void cardDragged(Point translation, Point mouseLocation) {
     this.controller.cardDragged(translation, mouseLocation);
   }
 
-  boolean isComponentResizing() {
-    return this.componentResizing;
-  }
-
-  void componentResizing(boolean resizing) {
-    this.componentResizing = resizing;
+  /**
+   * Called when the given dragged card is dropped.
+   */
+  void cardDropped(long id) {
+    this.controller.cardDropped(id);
   }
 
   Rectangle getCanvasVisibleRect() {
@@ -191,7 +180,7 @@ public class CanvasView extends AbstractFamilyTreeView<CanvasViewController> {
   }
 
   /**
-   * @return the bottommost rightmost point of the tree
+   * Returns the bottommost rightmost point of the tree.
    */
   private Point getBottomRightPoint() {
     Point point = new Point();
@@ -215,11 +204,11 @@ public class CanvasView extends AbstractFamilyTreeView<CanvasViewController> {
 
       if (CanvasView.this.config != null) {
         if (CanvasView.this.config.getValue(ConfigTags.GRID_ENABLED)) {
-          g2d.setColor(GRID_COLOR);
-          for (int i = 0; i < getWidth(); i += GRID_STEP * 2)
-            g2d.drawLine(i, 0, i, getHeight());
-          for (int i = 0; i < getHeight(); i += GRID_STEP * 2)
-            g2d.drawLine(0, i, getWidth(), i);
+          for (GridCell[] row : CanvasView.this.controller.getGrid()) {
+            for (GridCell cell : row) {
+              cell.paintComponent(g2d, CanvasView.this.config);
+            }
+          }
         }
 
         Optional<Rectangle> selection = CanvasView.this.controller.getSelectionRectangle();

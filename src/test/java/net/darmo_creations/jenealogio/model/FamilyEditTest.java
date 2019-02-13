@@ -20,7 +20,6 @@ package net.darmo_creations.jenealogio.model;
 
 import static org.junit.Assert.*;
 
-import java.awt.Dimension;
 import java.awt.Point;
 
 import org.junit.Before;
@@ -36,9 +35,9 @@ public class FamilyEditTest {
   @Before
   public void setUp() throws Exception {
     CanvasState state1 = new CanvasState();
-    state1.addCardState(1, new CardState(new Point(), new Dimension()));
+    state1.addCardState(1, new CardState(new Point(), false));
     CanvasState state2 = new CanvasState();
-    state2.addCardState(1, new CardState(new Point(), new Dimension()));
+    state2.addCardState(1, new CardState(new Point(), false));
 
     this.edit1 = new FamilyEdit(new Family("test"), state1);
     this.edit2 = new FamilyEdit(new Family("test"), state2);
@@ -52,7 +51,7 @@ public class FamilyEditTest {
   @Test
   public void testNotEqualsDifferentFamily() {
     CanvasState state = new CanvasState();
-    state.addCardState(1, new CardState(new Point(), new Dimension()));
+    state.addCardState(1, new CardState(new Point(), false));
     assertNotEquals(new FamilyEdit(new Family("test2"), state), this.edit1);
   }
 
@@ -74,7 +73,7 @@ public class FamilyEditTest {
   @Test
   public void getStates() {
     CanvasState state = new CanvasState();
-    state.addCardState(1L, new CardState(new Point(), new Dimension()));
+    state.addCardState(1L, new CardState(new Point(), false));
     assertEquals(state, this.edit1.getCanvasState());
   }
 }
