@@ -101,6 +101,15 @@ class CanvasViewController extends ViewController<CanvasView> {
         if (!getHoveredPanel(this.mouseLocation).isPresent() && !getHoveredLink(this.mouseLocation).isPresent())
           deselectAll();
       }
+      else {
+        Optional<FamilyMemberPanel> p = getHoveredPanel(this.mouseLocation);
+        if (p.isPresent()) {
+          FamilyMemberPanel panel = p.get();
+          if (!panel.isSelected() && !panel.isSelectedBackground()) {
+            objectClicked(panel, false);
+          }
+        }
+      }
     }
   }
 
@@ -211,7 +220,6 @@ class CanvasViewController extends ViewController<CanvasView> {
     Set<Long> updatedOrAddedPanels = new HashSet<>();
     Set<Long> panelsToDelete = new HashSet<>(this.panels.keySet());
 
-    System.out.println(canvasStates.getCardStates()); // DEBUG
     // Add/update members
     family.getAllMembers().forEach(member -> {
       long id = member.getId();
@@ -487,7 +495,6 @@ class CanvasViewController extends ViewController<CanvasView> {
     this.panels.values().stream().filter(p -> newPositions.containsKey(p.getId())).forEach(pane -> {
       Point p = pane.getLocationInGrid();
       Point newP = newPositions.get(pane.getId());
-      System.out.println(p); // DEBUG
       if (p != null)
         getCell(p.y, p.x).setPanel(null);
       getCell(newP.y, newP.x).setPanel(pane);
