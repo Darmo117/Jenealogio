@@ -79,6 +79,11 @@ class ComponentDragController extends MouseAdapter {
   @Override
   public void mouseDragged(MouseEvent e) {
     if (this.draggedPanel != null && SwingUtilities.isLeftMouseButton(e)) {
+      // Check wether the panel has been deselected (happens when performing zone selection).
+      if (!this.draggedPanel.isSelected() && !this.draggedPanel.isSelectedBackground()) {
+        this.draggedPanel = null;
+        return;
+      }
       Rectangle containerBounds = this.canvasView.getCanvasBounds();
       int newX = Math.max(containerBounds.x, e.getXOnScreen() - getXOffset() - this.grabPoint.x);
       int newY = Math.max(containerBounds.y, e.getYOnScreen() - getYOffset() - this.grabPoint.y);

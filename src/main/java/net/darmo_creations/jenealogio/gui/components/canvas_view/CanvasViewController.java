@@ -106,7 +106,7 @@ class CanvasViewController extends ViewController<CanvasView> {
         if (p.isPresent()) {
           FamilyMemberPanel panel = p.get();
           if (!panel.isSelected() && !panel.isSelectedBackground()) {
-            objectClicked(panel, false);
+           objectClicked(panel, false);
           }
         }
       }
