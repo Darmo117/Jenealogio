@@ -650,7 +650,7 @@ public class MainController extends ApplicationController<MainFrame> implements 
    * Refreshes the display.
    */
   private void refreshFrame(boolean deselectAll) {
-    this.frame.refreshDisplay(this.family, this.config);
+    this.frame.refreshDisplay(this.family, this.undoRedoManager.getEdit().getCanvasState(), this.config);
     if (deselectAll)
       this.frame.getView(this.currentView).deselectAll();
   }
@@ -669,6 +669,7 @@ public class MainController extends ApplicationController<MainFrame> implements 
    * Adds the current family object (after cloning it) to the undo manager.
    */
   private void addEdit() {
+    System.out.println("+edit: " + this.frame.getCanvasState().getCardStates()); // DEBUG
     this.undoRedoManager.addEdit(new FamilyEdit(this.family, this.frame.getCanvasState()));
   }
 

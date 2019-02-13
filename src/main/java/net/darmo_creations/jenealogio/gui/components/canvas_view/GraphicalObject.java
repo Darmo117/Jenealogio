@@ -35,8 +35,9 @@ abstract class GraphicalObject {
   private static final int SELECTED = 1;
   private static final int SELECTED_BG = 2;
 
+  // TODO rendre la sélection plus visible
   protected static final Color SELECTION_COLOR = Color.BLACK;
-  protected static final Color BG_SELECTION_COLOR = Color.BLUE; // TODO choisir une couleur
+  protected static final Color BG_SELECTION_COLOR = Color.BLUE;
 
   private final JComponent parent;
   private final long id;

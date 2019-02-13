@@ -219,6 +219,7 @@ class CanvasViewController extends ViewController<CanvasView> {
   void refresh(Family family, CanvasState canvasStates) {
     Set<Long> updatedOrAddedPanels = new HashSet<>();
     Set<Long> panelsToDelete = new HashSet<>(this.panels.keySet());
+    System.out.println(canvasStates.getCardStates());
 
     // Add/update members
     family.getAllMembers().forEach(member -> {
@@ -278,7 +279,11 @@ class CanvasViewController extends ViewController<CanvasView> {
 
     // Delete members removed from the model
     panelsToDelete.removeAll(updatedOrAddedPanels);
-    panelsToDelete.forEach(id -> this.panels.remove(id));
+    System.out.println(panelsToDelete); // DEBUG
+    panelsToDelete.forEach(id -> {
+      FamilyMemberPanel panel = this.panels.remove(id);
+      getCell(panel.getLocationInGrid().y, panel.getLocationInGrid().x).setPanel(null);
+    });
 
     List<Link> updatedOrAddedLinks = new ArrayList<>();
     // Add/update links
